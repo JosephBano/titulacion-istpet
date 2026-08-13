@@ -1,0 +1,59 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: frontend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  calidad:
+    name: Lint, tests y build (Angular)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # npm ci falla si package-lock.json esta desincronizado con package.json.
+      # Eso es deseado: obliga a commitear el lock junto al cambio de dependencias.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Verificar formato (Prettier)
+        run: npx prettier --check "src/**/*.{ts,html,scss,json}"
+
+      - name: Tests
+        run: npm test -- --watch=false
+
+      - name: Build de produccion
+        run: npm run build -- --configuration production
+
+      - name: Publicar bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-frontend
+          path: frontend/dist
+          retention-days: 7

@@ -1,0 +1,98 @@
+.pagina {
+  max-width: 60rem;
+  margin-inline: auto;
+  padding: 2rem 1.25rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.pagina__cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.pagina__conteo {
+  margin: 0;
+  color: color-mix(in srgb, currentColor 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.buscador {
+  display: grid;
+  gap: 0.35rem;
+
+  &__etiqueta {
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, currentColor 65%, transparent);
+  }
+
+  input {
+    padding: 0.55rem 0.75rem;
+    font: inherit;
+    border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: inherit;
+  }
+}
+
+.estado {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+
+  &--error {
+    background: color-mix(in srgb, #d92d20 12%, transparent);
+  }
+}
+
+.estado__detalle {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.lista__item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 0.5rem;
+
+  &--vacio {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    opacity: 0.7;
+  }
+}
+
+.lista__cedula {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.lista__estado {
+  font-size: 0.8125rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}

@@ -1,0 +1,27 @@
+# Configuracion de GitGuardian (ggshield).
+# Docs: https://docs.gitguardian.com/ggshield-docs/configuration
+version: 2
+
+secret:
+  # Cualquier hallazgo hace fallar el check: en un repo publico no hay
+  # "secreto de baja severidad".
+  show_secrets: false
+
+  ignored-paths:
+    - '**/node_modules/**'
+    - '**/dist/**'
+    - '**/bin/**'
+    - '**/obj/**'
+    - '**/.angular/**'
+    - '**/package-lock.json'
+
+  # Valores de plantilla: son marcadores, no credenciales. Se listan explicitamente
+  # para que el check no se vuelva ruido que el equipo aprenda a ignorar.
+  ignored-matches:
+    - name: Placeholder de la plantilla de appsettings
+      match: CAMBIAME
+
+instance: https://dashboard.gitguardian.com
+
+exit-zero: false
+verbose: false

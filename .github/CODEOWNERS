@@ -1,0 +1,4 @@
+# Los code owners son requeridos como revisores en las ramas protegidas.
+# En `main` esto es lo que garantiza que nada entra sin la aprobacion del dueño.
+
+* @JosephBano

@@ -1,0 +1,87 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+# Un PR que recibe un push nuevo cancela la corrida anterior: no tiene sentido
+# esperar a un check sobre codigo que ya fue reemplazado.
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  SOLUCION: backend/TitulacionIstpet.sln
+
+jobs:
+  build-test:
+    name: Build y tests (.NET 8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cachear paquetes NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('backend/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restaurar
+        run: dotnet restore ${{ env.SOLUCION }}
+
+      # -warnaserror: una advertencia del compilador no llega a develop.
+      - name: Compilar
+        run: dotnet build ${{ env.SOLUCION }} -c Release --no-restore -warnaserror
+
+      - name: Verificar formato
+        run: dotnet format ${{ env.SOLUCION }} --verify-no-changes --no-restore --severity warn
+
+      - name: Tests
+        run: >
+          dotnet test ${{ env.SOLUCION }} -c Release --no-build
+          --logger "trx;LogFileName=resultados.trx"
+          --collect:"XPlat Code Coverage"
+          --results-directory artefactos-test
+
+      - name: Publicar resultados de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-tests-backend
+          path: artefactos-test
+          retention-days: 7
+
+  publicar:
+    name: Publish (verifica que despliega)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Un build en Release puede pasar y aun asi fallar al publicar
+      # (assets faltantes, trimming). Esto lo detecta antes del merge.
+      - name: Publicar WebApi
+        run: >
+          dotnet publish backend/src/TitulacionIstpet.WebApi/TitulacionIstpet.WebApi.csproj
+          -c Release -o salida-publish

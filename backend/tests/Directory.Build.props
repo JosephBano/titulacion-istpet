@@ -1,0 +1,15 @@
+<Project>
+
+  <!-- Hereda la configuracion compartida de backend/Directory.Build.props. -->
+  <Import Project="$(MSBuildThisFileDirectory)..\Directory.Build.props" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!-- CA1707 prohibe guiones bajos, pero Metodo_describe_el_caso es la convencion
+         de nombres de test en .NET: se leen como frases. Se apaga solo aqui. -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+</Project>
