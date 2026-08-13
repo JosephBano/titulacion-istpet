@@ -15,8 +15,8 @@ public class ApiFactory : WebApplicationFactory<Program>
     static ApiFactory()
     {
         Poner("ASPNETCORE_ENVIRONMENT", "Testing");
-        Poner("ConnectionStrings__MySqlLegacy",
-            "Server=localhost;Port=3306;Database=titulacion_test;User Id=test;Password=test");
+        Poner("ConnectionStrings__SigafiDb",
+            "Server=localhost;Port=3306;Database=sigafi_test;User Id=test;Password=test");
         Poner("Cors__OrigenesPermitidos__0", "http://localhost:4200");
     }
 

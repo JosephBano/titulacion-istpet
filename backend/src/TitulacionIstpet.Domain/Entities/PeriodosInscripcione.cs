@@ -1,0 +1,27 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class PeriodosInscripcione
+{
+    public int IdPeriodoInscripcion { get; set; }
+
+    public string? IdPeriodo { get; set; }
+
+    public int? IdModalidad { get; set; }
+
+    public int? IdNivel { get; set; }
+
+    public int? IdSeccion { get; set; }
+
+    public DateOnly? FechaInicio { get; set; }
+
+    public DateOnly? FechaFinal { get; set; }
+
+    public DateTime FechaRegistro { get; set; }
+
+    public bool? Activo { get; set; }
+
+    public bool? Conduccion { get; set; }
+}

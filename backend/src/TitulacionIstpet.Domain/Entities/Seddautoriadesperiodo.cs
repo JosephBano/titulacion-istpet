@@ -1,0 +1,17 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class Seddautoriadesperiodo
+{
+    public int IdAsignacion { get; set; }
+
+    public string? IdProfesor { get; set; }
+
+    public string? Designacion { get; set; }
+
+    public int? IdInstrumento { get; set; }
+
+    public bool? Activo { get; set; }
+}

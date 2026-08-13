@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class Vinculacionproyectosplantrabajo
+{
+    public int IdProyectosPlanTrabajo { get; set; }
+
+    public int? IdProyectoVinculacion { get; set; }
+
+    public int? IdProyectoObjetivo { get; set; }
+
+    public int? IdProyectoImpacto { get; set; }
+
+    public string? Indicador { get; set; }
+
+    public string? ResultadoEsperado { get; set; }
+
+    public string? Actividades { get; set; }
+
+    public string? MedioVerificacion { get; set; }
+
+    public string? Resultados { get; set; }
+
+    public DateTime? FechaRegistro { get; set; }
+
+    public bool Activo { get; set; }
+
+    public virtual Vinculacionproyectosimpacto? IdProyectoImpactoNavigation { get; set; }
+
+    public virtual Vinculacionproyectosobjetivo? IdProyectoObjetivoNavigation { get; set; }
+
+    public virtual Vinculacionproyecto? IdProyectoVinculacionNavigation { get; set; }
+}

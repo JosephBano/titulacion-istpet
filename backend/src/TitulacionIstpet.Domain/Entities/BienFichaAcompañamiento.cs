@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class BienFichaAcompañamiento
+{
+    public int IdFichaAcompañamiento { get; set; }
+
+    public int IdActaReunion { get; set; }
+
+    public string? RecomedacionesDocenteEspecial { get; set; }
+
+    public string? SituacionIdentificada { get; set; }
+
+    public string? CodigoCaso { get; set; }
+
+    public DateTime? FechaEmision { get; set; }
+
+    public string? BienFichaAcompañamientocol { get; set; }
+}
