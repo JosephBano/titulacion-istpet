@@ -1,0 +1,1274 @@
+{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "TitanDbContext",
+   "ContextNamespace": "Titan.Infrastructure.Persistence",
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1465",
+   "ModelNamespace": "Titan.Domain.Entities",
+   "OutputContextPath": "..\/Titan.Infrastructure\/Persistence",
+   "OutputPath": "..\/Titan.Domain\/Entities",
+   "PluralRules": null,
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "SingularRules": null,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "aceptaciones_usuarios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "adjuntos_imagenes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "administrador",
+         "ObjectType": 0
+      },
+      {
+         "Name": "agenda_academica",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_acta_conduccion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_carreras",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_habilidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_inscripciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_inscripciones_ingles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_referencias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_restricciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_sucesos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "alumnos_titulos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignacion_instructores_vehiculos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignaciones_profesores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignaciones_profesores_grado",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignaciones_propedeutico",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignaturas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignaturas_complementos_formacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "asignaturas_propedeutico",
+         "ObjectType": 0
+      },
+      {
+         "Name": "audit_logs",
+         "ObjectType": 0
+      },
+      {
+         "Name": "auditoria_pagos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_apoyo",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_apoyo_financiero",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_asistentes_desarrollo",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_caso",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_caso_desarrollo",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_caso_desarrollo_doc",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_caso_requerimiento",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_convocatorias_becas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_datos_economicos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_datos_educacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_detalle_vivienda",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_ficha_acompañamiento",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_ficha_socioeconomica",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_genero_alumno",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_motivo_apertura",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_motivos_beca",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_nivel_instruccion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_parametro_requisito_beca",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_parentescos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_parentezcos_alumno",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_porcentaje_beca",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_postulacion_requisitos_becas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_postulaciones_becas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_requerimientos_motivo_apertura",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_requisitos_beca",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_resoluciones_tribunales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_servicios_fichas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_apoyo_financiero",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_cargo_tribunal",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_convocatoria",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_desarrollo",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_servicios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_sujeto",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tipo_vivienda",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_tribunal",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_usuario_caso",
+         "ObjectType": 0
+      },
+      {
+         "Name": "bien_votos_tribunales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "calificaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "calificaciones_complementos_formacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "calificaciones_conduccion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "calificaciones_grado",
+         "ObjectType": 0
+      },
+      {
+         "Name": "calificaciones_propedeutico",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cambiosmalla",
+         "ObjectType": 0
+      },
+      {
+         "Name": "campo_amplio_unesco",
+         "ObjectType": 0
+      },
+      {
+         "Name": "campo_detallado_unesco",
+         "ObjectType": 0
+      },
+      {
+         "Name": "campo_especifico_unesco",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cargo_instituto",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cargos_ofertas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "carreras",
+         "ObjectType": 0
+      },
+      {
+         "Name": "carreras_adjuntos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "categoria_contratos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "categoria_vehiculos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "categorias_actividades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "categorias_examenes_conduccion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "categorias_terminos_condiciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "categoriassolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "certificados_experiencia_laboral",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ciudades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "clausulas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cliente_factura",
+         "ObjectType": 0
+      },
+      {
+         "Name": "complementos_formacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_acad_asistencias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_acad_asistencias_historial",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_acad_sesiones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_alumnos_horarios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_alumnos_practicas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_alumnos_vehiculos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cond_practicas_horarios_alumnos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "configsharepoint",
+         "ObjectType": 0
+      },
+      {
+         "Name": "contratos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "contratos_asignaturas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "contratos_facturas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "credito_alumno",
+         "ObjectType": 0
+      },
+      {
+         "Name": "credito_alumno_detalle",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cron_cronograma",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cron_detalle_cronograma",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cron_dias_especiales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cron_tipo_dia_especial",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cron_tipo_proceso",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cuentas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cursos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "cursos_profesores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dedicacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dedicacion_categorias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "departamentos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "departamentossolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "detalle_pagos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "detalle_sistema_evaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "detallemallas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "detalles_documentos_pagos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "detalles_ofertas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "discapacidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "documentos_adjuntos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ed_alumnostest",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ed_encuestas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ed_fechasevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ed_preguntas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ed_respuestastest",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ed_respuestastestab",
+         "ObjectType": 0
+      },
+      {
+         "Name": "empresas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "empresas_contactos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "escalafon",
+         "ObjectType": 0
+      },
+      {
+         "Name": "espacios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "especies",
+         "ObjectType": 0
+      },
+      {
+         "Name": "especies_extras",
+         "ObjectType": 0
+      },
+      {
+         "Name": "estadocivil",
+         "ObjectType": 0
+      },
+      {
+         "Name": "estadossolicitados",
+         "ObjectType": 0
+      },
+      {
+         "Name": "etnias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "experiencias_laborales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "extras_contratos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "fechas_grados",
+         "ObjectType": 0
+      },
+      {
+         "Name": "fechas_horarios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "fechas_pagos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "fechas_pagos_cuotas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "fechas_semanas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "financiamiento_beca",
+         "ObjectType": 0
+      },
+      {
+         "Name": "formaciones_academicas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "gest_audit_acciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "gest_audit_registros",
+         "ObjectType": 0
+      },
+      {
+         "Name": "gest_password_resets",
+         "ObjectType": 0
+      },
+      {
+         "Name": "grados_academicos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "habilidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "habilidades_requeridas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "horario_detalle",
+         "ObjectType": 0
+      },
+      {
+         "Name": "horario_profesores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "horas_academicas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "horas_clases",
+         "ObjectType": 0
+      },
+      {
+         "Name": "instituciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "instituciones_instituto",
+         "ObjectType": 0
+      },
+      {
+         "Name": "jornadas_ofertas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "kardex_vacaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "logsmigraciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "mallas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "mallas_periodos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "matriculas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "matriculas_asistencias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "matriculas_examen_conduccion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "medios_contacto",
+         "ObjectType": 0
+      },
+      {
+         "Name": "modalidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "modalidades_carreras",
+         "ObjectType": 0
+      },
+      {
+         "Name": "modalidades_ofertas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "motivo_salida",
+         "ObjectType": 0
+      },
+      {
+         "Name": "nacionalidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "niveles_academicos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ofertas_carreras",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ofertas_laborales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "ofertas_requisitos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "pagos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "paises",
+         "ObjectType": 0
+      },
+      {
+         "Name": "parametros",
+         "ObjectType": 0
+      },
+      {
+         "Name": "parametrostipossolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "parciales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "parciales_modalidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "parciales_modalidades_fechas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "parroquias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "pd_aceptaciones_usuarios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "pd_categorias_terminos_condiciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "pd_terminos_condiciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "periodos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "periodos_inscripciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "periodos_matriculas_niveles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "plantilla_clausulas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "plantilla_contrato",
+         "ObjectType": 0
+      },
+      {
+         "Name": "plantillas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "plantillasparametros",
+         "ObjectType": 0
+      },
+      {
+         "Name": "postulaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "prerequisitos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "procesos_usuario",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores_actas_parciales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores_actividades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores_carreras_periodos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores_dedicacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores_historial_laboral",
+         "ObjectType": 0
+      },
+      {
+         "Name": "profesores_motivo_salida",
+         "ObjectType": 0
+      },
+      {
+         "Name": "provincias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_modulos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_modulos_operaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_operaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_refresh_tokens",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_rol",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_rol_modulo_operacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_sistema",
+         "ObjectType": 0
+      },
+      {
+         "Name": "rbac_usuario_rol",
+         "ObjectType": 0
+      },
+      {
+         "Name": "relacion_ies",
+         "ObjectType": 0
+      },
+      {
+         "Name": "respuestassolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "restricciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "secciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sectores_empresas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddautoevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddautoriadesperiodos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddautoridadescarrerasperiodos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddcoevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddcoevaluacionautoridad",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sedddetalleautoevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sedddetallecoevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sedddetallecoevaluacionautoridad",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sedddetalleheteroevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddheteroevaluacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddinsitu",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddinstrumentos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddinstrumentospreguntas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seddpreguntas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "seedevaluadoresinsitu",
+         "ObjectType": 0
+      },
+      {
+         "Name": "semanas_horarios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sistema_titulacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "solicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "solicitudes_licencias",
+         "ObjectType": 0
+      },
+      {
+         "Name": "solicitudescalificaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "solicitudeslogs",
+         "ObjectType": 0
+      },
+      {
+         "Name": "subcategoria_vehiculos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "subcategorias_actividades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "sueldos_contratos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipo_contacto",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipo_funcionario",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipos_asignatura",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipos_becas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipos_contratos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipos_documentos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipos_ofertas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tiposangre",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tiposdocumentosi",
+         "ObjectType": 0
+      },
+      {
+         "Name": "tipossolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "titulos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "titulos_en_curso",
+         "ObjectType": 0
+      },
+      {
+         "Name": "titulos_profesores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "universidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "usuarios",
+         "ObjectType": 0
+      },
+      {
+         "Name": "usuarios_web",
+         "ObjectType": 0
+      },
+      {
+         "Name": "usuariosdepartamentossolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "usuariossolicitudes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_cierres_colectivos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_cierres_colectivos_exclusiones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_config_dias_extras_depto",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_config_dias_extras_excepciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_configuracion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_ledger",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_periodos_vacacionales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_permisos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_plantillas_documentos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_recuperacion_feriados",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_recuperacion_tiempo",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_saldos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vac_tipos_permisos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vehiculos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vehiculos_operacion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionarea",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacioncategoriasobjetivosoportunidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacioncategoriasresultadosaprendizajes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionestadosproyectos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionhabilidadesblandas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionimpactosproyectos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionlineasaccion",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionobjetivosoportunidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionobjetivospedis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionpoblaciondirecta",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionpoblacionexterna",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionpoblacionindirecta",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionprogramas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosalumnos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectoscarreras",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectoscarrerasdetalle",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectoscronograma",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosentidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectoshabilidadesblandas",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosimpactos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosmateriales",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosobjetivos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosobjetivosoportunidades",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosobjetivospedis",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosperiodos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosplanesaprendizaje",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosplantrabajo",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectospoblaciones",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectospresupuestos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosprofesores",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosresponsables",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionproyectosresultadosaprendizaje",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionsubarea",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculacionsubareaespecifica",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculaciontiposobjetivos",
+         "ObjectType": 0
+      },
+      {
+         "Name": "vinculaciontipospoblaciones",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": true,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false,
+   "UseTypedTvpParameters": true
+}

@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
 import { ErrorApi } from '../../domain/models/error-api.model';
 import { Estudiante, NuevoEstudiante } from '../../domain/models/estudiante.model';
 import {
@@ -86,7 +85,7 @@ describe('EstudiantesStore', () => {
     expect(store.visibles().map((e) => e.id)).toEqual([1]);
 
     store.filtrar('');
-    expect(store.visibles()).toHaveLength(2);
+    expect(store.visibles().length).toBe(2);
   });
 
   it('recarga tras crear y reporta exito', async () => {
@@ -118,6 +117,6 @@ describe('EstudiantesStore', () => {
     });
 
     expect(ok).toBe(false);
-    expect(store.error()?.errores?.['Cedula']).toHaveLength(1);
+    expect(store.error()?.errores?.['Cedula']?.length).toBe(1);
   });
 });

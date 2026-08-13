@@ -1,39 +1,16 @@
 # =============================================================================
-#  SECRETOS Y CONFIGURACION DE ENTORNO  --  LEER ANTES DE TOCAR
+#  SECRETOS Y CONFIGURACION DE ENTORNO
 # =============================================================================
-# Este repositorio es PUBLICO. Nada de lo que aparece en este bloque debe llegar
-# nunca a un commit. Para cada archivo ignorado existe un *.example.* versionado
-# que documenta la forma sin exponer los valores.
-#
-#   backend/src/TitulacionIstpet.WebApi/appsettings.example.json  -> appsettings.json
-#   frontend/src/environments/environment.example.ts              -> environment.prod.ts
-#
-# Si alguna credencial entra por error: rotala primero, borrala del historial
-# despues. Un secreto publicado sigue comprometido aunque borres el commit.
-
-# --- Backend: appsettings reales (base, por entorno y locales) ---
 appsettings.json
 appsettings.*.json
 !appsettings.example.json
-
-# --- Backend: user secrets y certificados de desarrollo ---
+!appsettings.json.template
+!appsettings.Example.json
 secrets.json
+usersecrets/
 *.pfx
 *.p12
 *.snk
-
-# --- Frontend: environments con endpoints/valores reales ---
-frontend/src/environments/environment.prod.ts
-frontend/src/environments/environment.*.local.ts
-!frontend/src/environments/environment.ts
-!frontend/src/environments/environment.example.ts
-
-# --- Variables de entorno ---
-.env
-.env.*
-!.env.example
-
-# --- Llaves y certificados de cualquier tipo ---
 *.pem
 *.key
 *.crt
@@ -43,13 +20,23 @@ frontend/src/environments/environment.*.local.ts
 *.keystore
 id_rsa*
 id_ed25519*
+.env
+.env.*
+!.env.example
+!.env.template
 
-# --- Volcados de base de datos (el legacy MySQL trae datos personales) ---
+# --- Volcados de base de datos ---
 *.sql.gz
 *.dump
 *.mysqldump
 /dumps/
 /backups/
+*.mdf
+*.ldf
+*.sqlite
+*.sqlite3
+*.db
+*.bak
 
 # =============================================================================
 #  .NET / Backend
@@ -67,23 +54,13 @@ id_ed25519*
 *.sln.docstates
 .vs/
 project.lock.json
-project.fragment.lock.json
 artifacts/
-BenchmarkDotNet.Artifacts/
-*.nupkg
-*.snupkg
 TestResults/
 [Tt]est[Rr]esult*/
 coverage*.json
 coverage*.xml
-coverage*.info
 *.coverage
 *.coveragexml
-*.trx
-.dotnet/
-msbuild.log
-msbuild.err
-msbuild.wrn
 
 # =============================================================================
 #  Node / Angular / Frontend
@@ -93,34 +70,24 @@ dist/
 tmp/
 out-tsc/
 .angular/
-.nx/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+coverage/
 .eslintcache
 .stylelintcache
-coverage/
-/frontend/.vitest/
+npm-debug.log*
+yarn-debug.log*
 
 # =============================================================================
-#  Editores y sistema operativo
+#  Editores y Sistema Operativo
 # =============================================================================
 .idea/
 *.swp
 *.swo
-*~
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 desktop.ini
+.history/
+*.code-workspace
 
-# VS Code: se versionan los archivos compartidos del equipo, no los personales.
 .vscode/*
 !.vscode/extensions.json
 !.vscode/launch.json
@@ -128,13 +95,8 @@ desktop.ini
 !.vscode/settings.json
 
 # =============================================================================
-#  Herramientas locales
+#  Herramientas Locales
 # =============================================================================
 .ggshield_cache
 .ruff_cache/
 *.local
-
-# Instrucciones locales para asistentes de IA: son preferencias personales,
-# no configuracion del proyecto.
-AGENTS.md
-CLAUDE.md

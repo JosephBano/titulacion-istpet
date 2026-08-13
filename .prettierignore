@@ -1,0 +1,25 @@
+# Exclusiones de Prettier — Titan ISTPET
+
+# Dependencias
+node_modules/
+frontend/node_modules/
+
+# Builds
+frontend/dist/
+frontend/.angular/
+
+# Archivos generados por Angular CLI
+frontend/src/environments/
+
+# Archivos de configuracion que no deben formatearse
+*.min.js
+*.min.css
+
+# Backend — C# no usa Prettier
+backend/
+
+# Skills y documentacion de agentes
+.agents/
+
+# Archivos de BD
+*.sql

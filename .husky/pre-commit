@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Hook: pre-commit
+# Ejecuta lint-staged sobre los archivos en staging area antes de cada commit.
+# Solo procesa los archivos modificados — no el proyecto completo.
+
+npx lint-staged

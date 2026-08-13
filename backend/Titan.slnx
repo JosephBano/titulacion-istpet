@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Titan.Api/Titan.Api.csproj" />
+    <Project Path="src/Titan.Application/Titan.Application.csproj" />
+    <Project Path="src/Titan.Domain/Titan.Domain.csproj" />
+    <Project Path="src/Titan.Infrastructure/Titan.Infrastructure.csproj" />
+  </Folder>
+</Solution>
