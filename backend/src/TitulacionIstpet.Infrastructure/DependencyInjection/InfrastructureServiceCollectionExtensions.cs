@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TitulacionIstpet.Application.Common.Interfaces;
+using TitulacionIstpet.Application.Features.AdjuntosImagenes;
 using TitulacionIstpet.Infrastructure.Persistence;
+using TitulacionIstpet.Infrastructure.Persistence.Repositories;
 
 namespace TitulacionIstpet.Infrastructure.DependencyInjection;
 
@@ -31,6 +33,8 @@ public static class InfrastructureServiceCollectionExtensions
         // IUnitOfWork resuelve al mismo SigafiDbContext (ambos scoped por peticion):
         // asi el repositorio y el caso de uso comparten ChangeTracker y transaccion.
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SigafiDbContext>());
+
+        services.AddScoped<IRepositorioAdjuntosImagenes, RepositorioAdjuntosImagenes>();
 
         return services;
     }
