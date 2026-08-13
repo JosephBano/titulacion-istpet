@@ -7,8 +7,8 @@ main      ●──────────────────────�
            \                     /
 develop     ●──●──●──●──●──●──●─●                     integracion del equipo
              \    /    \    /
-feature/x     ●──●       │                            rama personal
-feature/y                ●──●                         rama personal
+dev_y/     ●──●       │                            rama personal
+dev_x/                ●──●                         rama personal
 ```
 
 - **`main`** — rama por defecto. Refleja lo que esta en produccion. Solo recibe PRs
