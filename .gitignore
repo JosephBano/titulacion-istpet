@@ -5,19 +5,20 @@
 # nunca a un commit. Para cada archivo ignorado existe un *.example.* versionado
 # que documenta la forma sin exponer los valores.
 #
-#   backend/src/TitulacionIstpet.WebApi/appsettings.example.json  -> appsettings.json
+#   backend/src/Titan.Api/appsettings.example.json               -> appsettings.json
 #   frontend/src/environments/environment.example.ts              -> environment.prod.ts
-#
-# Si alguna credencial entra por error: rotala primero, borrala del historial
-# despues. Un secreto publicado sigue comprometido aunque borres el commit.
 
 # --- Backend: appsettings reales (base, por entorno y locales) ---
 appsettings.json
 appsettings.*.json
 !appsettings.example.json
+!appsettings.Example.json
+!appsettings.json.template
 
 # --- Backend: user secrets y certificados de desarrollo ---
 secrets.json
+secrets.Development.json
+usersecrets/
 *.pfx
 *.p12
 *.snk
@@ -32,6 +33,7 @@ frontend/src/environments/environment.*.local.ts
 .env
 .env.*
 !.env.example
+!.env.template
 
 # --- Llaves y certificados de cualquier tipo ---
 *.pem
@@ -44,12 +46,22 @@ frontend/src/environments/environment.*.local.ts
 id_rsa*
 id_ed25519*
 
-# --- Volcados de base de datos (el legacy MySQL trae datos personales) ---
+# --- Volcados de base de datos ---
 *.sql.gz
 *.dump
 *.mysqldump
 /dumps/
 /backups/
+*.mdf
+*.ldf
+*.ndf
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+*.bak
+*.sql.bak
 
 # =============================================================================
 #  .NET / Backend
@@ -93,6 +105,7 @@ dist/
 tmp/
 out-tsc/
 .angular/
+.angular/cache/
 .nx/
 npm-debug.log*
 yarn-debug.log*
@@ -119,13 +132,12 @@ coverage/
 ehthumbs.db
 Thumbs.db
 desktop.ini
+.history/
+*.code-workspace
 
-# VS Code: se versionan los archivos compartidos del equipo, no los personales.
-.vscode/*
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/tasks.json
-!.vscode/settings.json
+# VS Code: ignorar carpetas locales de configuración del editor
+.vscode/
+frontend/.vscode/
 
 # =============================================================================
 #  Herramientas locales
@@ -133,8 +145,3 @@ desktop.ini
 .ggshield_cache
 .ruff_cache/
 *.local
-
-# Instrucciones locales para asistentes de IA: son preferencias personales,
-# no configuracion del proyecto.
-AGENTS.md
-CLAUDE.md

@@ -1,0 +1,1020 @@
+/* ==========================================================================
+   TITÁN — Dashboard — Microsoft Fluent Design 2 (Outlook / M365 Layout Shell)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Shell Layout */
+.fluent-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-canvas, #e8eaf0);
+  color: var(--text-primary, #1a1a1a);
+  font-family:
+    'Segoe UI',
+    'Plus Jakarta Sans',
+    system-ui,
+    -apple-system,
+    sans-serif;
+
+  /* Design Tokens Oficiales ISTPET (SKILL Section 7) */
+  --istpet-navy: #1b2a4a;
+  --istpet-navy-hover: #253d6b;
+  --istpet-navy-dark: #121d34;
+  --istpet-navy-rail: #12213a;
+  --istpet-gold: #c59b27;
+  --istpet-gold-hover: #d4af37;
+  --istpet-gold-subtle: rgba(197, 155, 39, 0.12);
+
+  --bg-canvas: #e8eaf0;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #faf9f8;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #323130;
+  --text-muted: #605e5c;
+  --text-disabled: #a19f9d;
+
+  --border-default: #8a8886;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+
+  --radius-input: 2px;
+  --radius-card: 4px;
+  --radius-panel: 8px;
+  --radius-badge: 12px;
+}
+
+/* Dark Mode Theme Tokens (SKILL Section 7) */
+.fluent-shell[data-theme='dark'] {
+  --bg-canvas: #0d1117;
+  --bg-surface: #1f2937;
+  --bg-surface-alt: #111827;
+
+  --text-primary: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --text-muted: #9ca3af;
+  --text-disabled: #6b7280;
+
+  --border-default: #4a5568;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   1. TOPBAR NAVBAR (48px height per M365 spec - SKILL Section 6)
+   ========================================================================== */
+.fluent-topbar {
+  height: 48px;
+  background-color: var(--istpet-navy);
+  color: #ffffff;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 16px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.topbar-nav-toggle {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 83ms ease;
+}
+
+.topbar-nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.istpet-logo {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-logo-img {
+  height: 28px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--istpet-gold);
+  line-height: 1.1;
+}
+
+.brand-sub {
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Búsqueda Centrada (M365 Style) */
+.topbar-search {
+  flex: 1;
+  max-width: 440px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.topbar-search-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 12px 0 32px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  outline: none;
+  transition:
+    background 83ms ease,
+    border-color 83ms ease;
+}
+
+.topbar-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.topbar-search-input:focus {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--istpet-gold);
+}
+
+/* Acciones derechas */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-action-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 83ms ease,
+    color 83ms ease;
+}
+
+.topbar-action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 10px 2px 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  max-width: 240px;
+}
+
+.avatar-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--istpet-gold);
+  color: var(--istpet-navy);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.625rem;
+  color: var(--istpet-gold);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fluent-btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition:
+    background 83ms ease,
+    border-color 83ms ease;
+}
+
+.fluent-btn-logout:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+/* ==========================================================
+   2. BODY LAYOUT (ICON RAIL 48px + SIDEBAR 220px + MAIN)
+   ========================================================== */
+.fluent-body-layout {
+  flex: 1;
+  display: flex;
+  width: 100%;
+}
+
+/* Icon Rail Lateral Izquierdo (48px - SKILL Section 6) */
+.fluent-icon-rail {
+  width: 48px;
+  background-color: var(--istpet-navy-rail);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 10;
+}
+
+.rail-item {
+  width: 48px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition:
+    color 83ms ease,
+    background 83ms ease;
+}
+
+.rail-item:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rail-item.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.rail-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background-color: var(--istpet-gold);
+  border-radius: 0 2px 2px 0;
+}
+
+.rail-spacer {
+  flex: 1;
+}
+
+/* Sidebar Secundaria (220px - SKILL Section 6) */
+.fluent-sidebar {
+  width: 220px;
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition:
+    width 167ms ease,
+    opacity 167ms ease,
+    padding 167ms ease;
+  overflow-x: hidden;
+}
+
+.fluent-sidebar.collapsed {
+  width: 0;
+  padding: 16px 0;
+  opacity: 0;
+  pointer-events: none;
+  border-right: none;
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  margin: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  border-radius: 2px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 83ms ease,
+    color 83ms ease,
+    border-color 83ms ease;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--bg-surface-alt);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item.active {
+  background: var(--istpet-gold-subtle);
+  color: var(--istpet-navy);
+  font-weight: 600;
+  border-left-color: var(--istpet-gold);
+}
+
+.fluent-shell[data-theme='dark'] .sidebar-nav-item.active {
+  color: var(--istpet-gold);
+}
+
+.sidebar-counter {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: rgba(27, 42, 74, 0.08);
+  color: var(--istpet-navy);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.fluent-shell[data-theme='dark'] .sidebar-counter {
+  background: rgba(197, 155, 39, 0.2);
+  color: var(--istpet-gold);
+}
+
+/* ÁREA DE CONTENIDO PRINCIPAL (SKILL Section 6) */
+.fluent-main-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Banner Institucional de Bienvenida */
+.fluent-banner-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.banner-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.banner-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.banner-description {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.banner-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #107c10;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Navegación por Tabs Subrayados (SKILL Section 5.5) */
+.fluent-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.fluent-tab-item {
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    color 83ms ease,
+    border-color 83ms ease;
+  user-select: none;
+}
+
+.fluent-tab-item:hover {
+  color: var(--text-primary);
+}
+
+.fluent-tab-item.active {
+  color: var(--istpet-navy);
+  font-weight: 600;
+  border-bottom-color: var(--istpet-navy);
+}
+
+.fluent-shell[data-theme='dark'] .fluent-tab-item.active {
+  color: var(--istpet-gold);
+  border-bottom-color: var(--istpet-gold);
+}
+
+/* Secciones y Grids */
+.fluent-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.section-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Modules Grid (Dense Cards con 4px radius - SKILL Section 2.2 & 10) */
+.fluent-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .fluent-modules-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .fluent-modules-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fluent-module-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition:
+    border-color 167ms ease,
+    box-shadow 167ms ease;
+}
+
+.fluent-module-card:hover {
+  border-color: var(--istpet-navy);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.fluent-shell[data-theme='dark'] .fluent-module-card:hover {
+  border-color: var(--istpet-gold);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-icon {
+  color: var(--istpet-navy);
+  flex-shrink: 0;
+}
+
+.fluent-shell[data-theme='dark'] .card-icon {
+  color: var(--istpet-gold);
+}
+
+.card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.card-text {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0;
+  flex: 1;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+/* Fluent Badges (SKILL Section 5.4) — Texto plano nítido sin recuadro/cápsula recubriente */
+.fluent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.fluent-badge--success {
+  background: transparent;
+  color: #107c10;
+}
+.fluent-badge--error {
+  background: transparent;
+  color: #a4262c;
+}
+.fluent-badge--warning {
+  background: transparent;
+  color: #b78103;
+}
+.fluent-badge--neutral {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+}
+.fluent-badge--info {
+  background: transparent;
+  color: #0078d4;
+}
+
+.fluent-shell[data-theme='dark'] .fluent-badge--success {
+  background: transparent;
+  color: #6ee7b7;
+}
+.fluent-shell[data-theme='dark'] .fluent-badge--error {
+  background: transparent;
+  color: #fca5a5;
+}
+.fluent-shell[data-theme='dark'] .fluent-badge--warning {
+  background: transparent;
+  color: #fde68a;
+}
+.fluent-shell[data-theme='dark'] .fluent-badge--info {
+  background: transparent;
+  color: #60a5fa;
+}
+
+/* Fluent Data Grid (SKILL Section 5.3 & 10) */
+.fluent-table-wrapper {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.fluent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  font-family: inherit;
+}
+
+.fluent-table thead th {
+  padding: 8px 12px;
+  background-color: var(--bg-surface-alt);
+  border-bottom: 2px solid var(--border-subtle);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.fluent-table tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.fluent-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.fluent-table tbody tr:hover td {
+  background-color: var(--bg-surface-alt);
+}
+
+.fluent-table code {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background: var(--bg-surface-alt);
+  padding: 2px 4px;
+  border-radius: 2px;
+  color: var(--istpet-navy);
+}
+
+.fluent-shell[data-theme='dark'] .fluent-table code {
+  color: var(--istpet-gold);
+}
+
+/* Stepper del Proceso de Titulación (Estudiante) */
+.fluent-stepper-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.stepper-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stepper-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.stepper-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  .stepper-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  position: relative;
+}
+
+.step-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-surface-alt);
+  border: 2px solid var(--border-default);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  z-index: 2;
+  transition: all 167ms ease;
+}
+
+.stepper-step.completed .step-icon-circle {
+  background: #107c10;
+  border-color: #107c10;
+  color: #ffffff;
+}
+
+.stepper-step.active .step-icon-circle {
+  background: var(--istpet-gold);
+  border-color: var(--istpet-gold);
+  color: var(--istpet-navy);
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.step-status {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* Fluent KPI Grid & Cards */
+.fluent-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1000px) {
+  .fluent-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .fluent-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.kpi-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--istpet-navy);
+  line-height: 1.1;
+}
+
+.fluent-shell[data-theme='dark'] .kpi-value {
+  color: var(--istpet-gold);
+}
+
+.kpi-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Action Button inside Table */
+.fluent-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--istpet-navy);
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 83ms ease;
+}
+
+.fluent-btn-action:hover {
+  background: var(--istpet-navy-hover);
+}
+
+.fluent-shell[data-theme='dark'] .fluent-btn-action {
+  background: var(--istpet-gold);
+  color: var(--istpet-navy);
+}
+
+/* Footer Legal (SKILL Section 2.4 & 6) - Texto limpio alineado a la derecha sin tarjeta recubriente */
+.fluent-legal {
+  margin-top: auto;
+  padding: 16px 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+}
+
+/* ============================================================ */
+/* SELECTOR DE CARRERA ACTIVA (FLUENT DESIGN 2)                  */
+/* ============================================================ */
+.career-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--fluent-bg-subtle, rgba(0, 120, 212, 0.06));
+  border: 1px solid var(--fluent-border-color, rgba(0, 120, 212, 0.2));
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.career-selector-container:hover {
+  background: var(--fluent-bg-hover, rgba(0, 120, 212, 0.1));
+  border-color: #0078d4;
+}
+
+.career-icon-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #0078d4;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.career-text-lbl {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.single-career-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fluent-text-primary, #111827);
+  white-space: nowrap;
+}
+
+.career-dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fluent-career-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fluent-text-primary, #111827);
+  padding-right: 20px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230078d4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+
+.fluent-career-dropdown option {
+  background: var(--fluent-bg-card, #ffffff);
+  color: #111827;
+  font-weight: 500;
+  padding: 8px;
+}

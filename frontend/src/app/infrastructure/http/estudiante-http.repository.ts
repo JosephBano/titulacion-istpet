@@ -5,11 +5,15 @@ import { API_BASE_URL } from '../../core/config/api.config';
 import { Estudiante, NuevoEstudiante } from '../../domain/models/estudiante.model';
 import { EstudianteRepository } from '../../domain/repositories/estudiante.repository';
 
-/** Adaptador: unico punto del frontend que conoce las rutas del backend. */
+/** Adaptador HTTP para el repositorio de estudiantes en Titán. */
 @Injectable({ providedIn: 'root' })
 export class EstudianteHttpRepository implements EstudianteRepository {
   private readonly http = inject(HttpClient);
-  private readonly base = `${inject(API_BASE_URL)}/api/estudiantes`;
+  private readonly baseUrl = inject(API_BASE_URL);
+
+  private get base(): string {
+    return `${this.baseUrl}/api/estudiantes`;
+  }
 
   listar(): Promise<readonly Estudiante[]> {
     return firstValueFrom(this.http.get<readonly Estudiante[]>(this.base));

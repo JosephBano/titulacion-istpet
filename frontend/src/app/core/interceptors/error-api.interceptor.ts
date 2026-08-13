@@ -4,7 +4,7 @@ import { ErrorApi } from '../../domain/models/error-api.model';
 
 /**
  * Traduce cualquier HttpErrorResponse al ErrorApi del dominio, de modo que ninguna
- * capa por encima tenga que conocer el formato ProblemDetails de ASP.NET.
+ * capa por encima tenga que conocer el formato ProblemDetails de ASP.NET Core.
  */
 export const errorApiInterceptor: HttpInterceptorFn = (req, next) =>
   next(req).pipe(
@@ -24,7 +24,7 @@ export const errorApiInterceptor: HttpInterceptorFn = (req, next) =>
           problema?.title ??
           (error.status === 0
             ? 'No se pudo contactar al servidor.'
-            : 'Ocurrio un error inesperado.'),
+            : 'Ocurrió un error inesperado.'),
         detalle: problema?.detail,
         errores: problema?.errors,
       };

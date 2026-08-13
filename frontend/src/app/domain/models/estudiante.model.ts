@@ -1,6 +1,6 @@
 /**
- * Modelo de dominio. Deliberadamente sin imports de Angular ni de HTTP:
- * es lo que permite testear la capa de aplicacion sin TestBed.
+ * Modelo de dominio para Estudiantes en Titán.
+ * Deliberadamente libre de dependencias con Angular o HTTP.
  */
 export type EstadoTitulacion = 'Borrador' | 'EnRevision' | 'Aprobado' | 'Rechazado' | 'Titulado';
 

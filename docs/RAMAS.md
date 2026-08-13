@@ -7,8 +7,8 @@ main      ●──────────────────────�
            \                     /
 develop     ●──●──●──●──●──●──●─●                     integracion del equipo
              \    /    \    /
-dev_y/     ●──●       │                            rama personal
-dev_x/                ●──●                         rama personal
+feature/x     ●──●       │                            rama personal
+feature/y                ●──●                         rama personal
 ```
 
 - **`main`** — rama por defecto. Refleja lo que esta en produccion. Solo recibe PRs
@@ -25,12 +25,11 @@ dev_x/                ●──●                         rama personal
 |---|---|---|
 | Push directo | bloqueado | ningun commit entra sin revision |
 | PR requerido | si | |
-| Aprobaciones | 1, **de un code owner** | `.github/CODEOWNERS` asigna todo a `@JosephBano`, asi que ningun PR entra a `main` sin el visto bueno del dueño |
+| Aprobaciones | 1, **de un code owner** | `.github/CODEOWNERS` asigna todo a `@JorgeDoicela`, asi que ningun PR entra a `main` sin el visto bueno del dueño |
 | Aprobaciones obsoletas | se descartan al hacer push | se revisa lo que se mergea, no una version anterior |
 | Checks requeridos | los 8, en modo **strict** | |
 | Resolucion de conversaciones | obligatoria | ningun comentario queda sin cerrar |
 | Force push / borrado | bloqueados | el historial de produccion es inmutable |
-| Bypass de admin (`enforce_admins`) | **desactivado** | ver nota abajo |
 
 ### `develop`
 
@@ -42,7 +41,6 @@ dev_x/                ●──●                         rama personal
 | Aprobaciones obsoletas | se descartan al hacer push | |
 | Checks requeridos | los 8, en modo **strict** | |
 | Force push / borrado | bloqueados | nadie reescribe la historia compartida |
-| Bypass de admin (`enforce_admins`) | **activado** | ni el dueño puede pushear directo: todo entra por PR |
 
 ## Como se garantiza que no entra codigo roto ni con conflictos
 
@@ -79,20 +77,6 @@ Las reglas viven en `scripts/proteger-ramas.sh`, versionado. Reejecutarlo es ide
 
 Requiere `gh` autenticado con permisos de admin sobre el repositorio.
 
-## Por que `main` deja pasar al admin y `develop` no
-
-En `develop`, `enforce_admins` esta **activado**: el dueño no puede pushear directo ni
-saltarse los checks. Trabaja por PR igual que el resto del equipo.
-
-En `main` esta **desactivado**, y no es un descuido. `main` exige aprobacion de code
-owner, y el unico code owner es `@JosephBano`. GitHub no permite aprobar el propio PR.
-Con `enforce_admins: true`, el dueño abriria un PR de `develop` a `main` que nadie
-podria aprobar: `main` quedaria permanentemente bloqueada.
-
-El efecto practico es justo el buscado: solo el dueño puede llevar codigo a `main`.
-Si mas adelante se suma un segundo code owner a `.github/CODEOWNERS`, cambiar la
-llamada en `scripts/proteger-ramas.sh` a `proteger main true true`.
-
 ## Limitacion conocida en repos personales
 
 "Restringir quien puede pushear a esta rama" solo existe en repositorios de
@@ -100,8 +84,9 @@ llamada en `scripts/proteger-ramas.sh` a `proteger main true true`.
 mergear a `main`.
 
 El equivalente funcional que si aplica: **`require_code_owner_reviews` en `main`**.
-Como `CODEOWNERS` asigna `*` a `@JosephBano`, ningun PR a `main` puede mergearse sin
+Como `CODEOWNERS` asigna `*` a `@JorgeDoicela`, ningun PR a `main` puede mergearse sin
 su aprobacion. Un colaborador podria abrir el PR, pero no cerrarlo.
 
 Si mas adelante el proyecto se mueve a una organizacion, agregar en
 `scripts/proteger-ramas.sh` el bloque `restrictions` para `main`.
+

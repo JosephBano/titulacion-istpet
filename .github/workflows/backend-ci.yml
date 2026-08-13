@@ -20,7 +20,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  SOLUCION: backend/TitulacionIstpet.sln
+  SOLUCION: backend/Titan.sln
 
 jobs:
   build-test:
@@ -83,5 +83,5 @@ jobs:
       # (assets faltantes, trimming). Esto lo detecta antes del merge.
       - name: Publicar WebApi
         run: >
-          dotnet publish backend/src/TitulacionIstpet.WebApi/TitulacionIstpet.WebApi.csproj
+          dotnet publish backend/src/Titan.Api/Titan.Api.csproj
           -c Release -o salida-publish

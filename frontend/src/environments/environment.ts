@@ -1,8 +1,7 @@
 /**
- * Configuracion NO secreta de build. Los secretos jamas viven en el bundle del
- * navegador: cualquier usuario puede leerlos. Lo sensible se queda en el backend.
+ * Configuración NO secreta de build. Los secretos jamás viven en el bundle del navegador.
  */
 export const environment = {
   produccion: false,
-  apiBaseUrl: 'https://localhost:7077',
+  apiBaseUrl: 'http://localhost:5032',
 } as const;

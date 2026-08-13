@@ -1,0 +1,108 @@
+# ==========================================
+# .NET 8 Backend GitIgnore (Titan)
+# ==========================================
+
+# ------------------------------------------
+# Build Outputs
+# ------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Aa]rchive/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+build/
+out/
+
+# ------------------------------------------
+# Visual Studio / Rider / Editor Files
+# ------------------------------------------
+.vs/
+*.suo
+*.user
+*.userosv
+*.userprefs
+*.sln.docstates
+*.cache
+*.opendb
+*.db
+*.VC.db
+*.VC.opendb
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ------------------------------------------
+# Test & Coverage Outputs
+# ------------------------------------------
+[Tt]est[Rr]esults/
+[Cc]overage/
+*.coverage
+*.coveragexml
+_ReSharper.*/
+*.StackTrace.txt
+
+# ------------------------------------------
+# NuGet Packages
+# ------------------------------------------
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.assets.json
+*.nuget.props
+*.nuget.targets
+
+# ------------------------------------------
+# Database / Local Stores
+# ------------------------------------------
+*.mdf
+*.ldf
+*.ndf
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ------------------------------------------
+# Environment & Secrets
+# ------------------------------------------
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Secrets.json
+appsettings*.local.json
+appsettings.Local.json
+!appsettings.json.template
+!appsettings.Example.json
+secrets.json
+usersecrets/
+*.env
+*.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+
+# ------------------------------------------
+# Logs
+# ------------------------------------------
+*.log
+logs/

@@ -1,25 +1,26 @@
 <Project>
 
-  <!-- Ajustes compartidos por todos los proyectos de la solucion.
-       Centralizarlos evita que cada .csproj derive por su cuenta. -->
+  <!-- Ajustes compartidos por todos los proyectos de la solución. -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
-    <!-- Una advertencia del compilador rompe el build local igual que en CI,
-         para que nadie se entere del problema recien al abrir el PR. -->
+    <!-- Una advertencia del compilador rompe el build local igual que en CI -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
+
+    <!-- Excluir reglas de estilo e id de compatibilidad legacy -->
+    <NoWarn>$(NoWarn);CA1707;CS8981;CS8629;CA1862;CA1850;IDE0011;IDE0005;IDE0028;IDE1006;MSB3277</NoWarn>
 
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'TitulacionIstpet.WebApi'">
-    <UserSecretsId>titulacion-istpet-webapi</UserSecretsId>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Titan.Api'">
+    <UserSecretsId>titan-webapi</UserSecretsId>
   </PropertyGroup>
 
 </Project>

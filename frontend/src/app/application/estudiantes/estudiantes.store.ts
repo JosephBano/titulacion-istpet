@@ -4,8 +4,7 @@ import { Estudiante, NuevoEstudiante, nombreCompleto } from '../../domain/models
 import { ESTUDIANTE_REPOSITORY } from '../../domain/repositories/estudiante.repository';
 
 /**
- * Store de la feature. Todo el estado es signals; los componentes solo leen
- * las señales publicas de solo lectura y llaman a los metodos de caso de uso.
+ * Store de la feature de estudiantes. Maneja todo el estado mediante Signals.
  */
 @Injectable({ providedIn: 'root' })
 export class EstudiantesStore {
@@ -52,7 +51,7 @@ export class EstudiantesStore {
     }
   }
 
-  /** Devuelve true si se creo; el error queda expuesto en la señal `error`. */
+  /** Devuelve true si se creó exitosamente; el error queda expuesto en la señal `error`. */
   async crear(nuevo: NuevoEstudiante): Promise<boolean> {
     this._error.set(null);
     try {
