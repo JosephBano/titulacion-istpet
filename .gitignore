@@ -134,6 +134,7 @@ desktop.ini
 .ruff_cache/
 *.local
 
-
+# Instrucciones locales para asistentes de IA: son preferencias personales,
+# no configuracion del proyecto.
 AGENTS.md
 CLAUDE.md
