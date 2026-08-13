@@ -28,8 +28,15 @@ dotnet_separate_import_directive_groups = false
 dotnet_style_qualification_for_field = false:warning
 dotnet_style_qualification_for_property = false:warning
 
-# Nombres de campos. Gana la primera regla que coincide, por eso la de
-# static readonly va antes que la general.
+# Nombres de campos. Gana la PRIMERA regla que coincide, asi que van de mas
+# especifica a mas general: const, luego static readonly, luego el resto.
+dotnet_naming_rule.constantes_pascal.severity = warning
+dotnet_naming_rule.constantes_pascal.symbols = campos_const
+dotnet_naming_rule.constantes_pascal.style = pascal
+dotnet_naming_symbols.campos_const.applicable_kinds = field
+dotnet_naming_symbols.campos_const.applicable_accessibilities = *
+dotnet_naming_symbols.campos_const.required_modifiers = const
+
 dotnet_naming_rule.static_readonly_pascal.severity = warning
 dotnet_naming_rule.static_readonly_pascal.symbols = campos_static_readonly
 dotnet_naming_rule.static_readonly_pascal.style = pascal
