@@ -133,3 +133,7 @@ desktop.ini
 .ggshield_cache
 .ruff_cache/
 *.local
+
+
+AGENTS.md
+CLAUDE.md
