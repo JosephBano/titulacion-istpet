@@ -21,22 +21,16 @@ public sealed record CrearAdjuntoComando(
 /// Asi un fallo de validacion nunca deja un INSERT a medias, y dos operaciones
 /// de la misma peticion comparten transaccion.
 /// </summary>
-public sealed class CrearAdjunto
+public sealed class CrearAdjunto(
+    IRepositorioAdjuntosImagenes repositorio, IUnitOfWork unitOfWork)
 {
     private const int MaxNombre = 90;
     private const int MaxMime = 90;
     private const int MaxExtension = 90;
     private const int MaxRuta = 255;
 
-    private readonly IRepositorioAdjuntosImagenes _repositorio;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public CrearAdjunto(
-        IRepositorioAdjuntosImagenes repositorio, IUnitOfWork unitOfWork)
-    {
-        _repositorio = repositorio;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IRepositorioAdjuntosImagenes _repositorio = repositorio;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<int> EjecutarAsync(CrearAdjuntoComando comando, CancellationToken ct = default)
     {

@@ -9,5 +9,5 @@ public partial class BienGeneroAlumno
 
     public string Detalle { get; set; } = null!;
 
-    public virtual ICollection<Alumno> Alumnos { get; set; } = new List<Alumno>();
+    public virtual ICollection<Alumno> Alumnos { get; set; } = [];
 }

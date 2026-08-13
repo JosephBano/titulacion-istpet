@@ -30,7 +30,7 @@ public class ObtenerAdjuntoPorIdTests
             Ruta = "uploads/foto.png",
             // Las colecciones de navegacion se quedan en null por defecto; el
             // test verifica que el mapeo no las expone en el DTO.
-            CarrerasAdjuntos = new List<CarrerasAdjunto> { new() }
+            CarrerasAdjuntos = [new()]
         };
         _repo.ObtenerPorIdAsync(5, Arg.Any<CancellationToken>()).Returns(entidad);
 

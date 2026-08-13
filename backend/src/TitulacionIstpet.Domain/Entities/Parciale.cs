@@ -21,5 +21,5 @@ public partial class Parciale
 
     public bool? EsRemedial { get; set; }
 
-    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = new List<Solicitudescalificacione>();
+    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = [];
 }

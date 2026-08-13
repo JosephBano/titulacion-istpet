@@ -9,5 +9,5 @@ public partial class TiposOferta
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<OfertasLaborale> OfertasLaborales { get; set; } = new List<OfertasLaborale>();
+    public virtual ICollection<OfertasLaborale> OfertasLaborales { get; set; } = [];
 }

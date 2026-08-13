@@ -9,19 +9,12 @@ namespace TitulacionIstpet.WebApi.Middleware;
 /// Unico punto donde una excepcion se convierte en respuesta HTTP. Los controllers
 /// no atrapan excepciones; dejan que burbujeen hasta aqui.
 /// </summary>
-public class ManejadorExcepcionesMiddleware
+public class ManejadorExcepcionesMiddleware(
+    RequestDelegate next, ILogger<ManejadorExcepcionesMiddleware> logger, IHostEnvironment env)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ManejadorExcepcionesMiddleware> _logger;
-    private readonly IHostEnvironment _env;
-
-    public ManejadorExcepcionesMiddleware(
-        RequestDelegate next, ILogger<ManejadorExcepcionesMiddleware> logger, IHostEnvironment env)
-    {
-        _next = next;
-        _logger = logger;
-        _env = env;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger<ManejadorExcepcionesMiddleware> _logger = logger;
+    private readonly IHostEnvironment _env = env;
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -65,7 +58,7 @@ public class ManejadorExcepcionesMiddleware
             }
         };
 
-        var ruta = context.Request.Path.ToString();
+        string ruta = context.Request.Path.ToString();
         if (problema.Status >= 500)
         {
             LogsMiddleware.ErrorNoControlado(_logger, ruta, ex);

@@ -18,5 +18,5 @@ public partial class HdvEnlacesMagico
     /// </summary>
     public string Estado { get; set; } = null!;
 
-    public virtual ICollection<HdvSolicitudesActualizacion> HdvSolicitudesActualizacions { get; set; } = new List<HdvSolicitudesActualizacion>();
+    public virtual ICollection<HdvSolicitudesActualizacion> HdvSolicitudesActualizacions { get; set; } = [];
 }

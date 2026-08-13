@@ -9,5 +9,5 @@ public partial class BienTipoViviendum
 
     public string Detalle { get; set; } = null!;
 
-    public virtual ICollection<BienFichaSocioeconomica> BienFichaSocioeconomicas { get; set; } = new List<BienFichaSocioeconomica>();
+    public virtual ICollection<BienFichaSocioeconomica> BienFichaSocioeconomicas { get; set; } = [];
 }

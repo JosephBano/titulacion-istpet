@@ -15,7 +15,7 @@ public partial class CategoriasActividade
 
     public bool? Porcentaje { get; set; }
 
-    public virtual ICollection<Seddinstrumento> Seddinstrumentos { get; set; } = new List<Seddinstrumento>();
+    public virtual ICollection<Seddinstrumento> Seddinstrumentos { get; set; } = [];
 
-    public virtual ICollection<SubcategoriasActividade> SubcategoriasActividades { get; set; } = new List<SubcategoriasActividade>();
+    public virtual ICollection<SubcategoriasActividade> SubcategoriasActividades { get; set; } = [];
 }

@@ -15,5 +15,5 @@ public partial class RbacModulo
 
     public virtual RbacSistema IdSistemaNavigation { get; set; } = null!;
 
-    public virtual ICollection<RbacModulosOperacione> RbacModulosOperaciones { get; set; } = new List<RbacModulosOperacione>();
+    public virtual ICollection<RbacModulosOperacione> RbacModulosOperaciones { get; set; } = [];
 }

@@ -11,5 +11,5 @@ public partial class TipoFuncionario
 
     public ulong? EsDocente { get; set; }
 
-    public virtual ICollection<CargoInstituto> CargoInstitutos { get; set; } = new List<CargoInstituto>();
+    public virtual ICollection<CargoInstituto> CargoInstitutos { get; set; } = [];
 }

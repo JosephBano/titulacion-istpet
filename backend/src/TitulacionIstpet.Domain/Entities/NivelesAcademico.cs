@@ -9,5 +9,5 @@ public partial class NivelesAcademico
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<GradosAcademico> GradosAcademicos { get; set; } = new List<GradosAcademico>();
+    public virtual ICollection<GradosAcademico> GradosAcademicos { get; set; } = [];
 }

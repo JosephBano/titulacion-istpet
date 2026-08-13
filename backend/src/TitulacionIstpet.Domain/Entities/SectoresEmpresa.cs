@@ -11,5 +11,5 @@ public partial class SectoresEmpresa
 
     public string? CodigoSector { get; set; }
 
-    public virtual ICollection<Empresa> Empresas { get; set; } = new List<Empresa>();
+    public virtual ICollection<Empresa> Empresas { get; set; } = [];
 }

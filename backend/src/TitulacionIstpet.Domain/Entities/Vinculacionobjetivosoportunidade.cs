@@ -15,5 +15,5 @@ public partial class Vinculacionobjetivosoportunidade
 
     public virtual Vinculacioncategoriasobjetivosoportunidade? IdCategoriaObjetivoOportunidadNavigation { get; set; }
 
-    public virtual ICollection<Vinculacionproyectosobjetivosoportunidade> Vinculacionproyectosobjetivosoportunidades { get; set; } = new List<Vinculacionproyectosobjetivosoportunidade>();
+    public virtual ICollection<Vinculacionproyectosobjetivosoportunidade> Vinculacionproyectosobjetivosoportunidades { get; set; } = [];
 }

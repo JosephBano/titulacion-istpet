@@ -37,5 +37,5 @@ public partial class Detallemalla
 
     public virtual TiposAsignatura IdtipoAsignaturaNavigation { get; set; } = null!;
 
-    public virtual ICollection<Prerequisito> Prerequisitos { get; set; } = new List<Prerequisito>();
+    public virtual ICollection<Prerequisito> Prerequisitos { get; set; } = [];
 }

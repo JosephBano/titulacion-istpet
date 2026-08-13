@@ -118,8 +118,8 @@ public class VerificadorCredencialesBcryptTests
     [Fact]
     public void Hashear_produce_un_valor_verificable_y_distinto_cada_vez()
     {
-        var primero = _verificador.Hashear(Contrasenia);
-        var segundo = _verificador.Hashear(Contrasenia);
+        string primero = _verificador.Hashear(Contrasenia);
+        string segundo = _verificador.Hashear(Contrasenia);
 
         primero.Should().NotBe(segundo, "cada hash lleva su propia sal");
         _verificador.Verificar(Contrasenia, primero).EsValida.Should().BeTrue();
@@ -131,7 +131,7 @@ public class VerificadorCredencialesBcryptTests
     {
         // Contrato de interoperabilidad: lo que titulacion escribe en la tabla compartida
         // tiene que poder leerlo cualquier otro sistema del ecosistema.
-        var hash = _verificador.Hashear(Contrasenia);
+        string hash = _verificador.Hashear(Contrasenia);
 
         BCrypt.Net.BCrypt.Verify(Contrasenia, hash).Should().BeTrue();
     }
@@ -140,7 +140,7 @@ public class VerificadorCredencialesBcryptTests
     public void Una_contrasenia_hasheada_no_se_valida_comparandola_como_texto_plano()
     {
         // Si alguien pasa el hash como si fuera la contrasenia, no debe entrar.
-        var hash = HashDe(Contrasenia);
+        string hash = HashDe(Contrasenia);
 
         _verificador.Verificar(hash, hash).EsValida.Should().BeFalse();
     }

@@ -13,7 +13,7 @@ public partial class GradosAcademico
 
     public virtual NivelesAcademico IdNivelAcademicoNavigation { get; set; } = null!;
 
-    public virtual ICollection<TitulosEnCurso> TitulosEnCursos { get; set; } = new List<TitulosEnCurso>();
+    public virtual ICollection<TitulosEnCurso> TitulosEnCursos { get; set; } = [];
 
-    public virtual ICollection<TitulosProfesore> TitulosProfesores { get; set; } = new List<TitulosProfesore>();
+    public virtual ICollection<TitulosProfesore> TitulosProfesores { get; set; } = [];
 }

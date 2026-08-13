@@ -13,5 +13,5 @@ public partial class Clausula
 
     public bool? EsActivo { get; set; }
 
-    public virtual ICollection<PlantillaClausula> PlantillaClausulas { get; set; } = new List<PlantillaClausula>();
+    public virtual ICollection<PlantillaClausula> PlantillaClausulas { get; set; } = [];
 }

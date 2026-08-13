@@ -27,9 +27,9 @@ public partial class BienPostulacionesBeca
 
     public DateTime? FechaActualizado { get; set; }
 
-    public virtual ICollection<BienPostulacionRequisitosBeca> BienPostulacionRequisitosBecas { get; set; } = new List<BienPostulacionRequisitosBeca>();
+    public virtual ICollection<BienPostulacionRequisitosBeca> BienPostulacionRequisitosBecas { get; set; } = [];
 
-    public virtual ICollection<BienResolucionesTribunale> BienResolucionesTribunales { get; set; } = new List<BienResolucionesTribunale>();
+    public virtual ICollection<BienResolucionesTribunale> BienResolucionesTribunales { get; set; } = [];
 
     public virtual BienConvocatoriasBeca? IdConvocatoriasBecasNavigation { get; set; }
 

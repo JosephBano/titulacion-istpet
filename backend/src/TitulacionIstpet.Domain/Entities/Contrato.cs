@@ -53,11 +53,11 @@ public partial class Contrato
 
     public DateOnly? Reingreso { get; set; }
 
-    public virtual ICollection<ContratosAsignatura> ContratosAsignaturas { get; set; } = new List<ContratosAsignatura>();
+    public virtual ICollection<ContratosAsignatura> ContratosAsignaturas { get; set; } = [];
 
-    public virtual ICollection<ContratosFactura> ContratosFacturas { get; set; } = new List<ContratosFactura>();
+    public virtual ICollection<ContratosFactura> ContratosFacturas { get; set; } = [];
 
-    public virtual ICollection<ExtrasContrato> ExtrasContratos { get; set; } = new List<ExtrasContrato>();
+    public virtual ICollection<ExtrasContrato> ExtrasContratos { get; set; } = [];
 
     public virtual DedicacionCategoria IdDedicacionCategoriasNavigation { get; set; } = null!;
 
@@ -65,7 +65,7 @@ public partial class Contrato
 
     public virtual Profesore IdProfesorNavigation { get; set; } = null!;
 
-    public virtual ICollection<ProfesoresMotivoSalidum> ProfesoresMotivoSalida { get; set; } = new List<ProfesoresMotivoSalidum>();
+    public virtual ICollection<ProfesoresMotivoSalidum> ProfesoresMotivoSalida { get; set; } = [];
 
-    public virtual ICollection<SueldosContrato> SueldosContratos { get; set; } = new List<SueldosContrato>();
+    public virtual ICollection<SueldosContrato> SueldosContratos { get; set; } = [];
 }

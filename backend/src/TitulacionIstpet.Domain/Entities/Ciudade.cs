@@ -13,5 +13,5 @@ public partial class Ciudade
 
     public virtual Provincia IdprovinciasNavigation { get; set; } = null!;
 
-    public virtual ICollection<Parroquia> Parroquia { get; set; } = new List<Parroquia>();
+    public virtual ICollection<Parroquia> Parroquia { get; set; } = [];
 }

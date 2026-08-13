@@ -17,7 +17,7 @@ public partial class BienMotivosBeca
 
     public int IdPorcentajeBeca { get; set; }
 
-    public virtual ICollection<BienPostulacionesBeca> BienPostulacionesBecas { get; set; } = new List<BienPostulacionesBeca>();
+    public virtual ICollection<BienPostulacionesBeca> BienPostulacionesBecas { get; set; } = [];
 
     public virtual BienPorcentajeBeca IdPorcentajeBecaNavigation { get; set; } = null!;
 

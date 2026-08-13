@@ -25,5 +25,5 @@ public partial class Especy
 
     public int? IdNivel { get; set; }
 
-    public virtual ICollection<DetallePago> DetallePagos { get; set; } = new List<DetallePago>();
+    public virtual ICollection<DetallePago> DetallePagos { get; set; } = [];
 }

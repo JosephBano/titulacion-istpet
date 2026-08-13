@@ -11,7 +11,7 @@ public partial class Habilidade
 
     public string? Descripcion { get; set; }
 
-    public virtual ICollection<AlumnosHabilidade> AlumnosHabilidades { get; set; } = new List<AlumnosHabilidade>();
+    public virtual ICollection<AlumnosHabilidade> AlumnosHabilidades { get; set; } = [];
 
-    public virtual ICollection<HabilidadesRequerida> HabilidadesRequerida { get; set; } = new List<HabilidadesRequerida>();
+    public virtual ICollection<HabilidadesRequerida> HabilidadesRequerida { get; set; } = [];
 }

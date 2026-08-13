@@ -29,7 +29,7 @@ public partial class Espacio
 
     public bool EsAsincrono { get; set; }
 
-    public virtual ICollection<HorarioDetalle> HorarioDetalles { get; set; } = new List<HorarioDetalle>();
+    public virtual ICollection<HorarioDetalle> HorarioDetalles { get; set; } = [];
 
     public virtual Carrera? IdCarreraNavigation { get; set; }
 }

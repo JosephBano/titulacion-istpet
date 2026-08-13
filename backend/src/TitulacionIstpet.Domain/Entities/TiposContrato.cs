@@ -15,5 +15,5 @@ public partial class TiposContrato
 
     public ulong? EsAfiliado { get; set; }
 
-    public virtual ICollection<PlantillaContrato> PlantillaContratos { get; set; } = new List<PlantillaContrato>();
+    public virtual ICollection<PlantillaContrato> PlantillaContratos { get; set; } = [];
 }

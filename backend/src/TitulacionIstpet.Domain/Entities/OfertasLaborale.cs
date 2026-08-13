@@ -39,9 +39,9 @@ public partial class OfertasLaborale
 
     public bool? EsActivo { get; set; }
 
-    public virtual ICollection<DetallesOferta> DetallesOferta { get; set; } = new List<DetallesOferta>();
+    public virtual ICollection<DetallesOferta> DetallesOferta { get; set; } = [];
 
-    public virtual ICollection<HabilidadesRequerida> HabilidadesRequerida { get; set; } = new List<HabilidadesRequerida>();
+    public virtual ICollection<HabilidadesRequerida> HabilidadesRequerida { get; set; } = [];
 
     public virtual CargosOferta IdcargosOfertasNavigation { get; set; } = null!;
 
@@ -51,9 +51,9 @@ public partial class OfertasLaborale
 
     public virtual TiposOferta IdtiposOfertasNavigation { get; set; } = null!;
 
-    public virtual ICollection<OfertasCarrera> OfertasCarreras { get; set; } = new List<OfertasCarrera>();
+    public virtual ICollection<OfertasCarrera> OfertasCarreras { get; set; } = [];
 
-    public virtual ICollection<OfertasRequisito> OfertasRequisitos { get; set; } = new List<OfertasRequisito>();
+    public virtual ICollection<OfertasRequisito> OfertasRequisitos { get; set; } = [];
 
-    public virtual ICollection<Postulacione> Postulaciones { get; set; } = new List<Postulacione>();
+    public virtual ICollection<Postulacione> Postulaciones { get; set; } = [];
 }

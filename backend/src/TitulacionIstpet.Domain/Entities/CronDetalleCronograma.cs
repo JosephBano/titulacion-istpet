@@ -19,5 +19,5 @@ public partial class CronDetalleCronograma
 
     public string? Observaciones { get; set; }
 
-    public virtual ICollection<BienConvocatoriasBeca> BienConvocatoriasBecas { get; set; } = new List<BienConvocatoriasBeca>();
+    public virtual ICollection<BienConvocatoriasBeca> BienConvocatoriasBecas { get; set; } = [];
 }

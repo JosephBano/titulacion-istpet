@@ -15,5 +15,5 @@ public partial class Vinculacionsubarea
 
     public virtual Vinculacionarea? IdAreaNavigation { get; set; }
 
-    public virtual ICollection<Vinculacionsubareaespecifica> Vinculacionsubareaespecificas { get; set; } = new List<Vinculacionsubareaespecifica>();
+    public virtual ICollection<Vinculacionsubareaespecifica> Vinculacionsubareaespecificas { get; set; } = [];
 }

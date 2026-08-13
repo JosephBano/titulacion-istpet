@@ -13,9 +13,9 @@ public partial class Modalidade
 
     public string? ModalidadImpresion { get; set; }
 
-    public virtual ICollection<FechasPagosCuota> FechasPagosCuota { get; set; } = new List<FechasPagosCuota>();
+    public virtual ICollection<FechasPagosCuota> FechasPagosCuota { get; set; } = [];
 
-    public virtual ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
+    public virtual ICollection<Matricula> Matriculas { get; set; } = [];
 
-    public virtual ICollection<ModalidadesCarrera> ModalidadesCarreras { get; set; } = new List<ModalidadesCarrera>();
+    public virtual ICollection<ModalidadesCarrera> ModalidadesCarreras { get; set; } = [];
 }

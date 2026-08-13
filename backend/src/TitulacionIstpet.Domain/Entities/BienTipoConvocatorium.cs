@@ -15,5 +15,5 @@ public partial class BienTipoConvocatorium
 
     public bool Bloquea { get; set; }
 
-    public virtual ICollection<BienConvocatoriasBeca> BienConvocatoriasBecas { get; set; } = new List<BienConvocatoriasBeca>();
+    public virtual ICollection<BienConvocatoriasBeca> BienConvocatoriasBecas { get; set; } = [];
 }

@@ -19,22 +19,16 @@ public sealed record ActualizarAdjuntoComando(
 /// los limites de la columna. La entidad se carga por el repositorio,
 /// muta en memoria, y persiste con un unico <see cref="IUnitOfWork"/>.
 /// </summary>
-public sealed class ActualizarAdjunto
+public sealed class ActualizarAdjunto(
+    IRepositorioAdjuntosImagenes repositorio, IUnitOfWork unitOfWork)
 {
     private const int MaxNombre = 90;
     private const int MaxMime = 90;
     private const int MaxExtension = 90;
     private const int MaxRuta = 255;
 
-    private readonly IRepositorioAdjuntosImagenes _repositorio;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public ActualizarAdjunto(
-        IRepositorioAdjuntosImagenes repositorio, IUnitOfWork unitOfWork)
-    {
-        _repositorio = repositorio;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IRepositorioAdjuntosImagenes _repositorio = repositorio;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task EjecutarAsync(ActualizarAdjuntoComando comando, CancellationToken ct = default)
     {

@@ -13,7 +13,7 @@ public partial class BienTipoApoyoFinanciero
 
     public bool EsActivo { get; set; }
 
-    public virtual ICollection<BienMotivosBeca> BienMotivosBecas { get; set; } = new List<BienMotivosBeca>();
+    public virtual ICollection<BienMotivosBeca> BienMotivosBecas { get; set; } = [];
 
-    public virtual ICollection<BienParametroRequisitoBeca> BienParametroRequisitoBecas { get; set; } = new List<BienParametroRequisitoBeca>();
+    public virtual ICollection<BienParametroRequisitoBeca> BienParametroRequisitoBecas { get; set; } = [];
 }

@@ -21,5 +21,5 @@ public partial class DocumentosAdjunto
 
     public virtual TiposDocumento IdtiposDocumentosNavigation { get; set; } = null!;
 
-    public virtual ICollection<Postulacione> Postulaciones { get; set; } = new List<Postulacione>();
+    public virtual ICollection<Postulacione> Postulaciones { get; set; } = [];
 }

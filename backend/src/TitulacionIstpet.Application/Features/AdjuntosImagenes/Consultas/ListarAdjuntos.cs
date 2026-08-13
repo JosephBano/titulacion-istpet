@@ -13,25 +13,20 @@ public sealed record PaginaAdjuntos(
 /// de uso (no en el controlador) para que cualquier consumidor —REST, un
 /// job, otro handler— reciba siempre el mismo limite maximo.
 /// </summary>
-public sealed class ListarAdjuntos
+public sealed class ListarAdjuntos(IRepositorioAdjuntosImagenes repositorio)
 {
     public const int TamanoPaginaPorDefecto = 20;
     public const int TamanoPaginaMaximo = 200;
 
-    private readonly IRepositorioAdjuntosImagenes _repositorio;
-
-    public ListarAdjuntos(IRepositorioAdjuntosImagenes repositorio)
-    {
-        _repositorio = repositorio;
-    }
+    private readonly IRepositorioAdjuntosImagenes _repositorio = repositorio;
 
     public async Task<PaginaAdjuntos> EjecutarAsync(
         ListarAdjuntosConsulta consulta, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(consulta);
 
-        var pagina = consulta.Pagina < 1 ? 1 : consulta.Pagina;
-        var tamano = consulta.TamanoPagina switch
+        int pagina = consulta.Pagina < 1 ? 1 : consulta.Pagina;
+        int tamano = consulta.TamanoPagina switch
         {
             < 1 => TamanoPaginaPorDefecto,
             > TamanoPaginaMaximo => TamanoPaginaMaximo,
@@ -39,7 +34,7 @@ public sealed class ListarAdjuntos
         };
 
         var entidades = await _repositorio.ListarAsync(pagina, tamano, ct);
-        var total = await _repositorio.ContarAsync(ct);
+        int total = await _repositorio.ContarAsync(ct);
 
         var items = entidades
             .Select(AdjuntosImageneMapeo.A_DTO)

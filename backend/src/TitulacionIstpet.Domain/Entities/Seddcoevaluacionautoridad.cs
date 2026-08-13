@@ -21,5 +21,5 @@ public partial class Seddcoevaluacionautoridad
 
     public virtual Seddinstrumento? IdInstrumentoNavigation { get; set; }
 
-    public virtual ICollection<Sedddetallecoevaluacionautoridad> Sedddetallecoevaluacionautoridads { get; set; } = new List<Sedddetallecoevaluacionautoridad>();
+    public virtual ICollection<Sedddetallecoevaluacionautoridad> Sedddetallecoevaluacionautoridads { get; set; } = [];
 }

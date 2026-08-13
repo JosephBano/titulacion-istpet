@@ -105,7 +105,7 @@ public class AislamientoDeCapasTests
             return;
         }
 
-        var ofensores = string.Join(
+        string ofensores = string.Join(
             Environment.NewLine,
             resultado.FailingTypeNames.Select(n => "  - " + n));
 

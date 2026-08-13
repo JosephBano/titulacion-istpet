@@ -11,5 +11,5 @@ public partial class BienPorcentajeBeca
 
     public bool EsActivo { get; set; }
 
-    public virtual ICollection<BienMotivosBeca> BienMotivosBecas { get; set; } = new List<BienMotivosBeca>();
+    public virtual ICollection<BienMotivosBeca> BienMotivosBecas { get; set; } = [];
 }

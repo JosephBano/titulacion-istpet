@@ -11,5 +11,5 @@ public partial class Nacionalidade
 
     public bool? EsNinguna { get; set; }
 
-    public virtual ICollection<Profesore> Profesores { get; set; } = new List<Profesore>();
+    public virtual ICollection<Profesore> Profesores { get; set; } = [];
 }

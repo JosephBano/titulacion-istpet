@@ -15,5 +15,5 @@ public partial class TiposAsignatura
 
     public bool? NoDefinida { get; set; }
 
-    public virtual ICollection<Detallemalla> Detallemallas { get; set; } = new List<Detallemalla>();
+    public virtual ICollection<Detallemalla> Detallemallas { get; set; } = [];
 }

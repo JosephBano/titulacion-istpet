@@ -49,5 +49,5 @@ public partial class Solicitude
 
     public virtual Tipossolicitude? IdTipoSolicitudNavigation { get; set; }
 
-    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = new List<Solicitudescalificacione>();
+    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = [];
 }

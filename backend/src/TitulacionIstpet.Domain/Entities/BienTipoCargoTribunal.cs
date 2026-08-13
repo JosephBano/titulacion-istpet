@@ -11,7 +11,7 @@ public partial class BienTipoCargoTribunal
 
     public bool? EsRector { get; set; }
 
-    public virtual ICollection<BienTribunal> BienTribunals { get; set; } = new List<BienTribunal>();
+    public virtual ICollection<BienTribunal> BienTribunals { get; set; } = [];
 
-    public virtual ICollection<BienVotosTribunale> BienVotosTribunales { get; set; } = new List<BienVotosTribunale>();
+    public virtual ICollection<BienVotosTribunale> BienVotosTribunales { get; set; } = [];
 }

@@ -19,15 +19,15 @@ public partial class Seddinstrumento
 
     public virtual CategoriasActividade? IdCategoriaNavigation { get; set; }
 
-    public virtual ICollection<Seddautoevaluacion> Seddautoevaluacions { get; set; } = new List<Seddautoevaluacion>();
+    public virtual ICollection<Seddautoevaluacion> Seddautoevaluacions { get; set; } = [];
 
-    public virtual ICollection<Seddcoevaluacionautoridad> Seddcoevaluacionautoridads { get; set; } = new List<Seddcoevaluacionautoridad>();
+    public virtual ICollection<Seddcoevaluacionautoridad> Seddcoevaluacionautoridads { get; set; } = [];
 
-    public virtual ICollection<Seddcoevaluacion> Seddcoevaluacions { get; set; } = new List<Seddcoevaluacion>();
+    public virtual ICollection<Seddcoevaluacion> Seddcoevaluacions { get; set; } = [];
 
-    public virtual ICollection<Seddheteroevaluacion> Seddheteroevaluacions { get; set; } = new List<Seddheteroevaluacion>();
+    public virtual ICollection<Seddheteroevaluacion> Seddheteroevaluacions { get; set; } = [];
 
-    public virtual ICollection<Seddinsitu> Seddinsitus { get; set; } = new List<Seddinsitu>();
+    public virtual ICollection<Seddinsitu> Seddinsitus { get; set; } = [];
 
-    public virtual ICollection<Seddinstrumentospregunta> Seddinstrumentospregunta { get; set; } = new List<Seddinstrumentospregunta>();
+    public virtual ICollection<Seddinstrumentospregunta> Seddinstrumentospregunta { get; set; } = [];
 }

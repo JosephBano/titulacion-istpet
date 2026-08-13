@@ -13,7 +13,7 @@ public partial class Etnia
 
     public bool? NoRegistra { get; set; }
 
-    public virtual ICollection<Alumno> Alumnos { get; set; } = new List<Alumno>();
+    public virtual ICollection<Alumno> Alumnos { get; set; } = [];
 
-    public virtual ICollection<Profesore> Profesores { get; set; } = new List<Profesore>();
+    public virtual ICollection<Profesore> Profesores { get; set; } = [];
 }

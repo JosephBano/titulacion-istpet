@@ -15,5 +15,5 @@ public partial class Departamento
 
     public int? IdInstitucion { get; set; }
 
-    public virtual ICollection<OfertasLaborale> OfertasLaborales { get; set; } = new List<OfertasLaborale>();
+    public virtual ICollection<OfertasLaborale> OfertasLaborales { get; set; } = [];
 }

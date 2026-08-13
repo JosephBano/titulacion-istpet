@@ -15,7 +15,7 @@ public partial class BienConvocatoriasBeca
 
     public int IdTipoConvocatoria { get; set; }
 
-    public virtual ICollection<BienPostulacionesBeca> BienPostulacionesBecas { get; set; } = new List<BienPostulacionesBeca>();
+    public virtual ICollection<BienPostulacionesBeca> BienPostulacionesBecas { get; set; } = [];
 
     public virtual CronDetalleCronograma? IdDetalleCronogramaNavigation { get; set; }
 

@@ -15,7 +15,7 @@ public partial class CampoEspecificoUnesco
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<CampoDetalladoUnesco> CampoDetalladoUnescos { get; set; } = new List<CampoDetalladoUnesco>();
+    public virtual ICollection<CampoDetalladoUnesco> CampoDetalladoUnescos { get; set; } = [];
 
     public virtual CampoAmplioUnesco? IdCampoAmplioUnescoNavigation { get; set; }
 }

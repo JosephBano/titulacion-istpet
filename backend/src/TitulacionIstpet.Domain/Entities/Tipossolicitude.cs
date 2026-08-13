@@ -21,9 +21,9 @@ public partial class Tipossolicitude
 
     public virtual Departamentossolicitude? IdDepartamentoSolicitudNavigation { get; set; }
 
-    public virtual ICollection<Parametrostipossolicitude> Parametrostipossolicitudes { get; set; } = new List<Parametrostipossolicitude>();
+    public virtual ICollection<Parametrostipossolicitude> Parametrostipossolicitudes { get; set; } = [];
 
-    public virtual ICollection<Solicitude> Solicitudes { get; set; } = new List<Solicitude>();
+    public virtual ICollection<Solicitude> Solicitudes { get; set; } = [];
 
-    public virtual ICollection<Usuariosdepartamentossolicitude> Usuariosdepartamentossolicitudes { get; set; } = new List<Usuariosdepartamentossolicitude>();
+    public virtual ICollection<Usuariosdepartamentossolicitude> Usuariosdepartamentossolicitudes { get; set; } = [];
 }

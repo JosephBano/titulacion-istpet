@@ -17,7 +17,7 @@ public partial class InstitucionesInstituto
 
     public string? CedulaRepresentante { get; set; }
 
-    public virtual ICollection<Contrato> Contratos { get; set; } = new List<Contrato>();
+    public virtual ICollection<Contrato> Contratos { get; set; } = [];
 
-    public virtual ICollection<PlantillaContrato> PlantillaContratos { get; set; } = new List<PlantillaContrato>();
+    public virtual ICollection<PlantillaContrato> PlantillaContratos { get; set; } = [];
 }

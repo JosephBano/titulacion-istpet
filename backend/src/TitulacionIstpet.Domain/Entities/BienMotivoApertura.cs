@@ -20,9 +20,9 @@ public partial class BienMotivoApertura
 
     public bool EsActivo { get; set; }
 
-    public virtual ICollection<BienCaso> BienCasos { get; set; } = new List<BienCaso>();
+    public virtual ICollection<BienCaso> BienCasos { get; set; } = [];
 
-    public virtual ICollection<BienRequerimientosMotivoApertura> BienRequerimientosMotivoAperturas { get; set; } = new List<BienRequerimientosMotivoApertura>();
+    public virtual ICollection<BienRequerimientosMotivoApertura> BienRequerimientosMotivoAperturas { get; set; } = [];
 
     public virtual AdjuntosImagene? IdAdjuntosImagenesNavigation { get; set; }
 }

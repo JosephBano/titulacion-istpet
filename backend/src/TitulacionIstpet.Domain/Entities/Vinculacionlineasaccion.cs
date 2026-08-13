@@ -11,5 +11,5 @@ public partial class Vinculacionlineasaccion
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Vinculacionproyecto> Vinculacionproyectos { get; set; } = new List<Vinculacionproyecto>();
+    public virtual ICollection<Vinculacionproyecto> Vinculacionproyectos { get; set; } = [];
 }

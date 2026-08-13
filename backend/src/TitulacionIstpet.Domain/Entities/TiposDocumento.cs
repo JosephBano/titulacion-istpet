@@ -11,5 +11,5 @@ public partial class TiposDocumento
 
     public string? SubijoDocumento { get; set; }
 
-    public virtual ICollection<DocumentosAdjunto> DocumentosAdjuntos { get; set; } = new List<DocumentosAdjunto>();
+    public virtual ICollection<DocumentosAdjunto> DocumentosAdjuntos { get; set; } = [];
 }

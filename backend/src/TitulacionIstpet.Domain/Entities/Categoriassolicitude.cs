@@ -11,5 +11,5 @@ public partial class Categoriassolicitude
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Tipossolicitude> Tipossolicitudes { get; set; } = new List<Tipossolicitude>();
+    public virtual ICollection<Tipossolicitude> Tipossolicitudes { get; set; } = [];
 }

@@ -8,11 +8,9 @@ namespace TitulacionIstpet.IntegrationTests;
 /// Arranca la app completa en memoria. Verifica que el grafo de DI resuelve,
 /// que es donde se rompen los errores de cableado.
 /// </summary>
-public class HealthEndpointTests : IClassFixture<ApiFactory>
+public class HealthEndpointTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
-    private readonly ApiFactory _factory;
-
-    public HealthEndpointTests(ApiFactory factory) => _factory = factory;
+    private readonly ApiFactory _factory = factory;
 
     [Fact]
     public async Task Health_responde_ok()

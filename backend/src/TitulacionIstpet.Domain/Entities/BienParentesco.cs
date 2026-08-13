@@ -13,5 +13,5 @@ public partial class BienParentesco
 
     public bool EsMadre { get; set; }
 
-    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = new List<BienParentezcosAlumno>();
+    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = [];
 }

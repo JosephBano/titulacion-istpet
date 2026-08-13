@@ -15,17 +15,11 @@ namespace TitulacionIstpet.Application.Auth;
 /// gestion academica, con credenciales correctas sobre la misma tabla compartida,
 /// no entra aqui si no tiene permisos sobre 'titl'.
 /// </summary>
-public sealed class AutenticarUsuario
+public sealed class AutenticarUsuario(
+    IRepositorioAutenticacion repositorio, IVerificadorCredenciales verificador)
 {
-    private readonly IRepositorioAutenticacion _repositorio;
-    private readonly IVerificadorCredenciales _verificador;
-
-    public AutenticarUsuario(
-        IRepositorioAutenticacion repositorio, IVerificadorCredenciales verificador)
-    {
-        _repositorio = repositorio;
-        _verificador = verificador;
-    }
+    private readonly IRepositorioAutenticacion _repositorio = repositorio;
+    private readonly IVerificadorCredenciales _verificador = verificador;
 
     public async Task<IdentidadUsuario> EjecutarAsync(
         string? idSigafi, string? contrasenia, CancellationToken ct = default)
@@ -74,7 +68,7 @@ public sealed class AutenticarUsuario
     {
         try
         {
-            var hash = _verificador.Hashear(enClaro);
+            string hash = _verificador.Hashear(enClaro);
             await _repositorio.ActualizarContraseniaAsync(idUsuario, hash, ct);
         }
         catch (Exception) when (!ct.IsCancellationRequested)

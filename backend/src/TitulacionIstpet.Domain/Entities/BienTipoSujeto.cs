@@ -11,5 +11,5 @@ public partial class BienTipoSujeto
 
     public bool EsActivo { get; set; }
 
-    public virtual ICollection<BienUsuarioCaso> BienUsuarioCasos { get; set; } = new List<BienUsuarioCaso>();
+    public virtual ICollection<BienUsuarioCaso> BienUsuarioCasos { get; set; } = [];
 }

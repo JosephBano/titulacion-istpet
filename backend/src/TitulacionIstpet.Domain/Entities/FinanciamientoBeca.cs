@@ -9,5 +9,5 @@ public partial class FinanciamientoBeca
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<TitulosEnCurso> TitulosEnCursos { get; set; } = new List<TitulosEnCurso>();
+    public virtual ICollection<TitulosEnCurso> TitulosEnCursos { get; set; } = [];
 }

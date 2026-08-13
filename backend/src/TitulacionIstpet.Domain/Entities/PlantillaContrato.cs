@@ -41,5 +41,5 @@ public partial class PlantillaContrato
 
     public virtual TiposContrato IdTiposContratosNavigation { get; set; } = null!;
 
-    public virtual ICollection<PlantillaClausula> PlantillaClausulas { get; set; } = new List<PlantillaClausula>();
+    public virtual ICollection<PlantillaClausula> PlantillaClausulas { get; set; } = [];
 }

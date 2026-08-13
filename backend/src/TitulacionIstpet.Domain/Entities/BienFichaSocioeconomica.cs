@@ -33,9 +33,9 @@ public partial class BienFichaSocioeconomica
 
     public virtual BienDatosEconomico? BienDatosEconomico { get; set; }
 
-    public virtual ICollection<BienDetalleViviendum> BienDetalleVivienda { get; set; } = new List<BienDetalleViviendum>();
+    public virtual ICollection<BienDetalleViviendum> BienDetalleVivienda { get; set; } = [];
 
-    public virtual ICollection<BienServiciosFicha> BienServiciosFichas { get; set; } = new List<BienServiciosFicha>();
+    public virtual ICollection<BienServiciosFicha> BienServiciosFichas { get; set; } = [];
 
     public virtual Alumno IdAlumnoNavigation { get; set; } = null!;
 

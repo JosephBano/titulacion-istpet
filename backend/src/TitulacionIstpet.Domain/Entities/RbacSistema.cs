@@ -15,5 +15,5 @@ public partial class RbacSistema
 
     public string? Icono { get; set; }
 
-    public virtual ICollection<RbacModulo> RbacModulos { get; set; } = new List<RbacModulo>();
+    public virtual ICollection<RbacModulo> RbacModulos { get; set; } = [];
 }

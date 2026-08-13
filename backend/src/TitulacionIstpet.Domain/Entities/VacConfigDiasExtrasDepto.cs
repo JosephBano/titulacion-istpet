@@ -31,5 +31,5 @@ public partial class VacConfigDiasExtrasDepto
 
     public DateTime FechaCreacion { get; set; }
 
-    public virtual ICollection<VacConfigDiasExtrasExcepcione> VacConfigDiasExtrasExcepciones { get; set; } = new List<VacConfigDiasExtrasExcepcione>();
+    public virtual ICollection<VacConfigDiasExtrasExcepcione> VacConfigDiasExtrasExcepciones { get; set; } = [];
 }

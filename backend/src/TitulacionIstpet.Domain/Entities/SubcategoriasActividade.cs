@@ -17,5 +17,5 @@ public partial class SubcategoriasActividade
 
     public virtual CategoriasActividade? IdCategoriaNavigation { get; set; }
 
-    public virtual ICollection<ProfesoresActividade> ProfesoresActividades { get; set; } = new List<ProfesoresActividade>();
+    public virtual ICollection<ProfesoresActividade> ProfesoresActividades { get; set; } = [];
 }

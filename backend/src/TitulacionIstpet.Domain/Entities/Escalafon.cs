@@ -13,7 +13,7 @@ public partial class Escalafon
 
     public bool? EsActivo { get; set; }
 
-    public virtual ICollection<DedicacionCategoria> DedicacionCategoria { get; set; } = new List<DedicacionCategoria>();
+    public virtual ICollection<DedicacionCategoria> DedicacionCategoria { get; set; } = [];
 
     public virtual CategoriaContrato IdCategoriaContratosNavigation { get; set; } = null!;
 }

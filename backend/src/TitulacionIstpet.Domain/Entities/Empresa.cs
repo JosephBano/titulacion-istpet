@@ -39,9 +39,9 @@ public partial class Empresa
 
     public bool? EsActivo { get; set; }
 
-    public virtual ICollection<EmpresasContacto> EmpresasContactos { get; set; } = new List<EmpresasContacto>();
+    public virtual ICollection<EmpresasContacto> EmpresasContactos { get; set; } = [];
 
     public virtual SectoresEmpresa IdsectoresEmpresasNavigation { get; set; } = null!;
 
-    public virtual ICollection<OfertasLaborale> OfertasLaborales { get; set; } = new List<OfertasLaborale>();
+    public virtual ICollection<OfertasLaborale> OfertasLaborales { get; set; } = [];
 }

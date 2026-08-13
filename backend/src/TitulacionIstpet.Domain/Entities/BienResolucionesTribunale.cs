@@ -23,7 +23,7 @@ public partial class BienResolucionesTribunale
 
     public DateTime FechaRegistro { get; set; }
 
-    public virtual ICollection<BienApoyoFinanciero> BienApoyoFinancieros { get; set; } = new List<BienApoyoFinanciero>();
+    public virtual ICollection<BienApoyoFinanciero> BienApoyoFinancieros { get; set; } = [];
 
     public virtual BienVotosTribunale? BienVotosTribunale { get; set; }
 

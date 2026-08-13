@@ -13,7 +13,7 @@ public partial class FechasHorario
 
     public string? Dia { get; set; }
 
-    public virtual ICollection<CondAcadSesione> CondAcadSesiones { get; set; } = new List<CondAcadSesione>();
+    public virtual ICollection<CondAcadSesione> CondAcadSesiones { get; set; } = [];
 
-    public virtual ICollection<HorarioDetalle> HorarioDetalles { get; set; } = new List<HorarioDetalle>();
+    public virtual ICollection<HorarioDetalle> HorarioDetalles { get; set; } = [];
 }

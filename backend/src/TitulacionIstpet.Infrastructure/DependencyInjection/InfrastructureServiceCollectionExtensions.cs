@@ -13,7 +13,7 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services, IConfiguration configuration)
     {
-        var cadena = configuration.GetConnectionString("SigafiDb")
+        string cadena = configuration.GetConnectionString("SigafiDb")
             ?? throw new InvalidOperationException(
                 "Falta ConnectionStrings:SigafiDb. Copia appsettings.example.json a " +
                 "appsettings.Development.json (git-ignored) o define la variable de entorno " +

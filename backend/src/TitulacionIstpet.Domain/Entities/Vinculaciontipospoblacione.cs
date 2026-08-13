@@ -11,5 +11,5 @@ public partial class Vinculaciontipospoblacione
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Vinculacionproyectoscarrerasdetalle> Vinculacionproyectoscarrerasdetalles { get; set; } = new List<Vinculacionproyectoscarrerasdetalle>();
+    public virtual ICollection<Vinculacionproyectoscarrerasdetalle> Vinculacionproyectoscarrerasdetalles { get; set; } = [];
 }

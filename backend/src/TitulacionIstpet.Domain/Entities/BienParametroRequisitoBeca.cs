@@ -15,7 +15,7 @@ public partial class BienParametroRequisitoBeca
 
     public int IdTipoApoyoFinanciero { get; set; }
 
-    public virtual ICollection<BienPostulacionRequisitosBeca> BienPostulacionRequisitosBecas { get; set; } = new List<BienPostulacionRequisitosBeca>();
+    public virtual ICollection<BienPostulacionRequisitosBeca> BienPostulacionRequisitosBecas { get; set; } = [];
 
     public virtual BienRequisitosBeca IdRequistosBecaNavigation { get; set; } = null!;
 

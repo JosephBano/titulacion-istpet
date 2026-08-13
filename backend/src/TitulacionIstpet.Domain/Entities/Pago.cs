@@ -41,7 +41,7 @@ public partial class Pago
 
     public string? DocumentoFactura { get; set; }
 
-    public virtual ICollection<DetallePago> DetallePagos { get; set; } = new List<DetallePago>();
+    public virtual ICollection<DetallePago> DetallePagos { get; set; } = [];
 
-    public virtual ICollection<DetallesDocumentosPago> DetallesDocumentosPagos { get; set; } = new List<DetallesDocumentosPago>();
+    public virtual ICollection<DetallesDocumentosPago> DetallesDocumentosPagos { get; set; } = [];
 }

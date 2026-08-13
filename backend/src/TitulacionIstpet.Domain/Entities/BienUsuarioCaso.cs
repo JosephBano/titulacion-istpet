@@ -17,7 +17,7 @@ public partial class BienUsuarioCaso
 
     public string? Detalle { get; set; }
 
-    public virtual ICollection<BienAsistentesDesarrollo> BienAsistentesDesarrollos { get; set; } = new List<BienAsistentesDesarrollo>();
+    public virtual ICollection<BienAsistentesDesarrollo> BienAsistentesDesarrollos { get; set; } = [];
 
     public virtual BienCaso IdCasoNavigation { get; set; } = null!;
 

@@ -55,7 +55,7 @@ public partial class CondAcadSesione
 
     public DateTime? FechaActualizacion { get; set; }
 
-    public virtual ICollection<CondAcadAsistencia> CondAcadAsistencia { get; set; } = new List<CondAcadAsistencia>();
+    public virtual ICollection<CondAcadAsistencia> CondAcadAsistencia { get; set; } = [];
 
     public virtual AsignacionesProfesore IdAsignacionNavigation { get; set; } = null!;
 

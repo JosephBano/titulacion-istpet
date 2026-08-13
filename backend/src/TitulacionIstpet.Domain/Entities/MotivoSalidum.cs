@@ -13,5 +13,5 @@ public partial class MotivoSalidum
 
     public bool? Esactivo { get; set; }
 
-    public virtual ICollection<ProfesoresMotivoSalidum> ProfesoresMotivoSalida { get; set; } = new List<ProfesoresMotivoSalidum>();
+    public virtual ICollection<ProfesoresMotivoSalidum> ProfesoresMotivoSalida { get; set; } = [];
 }

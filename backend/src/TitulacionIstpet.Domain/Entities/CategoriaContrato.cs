@@ -9,5 +9,5 @@ public partial class CategoriaContrato
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<Escalafon> Escalafons { get; set; } = new List<Escalafon>();
+    public virtual ICollection<Escalafon> Escalafons { get; set; } = [];
 }

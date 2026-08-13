@@ -21,5 +21,5 @@ public partial class Usuariossolicitude
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<Usuariosdepartamentossolicitude> Usuariosdepartamentossolicitudes { get; set; } = new List<Usuariosdepartamentossolicitude>();
+    public virtual ICollection<Usuariosdepartamentossolicitude> Usuariosdepartamentossolicitudes { get; set; } = [];
 }

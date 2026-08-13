@@ -30,7 +30,7 @@ public class CrearAdjuntoTests
         var comando = new CrearAdjuntoComando(
             "foto.png", "png", "image/png", 1024, "uploads/2026/foto.png");
 
-        var id = await _sut.EjecutarAsync(comando);
+        int id = await _sut.EjecutarAsync(comando);
 
         id.Should().Be(42);
         _repo.Received(1).Agregar(Arg.Is<AdjuntosImagene>(e =>
@@ -70,7 +70,7 @@ public class CrearAdjuntoTests
     [Fact]
     public async Task Crear_con_nombre_mayor_a_90_caracteres_lanza_ValidacionException()
     {
-        var nombreLargo = new string('a', 91);
+        string nombreLargo = new('a', 91);
         var comando = new CrearAdjuntoComando(nombreLargo, "png", "image/png", 1024, "ruta");
 
         var accion = () => _sut.EjecutarAsync(comando);

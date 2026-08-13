@@ -31,9 +31,9 @@ public partial class BienCasoDesarrollo
 
     public int? CasoAbierto { get; set; }
 
-    public virtual ICollection<BienAsistentesDesarrollo> BienAsistentesDesarrollos { get; set; } = new List<BienAsistentesDesarrollo>();
+    public virtual ICollection<BienAsistentesDesarrollo> BienAsistentesDesarrollos { get; set; } = [];
 
-    public virtual ICollection<BienCasoDesarrolloDoc> BienCasoDesarrolloDocs { get; set; } = new List<BienCasoDesarrolloDoc>();
+    public virtual ICollection<BienCasoDesarrolloDoc> BienCasoDesarrolloDocs { get; set; } = [];
 
     public virtual BienCasoDesarrollo? IdCasoDesarrolloPadreNavigation { get; set; }
 
@@ -43,5 +43,5 @@ public partial class BienCasoDesarrollo
 
     public virtual Usuario? IdUsuarioResponsableNavigation { get; set; }
 
-    public virtual ICollection<BienCasoDesarrollo> InverseIdCasoDesarrolloPadreNavigation { get; set; } = new List<BienCasoDesarrollo>();
+    public virtual ICollection<BienCasoDesarrollo> InverseIdCasoDesarrolloPadreNavigation { get; set; } = [];
 }

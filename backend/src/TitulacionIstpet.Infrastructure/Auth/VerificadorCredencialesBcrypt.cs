@@ -77,7 +77,7 @@ public sealed class VerificadorCredencialesBcrypt : IVerificadorCredenciales
     {
         // Trim() replica el comportamiento de auth_global: la base tiene columnas CHAR
         // con relleno de espacios, y sin el recorte esos usuarios no podrian entrar.
-        var coincide = string.Equals(almacenado.Trim(), enClaro, StringComparison.Ordinal);
+        bool coincide = string.Equals(almacenado.Trim(), enClaro, StringComparison.Ordinal);
 
         // Coincidencia en texto plano siempre pide rehash: es el disparador que migra
         // la fila a BCrypt en el proximo login exitoso.

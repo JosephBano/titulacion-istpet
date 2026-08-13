@@ -9,14 +9,9 @@ public sealed record ObtenerAdjuntoPorIdConsulta(int Id);
 /// cuando el id no existe; asi el controlador no tiene que distinguir entre
 /// "no encontrado" y "exito".
 /// </summary>
-public sealed class ObtenerAdjuntoPorId
+public sealed class ObtenerAdjuntoPorId(IRepositorioAdjuntosImagenes repositorio)
 {
-    private readonly IRepositorioAdjuntosImagenes _repositorio;
-
-    public ObtenerAdjuntoPorId(IRepositorioAdjuntosImagenes repositorio)
-    {
-        _repositorio = repositorio;
-    }
+    private readonly IRepositorioAdjuntosImagenes _repositorio = repositorio;
 
     public async Task<AdjuntosImageneDto> EjecutarAsync(
         ObtenerAdjuntoPorIdConsulta consulta, CancellationToken ct = default)

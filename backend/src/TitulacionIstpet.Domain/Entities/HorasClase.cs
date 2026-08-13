@@ -23,5 +23,5 @@ public partial class HorasClase
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<HorarioDetalle> HorarioDetalles { get; set; } = new List<HorarioDetalle>();
+    public virtual ICollection<HorarioDetalle> HorarioDetalles { get; set; } = [];
 }

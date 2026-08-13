@@ -9,5 +9,5 @@ public partial class BienNivelInstruccion
 
     public string Detalle { get; set; } = null!;
 
-    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = new List<BienParentezcosAlumno>();
+    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = [];
 }

@@ -35,5 +35,5 @@ public partial class VacPermiso
 
     public bool AdjuntoPendienteFisico { get; set; }
 
-    public virtual ICollection<VacRecuperacionTiempo> VacRecuperacionTiempos { get; set; } = new List<VacRecuperacionTiempo>();
+    public virtual ICollection<VacRecuperacionTiempo> VacRecuperacionTiempos { get; set; } = [];
 }

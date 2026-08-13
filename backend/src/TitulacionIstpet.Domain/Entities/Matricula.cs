@@ -49,13 +49,13 @@ public partial class Matricula
 
     public string? DocumentoFactura { get; set; }
 
-    public virtual ICollection<BienApoyoFinanciero> BienApoyoFinancieros { get; set; } = new List<BienApoyoFinanciero>();
+    public virtual ICollection<BienApoyoFinanciero> BienApoyoFinancieros { get; set; } = [];
 
-    public virtual ICollection<BienPostulacionesBeca> BienPostulacionesBecas { get; set; } = new List<BienPostulacionesBeca>();
+    public virtual ICollection<BienPostulacionesBeca> BienPostulacionesBecas { get; set; } = [];
 
-    public virtual ICollection<Calificacione> Calificaciones { get; set; } = new List<Calificacione>();
+    public virtual ICollection<Calificacione> Calificaciones { get; set; } = [];
 
-    public virtual ICollection<CondAcadAsistencia> CondAcadAsistencia { get; set; } = new List<CondAcadAsistencia>();
+    public virtual ICollection<CondAcadAsistencia> CondAcadAsistencia { get; set; } = [];
 
     public virtual Alumno IdAlumnoNavigation { get; set; } = null!;
 
@@ -67,7 +67,7 @@ public partial class Matricula
 
     public virtual Seccione IdSeccionNavigation { get; set; } = null!;
 
-    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = new List<Solicitudescalificacione>();
+    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosalumno> Vinculacionproyectosalumnos { get; set; } = new List<Vinculacionproyectosalumno>();
+    public virtual ICollection<Vinculacionproyectosalumno> Vinculacionproyectosalumnos { get; set; } = [];
 }

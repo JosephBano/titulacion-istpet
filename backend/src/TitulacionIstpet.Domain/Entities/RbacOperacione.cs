@@ -9,5 +9,5 @@ public partial class RbacOperacione
 
     public string? NombreOperacion { get; set; }
 
-    public virtual ICollection<RbacModulosOperacione> RbacModulosOperaciones { get; set; } = new List<RbacModulosOperacione>();
+    public virtual ICollection<RbacModulosOperacione> RbacModulosOperaciones { get; set; } = [];
 }

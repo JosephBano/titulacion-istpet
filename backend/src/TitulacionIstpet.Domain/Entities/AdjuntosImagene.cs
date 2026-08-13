@@ -17,17 +17,17 @@ public partial class AdjuntosImagene
 
     public string? Ruta { get; set; }
 
-    public virtual ICollection<BienCasoDesarrolloDoc> BienCasoDesarrolloDocs { get; set; } = new List<BienCasoDesarrolloDoc>();
+    public virtual ICollection<BienCasoDesarrolloDoc> BienCasoDesarrolloDocs { get; set; } = [];
 
-    public virtual ICollection<BienCasoRequerimiento> BienCasoRequerimientos { get; set; } = new List<BienCasoRequerimiento>();
+    public virtual ICollection<BienCasoRequerimiento> BienCasoRequerimientos { get; set; } = [];
 
-    public virtual ICollection<BienMotivoApertura> BienMotivoAperturas { get; set; } = new List<BienMotivoApertura>();
+    public virtual ICollection<BienMotivoApertura> BienMotivoAperturas { get; set; } = [];
 
-    public virtual ICollection<BienPostulacionRequisitosBeca> BienPostulacionRequisitosBecas { get; set; } = new List<BienPostulacionRequisitosBeca>();
+    public virtual ICollection<BienPostulacionRequisitosBeca> BienPostulacionRequisitosBecas { get; set; } = [];
 
-    public virtual ICollection<CarrerasAdjunto> CarrerasAdjuntos { get; set; } = new List<CarrerasAdjunto>();
+    public virtual ICollection<CarrerasAdjunto> CarrerasAdjuntos { get; set; } = [];
 
-    public virtual ICollection<PlantillaContrato> PlantillaContratoIdFondoNavigations { get; set; } = new List<PlantillaContrato>();
+    public virtual ICollection<PlantillaContrato> PlantillaContratoIdFondoNavigations { get; set; } = [];
 
-    public virtual ICollection<PlantillaContrato> PlantillaContratoIdSelloNavigations { get; set; } = new List<PlantillaContrato>();
+    public virtual ICollection<PlantillaContrato> PlantillaContratoIdSelloNavigations { get; set; } = [];
 }

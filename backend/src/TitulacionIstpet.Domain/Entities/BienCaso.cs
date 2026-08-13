@@ -25,11 +25,11 @@ public partial class BienCaso
 
     public string Estado { get; set; } = null!;
 
-    public virtual ICollection<BienCasoDesarrollo> BienCasoDesarrollos { get; set; } = new List<BienCasoDesarrollo>();
+    public virtual ICollection<BienCasoDesarrollo> BienCasoDesarrollos { get; set; } = [];
 
-    public virtual ICollection<BienCasoRequerimiento> BienCasoRequerimientos { get; set; } = new List<BienCasoRequerimiento>();
+    public virtual ICollection<BienCasoRequerimiento> BienCasoRequerimientos { get; set; } = [];
 
-    public virtual ICollection<BienUsuarioCaso> BienUsuarioCasos { get; set; } = new List<BienUsuarioCaso>();
+    public virtual ICollection<BienUsuarioCaso> BienUsuarioCasos { get; set; } = [];
 
     public virtual BienMotivoApertura IdMotivoAperturaNavigation { get; set; } = null!;
 

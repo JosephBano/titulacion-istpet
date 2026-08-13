@@ -41,7 +41,7 @@ public class ListarAdjuntosTests
     public async Task Listar_con_pagina_negativa_se_normaliza_a_uno()
     {
         _repo.ListarAsync(1, Arg.Any<int>(), Arg.Any<CancellationToken>())
-            .Returns(new List<AdjuntosImagene>());
+            .Returns([]);
         _repo.ContarAsync(Arg.Any<CancellationToken>()).Returns(0);
 
         var pagina = await _sut.EjecutarAsync(new ListarAdjuntosConsulta(Pagina: -5, TamanoPagina: 20));
@@ -54,7 +54,7 @@ public class ListarAdjuntosTests
     public async Task Listar_con_tamano_cero_usa_el_por_defecto()
     {
         _repo.ListarAsync(1, ListarAdjuntos.TamanoPaginaPorDefecto, Arg.Any<CancellationToken>())
-            .Returns(new List<AdjuntosImagene>());
+            .Returns([]);
         _repo.ContarAsync(Arg.Any<CancellationToken>()).Returns(0);
 
         var pagina = await _sut.EjecutarAsync(new ListarAdjuntosConsulta(Pagina: 1, TamanoPagina: 0));
@@ -66,7 +66,7 @@ public class ListarAdjuntosTests
     public async Task Listar_con_tamano_excesivo_se_acota_al_maximo()
     {
         _repo.ListarAsync(1, ListarAdjuntos.TamanoPaginaMaximo, Arg.Any<CancellationToken>())
-            .Returns(new List<AdjuntosImagene>());
+            .Returns([]);
         _repo.ContarAsync(Arg.Any<CancellationToken>()).Returns(0);
 
         var pagina = await _sut.EjecutarAsync(new ListarAdjuntosConsulta(

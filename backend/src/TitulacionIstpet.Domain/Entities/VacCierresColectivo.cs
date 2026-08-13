@@ -21,5 +21,5 @@ public partial class VacCierresColectivo
 
     public int RegistradoPorId { get; set; }
 
-    public virtual ICollection<VacCierresColectivosExclusione> VacCierresColectivosExclusiones { get; set; } = new List<VacCierresColectivosExclusione>();
+    public virtual ICollection<VacCierresColectivosExclusione> VacCierresColectivosExclusiones { get; set; } = [];
 }

@@ -11,5 +11,5 @@ public partial class TipoContacto
 
     public string? LongitudContacto { get; set; }
 
-    public virtual ICollection<EmpresasContacto> EmpresasContactos { get; set; } = new List<EmpresasContacto>();
+    public virtual ICollection<EmpresasContacto> EmpresasContactos { get; set; } = [];
 }

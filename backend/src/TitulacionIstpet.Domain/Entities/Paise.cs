@@ -13,9 +13,9 @@ public partial class Paise
 
     public bool? EsEcuador { get; set; }
 
-    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = new List<BienParentezcosAlumno>();
+    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = [];
 
-    public virtual ICollection<Provincia> Provincia { get; set; } = new List<Provincia>();
+    public virtual ICollection<Provincia> Provincia { get; set; } = [];
 
-    public virtual ICollection<Universidade> Universidades { get; set; } = new List<Universidade>();
+    public virtual ICollection<Universidade> Universidades { get; set; } = [];
 }

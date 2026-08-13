@@ -19,5 +19,5 @@ public partial class Seddheteroevaluacion
 
     public virtual Seddinstrumento? IdInstrumentoNavigation { get; set; }
 
-    public virtual ICollection<Sedddetalleheteroevaluacion> Sedddetalleheteroevaluacions { get; set; } = new List<Sedddetalleheteroevaluacion>();
+    public virtual ICollection<Sedddetalleheteroevaluacion> Sedddetalleheteroevaluacions { get; set; } = [];
 }

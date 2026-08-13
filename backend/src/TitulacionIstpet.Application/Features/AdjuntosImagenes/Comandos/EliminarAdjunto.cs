@@ -10,17 +10,11 @@ namespace TitulacionIstpet.Application.Features.AdjuntosImagenes.Comandos;
 /// reporta 0 filas afectadas y el cliente no sabria si fallo el borrado
 /// o si el id era incorrecto).
 /// </summary>
-public sealed class EliminarAdjunto
+public sealed class EliminarAdjunto(
+    IRepositorioAdjuntosImagenes repositorio, IUnitOfWork unitOfWork)
 {
-    private readonly IRepositorioAdjuntosImagenes _repositorio;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public EliminarAdjunto(
-        IRepositorioAdjuntosImagenes repositorio, IUnitOfWork unitOfWork)
-    {
-        _repositorio = repositorio;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IRepositorioAdjuntosImagenes _repositorio = repositorio;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task EjecutarAsync(int id, CancellationToken ct = default)
     {

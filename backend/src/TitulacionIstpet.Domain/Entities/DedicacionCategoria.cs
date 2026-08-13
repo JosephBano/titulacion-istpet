@@ -17,11 +17,11 @@ public partial class DedicacionCategoria
 
     public bool? EsActivo { get; set; }
 
-    public virtual ICollection<Contrato> Contratos { get; set; } = new List<Contrato>();
+    public virtual ICollection<Contrato> Contratos { get; set; } = [];
 
     public virtual Dedicacion IdDedicacionNavigation { get; set; } = null!;
 
     public virtual Escalafon IdEscalafonNavigation { get; set; } = null!;
 
-    public virtual ICollection<ProfesoresDedicacion> ProfesoresDedicacions { get; set; } = new List<ProfesoresDedicacion>();
+    public virtual ICollection<ProfesoresDedicacion> ProfesoresDedicacions { get; set; } = [];
 }

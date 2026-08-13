@@ -31,21 +31,21 @@ public partial class Carrera
 
     public bool? EsInstituto { get; set; }
 
-    public virtual ICollection<CarrerasAdjunto> CarrerasAdjuntos { get; set; } = new List<CarrerasAdjunto>();
+    public virtual ICollection<CarrerasAdjunto> CarrerasAdjuntos { get; set; } = [];
 
-    public virtual ICollection<Curso> Cursos { get; set; } = new List<Curso>();
+    public virtual ICollection<Curso> Cursos { get; set; } = [];
 
-    public virtual ICollection<Espacio> Espacios { get; set; } = new List<Espacio>();
+    public virtual ICollection<Espacio> Espacios { get; set; } = [];
 
-    public virtual ICollection<FechasPagosCuota> FechasPagosCuota { get; set; } = new List<FechasPagosCuota>();
+    public virtual ICollection<FechasPagosCuota> FechasPagosCuota { get; set; } = [];
 
-    public virtual ICollection<Malla> Mallas { get; set; } = new List<Malla>();
+    public virtual ICollection<Malla> Mallas { get; set; } = [];
 
-    public virtual ICollection<ModalidadesCarrera> ModalidadesCarreras { get; set; } = new List<ModalidadesCarrera>();
+    public virtual ICollection<ModalidadesCarrera> ModalidadesCarreras { get; set; } = [];
 
-    public virtual ICollection<OfertasCarrera> OfertasCarreras { get; set; } = new List<OfertasCarrera>();
+    public virtual ICollection<OfertasCarrera> OfertasCarreras { get; set; } = [];
 
-    public virtual ICollection<ProfesoresCarrerasPeriodo> ProfesoresCarrerasPeriodos { get; set; } = new List<ProfesoresCarrerasPeriodo>();
+    public virtual ICollection<ProfesoresCarrerasPeriodo> ProfesoresCarrerasPeriodos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectoscarrera> Vinculacionproyectoscarreras { get; set; } = new List<Vinculacionproyectoscarrera>();
+    public virtual ICollection<Vinculacionproyectoscarrera> Vinculacionproyectoscarreras { get; set; } = [];
 }

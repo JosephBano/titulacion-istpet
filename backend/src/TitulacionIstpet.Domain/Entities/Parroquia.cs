@@ -11,11 +11,11 @@ public partial class Parroquia
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<Alumno> Alumnos { get; set; } = new List<Alumno>();
+    public virtual ICollection<Alumno> Alumnos { get; set; } = [];
 
     public virtual Ciudade IdciudadesNavigation { get; set; } = null!;
 
-    public virtual ICollection<Profesore> ProfesoreIdParroquiaNacimientoNavigations { get; set; } = new List<Profesore>();
+    public virtual ICollection<Profesore> ProfesoreIdParroquiaNacimientoNavigations { get; set; } = [];
 
-    public virtual ICollection<Profesore> ProfesoreIdParroquiaResidenciaNavigations { get; set; } = new List<Profesore>();
+    public virtual ICollection<Profesore> ProfesoreIdParroquiaResidenciaNavigations { get; set; } = [];
 }

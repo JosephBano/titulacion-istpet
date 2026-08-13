@@ -13,5 +13,5 @@ public partial class BienRequisitosBeca
 
     public bool EsActivo { get; set; }
 
-    public virtual ICollection<BienParametroRequisitoBeca> BienParametroRequisitoBecas { get; set; } = new List<BienParametroRequisitoBeca>();
+    public virtual ICollection<BienParametroRequisitoBeca> BienParametroRequisitoBecas { get; set; } = [];
 }

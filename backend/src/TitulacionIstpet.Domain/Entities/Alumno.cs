@@ -105,13 +105,13 @@ public partial class Alumno
 
     public string? TipoInstitucion { get; set; }
 
-    public virtual ICollection<BienDatosEducacion> BienDatosEducacions { get; set; } = new List<BienDatosEducacion>();
+    public virtual ICollection<BienDatosEducacion> BienDatosEducacions { get; set; } = [];
 
-    public virtual ICollection<BienFichaSocioeconomica> BienFichaSocioeconomicas { get; set; } = new List<BienFichaSocioeconomica>();
+    public virtual ICollection<BienFichaSocioeconomica> BienFichaSocioeconomicas { get; set; } = [];
 
-    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = new List<BienParentezcosAlumno>();
+    public virtual ICollection<BienParentezcosAlumno> BienParentezcosAlumnos { get; set; } = [];
 
-    public virtual ICollection<ExperienciasLaborale> ExperienciasLaborales { get; set; } = new List<ExperienciasLaborale>();
+    public virtual ICollection<ExperienciasLaborale> ExperienciasLaborales { get; set; } = [];
 
     public virtual Estadocivil? IdEstadoCivilNavigation { get; set; }
 
@@ -121,5 +121,5 @@ public partial class Alumno
 
     public virtual Parroquia? IdParroquiaResidenciaNavigation { get; set; }
 
-    public virtual ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
+    public virtual ICollection<Matricula> Matriculas { get; set; } = [];
 }

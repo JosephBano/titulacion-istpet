@@ -51,41 +51,41 @@ public partial class Vinculacionproyecto
 
     public virtual Vinculacionlineasaccion? IdlineaAsccionNavigation { get; set; }
 
-    public virtual ICollection<Vinculacionproyectosalumno> Vinculacionproyectosalumnos { get; set; } = new List<Vinculacionproyectosalumno>();
+    public virtual ICollection<Vinculacionproyectosalumno> Vinculacionproyectosalumnos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectoscarrera> Vinculacionproyectoscarreras { get; set; } = new List<Vinculacionproyectoscarrera>();
+    public virtual ICollection<Vinculacionproyectoscarrera> Vinculacionproyectoscarreras { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectoscarrerasdetalle> Vinculacionproyectoscarrerasdetalles { get; set; } = new List<Vinculacionproyectoscarrerasdetalle>();
+    public virtual ICollection<Vinculacionproyectoscarrerasdetalle> Vinculacionproyectoscarrerasdetalles { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectoscronograma> Vinculacionproyectoscronogramas { get; set; } = new List<Vinculacionproyectoscronograma>();
+    public virtual ICollection<Vinculacionproyectoscronograma> Vinculacionproyectoscronogramas { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosentidade> Vinculacionproyectosentidades { get; set; } = new List<Vinculacionproyectosentidade>();
+    public virtual ICollection<Vinculacionproyectosentidade> Vinculacionproyectosentidades { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectoshabilidadesblanda> Vinculacionproyectoshabilidadesblanda { get; set; } = new List<Vinculacionproyectoshabilidadesblanda>();
+    public virtual ICollection<Vinculacionproyectoshabilidadesblanda> Vinculacionproyectoshabilidadesblanda { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosimpacto> Vinculacionproyectosimpactos { get; set; } = new List<Vinculacionproyectosimpacto>();
+    public virtual ICollection<Vinculacionproyectosimpacto> Vinculacionproyectosimpactos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosmateriale> Vinculacionproyectosmateriales { get; set; } = new List<Vinculacionproyectosmateriale>();
+    public virtual ICollection<Vinculacionproyectosmateriale> Vinculacionproyectosmateriales { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosobjetivo> Vinculacionproyectosobjetivos { get; set; } = new List<Vinculacionproyectosobjetivo>();
+    public virtual ICollection<Vinculacionproyectosobjetivo> Vinculacionproyectosobjetivos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosobjetivosoportunidade> Vinculacionproyectosobjetivosoportunidades { get; set; } = new List<Vinculacionproyectosobjetivosoportunidade>();
+    public virtual ICollection<Vinculacionproyectosobjetivosoportunidade> Vinculacionproyectosobjetivosoportunidades { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosobjetivospedi> Vinculacionproyectosobjetivospedis { get; set; } = new List<Vinculacionproyectosobjetivospedi>();
+    public virtual ICollection<Vinculacionproyectosobjetivospedi> Vinculacionproyectosobjetivospedis { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosperiodo> Vinculacionproyectosperiodos { get; set; } = new List<Vinculacionproyectosperiodo>();
+    public virtual ICollection<Vinculacionproyectosperiodo> Vinculacionproyectosperiodos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosplanesaprendizaje> Vinculacionproyectosplanesaprendizajes { get; set; } = new List<Vinculacionproyectosplanesaprendizaje>();
+    public virtual ICollection<Vinculacionproyectosplanesaprendizaje> Vinculacionproyectosplanesaprendizajes { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosplantrabajo> Vinculacionproyectosplantrabajos { get; set; } = new List<Vinculacionproyectosplantrabajo>();
+    public virtual ICollection<Vinculacionproyectosplantrabajo> Vinculacionproyectosplantrabajos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectospoblacione> Vinculacionproyectospoblaciones { get; set; } = new List<Vinculacionproyectospoblacione>();
+    public virtual ICollection<Vinculacionproyectospoblacione> Vinculacionproyectospoblaciones { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectospresupuesto> Vinculacionproyectospresupuestos { get; set; } = new List<Vinculacionproyectospresupuesto>();
+    public virtual ICollection<Vinculacionproyectospresupuesto> Vinculacionproyectospresupuestos { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosprofesore> Vinculacionproyectosprofesores { get; set; } = new List<Vinculacionproyectosprofesore>();
+    public virtual ICollection<Vinculacionproyectosprofesore> Vinculacionproyectosprofesores { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosresponsable> Vinculacionproyectosresponsables { get; set; } = new List<Vinculacionproyectosresponsable>();
+    public virtual ICollection<Vinculacionproyectosresponsable> Vinculacionproyectosresponsables { get; set; } = [];
 
-    public virtual ICollection<Vinculacionproyectosresultadosaprendizaje> Vinculacionproyectosresultadosaprendizajes { get; set; } = new List<Vinculacionproyectosresultadosaprendizaje>();
+    public virtual ICollection<Vinculacionproyectosresultadosaprendizaje> Vinculacionproyectosresultadosaprendizajes { get; set; } = [];
 }

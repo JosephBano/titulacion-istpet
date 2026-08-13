@@ -19,11 +19,11 @@ public partial class Curso
 
     public string? AliasCurso { get; set; }
 
-    public virtual ICollection<Detallemalla> Detallemallas { get; set; } = new List<Detallemalla>();
+    public virtual ICollection<Detallemalla> Detallemallas { get; set; } = [];
 
     public virtual Carrera IdCarreraNavigation { get; set; } = null!;
 
-    public virtual ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
+    public virtual ICollection<Matricula> Matriculas { get; set; } = [];
 
-    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = new List<Solicitudescalificacione>();
+    public virtual ICollection<Solicitudescalificacione> Solicitudescalificaciones { get; set; } = [];
 }

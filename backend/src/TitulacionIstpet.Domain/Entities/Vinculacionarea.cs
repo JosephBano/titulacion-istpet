@@ -11,5 +11,5 @@ public partial class Vinculacionarea
 
     public bool Activo { get; set; }
 
-    public virtual ICollection<Vinculacionsubarea> Vinculacionsubareas { get; set; } = new List<Vinculacionsubarea>();
+    public virtual ICollection<Vinculacionsubarea> Vinculacionsubareas { get; set; } = [];
 }

@@ -19,27 +19,18 @@ namespace TitulacionIstpet.WebApi.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/adjuntos-imagenes")]
-public sealed class AdjuntosImagenesController : ControllerBase
+public sealed class AdjuntosImagenesController(
+    ObtenerAdjuntoPorId obtener,
+    ListarAdjuntos listar,
+    CrearAdjunto crear,
+    ActualizarAdjunto actualizar,
+    EliminarAdjunto eliminar) : ControllerBase
 {
-    private readonly ObtenerAdjuntoPorId _obtener;
-    private readonly ListarAdjuntos _listar;
-    private readonly CrearAdjunto _crear;
-    private readonly ActualizarAdjunto _actualizar;
-    private readonly EliminarAdjunto _eliminar;
-
-    public AdjuntosImagenesController(
-        ObtenerAdjuntoPorId obtener,
-        ListarAdjuntos listar,
-        CrearAdjunto crear,
-        ActualizarAdjunto actualizar,
-        EliminarAdjunto eliminar)
-    {
-        _obtener = obtener;
-        _listar = listar;
-        _crear = crear;
-        _actualizar = actualizar;
-        _eliminar = eliminar;
-    }
+    private readonly ObtenerAdjuntoPorId _obtener = obtener;
+    private readonly ListarAdjuntos _listar = listar;
+    private readonly CrearAdjunto _crear = crear;
+    private readonly ActualizarAdjunto _actualizar = actualizar;
+    private readonly EliminarAdjunto _eliminar = eliminar;
 
     [HttpGet]
     public Task<PaginaAdjuntos> Listar(
@@ -56,7 +47,7 @@ public sealed class AdjuntosImagenesController : ControllerBase
     public async Task<ActionResult<AdjuntosImageneDto>> Crear(
         [FromBody] CrearAdjuntoComando comando, CancellationToken ct)
     {
-        var id = await _crear.EjecutarAsync(comando, ct);
+        int id = await _crear.EjecutarAsync(comando, ct);
 
         // 201 Created con Location al recurso recien creado. El cliente puede
         // seguir el header para pedir el detalle sin tener que construir la URL.

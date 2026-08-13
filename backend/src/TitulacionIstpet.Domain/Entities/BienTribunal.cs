@@ -15,7 +15,7 @@ public partial class BienTribunal
 
     public int? IdTipoCargoTribunal { get; set; }
 
-    public virtual ICollection<BienVotosTribunale> BienVotosTribunales { get; set; } = new List<BienVotosTribunale>();
+    public virtual ICollection<BienVotosTribunale> BienVotosTribunales { get; set; } = [];
 
     public virtual BienTipoCargoTribunal? IdTipoCargoTribunalNavigation { get; set; }
 

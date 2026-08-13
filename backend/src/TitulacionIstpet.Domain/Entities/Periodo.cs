@@ -43,17 +43,17 @@ public partial class Periodo
 
     public bool? EsConduccion { get; set; }
 
-    public virtual ICollection<BienCaso> BienCasos { get; set; } = new List<BienCaso>();
+    public virtual ICollection<BienCaso> BienCasos { get; set; } = [];
 
-    public virtual ICollection<BienResolucionesTribunale> BienResolucionesTribunales { get; set; } = new List<BienResolucionesTribunale>();
+    public virtual ICollection<BienResolucionesTribunale> BienResolucionesTribunales { get; set; } = [];
 
-    public virtual ICollection<ContratosAsignatura> ContratosAsignaturas { get; set; } = new List<ContratosAsignatura>();
+    public virtual ICollection<ContratosAsignatura> ContratosAsignaturas { get; set; } = [];
 
-    public virtual ICollection<FechasPagosCuota> FechasPagosCuota { get; set; } = new List<FechasPagosCuota>();
+    public virtual ICollection<FechasPagosCuota> FechasPagosCuota { get; set; } = [];
 
-    public virtual ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
+    public virtual ICollection<Matricula> Matriculas { get; set; } = [];
 
-    public virtual ICollection<ProfesoresCarrerasPeriodo> ProfesoresCarrerasPeriodos { get; set; } = new List<ProfesoresCarrerasPeriodo>();
+    public virtual ICollection<ProfesoresCarrerasPeriodo> ProfesoresCarrerasPeriodos { get; set; } = [];
 
-    public virtual ICollection<ProfesoresDedicacion> ProfesoresDedicacions { get; set; } = new List<ProfesoresDedicacion>();
+    public virtual ICollection<ProfesoresDedicacion> ProfesoresDedicacions { get; set; } = [];
 }

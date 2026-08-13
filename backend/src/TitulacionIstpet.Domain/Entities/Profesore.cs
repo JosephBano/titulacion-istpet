@@ -87,11 +87,11 @@ public partial class Profesore
 
     public bool? EsReal { get; set; }
 
-    public virtual ICollection<CertificadosExperienciaLaboral> CertificadosExperienciaLaborals { get; set; } = new List<CertificadosExperienciaLaboral>();
+    public virtual ICollection<CertificadosExperienciaLaboral> CertificadosExperienciaLaborals { get; set; } = [];
 
-    public virtual ICollection<Contrato> Contratos { get; set; } = new List<Contrato>();
+    public virtual ICollection<Contrato> Contratos { get; set; } = [];
 
-    public virtual ICollection<CursosProfesore> CursosProfesores { get; set; } = new List<CursosProfesore>();
+    public virtual ICollection<CursosProfesore> CursosProfesores { get; set; } = [];
 
     public virtual Estadocivil EstadoCivilNavigation { get; set; } = null!;
 
@@ -105,23 +105,23 @@ public partial class Profesore
 
     public virtual Parroquia IdParroquiaResidenciaNavigation { get; set; } = null!;
 
-    public virtual ICollection<KardexVacacione> KardexVacaciones { get; set; } = new List<KardexVacacione>();
+    public virtual ICollection<KardexVacacione> KardexVacaciones { get; set; } = [];
 
-    public virtual ICollection<ProfesoresCarrerasPeriodo> ProfesoresCarrerasPeriodos { get; set; } = new List<ProfesoresCarrerasPeriodo>();
+    public virtual ICollection<ProfesoresCarrerasPeriodo> ProfesoresCarrerasPeriodos { get; set; } = [];
 
-    public virtual ICollection<ProfesoresDedicacion> ProfesoresDedicacions { get; set; } = new List<ProfesoresDedicacion>();
+    public virtual ICollection<ProfesoresDedicacion> ProfesoresDedicacions { get; set; } = [];
 
-    public virtual ICollection<ProfesoresHistorialLaboral> ProfesoresHistorialLaborals { get; set; } = new List<ProfesoresHistorialLaboral>();
+    public virtual ICollection<ProfesoresHistorialLaboral> ProfesoresHistorialLaborals { get; set; } = [];
 
-    public virtual ICollection<ProfesoresMotivoSalidum> ProfesoresMotivoSalida { get; set; } = new List<ProfesoresMotivoSalidum>();
+    public virtual ICollection<ProfesoresMotivoSalidum> ProfesoresMotivoSalida { get; set; } = [];
 
-    public virtual ICollection<SolicitudesLicencia> SolicitudesLicencia { get; set; } = new List<SolicitudesLicencia>();
+    public virtual ICollection<SolicitudesLicencia> SolicitudesLicencia { get; set; } = [];
 
     public virtual Tiposangre TipoSangreNavigation { get; set; } = null!;
 
-    public virtual ICollection<TitulosEnCurso> TitulosEnCursos { get; set; } = new List<TitulosEnCurso>();
+    public virtual ICollection<TitulosEnCurso> TitulosEnCursos { get; set; } = [];
 
-    public virtual ICollection<TitulosProfesore> TitulosProfesores { get; set; } = new List<TitulosProfesore>();
+    public virtual ICollection<TitulosProfesore> TitulosProfesores { get; set; } = [];
 
-    public virtual ICollection<VacConfigDiasExtrasExcepcione> VacConfigDiasExtrasExcepciones { get; set; } = new List<VacConfigDiasExtrasExcepcione>();
+    public virtual ICollection<VacConfigDiasExtrasExcepcione> VacConfigDiasExtrasExcepciones { get; set; } = [];
 }

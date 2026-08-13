@@ -21,5 +21,5 @@ public partial class Vinculacionproyectosresultadosaprendizaje
 
     public virtual Vinculacionproyecto? IdProyectoVinculacionNavigation { get; set; }
 
-    public virtual ICollection<Vinculacionproyectosplanesaprendizaje> Vinculacionproyectosplanesaprendizajes { get; set; } = new List<Vinculacionproyectosplanesaprendizaje>();
+    public virtual ICollection<Vinculacionproyectosplanesaprendizaje> Vinculacionproyectosplanesaprendizajes { get; set; } = [];
 }

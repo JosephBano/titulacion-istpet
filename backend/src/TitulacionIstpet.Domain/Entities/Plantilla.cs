@@ -17,5 +17,5 @@ public partial class Plantilla
 
     public bool? Activo { get; set; }
 
-    public virtual ICollection<Plantillasparametro> Plantillasparametros { get; set; } = new List<Plantillasparametro>();
+    public virtual ICollection<Plantillasparametro> Plantillasparametros { get; set; } = [];
 }

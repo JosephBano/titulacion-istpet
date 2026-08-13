@@ -11,5 +11,5 @@ public partial class Seccione
 
     public string? Sufijo { get; set; }
 
-    public virtual ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
+    public virtual ICollection<Matricula> Matriculas { get; set; } = [];
 }

@@ -13,7 +13,7 @@ public partial class RbacRol
 
     public bool? EsActivo { get; set; }
 
-    public virtual ICollection<RbacRolModuloOperacion> RbacRolModuloOperacions { get; set; } = new List<RbacRolModuloOperacion>();
+    public virtual ICollection<RbacRolModuloOperacion> RbacRolModuloOperacions { get; set; } = [];
 
-    public virtual ICollection<RbacUsuarioRol> RbacUsuarioRols { get; set; } = new List<RbacUsuarioRol>();
+    public virtual ICollection<RbacUsuarioRol> RbacUsuarioRols { get; set; } = [];
 }

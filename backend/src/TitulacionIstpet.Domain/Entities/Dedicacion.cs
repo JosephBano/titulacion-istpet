@@ -9,9 +9,9 @@ public partial class Dedicacion
 
     public string? Nombre { get; set; }
 
-    public virtual ICollection<DedicacionCategoria> DedicacionCategoria { get; set; } = new List<DedicacionCategoria>();
+    public virtual ICollection<DedicacionCategoria> DedicacionCategoria { get; set; } = [];
 
-    public virtual ICollection<HorasAcademica> HorasAcademicas { get; set; } = new List<HorasAcademica>();
+    public virtual ICollection<HorasAcademica> HorasAcademicas { get; set; } = [];
 
-    public virtual ICollection<PlantillaContrato> PlantillaContratos { get; set; } = new List<PlantillaContrato>();
+    public virtual ICollection<PlantillaContrato> PlantillaContratos { get; set; } = [];
 }
