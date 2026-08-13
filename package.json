@@ -1,0 +1,19 @@
+{
+  "name": "titan-istpet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de Titulacion Academica de Tercer Nivel — Instituto Tecnologico Superior Traversari (ISTPET)",
+  "scripts": {
+    "prepare": "husky",
+    "lint:frontend": "cd frontend && npx eslint src --ext .ts,.html --fix",
+    "format:frontend": "prettier --write \"frontend/src/**/*.{ts,html,css}\"",
+    "format:check": "prettier --check \"frontend/src/**/*.{ts,html,css}\""
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3"
+  }
+}

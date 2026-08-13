@@ -7,7 +7,7 @@ secret:
   # "secreto de baja severidad".
   show_secrets: false
 
-  ignored_paths:
+  ignored-paths:
     - '**/node_modules/**'
     - '**/dist/**'
     - '**/bin/**'
@@ -17,11 +17,11 @@ secret:
 
   # Valores de plantilla: son marcadores, no credenciales. Se listan explicitamente
   # para que el check no se vuelva ruido que el equipo aprenda a ignorar.
-  ignored_matches:
+  ignored-matches:
     - name: Placeholder de la plantilla de appsettings
       match: CAMBIAME
 
 instance: https://dashboard.gitguardian.com
 
-exit_zero: false
+exit-zero: false
 verbose: false
