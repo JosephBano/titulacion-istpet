@@ -46,9 +46,9 @@ JSON
 }
 
 proteger() {
-  local rama="$1" code_owners="$2"
+  local rama="$1" code_owners="$2" enforce_admins="$3"
 
-  echo "  -> ${rama} (require_code_owner_reviews: ${code_owners})"
+  echo "  -> ${rama} (code_owner_reviews: ${code_owners}, enforce_admins: ${enforce_admins})"
 
   # strict:true = "require branches to be up to date before merging".
   # Es lo que impide que dos PRs verdes por separado rompan la rama al fusionarse.
@@ -62,7 +62,7 @@ proteger() {
 $(leer_checks)
     ]
   },
-  "enforce_admins": false,
+  "enforce_admins": ${enforce_admins},
   "required_pull_request_reviews": {
     "required_approving_review_count": 1,
     "dismiss_stale_reviews": true,
@@ -81,12 +81,20 @@ $(leer_checks)
 JSON
 }
 
-# main exige aprobacion de code owner: CODEOWNERS asigna todo a @JosephBano,
-# asi que nada entra a produccion sin el dueño.
-proteger main true
+# main: exige aprobacion de code owner. CODEOWNERS asigna todo a @JosephBano, asi que
+# nada entra a produccion sin el dueño.
+#
+# enforce_admins queda en false a proposito. Con true, el dueño tampoco podria mergear:
+# es el unico code owner y GitHub prohibe aprobar el propio PR, con lo cual main
+# quedaria en deadlock. Si algun dia se suma un segundo code owner al CODEOWNERS,
+# pasar este valor a true.
+proteger main true false
 
-# develop se revisa entre pares: 1 aprobacion de cualquier colaborador.
-proteger develop false
+# develop: revision entre pares, 1 aprobacion de cualquier colaborador.
+#
+# enforce_admins en true, y esto es deliberado: sin el, el dueño puede pushear directo
+# a develop y saltarse los checks. La regla es que TODO entra por PR, incluido el suyo.
+proteger develop false true
 
 echo
 echo "Estado resultante:"

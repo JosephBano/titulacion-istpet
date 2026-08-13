@@ -30,6 +30,7 @@ feature/y                ●──●                         rama personal
 | Checks requeridos | los 8, en modo **strict** | |
 | Resolucion de conversaciones | obligatoria | ningun comentario queda sin cerrar |
 | Force push / borrado | bloqueados | el historial de produccion es inmutable |
+| Bypass de admin (`enforce_admins`) | **desactivado** | ver nota abajo |
 
 ### `develop`
 
@@ -41,6 +42,7 @@ feature/y                ●──●                         rama personal
 | Aprobaciones obsoletas | se descartan al hacer push | |
 | Checks requeridos | los 8, en modo **strict** | |
 | Force push / borrado | bloqueados | nadie reescribe la historia compartida |
+| Bypass de admin (`enforce_admins`) | **activado** | ni el dueño puede pushear directo: todo entra por PR |
 
 ## Como se garantiza que no entra codigo roto ni con conflictos
 
@@ -76,6 +78,20 @@ Las reglas viven en `scripts/proteger-ramas.sh`, versionado. Reejecutarlo es ide
 ```
 
 Requiere `gh` autenticado con permisos de admin sobre el repositorio.
+
+## Por que `main` deja pasar al admin y `develop` no
+
+En `develop`, `enforce_admins` esta **activado**: el dueño no puede pushear directo ni
+saltarse los checks. Trabaja por PR igual que el resto del equipo.
+
+En `main` esta **desactivado**, y no es un descuido. `main` exige aprobacion de code
+owner, y el unico code owner es `@JosephBano`. GitHub no permite aprobar el propio PR.
+Con `enforce_admins: true`, el dueño abriria un PR de `develop` a `main` que nadie
+podria aprobar: `main` quedaria permanentemente bloqueada.
+
+El efecto practico es justo el buscado: solo el dueño puede llevar codigo a `main`.
+Si mas adelante se suma un segundo code owner a `.github/CODEOWNERS`, cambiar la
+llamada en `scripts/proteger-ramas.sh` a `proteger main true true`.
 
 ## Limitacion conocida en repos personales
 
