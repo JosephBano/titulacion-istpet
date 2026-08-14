@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Hook: commit-msg
+# Valida que el mensaje del commit cumpla con Conventional Commits
+# Si falla, el commit es rechazado con instrucciones claras.
+
+npx --no -- commitlint --edit "$1"

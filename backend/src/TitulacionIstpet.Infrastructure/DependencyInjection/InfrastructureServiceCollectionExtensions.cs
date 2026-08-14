@@ -1,10 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TitulacionIstpet.Application.Auth;
 using TitulacionIstpet.Application.Common.Interfaces;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes;
+using TitulacionIstpet.Application.Interfaces;
+using TitulacionIstpet.Domain.Interfaces.Security;
+using TitulacionIstpet.Infrastructure.Auth;
 using TitulacionIstpet.Infrastructure.Persistence;
 using TitulacionIstpet.Infrastructure.Persistence.Repositories;
+using TitulacionIstpet.Infrastructure.Security;
+using TitulacionIstpet.Infrastructure.Services;
 
 namespace TitulacionIstpet.Infrastructure.DependencyInjection;
 
@@ -13,14 +19,15 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services, IConfiguration configuration)
     {
-        string cadena = configuration.GetConnectionString("SigafiDb")
-            ?? throw new InvalidOperationException(
-                "Falta ConnectionStrings:SigafiDb. Copia appsettings.example.json a " +
-                "appsettings.Development.json (git-ignored) o define la variable de entorno " +
-                "ConnectionStrings__SigafiDb.");
+        string? cadena = configuration.GetConnectionString("SigafiDb")
+            ?? configuration.GetConnectionString("DefaultConnection");
 
-        // La version se fija explicitamente: el autodetect abre una conexion en el arranque
-        // y rompe el build de CI, donde no hay MySQL disponible.
+        if (string.IsNullOrWhiteSpace(cadena))
+        {
+            cadena = "Server=localhost;Database=sigafi_es;User=root;Password=;";
+        }
+
+        // La version se fija explicitamente para evitar autodetect en CI sin MySQL levantado
         var version = new MySqlServerVersion(new Version(5, 7, 44));
 
         services.AddDbContext<SigafiDbContext>(options =>
@@ -30,11 +37,25 @@ public static class InfrastructureServiceCollectionExtensions
                 mysql.MigrationsHistoryTable("__ef_migrations_historial");
             }));
 
-        // IUnitOfWork resuelve al mismo SigafiDbContext (ambos scoped por peticion):
-        // asi el repositorio y el caso de uso comparten ChangeTracker y transaccion.
+        // IUnitOfWork resuelve al mismo SigafiDbContext
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SigafiDbContext>());
 
+        // Repositorios existentes
         services.AddScoped<IRepositorioAdjuntosImagenes, RepositorioAdjuntosImagenes>();
+
+        // Seguridad y Auth
+        services.AddScoped<IVerificadorCredenciales, VerificadorCredencialesBcrypt>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        // Servicios de dominio / aplicación
+        services.AddScoped<IRbacService, RbacService>();
+        services.AddScoped<IRbacManagementService, RbacManagementService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ICarrerasService, CarrerasService>();
+        services.AddScoped<IModalidadesService, ModalidadesService>();
+        services.AddScoped<IActoresService, ActoresService>();
+        services.AddScoped<IAcademicoService, AcademicoService>();
 
         return services;
     }
