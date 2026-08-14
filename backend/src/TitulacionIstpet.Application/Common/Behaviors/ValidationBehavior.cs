@@ -8,12 +8,10 @@ namespace TitulacionIstpet.Application.Common.Behaviors;
 /// Corre todos los validadores registrados para el request antes de llegar al handler,
 /// de modo que ningun handler tenga que revalidar su entrada.
 /// </summary>
-public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validadores) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validadores;
-
-    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validadores) => _validadores = validadores;
+    private readonly IEnumerable<IValidator<TRequest>> _validadores = validadores;
 
     public async Task<TResponse> Handle(
         TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)

@@ -1,0 +1,13 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class AsignacionesPropedeutico
+{
+    public int IdCarrera { get; set; }
+
+    public int IdAsignatura { get; set; }
+
+    public bool? Activa { get; set; }
+}

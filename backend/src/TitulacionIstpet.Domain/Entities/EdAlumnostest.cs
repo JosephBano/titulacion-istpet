@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class EdAlumnostest
+{
+    public int IdIngresoTest { get; set; }
+
+    public int? IdMatricula { get; set; }
+
+    public int? IdTest { get; set; }
+
+    public string? IdProfesor { get; set; }
+
+    public DateTime Fecha { get; set; }
+
+    public bool? Culminado { get; set; }
+
+    public DateTime FechaModificacion { get; set; }
+}

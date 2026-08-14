@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class BienAsistentesDesarrollo
+{
+    public int IdbienAsistentesDesarrollo { get; set; }
+
+    public int IdCasoDesarrollo { get; set; }
+
+    public int IdUsuarioCaso { get; set; }
+
+    /// <summary>
+    /// NULL = aun no registrado
+    /// </summary>
+    public bool? Asistio { get; set; }
+
+    public string? Observacion { get; set; }
+
+    public virtual BienCasoDesarrollo IdCasoDesarrolloNavigation { get; set; } = null!;
+
+    public virtual BienUsuarioCaso IdUsuarioCasoNavigation { get; set; } = null!;
+}

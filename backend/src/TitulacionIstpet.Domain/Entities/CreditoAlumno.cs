@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class CreditoAlumno
+{
+    public int IdMatricula { get; set; }
+
+    public int IdEspecie { get; set; }
+
+    public decimal? CreditoInicial { get; set; }
+
+    public decimal? Saldo { get; set; }
+
+    public decimal? Beca { get; set; }
+
+    public decimal? SaldoBeca { get; set; }
+
+    public int? NumeroCuotas { get; set; }
+
+    public decimal? ValorCuotas { get; set; }
+
+    public int IdCredito { get; set; }
+
+    public bool? MigradoContabilidad { get; set; }
+
+    public DateTime? FechaMigracion { get; set; }
+
+    public string? IdDeudaApi { get; set; }
+}

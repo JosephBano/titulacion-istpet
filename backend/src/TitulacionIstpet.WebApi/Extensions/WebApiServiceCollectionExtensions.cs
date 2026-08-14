@@ -16,7 +16,7 @@ public static class WebApiServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<IUsuarioActual, UsuarioActual>();
 
-        var origenes = configuration.GetSection("Cors:OrigenesPermitidos").Get<string[]>()
+        string[] origenes = configuration.GetSection("Cors:OrigenesPermitidos").Get<string[]>()
             ?? ["http://localhost:4200"];
 
         services.AddCors(options => options.AddPolicy(PoliticaCorsFrontend, policy =>

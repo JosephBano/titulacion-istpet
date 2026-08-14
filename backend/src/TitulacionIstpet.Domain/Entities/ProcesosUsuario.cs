@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class ProcesosUsuario
+{
+    public string? Proceso { get; set; }
+
+    public string? Usuario { get; set; }
+
+    public bool? Consultar { get; set; }
+
+    public bool? Insertar { get; set; }
+
+    public bool? Modificar { get; set; }
+
+    public bool? Eliminar { get; set; }
+}

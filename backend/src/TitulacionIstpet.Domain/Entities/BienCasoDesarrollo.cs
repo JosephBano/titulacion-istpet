@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+
+namespace TitulacionIstpet.Domain.Entities;
+
+public partial class BienCasoDesarrollo
+{
+    public int IdCasoDesarrollo { get; set; }
+
+    public int IdCaso { get; set; }
+
+    public int? IdCasoDesarrolloPadre { get; set; }
+
+    public int IdTipoDesarrollo { get; set; }
+
+    public string? Titulo { get; set; }
+
+    public string? Descripcion { get; set; }
+
+    public string? Observaciones { get; set; }
+
+    public int Orden { get; set; }
+
+    public string Estado { get; set; } = null!;
+
+    public DateTime FechaPlanificada { get; set; }
+
+    public DateTime? FechaReal { get; set; }
+
+    public int? IdUsuarioResponsable { get; set; }
+
+    public int? CasoAbierto { get; set; }
+
+    public virtual ICollection<BienAsistentesDesarrollo> BienAsistentesDesarrollos { get; set; } = [];
+
+    public virtual ICollection<BienCasoDesarrolloDoc> BienCasoDesarrolloDocs { get; set; } = [];
+
+    public virtual BienCasoDesarrollo? IdCasoDesarrolloPadreNavigation { get; set; }
+
+    public virtual BienCaso IdCasoNavigation { get; set; } = null!;
+
+    public virtual BienTipoDesarrollo IdTipoDesarrolloNavigation { get; set; } = null!;
+
+    public virtual Usuario? IdUsuarioResponsableNavigation { get; set; }
+
+    public virtual ICollection<BienCasoDesarrollo> InverseIdCasoDesarrolloPadreNavigation { get; set; } = [];
+}
