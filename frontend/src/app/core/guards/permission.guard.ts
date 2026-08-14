@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
 export const permissionGuard = (moduleName: string, operationName: string): CanActivateFn => {
-  return (route, state) => {
+  return () => {
     const authService = inject(AuthService);
     const router = inject(Router);
 

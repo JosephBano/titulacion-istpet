@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import {
   CarrerasService,
-  CarreraDto,
   EstudianteCarreraDto,
   ProfesorCarreraDto,
   UsuarioCarrerasResponseDto,
 } from '../../core/services/carreras.service';
+
+export type CarreraUsuarioItem = EstudianteCarreraDto | ProfesorCarreraDto;
 
 @Component({
   selector: 'app-dashboard',
@@ -31,8 +32,8 @@ export class DashboardComponent implements OnInit {
   searchQuery = signal('');
 
   // Estado Multicarrera
-  carrerasDisponibles = signal<any[]>([]);
-  carreraSeleccionada = signal<any | null>(null);
+  carrerasDisponibles = signal<CarreraUsuarioItem[]>([]);
+  carreraSeleccionada = signal<CarreraUsuarioItem | null>(null);
   carrerasCargando = signal<boolean>(true);
 
   userRolesFormatted(): string {
@@ -88,7 +89,7 @@ export class DashboardComponent implements OnInit {
     this.carrerasCargando.set(true);
     this.carrerasService.getMisCarreras().subscribe({
       next: (data: UsuarioCarrerasResponseDto) => {
-        let lista: any[] = [];
+        let lista: CarreraUsuarioItem[];
         if (this.isEstudiante()) {
           lista = data.carrerasEstudiante || [];
         } else if (this.isDocente()) {

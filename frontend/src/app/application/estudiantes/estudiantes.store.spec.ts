@@ -1,4 +1,6 @@
+// @vitest-environment jsdom
 import { TestBed } from '@angular/core/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ErrorApi } from '../../domain/models/error-api.model';
 import { Estudiante, NuevoEstudiante } from '../../domain/models/estudiante.model';
@@ -7,6 +9,12 @@ import {
   EstudianteRepository,
 } from '../../domain/repositories/estudiante.repository';
 import { EstudiantesStore } from './estudiantes.store';
+
+try {
+  TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+} catch {
+  // Entorno ya inicializado
+}
 
 const estudiante = (id: number, apellidos: string, cedula: string): Estudiante => ({
   id,
@@ -39,6 +47,7 @@ describe('EstudiantesStore', () => {
   let store: EstudiantesStore;
 
   beforeEach(() => {
+    TestBed.resetTestingModule();
     repositorio = new RepositorioFalso();
     TestBed.configureTestingModule({
       providers: [{ provide: ESTUDIANTE_REPOSITORY, useValue: repositorio }],

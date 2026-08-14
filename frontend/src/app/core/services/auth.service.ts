@@ -67,10 +67,7 @@ export class AuthService {
   public logout(): void {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
-      this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe({
-        next: () => {},
-        error: () => {},
-      });
+      this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe();
     }
 
     localStorage.removeItem(this.TOKEN_KEY);
@@ -90,7 +87,9 @@ export class AuthService {
     );
     if (!modulo) return false;
 
-    return modulo.operaciones?.some((op) => op.toLowerCase() === operationName.toLowerCase()) ?? false;
+    return (
+      modulo.operaciones?.some((op) => op.toLowerCase() === operationName.toLowerCase()) ?? false
+    );
   }
 
   public hasRole(roleCode: string): boolean {
@@ -105,7 +104,8 @@ export class AuthService {
         cleanRole === cleanTarget ||
         (cleanTarget === 'ESTUDIANTE' && upperRole === 'ALUMNO') ||
         (cleanTarget === 'DOCENTE' && upperRole === 'PROFESOR') ||
-        (cleanTarget === 'ADMIN' && (upperRole === 'ADMINISTRADOR' || upperRole === 'TITULACION_ADMIN'))
+        (cleanTarget === 'ADMIN' &&
+          (upperRole === 'ADMINISTRADOR' || upperRole === 'TITULACION_ADMIN'))
       );
     });
   }

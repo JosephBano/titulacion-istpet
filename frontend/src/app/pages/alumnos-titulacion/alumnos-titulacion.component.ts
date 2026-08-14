@@ -59,92 +59,105 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
       </div>
 
       <!-- Spinner / Carga -->
-      <div *ngIf="cargando()" class="loading-state">
-        <div class="spinner"></div>
-        <p>Cargando registros desde la base de datos...</p>
-      </div>
+      @if (cargando()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando registros desde la base de datos...</p>
+        </div>
+      }
 
       <!-- Contenido Tab 1: Alumnos Aptos -->
-      <div *ngIf="!cargando() && tabActiva() === 'aptos'" class="table-card">
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Identificación</th>
-                <th>Nombres Completos</th>
-                <th>Contacto</th>
-                <th>Modalidad</th>
-                <th>Período</th>
-                <th>Estado Titulación</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let alumno of alumnosAptos()">
-                <td class="font-mono">{{ alumno.idAlumno }}</td>
-                <td class="font-bold">{{ alumno.nombresCompletos }}</td>
-                <td>
-                  <div class="contact-info">
-                    <span
-                      ><i class="bi bi-envelope"></i> {{ alumno.emailInstitucional || 'N/A' }}</span
-                    >
-                    <span><i class="bi bi-phone"></i> {{ alumno.celular || 'N/A' }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="badge-modalidad">{{ alumno.modalidad }}</span>
-                </td>
-                <td>{{ alumno.idPeriodo }}</td>
-                <td>
-                  <span class="badge-status disponible">
-                    <i class="bi bi-check-circle-fill"></i> {{ alumno.estadoTitulacion }}
-                  </span>
-                </td>
-              </tr>
-              <tr *ngIf="alumnosAptos().length === 0">
-                <td colspan="6" class="empty-state">
-                  <i class="bi bi-inbox"></i> No se encontraron alumnos aptos disponibles.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      @if (!cargando() && tabActiva() === 'aptos') {
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Identificación</th>
+                  <th>Nombres Completos</th>
+                  <th>Contacto</th>
+                  <th>Modalidad</th>
+                  <th>Período</th>
+                  <th>Estado Titulación</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (alumno of alumnosAptos(); track alumno.idAlumno) {
+                  <tr>
+                    <td class="font-mono">{{ alumno.idAlumno }}</td>
+                    <td class="font-bold">{{ alumno.nombresCompletos }}</td>
+                    <td>
+                      <div class="contact-info">
+                        <span
+                          ><i class="bi bi-envelope"></i>
+                          {{ alumno.emailInstitucional || 'N/A' }}</span
+                        >
+                        <span><i class="bi bi-phone"></i> {{ alumno.celular || 'N/A' }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge-modalidad">{{ alumno.modalidad }}</span>
+                    </td>
+                    <td>{{ alumno.idPeriodo }}</td>
+                    <td>
+                      <span class="badge-status disponible">
+                        <i class="bi bi-check-circle-fill"></i> {{ alumno.estadoTitulacion }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      <i class="bi bi-inbox"></i> No se encontraron alumnos aptos disponibles.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      }
 
       <!-- Contenido Tab 2: Graduados Históricos -->
-      <div *ngIf="!cargando() && tabActiva() === 'graduados'" class="table-card">
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Cédula</th>
-                <th>N° Acta</th>
-                <th>Fecha Acta</th>
-                <th>Promedio</th>
-                <th>Nota Final</th>
-                <th>Título Tesis / Proyecto</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let g of alumnosGraduados()">
-                <td class="font-mono">{{ g.idAlumno }}</td>
-                <td>
-                  <span class="badge-acta">{{ g.numeroActa }}</span>
-                </td>
-                <td>{{ g.fechaActa || 'N/A' }}</td>
-                <td class="font-bold text-accent">{{ g.promedioEstudios || 'N/A' }}</td>
-                <td class="font-bold text-success">{{ g.notaFinal || 'N/A' }}</td>
-                <td class="text-sm">{{ g.tituloTesis || 'Título Registrado' }}</td>
-              </tr>
-              <tr *ngIf="alumnosGraduados().length === 0">
-                <td colspan="6" class="empty-state">
-                  <i class="bi bi-journal-x"></i> No se encontraron registros de graduados
-                  históricos.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      @if (!cargando() && tabActiva() === 'graduados') {
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Cédula</th>
+                  <th>N° Acta</th>
+                  <th>Fecha Acta</th>
+                  <th>Promedio</th>
+                  <th>Nota Final</th>
+                  <th>Título Tesis / Proyecto</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (g of alumnosGraduados(); track g.idAlumno) {
+                  <tr>
+                    <td class="font-mono">{{ g.idAlumno }}</td>
+                    <td>
+                      <span class="badge-acta">{{ g.numeroActa }}</span>
+                    </td>
+                    <td>{{ g.fechaActa || 'N/A' }}</td>
+                    <td class="font-bold text-accent">{{ g.promedioEstudios || 'N/A' }}</td>
+                    <td class="font-bold text-success">{{ g.notaFinal || 'N/A' }}</td>
+                    <td class="text-sm">{{ g.tituloTesis || 'Título Registrado' }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="empty-state">
+                      <i class="bi bi-journal-x"></i> No se encontraron registros de graduados
+                      históricos.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      }
     </div>
   `,
   styles: [
@@ -353,7 +366,7 @@ export class AlumnosTitulacionComponent implements OnInit {
   cargando = signal<boolean>(false);
   alumnosAptos = signal<AlumnoApto[]>([]);
   alumnosGraduados = signal<GraduadoHistorico[]>([]);
-  busquedaTexto: string = '';
+  busquedaTexto = '';
 
   ngOnInit(): void {
     this.cargarDatos();
