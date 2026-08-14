@@ -1,0 +1,941 @@
+<!-- Dashboard — Microsoft Fluent Design 2 (Outlook / M365 Layout Shell) — ISTPET ISTPET -->
+<div class="fluent-shell" [attr.data-theme]="isDarkMode() ? 'dark' : 'light'">
+  <!-- ============================================================ -->
+  <!-- 1. TOPBAR NAVBAR (48px)                                      -->
+  <!-- ============================================================ -->
+  <header class="fluent-topbar" role="banner">
+    <div class="topbar-left">
+      <button
+        type="button"
+        class="topbar-nav-toggle"
+        (click)="toggleSidebar()"
+        title="Contraer/expandir navegación"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="topbar-brand">
+        <div class="istpet-logo" aria-label="ISTPET ISTPET">
+          <img src="logo_blanco.webp" alt="Logo ISTPET" class="topbar-logo-img" />
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">ISTPET</span>
+          <span class="brand-sub">Sistema de Titulación Académica</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Búsqueda centrada (M365 style) -->
+    <div class="topbar-search">
+      <svg
+        class="search-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        class="topbar-search-input"
+        placeholder="Buscar postulaciones, reactivos, estudiantes..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      />
+    </div>
+
+    <!-- Acciones derechas -->
+    <div class="topbar-actions">
+      <!-- Alternar Tema -->
+      <button
+        type="button"
+        class="topbar-action-btn"
+        (click)="toggleTheme()"
+        [title]="isDarkMode() ? 'Modo claro' : 'Modo oscuro'"
+      >
+        @if (!isDarkMode()) {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        }
+      </button>
+
+      <!-- Badge de usuario -->
+
+      <!-- Selector de Carrera Activa (Fluent Design 2) -->
+      @if (!carrerasCargando() && carrerasDisponibles().length > 0) {
+        <div class="career-selector-container">
+          <span class="career-icon-label">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            <span class="career-text-lbl">Carrera:</span>
+          </span>
+
+          <!-- Píldora estática si tiene 1 sola carrera -->
+          @if (carrerasDisponibles().length === 1) {
+            <span class="single-career-badge">
+              {{ carrerasDisponibles()[0].nombreCarrera }}
+            </span>
+          }
+
+          <!-- Desplegable Fluent si tiene múltiples carreras -->
+          @if (carrerasDisponibles().length > 1) {
+            <div class="career-dropdown-wrapper">
+              <select
+                class="fluent-career-dropdown"
+                [value]="carreraSeleccionada()?.idCarrera"
+                (change)="onCarreraChange($event)"
+                title="Seleccionar carrera activa"
+              >
+                @for (c of carrerasDisponibles(); track c.idCarrera) {
+                  <option [value]="c.idCarrera">
+                    {{ c.nombreCarrera }}
+                  </option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+      }
+
+      @if (currentUser(); as user) {
+        <div class="user-profile-badge">
+          <div class="avatar-circle">{{ user.nombre ? user.nombre.charAt(0) : 'U' }}</div>
+          <div class="user-meta">
+            <span class="user-name">{{ user.nombre }}</span>
+            <span class="user-role">{{ userRolesFormatted() }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Salir -->
+      <button type="button" class="fluent-btn-logout" (click)="logout()" title="Cerrar sesión">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Salir</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- 2. BODY LAYOUT (ICON RAIL 48px + SIDEBAR 220px + MAIN)       -->
+  <!-- ============================================================ -->
+  <div class="fluent-body-layout">
+    <!-- Icon Rail Lateral Izquierdo (48px) -->
+    <aside class="fluent-icon-rail" role="navigation" aria-label="Navegación principal">
+      <button
+        type="button"
+        class="rail-item"
+        [class.active]="activeTab() === 'resumen'"
+        (click)="setActiveTab(isEstudiante() ? 'postulaciones' : 'resumen')"
+        title="Vista Principal"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="rail-item"
+        [class.active]="activeTab() === 'postulaciones'"
+        (click)="setActiveTab('postulaciones')"
+        title="Postulaciones"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="rail-item"
+        [class.active]="activeTab() === 'complexivo'"
+        (click)="setActiveTab('complexivo')"
+        title="Examen Complexivo"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="rail-item"
+        [class.active]="activeTab() === 'articulos'"
+        (click)="setActiveTab('articulos')"
+        title="Artículos Científicos"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+          <path d="M2 2l7.586 7.586"></path>
+        </svg>
+      </button>
+
+      @if (isAdmin()) {
+        <button
+          type="button"
+          class="rail-item"
+          [class.active]="activeTab() === 'requisitos'"
+          (click)="setActiveTab('requisitos')"
+          title="Requisitos de Titulación"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <line x1="7" y1="8" x2="17" y2="8"></line>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+          </svg>
+        </button>
+      }
+    </aside>
+
+    <!-- Sidebar Secundaria (220px) -->
+    <aside class="fluent-sidebar" [class.collapsed]="isSidebarCollapsed()" role="navigation">
+      <div class="sidebar-group">
+        <h4 class="sidebar-eyebrow">Procesos Académicos</h4>
+        <nav class="sidebar-nav">
+          @if (!isEstudiante()) {
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'resumen'"
+              (click)="setActiveTab('resumen')"
+            >
+              <span>Vista General</span>
+            </button>
+          }
+
+          <button
+            type="button"
+            class="sidebar-nav-item"
+            [class.active]="activeTab() === 'postulaciones'"
+            (click)="setActiveTab('postulaciones')"
+          >
+            <span>{{
+              isEstudiante()
+                ? 'Mi Postulación'
+                : isDocente()
+                  ? 'Revisión Asignada'
+                  : 'Postulaciones'
+            }}</span>
+            @if (isDocente()) {
+              <span class="sidebar-counter">6</span>
+            }
+            @if (isAdmin()) {
+              <span class="sidebar-counter">124</span>
+            }
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-group">
+        <h4 class="sidebar-eyebrow">
+          {{
+            isEstudiante()
+              ? 'Mi Modalidad'
+              : isDocente()
+                ? 'Tutorías & Evaluaciones'
+                : 'Evaluación y Ciencia'
+          }}
+        </h4>
+        <nav class="sidebar-nav">
+          <button
+            type="button"
+            class="sidebar-nav-item"
+            [class.active]="activeTab() === 'complexivo'"
+            (click)="setActiveTab('complexivo')"
+          >
+            <span>Examen Complexivo</span>
+            @if (isDocente()) {
+              <span class="sidebar-counter">12</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="sidebar-nav-item"
+            [class.active]="activeTab() === 'articulos'"
+            (click)="setActiveTab('articulos')"
+          >
+            <span>Artículos Científicos</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Configuración Institucional (Solo Admin) -->
+      @if (isAdmin()) {
+        <div class="sidebar-group">
+          <h4 class="sidebar-eyebrow">Administración</h4>
+          <nav class="sidebar-nav">
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'requisitos'"
+              (click)="setActiveTab('requisitos')"
+            >
+              <span>Requisitos de Titulación</span>
+            </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'cohortes'"
+              (click)="setActiveTab('cohortes')"
+            >
+              <span>Cohortes Académicas</span>
+            </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'modalidades'"
+              (click)="setActiveTab('modalidades')"
+            >
+              <span>Modalidades por Carrera</span>
+            </button>
+          </nav>
+        </div>
+      }
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <main class="fluent-main-content" role="main">
+      <!-- Banner Institucional Personalizado por Rol -->
+      <header class="fluent-banner-card">
+        @if (currentUser(); as user) {
+          <div class="banner-info">
+            <span class="banner-eyebrow">
+              {{
+                isEstudiante()
+                  ? 'PORTAL DEL POSTULANTE'
+                  : isDocente()
+                    ? 'PANEL DOCENTE DE TUTORÍA Y EVALUACIÓN'
+                    : 'PANEL INSTITUCIONAL DE CONTROL'
+              }}
+            </span>
+            <h1 class="banner-title">Bienvenido(a), {{ user.nombre }}</h1>
+            <p class="banner-description">
+              {{
+                isEstudiante()
+                  ? 'Seguimiento en tiempo real de su proceso de titulación — Instituto Tecnológico Superior Traversari'
+                  : isDocente()
+                    ? 'Gestión académica de estudiantes a cargo, tutorías de integración curricular y exámenes complexivos'
+                    : 'Administración Global y Gobernanza Institucional del Sistema de Titulación ISTPET — ISTPET'
+              }}
+            </p>
+          </div>
+        }
+      </header>
+
+      <!-- ============================================================ -->
+      <!-- VISTA ESTUDIANTE: STEPPER DEL PROCESO DE TITULACIÓN          -->
+      <!-- ============================================================ -->
+      @if (isEstudiante()) {
+        <section class="fluent-stepper-card">
+          <div class="stepper-header">
+            <h2 class="stepper-title">Etapas de Mi Proceso de Titulación</h2>
+            <span class="fluent-badge fluent-badge--warning">Etapa 2: Requisitos en Revisión</span>
+          </div>
+
+          <div class="stepper-grid">
+            <!-- Paso 1 -->
+            <div class="stepper-step completed">
+              <div class="step-icon-circle">✓</div>
+              <span class="step-label">1. Postulación</span>
+              <span class="step-status">Registrada</span>
+            </div>
+
+            <!-- Paso 2 -->
+            <div class="stepper-step active">
+              <div class="step-icon-circle">2</div>
+              <span class="step-label">2. Requisitos</span>
+              <span class="step-status">En Revisión</span>
+            </div>
+
+            <!-- Paso 3 -->
+            <div class="stepper-step">
+              <div class="step-icon-circle">3</div>
+              <span class="step-label">3. Modalidad</span>
+              <span class="step-status">Examen Complexivo</span>
+            </div>
+
+            <!-- Paso 4 -->
+            <div class="stepper-step">
+              <div class="step-icon-circle">4</div>
+              <span class="step-label">4. Evaluación</span>
+              <span class="step-status">Pendiente</span>
+            </div>
+
+            <!-- Paso 5 -->
+            <div class="stepper-step">
+              <div class="step-icon-circle">5</div>
+              <span class="step-label">5. Titulación</span>
+              <span class="step-status">Acta Final</span>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ============================================================ -->
+      <!-- KPI METRIC CARDS POR ROL                                     -->
+      <!-- ============================================================ -->
+
+      <!-- KPI GRID PARA ADMINISTRADOR -->
+      @if (isAdmin()) {
+        <section class="fluent-kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">TOTAL POSTULACIONES</span>
+            <span class="kpi-value">124</span>
+            <span class="kpi-subtext">Periodo Académico 2026-I</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">POSTULACIONES APROBADAS</span>
+            <span class="kpi-value">89</span>
+            <span class="kpi-subtext">Habilitados para Defensa</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">REVISIÓN DE REQUISITOS</span>
+            <span class="kpi-value">28</span>
+            <span class="kpi-subtext">Pendientes por Secretaría</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">DEFENSAS PROGRAMADAS</span>
+            <span class="kpi-value">15</span>
+            <span class="kpi-subtext">Próximos 30 días</span>
+          </div>
+        </section>
+      }
+
+      <!-- KPI GRID PARA DOCENTE -->
+      @if (isDocente()) {
+        <section class="fluent-kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">ESTUDIANTES A CARGO</span>
+            <span class="kpi-value">6</span>
+            <span class="kpi-subtext">Bajo su asignación académica</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">TUTORÍAS DE TIC</span>
+            <span class="kpi-value">4</span>
+            <span class="kpi-subtext">Proyectos de Integración en desarrollo</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">REACTIVOS ASIGNADOS</span>
+            <span class="kpi-value">12</span>
+            <span class="kpi-subtext">Examen Complexivo 2026</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">TRIBUNALES DE DEFENSA</span>
+            <span class="kpi-value">2</span>
+            <span class="kpi-subtext">Jurado programado este mes</span>
+          </div>
+        </section>
+      }
+
+      <!-- KPI GRID PARA ESTUDIANTE -->
+      @if (isEstudiante()) {
+        <section class="fluent-kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">ESTADO DE MI PROCESO</span>
+            <span class="kpi-value" style="font-size: 1.25rem">En Revisión</span>
+            <span class="kpi-subtext">Validación documental en curso</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">MODALIDAD ELEGIDA</span>
+            <span class="kpi-value" style="font-size: 1.25rem">Examen Complexivo</span>
+            <span class="kpi-subtext">Convocatoria 2026-I</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">REQUISITOS SUBIDOS</span>
+            <span class="kpi-value">3 / 4</span>
+            <span class="kpi-subtext">75% Documentación completada</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-eyebrow">FECHA DE EVALUACIÓN</span>
+            <span class="kpi-value" style="font-size: 1.25rem">25 SEP 2026</span>
+            <span class="kpi-subtext">Prueba Teórica programada</span>
+          </div>
+        </section>
+      }
+
+      <!-- Tabs Subrayados (Fluent Tabs) -->
+      <nav class="fluent-tabs" role="tablist">
+        @if (!isEstudiante()) {
+          <button
+            type="button"
+            class="fluent-tab-item"
+            [class.active]="activeTab() === 'resumen'"
+            (click)="setActiveTab('resumen')"
+            role="tab"
+          >
+            Vista General
+          </button>
+        }
+
+        <button
+          type="button"
+          class="fluent-tab-item"
+          [class.active]="activeTab() === 'postulaciones'"
+          (click)="setActiveTab('postulaciones')"
+          role="tab"
+        >
+          {{
+            isEstudiante()
+              ? 'Mi Postulación'
+              : isDocente()
+                ? 'Mis Estudiantes Asignados'
+                : 'Postulaciones'
+          }}
+        </button>
+
+        <button
+          type="button"
+          class="fluent-tab-item"
+          [class.active]="activeTab() === 'complexivo'"
+          (click)="setActiveTab('complexivo')"
+          role="tab"
+        >
+          Examen Complexivo
+        </button>
+
+        <button
+          type="button"
+          class="fluent-tab-item"
+          [class.active]="activeTab() === 'articulos'"
+          (click)="setActiveTab('articulos')"
+          role="tab"
+        >
+          Artículos Científicos
+        </button>
+      </nav>
+
+      <!-- GRIDS DE MÓDULOS DE PROCESO DE TITULACIÓN -->
+      <section class="fluent-section">
+        <div class="section-header">
+          <span class="section-eyebrow">
+            {{
+              isEstudiante()
+                ? 'MIS SERVICIOS'
+                : isDocente()
+                  ? 'ACCIONES ACADÉMICAS'
+                  : 'MÓDULOS DEL SISTEMA'
+            }}
+          </span>
+          <h2 class="section-title">
+            {{
+              isEstudiante()
+                ? 'Servicios de Mi Titulación'
+                : isDocente()
+                  ? 'Gestión de Estudiantes y Evaluaciones'
+                  : 'Servicios del Proceso de Titulación'
+            }}
+          </h2>
+        </div>
+
+        <div class="fluent-modules-grid">
+          <!-- 1. Postulaciones de Titulación -->
+          <button type="button" class="fluent-module-card" (click)="setActiveTab('postulaciones')">
+            <div class="card-header">
+              <h3 class="card-title">
+                {{
+                  isEstudiante()
+                    ? 'Mi Postulación de Titulación'
+                    : isDocente()
+                      ? 'Revisiones de Estudiantes'
+                      : 'Postulaciones de Titulación'
+                }}
+              </h3>
+            </div>
+            <p class="card-text">
+              {{
+                isEstudiante()
+                  ? 'Consulte el estado actual de su expediente, modalidad seleccionada y validaciones de Secretaría.'
+                  : isDocente()
+                    ? 'Revisar informes de idoneidad y avances de los 6 estudiantes asignados a su tutoria.'
+                    : 'Registro, revisión formal y aprobación de solicitudes de titulación presentadas por estudiantes.'
+              }}
+            </p>
+            <div class="card-footer">
+              @if (isAdmin()) {
+                <span class="fluent-badge fluent-badge--info">124 Registradas</span>
+              }
+              @if (isDocente()) {
+                <span class="fluent-badge fluent-badge--warning">6 Asignados</span>
+              }
+              @if (isEstudiante()) {
+                <span class="fluent-badge fluent-badge--success">Mi Postulación Activa</span>
+              }
+            </div>
+          </button>
+
+          <!-- 2. Examen Complexivo -->
+          <button type="button" class="fluent-module-card" (click)="setActiveTab('complexivo')">
+            <div class="card-header">
+              <h3 class="card-title">Examen Complexivo</h3>
+            </div>
+            <p class="card-text">
+              {{
+                isEstudiante()
+                  ? 'Consulte fechas de convocatorias, cronograma de pruebas teóricas y guías de preparación.'
+                  : isDocente()
+                    ? 'Elaboración y revisión del banco de reactivos asignados y calificación de pruebas prácticas.'
+                    : 'Gestión de convocatorias, banco de reactivos y registro de calificaciones (teórica, práctica y defensa).'
+              }}
+            </p>
+            <div class="card-footer">
+              <span class="fluent-badge fluent-badge--success">Convocatoria Activa</span>
+            </div>
+          </button>
+
+          <!-- 3. Artículos Científicos -->
+          <button type="button" class="fluent-module-card" (click)="setActiveTab('articulos')">
+            <div class="card-header">
+              <h3 class="card-title">Artículos Científicos</h3>
+            </div>
+            <p class="card-text">
+              {{
+                isEstudiante()
+                  ? 'Presentación de artículos científicos de titulación, revista objetivo y adjunto de archivos soporte.'
+                  : isDocente()
+                    ? 'Revisión técnica de borradores de artículos científicos redactados por sus tutoriados.'
+                    : 'Registro de publicaciones, revistas de impacto, temas, enlaces institucionales y soporte PDF.'
+              }}
+            </p>
+            <div class="card-footer">
+              <span class="fluent-badge fluent-badge--info">En Registro</span>
+            </div>
+          </button>
+
+          <!-- 4. Requisitos de Titulación (Solo Admin) -->
+          @if (isAdmin()) {
+            <button type="button" class="fluent-module-card" (click)="setActiveTab('requisitos')">
+              <div class="card-header">
+                <h3 class="card-title">Requisitos de Titulación</h3>
+              </div>
+              <p class="card-text">
+                Catálogo de requisitos configurables, parámetros de archivos PDF y verificación de
+                documentos.
+              </p>
+              <div class="card-footer">
+                <span class="fluent-badge fluent-badge--warning">Verificar Requisitos</span>
+              </div>
+            </button>
+
+            <!-- 5. Cohortes de Titulación (Solo Admin) -->
+            <button type="button" class="fluent-module-card" (click)="setActiveTab('cohortes')">
+              <div class="card-header">
+                <h3 class="card-title">Cohortes de Titulación</h3>
+              </div>
+              <p class="card-text">
+                Definición y administración de cohortes de titulación vinculadas a cada periodo
+                académico.
+              </p>
+              <div class="card-footer">
+                <span class="fluent-badge fluent-badge--neutral">Periodo Activo</span>
+              </div>
+            </button>
+
+            <!-- 6. Modalidades por Carrera (Solo Admin) -->
+            <button type="button" class="fluent-module-card" (click)="setActiveTab('modalidades')">
+              <div class="card-header">
+                <h3 class="card-title">Modalidades por Carrera</h3>
+              </div>
+              <p class="card-text">
+                Habilitación y control de modalidades (Complexivo, Artículo Científico, Tesis)
+                asignadas por carrera.
+              </p>
+              <div class="card-footer">
+                <span class="fluent-badge fluent-badge--neutral">Habilitado</span>
+              </div>
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- FLUENT DATA GRID: REGISTRO DE EXPEDIENTES Y ASIGNACIONES -->
+      <section class="fluent-section">
+        <!-- VISTA EXCLUSIVA PARA ADMINISTRADORES (TODO EL SISTEMA) -->
+        @if (isAdmin()) {
+          <div class="section-header">
+            <span class="section-eyebrow">REGISTRO GENERAL INSTITUCIONAL</span>
+            <h2 class="section-title">Todas las Postulaciones de Titulación del Instituto</h2>
+          </div>
+
+          <div class="fluent-table-wrapper">
+            <table class="fluent-table">
+              <thead>
+                <tr>
+                  <th>CÓDIGO</th>
+                  <th>ESTUDIANTE / EXPEDIENTE</th>
+                  <th>CARRERA ACADÉMICA</th>
+                  <th>MODALIDAD</th>
+                  <th>ESTADO</th>
+                  <th>ÚLTIMA ACTUALIZACIÓN</th>
+                  <th>ACCIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>TIT-2026-001</code></td>
+                  <td>JORGE ISMAEL DOICELA MOLINA</td>
+                  <td>{{ carreraSeleccionada()?.nombreCarrera || 'Desarrollo de Software' }}</td>
+                  <td>Examen Complexivo</td>
+                  <td>
+                    <span class="fluent-badge fluent-badge--warning"
+                      >En Revisión de Requisitos</span
+                    >
+                  </td>
+                  <td>Hoy, 15:20</td>
+                  <td><button type="button" class="fluent-btn-action">Gestionar</button></td>
+                </tr>
+                <tr>
+                  <td><code>TIT-2026-002</code></td>
+                  <td>CARLOS MENDOZA</td>
+                  <td>Redes y Telecomunicaciones</td>
+                  <td>Artículo Científico</td>
+                  <td><span class="fluent-badge fluent-badge--success">Aprobada</span></td>
+                  <td>Hoy, 14:05</td>
+                  <td><button type="button" class="fluent-btn-action">Ver Ficha</button></td>
+                </tr>
+                <tr>
+                  <td><code>TIT-2026-003</code></td>
+                  <td>MARÍA JOSÉ SILVA</td>
+                  <td>Administración de Empresas</td>
+                  <td>Trabajo de Integración Curricular</td>
+                  <td><span class="fluent-badge fluent-badge--error">Rechazada</span></td>
+                  <td>Ayer, 18:45</td>
+                  <td><button type="button" class="fluent-btn-action">Revisar</button></td>
+                </tr>
+                <tr>
+                  <td><code>TIT-2026-004</code></td>
+                  <td>ANDRÉS ROBERTO CASTRO</td>
+                  <td>Electrónica y Automatización</td>
+                  <td>Examen Complexivo</td>
+                  <td><span class="fluent-badge fluent-badge--success">Aprobada</span></td>
+                  <td>10 Ago, 11:30</td>
+                  <td><button type="button" class="fluent-btn-action">Ver Ficha</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- VISTA EXCLUSIVA PARA DOCENTES (SOLO ESTUDIANTES A SU CARGO) -->
+        @if (isDocente()) {
+          <div class="section-header">
+            <span class="section-eyebrow">MI CARGA ACADÉMICA Y TUTORÍAS</span>
+            <h2 class="section-title">Estudiantes Asignados a Mi Tutoría y Evaluación</h2>
+          </div>
+
+          @if (currentUser(); as user) {
+            <div class="fluent-table-wrapper">
+              <table class="fluent-table">
+                <thead>
+                  <tr>
+                    <th>CÓDIGO</th>
+                    <th>ESTUDIANTE A CARGO</th>
+                    <th>CARRERA</th>
+                    <th>PROYECTO / MODALIDAD</th>
+                    <th>AVANCE</th>
+                    <th>ESTADO</th>
+                    <th>ACCIÓN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>TIT-2026-001</code></td>
+                    <td><strong>JORGE ISMAEL DOICELA MOLINA</strong></td>
+                    <td>{{ carreraSeleccionada()?.nombreCarrera || 'Desarrollo de Software' }}</td>
+                    <td>Examen Complexivo (Reactivos asignados)</td>
+                    <td>75%</td>
+                    <td>
+                      <span class="fluent-badge fluent-badge--warning">Revisión de Avance</span>
+                    </td>
+                    <td>
+                      <button type="button" class="fluent-btn-action">Calificar Avance</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>TIT-2026-005</code></td>
+                    <td><strong>ANA LUCÍA PAREDES</strong></td>
+                    <td>{{ carreraSeleccionada()?.nombreCarrera || 'Desarrollo de Software' }}</td>
+                    <td>TIC: Sistema Web de Gestión Académica</td>
+                    <td>90%</td>
+                    <td><span class="fluent-badge fluent-badge--info">Borrador Final</span></td>
+                    <td>
+                      <button type="button" class="fluent-btn-action">Revisar Borrador</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>TIT-2026-008</code></td>
+                    <td><strong>MATEO GABRIEL LÓPEZ</strong></td>
+                    <td>{{ carreraSeleccionada()?.nombreCarrera || 'Desarrollo de Software' }}</td>
+                    <td>TIC: App Móvil para Control de Asistencia</td>
+                    <td>40%</td>
+                    <td><span class="fluent-badge fluent-badge--warning">En Desarrollo</span></td>
+                    <td><button type="button" class="fluent-btn-action">Ver Tutoría</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <!-- VISTA PERSONALIZADA PARA ESTUDIANTES (SU PROPIO EXPEDIENTE) -->
+        @if (isEstudiante()) {
+          <div class="section-header">
+            <span class="section-eyebrow">MI EXPEDIENTE DE TITULACIÓN</span>
+            <h2 class="section-title">Estado de Mi Postulación</h2>
+          </div>
+
+          @if (currentUser(); as user) {
+            <div class="fluent-table-wrapper">
+              <table class="fluent-table">
+                <thead>
+                  <tr>
+                    <th>CÓDIGO DE EXPEDIENTE</th>
+                    <th>POSTULANTE</th>
+                    <th>CARRERA ACADÉMICA</th>
+                    <th>MODALIDAD ELEGIDA</th>
+                    <th>ESTADO DEL PROCESO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>TIT-2026-001</code></td>
+                    <td>
+                      <strong>{{ user.nombre }}</strong>
+                    </td>
+                    <td>{{ carreraSeleccionada()?.nombreCarrera || 'Desarrollo de Software' }}</td>
+                    <td>Examen Complexivo</td>
+                    <td>
+                      <span class="fluent-badge fluent-badge--warning"
+                        >Etapa 2: En Revisión de Requisitos</span
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </section>
+
+      <!-- Footer Legal (Microsoft 365 style - Clean text without card container) -->
+      <footer class="fluent-legal">
+        <span>© {{ currentYear }} Instituto Tecnológico Superior Traversari</span>
+        <span aria-hidden="true">·</span>
+        <span>Sistema de Titulación Académica ISTPET</span>
+      </footer>
+    </main>
+  </div>
+</div>

@@ -20,11 +20,12 @@ app.UseSerilogRequestLogging();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Titulación ISTPET API v1"));
 }
 
 app.UseHttpsRedirection();
 app.UseCors(WebApiServiceCollectionExtensions.PoliticaCorsFrontend);
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { estado = "ok" })).WithTags("Infra");

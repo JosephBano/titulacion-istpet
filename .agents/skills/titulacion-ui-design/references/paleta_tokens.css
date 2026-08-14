@@ -1,0 +1,108 @@
+/* ==========================================================================
+   TITÁN — Design Tokens — Microsoft Fluent Design 2 + ISTPET Brand
+   ==========================================================================
+   Referencia: Microsoft Fluent Design 2 / Microsoft 365 / Azure Portal
+   Paleta institucional: Azul Marino ISTPET #1b2a4a · Dorado #c59b27
+   ========================================================================== */
+
+/* Google Fonts — equivalente web a Segoe UI */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ---------------------------------------------------------- */
+/* Light Mode (default)                                       */
+/* ---------------------------------------------------------- */
+:root {
+  font-family: 'Segoe UI', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* Marca ISTPET */
+  --istpet-navy:         #1b2a4a;
+  --istpet-navy-hover:   #253d6b;
+  --istpet-navy-dark:    #121d34;
+  --istpet-navy-rail:    #12213a;   /* icon rail — más oscuro que el topbar */
+  --istpet-gold:         #c59b27;
+  --istpet-gold-hover:   #d4af37;
+  --istpet-gold-subtle:  rgba(197, 155, 39, 0.12);
+
+  /* Fondos */
+  --bg-canvas:           #e8eaf0;   /* fondo de pantalla — azul-lavanda Microsoft real */
+  --bg-surface:          #ffffff;   /* cards, sidebar, modales */
+  --bg-surface-alt:      #faf9f8;   /* superficies secundarias */
+  --bg-shape:            rgba(255, 255, 255, 0.65); /* formas geométricas — SIN blur */
+
+  /* Texto */
+  --text-primary:        #1a1a1a;
+  --text-secondary:      #323130;
+  --text-muted:          #605e5c;
+  --text-disabled:       #a19f9d;
+  --text-on-accent:      #ffffff;
+
+  /* Bordes */
+  --border-default:      #8a8886;
+  --border-subtle:       rgba(0, 0, 0, 0.08);
+  --border-strong:       #323130;
+
+  /* Estados */
+  --color-error:         #a4262c;   --color-error-bg:   #fde7e9;
+  --color-success:       #107c10;   --color-success-bg: #dff6dd;
+  --color-warning-text:  #7d5a00;   --color-warning-bg: #fff4ce;
+  --color-info:          #0078d4;   --color-info-bg:    #e6f2fb;
+
+  /* Radios */
+  --radius-input:  2px;    /* inputs, botones rectangulares */
+  --radius-card:   4px;    /* cards, paneles internos */
+  --radius-panel:  8px;    /* drawers, side panels */
+  --radius-badge:  12px;   /* badges, chips */
+  --radius-pill:   999px;  /* CTA buttons, pill badges */
+
+  /* Motion — Fluent */
+  --ease-fluent:     cubic-bezier(0.1, 0.9, 0.2, 1);
+  --duration-fast:   83ms;
+  --duration-normal: 167ms;
+  --duration-slow:   333ms;
+
+  /* Shell */
+  --topbar-height:           48px;
+  --icon-rail-width:         48px;
+  --sidebar-width:           220px;
+  --sidebar-width-collapsed: 48px;
+}
+
+/* ---------------------------------------------------------- */
+/* Dark Mode                                                  */
+/* ---------------------------------------------------------- */
+[data-theme='dark'] {
+  --bg-canvas:           #0d1117;
+  --bg-surface:          #1f2937;
+  --bg-surface-alt:      #111827;
+  --bg-shape-color:      rgba(27, 42, 74, 0.5);
+
+  --text-primary:        #f9fafb;
+  --text-secondary:      #e5e7eb;
+  --text-muted:          #9ca3af;
+  --text-disabled:       #6b7280;
+
+  --border-default:      #4a5568;
+  --border-subtle:       rgba(255, 255, 255, 0.08);
+  --border-strong:       #9ca3af;
+
+  --color-error:         #fca5a5;
+  --color-error-bg:      #2d1515;
+  --color-success:       #6ee7b7;
+  --color-success-bg:    #052e16;
+  --color-warning-text:  #fde68a;
+  --color-warning-bg:    #2d1b00;
+
+  --sidebar-bg:                  var(--bg-surface);
+  --sidebar-item-active-bg:      rgba(197, 155, 39, 0.15);
+  --sidebar-item-active-border:  var(--istpet-gold);
+  --sidebar-item-active-color:   var(--istpet-gold);
+}
+
+/* ---------------------------------------------------------- */
+/* Utilidades de fuente tabular (para tablas y cifras)        */
+/* ---------------------------------------------------------- */
+.font-tabular {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum";
+}
+

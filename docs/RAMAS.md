@@ -105,3 +105,5 @@ su aprobacion. Un colaborador podria abrir el PR, pero no cerrarlo.
 
 Si mas adelante el proyecto se mueve a una organizacion, agregar en
 `scripts/proteger-ramas.sh` el bloque `restrictions` para `main`.
+
+
