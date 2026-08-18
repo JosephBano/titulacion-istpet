@@ -19,7 +19,7 @@ public sealed class ObtenerAdjuntoPorId(IRepositorioAdjuntosImagenes repositorio
         ArgumentNullException.ThrowIfNull(consulta);
 
         var entidad = await _repositorio.ObtenerPorIdAsync(consulta.Id, ct)
-            ?? throw new NoEncontradoException(nameof(Domain.Entities.AdjuntosImagene), consulta.Id);
+            ?? throw new NoEncontradoException(nameof(Domain.Entities.AdjuntosImagenes), consulta.Id);
 
         return AdjuntosImageneMapeo.A_DTO(entidad);
     }

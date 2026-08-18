@@ -42,7 +42,7 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
         }
 
-        if (!user.Activo)
+        if (user.Activo != true)
         {
             throw new UnauthorizedAccessException("El usuario se encuentra inactivo.");
         }
@@ -76,7 +76,7 @@ public class AuthService : IAuthService
         bool esDocente = esDocenteActivo;
 
         // 2. Determinar si el usuario es Administrador del Sistema
-        bool esAdministrador = user.Administrador || permissions.Roles.Any(r =>
+        bool esAdministrador = user.Administrador == true || permissions.Roles.Any(r =>
             r.Equals("TITULACION_ADMIN", StringComparison.OrdinalIgnoreCase) ||
             r.Equals("ADMINISTRADOR", StringComparison.OrdinalIgnoreCase) ||
             r.Equals("ADMIN_SIST", StringComparison.OrdinalIgnoreCase));
@@ -140,7 +140,7 @@ public class AuthService : IAuthService
         var refreshTokenValue = _jwtTokenGenerator.GenerateRefreshToken();
         var refreshTokenHash = _jwtTokenGenerator.HashToken(refreshTokenValue);
 
-        var refreshTokenEntity = new RbacRefreshToken
+        var refreshTokenEntity = new RbacRefreshTokens
         {
             IdUsuario = user.IdUsuario,
             TokenHash = refreshTokenHash,
@@ -177,7 +177,7 @@ public class AuthService : IAuthService
         }
 
         var user = tokenEntity.IdUsuarioNavigation;
-        if (!user.Activo)
+        if (user.Activo != true)
         {
             throw new UnauthorizedAccessException("El usuario se encuentra inactivo.");
         }
@@ -194,7 +194,7 @@ public class AuthService : IAuthService
         var newRefreshTokenValue = _jwtTokenGenerator.GenerateRefreshToken();
         var newRefreshTokenHash = _jwtTokenGenerator.HashToken(newRefreshTokenValue);
 
-        var newRefreshTokenEntity = new RbacRefreshToken
+        var newRefreshTokenEntity = new RbacRefreshTokens
         {
             IdUsuario = user.IdUsuario,
             TokenHash = newRefreshTokenHash,

@@ -3,6 +3,7 @@ using NSubstitute;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes.Consultas;
 using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Tests.Features.AdjuntosImagenes;
 
@@ -19,7 +20,7 @@ public class ListarAdjuntosTests
     [Fact]
     public async Task Listar_con_pagina_y_tamano_validos_devuelve_items_y_total()
     {
-        var entidades = new List<AdjuntosImagene>
+        var entidades = new List<AdjuntosImagenesEntity>
         {
             new() { IdAdjuntosImagenes = 1, NombreArchivos = "a.png" },
             new() { IdAdjuntosImagenes = 2, NombreArchivos = "b.png" }

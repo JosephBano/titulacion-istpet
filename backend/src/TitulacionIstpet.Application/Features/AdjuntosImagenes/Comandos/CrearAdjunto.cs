@@ -1,7 +1,7 @@
 using FluentValidation.Results;
 using TitulacionIstpet.Application.Common.Interfaces;
 using TitulacionIstpet.Application.Common.Models;
-using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Features.AdjuntosImagenes.Comandos;
 
@@ -42,7 +42,7 @@ public sealed class CrearAdjunto(
             throw new ValidacionException(fallos);
         }
 
-        var entidad = new AdjuntosImagene
+        var entidad = new AdjuntosImagenesEntity
         {
             NombreArchivos = comando.NombreArchivos?.Trim(),
             Extension = comando.Extension?.Trim(),

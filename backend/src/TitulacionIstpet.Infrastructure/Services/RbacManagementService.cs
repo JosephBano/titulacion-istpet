@@ -17,7 +17,7 @@ public class RbacManagementService : IRbacManagementService
 
     public async Task<List<RbacSistemaDto>> GetSistemasAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.RbacSistemas
+        return await _context.RbacSistema
             .AsNoTracking()
             .Select(s => new RbacSistemaDto(
                 s.IdSistema,
@@ -51,7 +51,7 @@ public class RbacManagementService : IRbacManagementService
 
     public async Task<List<RbacRolDto>> GetRolesAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.RbacRols
+        return await _context.RbacRol
             .AsNoTracking()
             .Where(r => r.EsActivo == true)
             .Select(r => new RbacRolDto(
@@ -72,7 +72,7 @@ public class RbacManagementService : IRbacManagementService
             EsActivo = true
         };
 
-        _context.RbacRols.Add(rol);
+        _context.RbacRol.Add(rol);
         await _context.SaveChangesAsync(cancellationToken);
 
         return new RbacRolDto(rol.IdRol, rol.Nombre, rol.CodigoRol, rol.EsActivo);
@@ -80,7 +80,7 @@ public class RbacManagementService : IRbacManagementService
 
     public async Task<bool> AssignRolToUsuarioAsync(int idUsuario, int idRol, CancellationToken cancellationToken = default)
     {
-        var existingAssignment = await _context.RbacUsuarioRols
+        var existingAssignment = await _context.RbacUsuarioRol
             .FirstOrDefaultAsync(ur => ur.IdUsuario == idUsuario && ur.IdRol == idRol, cancellationToken);
 
         if (existingAssignment != null)
@@ -90,7 +90,7 @@ public class RbacManagementService : IRbacManagementService
         }
         else
         {
-            _context.RbacUsuarioRols.Add(new RbacUsuarioRol
+            _context.RbacUsuarioRol.Add(new RbacUsuarioRol
             {
                 IdUsuario = idUsuario,
                 IdRol = idRol,
@@ -105,7 +105,7 @@ public class RbacManagementService : IRbacManagementService
 
     public async Task<bool> RemoveRolFromUsuarioAsync(int idUsuario, int idRol, CancellationToken cancellationToken = default)
     {
-        var assignment = await _context.RbacUsuarioRols
+        var assignment = await _context.RbacUsuarioRol
             .FirstOrDefaultAsync(ur => ur.IdUsuario == idUsuario && ur.IdRol == idRol, cancellationToken);
 
         if (assignment == null)
@@ -121,7 +121,7 @@ public class RbacManagementService : IRbacManagementService
 
     public async Task<bool> AssignPermissionToRolAsync(int idRol, int idModuloOperacion, CancellationToken cancellationToken = default)
     {
-        var existing = await _context.RbacRolModuloOperacions
+        var existing = await _context.RbacRolModuloOperacion
             .FirstOrDefaultAsync(rmo => rmo.IdRol == idRol && rmo.IdModulosOperaciones == idModuloOperacion, cancellationToken);
 
         if (existing != null)
@@ -131,7 +131,7 @@ public class RbacManagementService : IRbacManagementService
         }
         else
         {
-            _context.RbacRolModuloOperacions.Add(new RbacRolModuloOperacion
+            _context.RbacRolModuloOperacion.Add(new RbacRolModuloOperacion
             {
                 IdRol = idRol,
                 IdModulosOperaciones = idModuloOperacion,

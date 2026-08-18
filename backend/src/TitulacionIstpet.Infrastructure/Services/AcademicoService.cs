@@ -19,10 +19,10 @@ public class AcademicoService : IAcademicoService
         return await _context.Carreras
             .AsNoTracking()
             .Where(c => c.Activa == true)
-            .OrderBy(c => c.Carrera1)
+            .OrderBy(c => c.Carrera)
             .Select(c => new CarreraResponseDto(
                 c.IdCarrera,
-                c.Carrera1 ?? string.Empty,
+                c.Carrera ?? string.Empty,
                 c.AliasCarrera ?? string.Empty,
                 c.CodigoCases ?? string.Empty,
                 c.DirectorCarrera ?? string.Empty,
@@ -38,7 +38,7 @@ public class AcademicoService : IAcademicoService
             .Where(c => c.IdCarrera == idCarrera)
             .Select(c => new CarreraResponseDto(
                 c.IdCarrera,
-                c.Carrera1 ?? string.Empty,
+                c.Carrera ?? string.Empty,
                 c.AliasCarrera ?? string.Empty,
                 c.CodigoCases ?? string.Empty,
                 c.DirectorCarrera ?? string.Empty,
@@ -72,7 +72,7 @@ public class AcademicoService : IAcademicoService
             .Where(dm => dm.IdMallaNavigation.IdCarrera == idCarrera && dm.IdAsignaturaNavigation != null)
             .Select(dm => new AsignaturaResponseDto(
                 dm.IdAsignaturaNavigation.IdAsignatura,
-                dm.IdAsignaturaNavigation.Asignatura1 ?? string.Empty,
+                dm.IdAsignaturaNavigation.Asignatura ?? string.Empty,
                 dm.Creditos,
                 dm.Horas,
                 dm.IdNivel

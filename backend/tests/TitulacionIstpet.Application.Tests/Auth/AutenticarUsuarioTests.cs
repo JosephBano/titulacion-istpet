@@ -24,7 +24,7 @@ public class AutenticarUsuarioTests
 
     private AutenticarUsuario Sut() => new(_repositorio, _verificador);
 
-    private static Usuario UsuarioActivo(bool activo = true) => new()
+    private static Usuarios UsuarioActivo(bool activo = true) => new()
     {
         IdUsuario = 100,
         IdSigafi = IdSigafi,
@@ -48,15 +48,15 @@ public class AutenticarUsuarioTests
     private static RbacUsuarioRol AsignacionDeTitulacion(string codigoRol)
     {
         var sistema = new RbacSistema { IdSistema = 1, Codigo = RbacTitulacion.Codigo, Detalle = "Titulacion" };
-        var modulo = new RbacModulo { IdModulos = 1, EsActivo = true, IdSistemaNavigation = sistema };
-        var moduloOperacion = new RbacModulosOperacione
+        var modulo = new RbacModulos { IdModulos = 1, EsActivo = true, IdSistemaNavigation = sistema };
+        var moduloOperacion = new RbacModulosOperaciones
         {
             IdModulosOperaciones = 1,
             EsActivo = true,
             IdModulosNavigation = modulo
         };
         var rol = new RbacRol { IdRol = 1, CodigoRol = codigoRol, Nombre = codigoRol, EsActivo = true };
-        rol.RbacRolModuloOperacions.Add(new RbacRolModuloOperacion
+        rol.RbacRolModuloOperacion.Add(new RbacRolModuloOperacion
         {
             EsActivo = true,
             IdRolNavigation = rol,
@@ -99,7 +99,7 @@ public class AutenticarUsuarioTests
     public async Task Rechaza_un_usuario_inexistente()
     {
         _repositorio.BuscarPorIdSigafiAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns((Usuario?)null);
+            .Returns((Usuarios?)null);
 
         await Sut().Invoking(s => s.EjecutarAsync(IdSigafi, Contrasenia))
             .Should().ThrowAsync<CredencialesInvalidasException>()

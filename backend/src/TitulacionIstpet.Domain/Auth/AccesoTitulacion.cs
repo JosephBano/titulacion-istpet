@@ -92,7 +92,7 @@ public static class AccesoTitulacion
     /// no concede acceso.
     /// </summary>
     private static bool ConcedePermisosEnTitulacion(RbacRol rol) =>
-        rol.RbacRolModuloOperacions.Any(permiso =>
+        rol.RbacRolModuloOperacion.Any(permiso =>
             permiso.EsActivo == true &&
             permiso.IdModulosOperacionesNavigation is { } moduloOperacion &&
             moduloOperacion.EsActivo == true &&

@@ -20,10 +20,10 @@ public class CarrerasService : ICarrerasService
         return await _context.Carreras
             .AsNoTracking()
             .Where(c => c.Activa == true && c.IdCarrera != IdCarreraConduccion)
-            .OrderBy(c => c.Carrera1)
+            .OrderBy(c => c.Carrera)
             .Select(c => new CarreraDto(
                 c.IdCarrera,
-                c.Carrera1 ?? string.Empty,
+                c.Carrera ?? string.Empty,
                 c.AliasCarrera,
                 c.CodigoCases,
                 c.Activa ?? false,
@@ -68,7 +68,7 @@ public class CarrerasService : ICarrerasService
 
             resultado.Add(new EstudianteCarreraDto(
                 carrera.IdCarrera,
-                carrera.Carrera1 ?? string.Empty,
+                carrera.Carrera ?? string.Empty,
                 carrera.AliasCarrera,
                 estaTitulado,
                 codigoSistema,
@@ -116,7 +116,7 @@ public class CarrerasService : ICarrerasService
 
             resultado.Add(new ProfesorCarreraDto(
                 carrera.IdCarrera,
-                carrera.Carrera1 ?? string.Empty,
+                carrera.Carrera ?? string.Empty,
                 carrera.AliasCarrera,
                 false,
                 periodo

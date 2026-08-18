@@ -32,7 +32,7 @@ public sealed class AutenticarUsuario(
         var usuario = await _repositorio.BuscarPorIdSigafiAsync(idSigafi.Trim(), ct)
             ?? throw new CredencialesInvalidasException();
 
-        if (!usuario.Activo)
+        if (usuario.Activo != true)
         {
             throw new CredencialesInvalidasException();
         }

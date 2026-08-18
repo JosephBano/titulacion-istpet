@@ -1,6 +1,6 @@
 using TitulacionIstpet.Application.Common.Interfaces;
 using TitulacionIstpet.Application.Common.Models;
-using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Features.AdjuntosImagenes.Comandos;
 
@@ -19,7 +19,7 @@ public sealed class EliminarAdjunto(
     public async Task EjecutarAsync(int id, CancellationToken ct = default)
     {
         var entidad = await _repositorio.ObtenerPorIdAsync(id, ct)
-            ?? throw new NoEncontradoException(nameof(AdjuntosImagene), id);
+            ?? throw new NoEncontradoException(nameof(AdjuntosImagenes), id);
 
         _repositorio.Eliminar(entidad);
         await _unitOfWork.GuardarCambiosAsync(ct);

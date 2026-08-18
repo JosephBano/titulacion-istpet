@@ -1,7 +1,7 @@
 using FluentValidation.Results;
 using TitulacionIstpet.Application.Common.Interfaces;
 using TitulacionIstpet.Application.Common.Models;
-using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Features.AdjuntosImagenes.Comandos;
 
@@ -41,7 +41,7 @@ public sealed class ActualizarAdjunto(
         }
 
         var entidad = await _repositorio.ObtenerPorIdAsync(comando.IdAdjuntosImagenes, ct)
-            ?? throw new NoEncontradoException(nameof(AdjuntosImagene), comando.IdAdjuntosImagenes);
+            ?? throw new NoEncontradoException(nameof(AdjuntosImagenes), comando.IdAdjuntosImagenes);
 
         entidad.NombreArchivos = comando.NombreArchivos?.Trim();
         entidad.Extension = comando.Extension?.Trim();

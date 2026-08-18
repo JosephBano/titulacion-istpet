@@ -18,7 +18,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _configuration = configuration;
     }
 
-    public (string accessToken, DateTime expiresAt) GenerateAccessToken(Usuario usuario, IEnumerable<string> roles, IEnumerable<string> permisos)
+    public (string accessToken, DateTime expiresAt) GenerateAccessToken(Usuarios usuario, IEnumerable<string> roles, IEnumerable<string> permisos)
     {
         var secretKey = _configuration["JwtSettings:SecretKey"] ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
         var issuer = _configuration["JwtSettings:Issuer"] ?? "TitulacionIstpetApi";
