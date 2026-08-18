@@ -5,6 +5,7 @@ using TitulacionIstpet.Application.Common.Models;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes.Comandos;
 using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Tests.Features.AdjuntosImagenes;
 
@@ -22,7 +23,7 @@ public class ActualizarAdjuntoTests
     [Fact]
     public async Task Actualizar_con_id_existente_muta_la_entidad_y_persiste()
     {
-        var existente = new AdjuntosImagene
+        var existente = new AdjuntosImagenesEntity
         {
             IdAdjuntosImagenes = 7,
             NombreArchivos = "viejo.txt",
@@ -50,7 +51,7 @@ public class ActualizarAdjuntoTests
     [Fact]
     public async Task Actualizar_con_id_inexistente_lanza_NoEncontradoException_y_no_persiste()
     {
-        _repo.ObtenerPorIdAsync(99, Arg.Any<CancellationToken>()).Returns((AdjuntosImagene?)null);
+        _repo.ObtenerPorIdAsync(99, Arg.Any<CancellationToken>()).Returns((AdjuntosImagenesEntity?)null);
 
         var comando = new ActualizarAdjuntoComando(
             99, "x.png", "png", "image/png", 1024, "ruta");

@@ -5,6 +5,7 @@ using TitulacionIstpet.Application.Common.Models;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes.Comandos;
 using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Tests.Features.AdjuntosImagenes;
 
@@ -20,8 +21,8 @@ public class CrearAdjuntoTests
 
         // El repo no conoce la PK hasta que EF Core la genera, asi que simulamos
         // ese momento con un retorno por argumento.
-        _repo.When(r => r.Agregar(Arg.Any<AdjuntosImagene>()))
-            .Do(ci => ci.Arg<AdjuntosImagene>().IdAdjuntosImagenes = 42);
+        _repo.When(r => r.Agregar(Arg.Any<AdjuntosImagenesEntity>()))
+            .Do(ci => ci.Arg<AdjuntosImagenesEntity>().IdAdjuntosImagenes = 42);
     }
 
     [Fact]
@@ -33,7 +34,7 @@ public class CrearAdjuntoTests
         int id = await _sut.EjecutarAsync(comando);
 
         id.Should().Be(42);
-        _repo.Received(1).Agregar(Arg.Is<AdjuntosImagene>(e =>
+        _repo.Received(1).Agregar(Arg.Is<AdjuntosImagenesEntity>(e =>
             e.NombreArchivos == "foto.png"
             && e.Extension == "png"
             && e.MimeTypes == "image/png"
@@ -87,7 +88,7 @@ public class CrearAdjuntoTests
 
         await _sut.EjecutarAsync(comando);
 
-        _repo.Received(1).Agregar(Arg.Is<AdjuntosImagene>(e =>
+        _repo.Received(1).Agregar(Arg.Is<AdjuntosImagenesEntity>(e =>
             e.NombreArchivos == "foto.png"
             && e.Extension == "png"
             && e.MimeTypes == "image/png"

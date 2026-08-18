@@ -4,6 +4,7 @@ using TitulacionIstpet.Application.Common.Models;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes.Consultas;
 using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Tests.Features.AdjuntosImagenes;
 
@@ -20,7 +21,7 @@ public class ObtenerAdjuntoPorIdTests
     [Fact]
     public async Task Obtener_con_id_existente_devuelve_dto_sin_navegaciones()
     {
-        var entidad = new AdjuntosImagene
+        var entidad = new AdjuntosImagenesEntity
         {
             IdAdjuntosImagenes = 5,
             NombreArchivos = "foto.png",
@@ -50,7 +51,7 @@ public class ObtenerAdjuntoPorIdTests
     [Fact]
     public async Task Obtener_con_id_inexistente_lanza_NoEncontradoException()
     {
-        _repo.ObtenerPorIdAsync(404, Arg.Any<CancellationToken>()).Returns((AdjuntosImagene?)null);
+        _repo.ObtenerPorIdAsync(404, Arg.Any<CancellationToken>()).Returns((AdjuntosImagenesEntity?)null);
 
         var accion = () => _sut.EjecutarAsync(new ObtenerAdjuntoPorIdConsulta(404));
 
