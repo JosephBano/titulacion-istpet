@@ -1,3 +1,5 @@
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
+
 namespace TitulacionIstpet.Application.Features.AdjuntosImagenes;
 
 /// <summary>
@@ -8,7 +10,7 @@ namespace TitulacionIstpet.Application.Features.AdjuntosImagenes;
 /// </summary>
 internal static class AdjuntosImageneMapeo
 {
-    public static AdjuntosImageneDto A_DTO(Domain.Entities.AdjuntosImagene e) => new(
+    public static AdjuntosImageneDto A_DTO(AdjuntosImagenesEntity e) => new(
         e.IdAdjuntosImagenes,
         e.NombreArchivos,
         e.Extension,

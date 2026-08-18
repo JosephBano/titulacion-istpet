@@ -1,4 +1,5 @@
 using TitulacionIstpet.Domain.Entities;
+using AdjuntosImagenesEntity = TitulacionIstpet.Domain.Entities.AdjuntosImagenes;
 
 namespace TitulacionIstpet.Application.Features.AdjuntosImagenes;
 
@@ -13,16 +14,16 @@ namespace TitulacionIstpet.Application.Features.AdjuntosImagenes;
 /// </summary>
 public interface IRepositorioAdjuntosImagenes
 {
-    Task<AdjuntosImagene?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
+    Task<AdjuntosImagenesEntity?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
 
-    Task<IReadOnlyList<AdjuntosImagene>> ListarAsync(
+    Task<IReadOnlyList<AdjuntosImagenesEntity>> ListarAsync(
         int pagina, int tamanoPagina, CancellationToken ct = default);
 
     Task<int> ContarAsync(CancellationToken ct = default);
 
-    void Agregar(AdjuntosImagene entidad);
+    void Agregar(AdjuntosImagenesEntity entidad);
 
-    void Actualizar(AdjuntosImagene entidad);
+    void Actualizar(AdjuntosImagenesEntity entidad);
 
-    void Eliminar(AdjuntosImagene entidad);
+    void Eliminar(AdjuntosImagenesEntity entidad);
 }

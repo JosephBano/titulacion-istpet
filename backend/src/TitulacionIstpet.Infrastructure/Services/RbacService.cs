@@ -20,13 +20,13 @@ public class RbacService : IRbacService
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario, cancellationToken);
 
-        if (user == null || !user.Activo)
+        if (user == null || user.Activo != true)
         {
             throw new UnauthorizedAccessException("Usuario inexistente o inactivo.");
         }
 
         // Obtener todos los roles activos asignados al usuario
-        var userRoles = await _context.RbacUsuarioRols
+        var userRoles = await _context.RbacUsuarioRol
             .AsNoTracking()
             .Include(ur => ur.IdRolNavigation)
             .Where(ur => ur.IdUsuario == idUsuario && ur.EsActivo == true && ur.IdRolNavigation.EsActivo == true)
@@ -36,7 +36,7 @@ public class RbacService : IRbacService
         var roleIds = userRoles.Select(r => r.IdRol).ToList();
 
         // Obtener todos los permisos asignados filtrados por systemCode
-        var permissionsQuery = await _context.RbacRolModuloOperacions
+        var permissionsQuery = await _context.RbacRolModuloOperacion
             .AsNoTracking()
             .Include(rmo => rmo.IdModulosOperacionesNavigation)
                 .ThenInclude(mo => mo.IdModulosNavigation)
@@ -79,13 +79,13 @@ public class RbacService : IRbacService
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        if (user.Administrador && !systemRoles.Contains("TITULACION_ADMIN", StringComparer.OrdinalIgnoreCase))
+        if (user.Administrador == true && !systemRoles.Contains("TITULACION_ADMIN", StringComparer.OrdinalIgnoreCase))
         {
             systemRoles.Add("TITULACION_ADMIN");
         }
 
         // Si es administrador y aún no tenía módulos asignados por roles, otorgar todos los módulos del sistema Titulación
-        if (user.Administrador && modulesGrouped.Count == 0)
+        if (user.Administrador == true && modulesGrouped.Count == 0)
         {
             var systemModules = await _context.RbacModulos
                 .AsNoTracking()

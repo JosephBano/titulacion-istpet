@@ -49,7 +49,7 @@ public class ModalidadesService : IModalidadesService
             .Select(mc => new ModalidadCarreraDto(
                 mc.IdModalidadCarrera,
                 mc.IdCarrera,
-                mc.IdCarreraNavigation != null ? (mc.IdCarreraNavigation.Carrera1 ?? string.Empty) : string.Empty,
+                mc.IdCarreraNavigation != null ? (mc.IdCarreraNavigation.Carrera ?? string.Empty) : string.Empty,
                 mc.IdModalidad,
                 mc.IdModalidadNavigation != null ? (mc.IdModalidadNavigation.Modalidad ?? string.Empty) : string.Empty,
                 mc.EsActivo == true
@@ -67,7 +67,7 @@ public class ModalidadesService : IModalidadesService
             .Select(mc => new ModalidadCarreraDto(
                 mc.IdModalidadCarrera,
                 mc.IdCarrera,
-                mc.IdCarreraNavigation != null ? (mc.IdCarreraNavigation.Carrera1 ?? string.Empty) : string.Empty,
+                mc.IdCarreraNavigation != null ? (mc.IdCarreraNavigation.Carrera ?? string.Empty) : string.Empty,
                 mc.IdModalidad,
                 mc.IdModalidadNavigation != null ? (mc.IdModalidadNavigation.Modalidad ?? string.Empty) : string.Empty,
                 mc.EsActivo == true
@@ -77,7 +77,7 @@ public class ModalidadesService : IModalidadesService
 
     public async Task<IEnumerable<SistemaTitulacionDto>> GetSistemasTitulacionAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.SistemaTitulacions
+        return await _context.SistemaTitulacion
             .AsNoTracking()
             .Where(s => s.Activo == true || s.Activo == null)
             .OrderBy(s => s.CodigoSistema)
@@ -115,7 +115,7 @@ public class ModalidadesService : IModalidadesService
             ? await _context.Carreras.AsNoTracking().FirstOrDefaultAsync(c => c.IdCarrera == idCarrera, cancellationToken)
             : null;
 
-        string nombreCarrera = carreraEntidad?.Carrera1 ?? "Carrera Institucional";
+        string nombreCarrera = carreraEntidad?.Carrera ?? "Carrera Institucional";
 
         int idModalidad = ultimaMatricula?.IdModalidad ?? 1;
         string nombreModalidad = ultimaMatricula?.IdModalidadNavigation?.Modalidad ?? "Presencial";

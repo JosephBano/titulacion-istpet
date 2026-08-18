@@ -87,7 +87,7 @@ public class ActoresService : IActoresService
                 "Ing.",
                 p.Email ?? string.Empty,
                 p.Celular ?? string.Empty,
-                p.Activo ?? false
+                p.Activo == true
             ))
             .ToListAsync(cancellationToken);
     }
@@ -106,7 +106,7 @@ public class ActoresService : IActoresService
                 "Ing.",
                 p.Email ?? string.Empty,
                 p.Celular ?? string.Empty,
-                p.Activo ?? false
+                p.Activo == true
             ))
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -167,7 +167,7 @@ public class ActoresService : IActoresService
         return new AptitudTitulacionResponseDto(
             idAlumno,
             $"{alumno.PrimerNombre} {alumno.SegundoNombre} {alumno.ApellidoPaterno} {alumno.ApellidoMaterno}".Replace("  ", " ").Trim(),
-            carrera?.Carrera1 ?? "N/A",
+            carrera?.Carrera ?? "N/A",
             ultimaMatricula?.IdPeriodo ?? "N/A",
             tieneMatricula,
             esApto,

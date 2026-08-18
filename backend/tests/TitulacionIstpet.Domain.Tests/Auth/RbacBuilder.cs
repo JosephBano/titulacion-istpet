@@ -50,7 +50,7 @@ internal sealed class RbacBuilder
                 Detalle = $"Sistema {_codigoSistema}"
             };
 
-            var modulo = new RbacModulo
+            var modulo = new RbacModulos
             {
                 IdModulos = 1,
                 IdSistema = sistema.IdSistema,
@@ -59,21 +59,21 @@ internal sealed class RbacBuilder
                 IdSistemaNavigation = sistema
             };
 
-            var moduloOperacion = new RbacModulosOperacione
+            var moduloOperacion = new RbacModulosOperaciones
             {
                 IdModulosOperaciones = 1,
                 IdModulos = modulo.IdModulos,
                 IdOperaciones = 1,
                 EsActivo = _moduloOperacionActivo,
                 IdModulosNavigation = modulo,
-                IdOperacionesNavigation = new RbacOperacione
+                IdOperacionesNavigation = new RbacOperaciones
                 {
                     IdOperaciones = 1,
                     NombreOperacion = "consultar"
                 }
             };
 
-            rol.RbacRolModuloOperacions.Add(new RbacRolModuloOperacion
+            rol.RbacRolModuloOperacion.Add(new RbacRolModuloOperacion
             {
                 IdRolModuloOperacion = 1,
                 IdRol = rol.IdRol,

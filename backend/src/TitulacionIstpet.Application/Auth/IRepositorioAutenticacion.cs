@@ -8,7 +8,7 @@ public interface IRepositorioAutenticacion
     /// Usuario por su identificador SIGAFI, con el grafo RBAC necesario para resolver
     /// el acceso ya cargado. Devuelve null si no existe.
     /// </summary>
-    Task<Usuario?> BuscarPorIdSigafiAsync(string idSigafi, CancellationToken ct = default);
+    Task<Usuarios?> BuscarPorIdSigafiAsync(string idSigafi, CancellationToken ct = default);
 
     /// <summary>Asignaciones usuario-rol con toda la cadena de permisos cargada.</summary>
     Task<IReadOnlyList<RbacUsuarioRol>> ObtenerAsignacionesAsync(
