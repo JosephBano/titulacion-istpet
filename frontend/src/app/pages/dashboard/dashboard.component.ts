@@ -33,15 +33,13 @@ import {
   ResumenGeneralSistema,
 } from '../../core/models/titulacion.models';
 
-import {
-  TopbarComponent,
-  NetworkBannerComponent,
-  ConvocatoriaCardComponent,
-  StepperComponent,
-  KpiCardComponent,
-  DictamenModalComponent,
-  AperturaPeriodoModalComponent,
-} from '../../shared/components';
+import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
+import { NetworkBannerComponent } from '../../shared/components/network-banner/network-banner.component';
+import { ConvocatoriaCardComponent } from '../../shared/components/convocatoria-card/convocatoria-card.component';
+import { StepperComponent } from '../../shared/components/stepper/stepper.component';
+import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
+import { DictamenModalComponent } from '../../shared/components/dictamen-modal/dictamen-modal.component';
+import { AperturaPeriodoModalComponent } from '../../shared/components/apertura-periodo-modal/apertura-periodo-modal.component';
 
 @Component({
   selector: 'app-dashboard',
