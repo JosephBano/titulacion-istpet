@@ -41,7 +41,7 @@ export class NetworkStatusService {
   }
 
   // Cache helper con TTL para conexiones lentas u offline
-  public setCachedData<T>(key: string, data: T, ttlMinutes: number = 30): void {
+  public setCachedData<T>(key: string, data: T, ttlMinutes = 30): void {
     try {
       const record = {
         value: data,

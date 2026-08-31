@@ -769,8 +769,11 @@
                   @for (mod of portal.modalidadesDisponibles; track mod.idModalidadTitulacionCarrera) {
                     <div
                       class="modality-card-interactive"
+                      tabindex="0"
                       [class.selected]="modalidadSeleccionada() === mod.idModalidadTitulacionCarrera"
                       (click)="modalidadSeleccionada.set(mod.idModalidadTitulacionCarrera)"
+                      (keydown.enter)="modalidadSeleccionada.set(mod.idModalidadTitulacionCarrera)"
+                      (keydown.space)="modalidadSeleccionada.set(mod.idModalidadTitulacionCarrera)"
                     >
                       <div>
                         <div class="modality-header">
@@ -993,14 +996,14 @@
   <!-- 1. Reusable Apertura de Período Modal -->
   <app-apertura-periodo-modal
     [visible]="aperturaModalVisible()"
-    (close)="aperturaModalVisible.set(false)"
+    (modalClose)="aperturaModalVisible.set(false)"
     (confirm)="aperturarPeriodo($event)"
   />
 
   <!-- 2. Modal de Nuevo Requisito Maestro -->
   @if (nuevoRequisitoModalVisible()) {
-    <div class="dictamen-modal-backdrop" (click)="nuevoRequisitoModalVisible.set(false)">
-      <div class="dictamen-modal-card" (click)="$event.stopPropagation()">
+    <div class="dictamen-modal-backdrop" (click)="nuevoRequisitoModalVisible.set(false)" (keydown.escape)="nuevoRequisitoModalVisible.set(false)" tabindex="0" role="dialog" aria-modal="true">
+      <div class="dictamen-modal-card" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
         <h3>Crear Requisito Maestro</h3>
         <p class="modal-subtext">Defina un nuevo requisito documental o condición institucional para el proceso de titulación.</p>
 
@@ -1012,7 +1015,7 @@
 
           <div class="modal-form-grid">
             <div>
-              <label class="modal-label modal-form-title">Naturaleza del Requisito:</label>
+              <span class="modal-label modal-form-title">Naturaleza del Requisito:</span>
               <div class="modal-checkbox-group">
                 <mat-checkbox [(ngModel)]="nuevoRequisitoForm().esAdjunto">Requiere Archivo Adjunto (PDF)</mat-checkbox>
                 <mat-checkbox [(ngModel)]="nuevoRequisitoForm().esBool">Validación Booleana (No adeudar)</mat-checkbox>
@@ -1020,7 +1023,7 @@
             </div>
 
             <div>
-              <label class="modal-label modal-form-title">Responsable de Carga:</label>
+              <span class="modal-label modal-form-title">Responsable de Carga:</span>
               <div class="modal-checkbox-group">
                 <mat-checkbox [(ngModel)]="nuevoRequisitoForm().subeAlumno">Lo adjunta el Estudiante</mat-checkbox>
                 <mat-checkbox [(ngModel)]="nuevoRequisitoForm().subeColaborador">Lo valida Secretaría / Colaborador</mat-checkbox>
@@ -1039,8 +1042,8 @@
 
   <!-- 3. Modal de Nueva Modalidad Maestra -->
   @if (nuevaModalidadModalVisible()) {
-    <div class="dictamen-modal-backdrop" (click)="nuevaModalidadModalVisible.set(false)">
-      <div class="dictamen-modal-card" (click)="$event.stopPropagation()">
+    <div class="dictamen-modal-backdrop" (click)="nuevaModalidadModalVisible.set(false)" (keydown.escape)="nuevaModalidadModalVisible.set(false)" tabindex="0" role="dialog" aria-modal="true">
+      <div class="dictamen-modal-card" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
         <h3>Crear Modalidad Maestra</h3>
         <p class="modal-subtext">Registre una nueva opción de titulación y sus características académicas.</p>
 
@@ -1091,8 +1094,8 @@
 
   <!-- 4. Modal de Matriz Requisitos - Modalidad -->
   @if (matrizModalVisible()) {
-    <div class="dictamen-modal-backdrop" (click)="matrizModalVisible.set(false)">
-      <div class="dictamen-modal-card dictamen-modal-card--wide" (click)="$event.stopPropagation()">
+    <div class="dictamen-modal-backdrop" (click)="matrizModalVisible.set(false)" (keydown.escape)="matrizModalVisible.set(false)" tabindex="0" role="dialog" aria-modal="true">
+      <div class="dictamen-modal-card dictamen-modal-card--wide" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
         <h3>Requisitos para: {{ modalidadSeleccionadaMatriz()?.modalidadTitulacion }}</h3>
         <p class="modal-subtext">Asocie o desvincule los requisitos obligatorios para esta modalidad.</p>
 
@@ -1149,7 +1152,7 @@
   <!-- 5. Reusable Modal de Dictamen del Gestor -->
   <app-dictamen-modal
     [data]="dictamenModal()"
-    (close)="cerrarModalDictamen()"
+    (modalClose)="cerrarModalDictamen()"
     (confirm)="enviarDictamen($event)"
   />
 </div>

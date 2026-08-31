@@ -69,8 +69,8 @@ export class TitulacionService {
   }
 
   public getPostulaciones(
-    pagina: number = 1,
-    tamanoPagina: number = 20,
+    pagina = 1,
+    tamanoPagina = 20,
     idCarrera?: number,
     idCohorte?: number,
     idEstado?: number,
@@ -144,7 +144,7 @@ export class TitulacionService {
   // ----------------------------------------------------
   // 4. Configuración General (Modalidades y Requisitos)
   // ----------------------------------------------------
-  public getModalidadesMaestras(soloActivas: boolean = false): Observable<ModalidadMaestra[]> {
+  public getModalidadesMaestras(soloActivas = false): Observable<ModalidadMaestra[]> {
     const params = new HttpParams().set('soloActivas', soloActivas.toString());
     return this.http.get<ModalidadMaestra[]>(`${this.API_URL}/configuracion/modalidades`, {
       params,
@@ -164,7 +164,7 @@ export class TitulacionService {
     );
   }
 
-  public getRequisitosMaestros(soloActivos: boolean = false): Observable<RequisitoMaestro[]> {
+  public getRequisitosMaestros(soloActivos = false): Observable<RequisitoMaestro[]> {
     const params = new HttpParams().set('soloActivos', soloActivos.toString());
     return this.http.get<RequisitoMaestro[]>(`${this.API_URL}/configuracion/requisitos`, {
       params,
@@ -193,7 +193,7 @@ export class TitulacionService {
   public asignarRequisitoAModalidad(
     idModalidad: number,
     idRequisito: number,
-    esRequisitoFinal: boolean = false,
+    esRequisitoFinal = false,
   ): Observable<{ idRequisitoModalidad: number; message: string }> {
     const params = new HttpParams().set('esRequisitoFinal', esRequisitoFinal.toString());
     return this.http.post<{ idRequisitoModalidad: number; message: string }>(
@@ -219,7 +219,7 @@ export class TitulacionService {
     return this.http.get<ResumenGeneralSistema>(`${this.API_URL}/configuracion/resumen-general`);
   }
 
-  public getModalidadesCarreras(soloActivas: boolean = true): Observable<ModalidadCarreraDto[]> {
+  public getModalidadesCarreras(soloActivas = true): Observable<ModalidadCarreraDto[]> {
     const params = new HttpParams().set('soloActivas', soloActivas.toString());
     return this.http.get<ModalidadCarreraDto[]>(`${this.API_URL}/academico/modalidades-carreras`, { params });
   }

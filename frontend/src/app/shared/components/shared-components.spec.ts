@@ -74,13 +74,14 @@ describe('Shared UI Components Tests', () => {
     });
     fixture.detectChanges();
 
-    let emittedValue: any = null;
-    fixture.componentInstance.confirm.subscribe((val: any) => (emittedValue = val));
+    let emittedValue: unknown = null;
+    fixture.componentInstance.confirm.subscribe((val) => (emittedValue = val));
 
     fixture.componentInstance.onConfirm();
     expect(emittedValue).toBeDefined();
-    expect(emittedValue.idPostulacionAlumnos).toBe(101);
-    expect(emittedValue.decision).toBe('APROBAR');
+    const result = emittedValue as { idPostulacionAlumnos: number; decision: string };
+    expect(result.idPostulacionAlumnos).toBe(101);
+    expect(result.decision).toBe('APROBAR');
   });
 
   it('AperturaPeriodoModalComponent: debe emitir evento confirm con datos estructurados', () => {
@@ -88,12 +89,13 @@ describe('Shared UI Components Tests', () => {
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
 
-    let emittedValue: any = null;
-    fixture.componentInstance.confirm.subscribe((val: any) => (emittedValue = val));
+    let emittedValue: unknown = null;
+    fixture.componentInstance.confirm.subscribe((val) => (emittedValue = val));
 
     fixture.componentInstance.onConfirm();
     expect(emittedValue).toBeDefined();
-    expect(emittedValue.idPeriodo).toBe('ABR2026');
-    expect(emittedValue.habilitarTodasLasCarreras).toBe(true);
+    const result = emittedValue as { idPeriodo: string; habilitarTodasLasCarreras: boolean };
+    expect(result.idPeriodo).toBe('ABR2026');
+    expect(result.habilitarTodasLasCarreras).toBe(true);
   });
 });

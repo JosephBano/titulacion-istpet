@@ -1,6 +1,6 @@
 @if (visible()) {
-<div class="dictamen-modal-backdrop" (click)="onClose()" role="dialog" aria-modal="true">
-  <div class="dictamen-modal-card custom-modal-wide" (click)="$event.stopPropagation()">
+<div class="dictamen-modal-backdrop" (click)="onClose()" (keydown.escape)="onClose()" tabindex="0" role="dialog" aria-modal="true">
+  <div class="dictamen-modal-card custom-modal-wide" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
     <header class="modal-card-header">
       <span class="modal-card-eyebrow">AUTOMATIZACIÓN DE PROCESOS ACADÉMICOS</span>
       <h3>Aperturar Nuevo Período de Titulación</h3>
@@ -10,7 +10,7 @@
     <div class="form-grid">
       <!-- 1. Período Académico Institucional -->
       <div class="form-section-card">
-        <label class="modal-label">1. Período Académico Institucional (ISTPET):</label>
+        <span class="modal-label">1. Período Académico Institucional (ISTPET):</span>
         @if (periodos().length > 0) {
           <mat-form-field appearance="outline" class="istpet-mat-field">
             <mat-select [value]="form().idPeriodo" (selectionChange)="onPeriodoSelect($event.value)">
@@ -30,7 +30,7 @@
 
       <!-- 2. Detalle de la Convocatoria -->
       <div class="form-section-card">
-        <label class="modal-label">2. Nombre / Detalle Oficial (máx. 45 caracteres):</label>
+        <span class="modal-label">2. Nombre / Detalle Oficial (máx. 45 caracteres):</span>
         <mat-form-field appearance="outline" class="istpet-mat-field">
           <input matInput maxlength="45" [(ngModel)]="form().detalleConvocatoria" placeholder="Ej: Convocatoria Ordinaria ABR2026" />
         </mat-form-field>
@@ -38,7 +38,7 @@
 
       <!-- 3. Fechas de Corte y Plazos -->
       <div class="form-section-card">
-        <label class="modal-label">3. Ventana de Postulación y Plazos de Titulación:</label>
+        <span class="modal-label">3. Ventana de Postulación y Plazos de Titulación:</span>
         <div class="date-row">
           <mat-form-field appearance="outline" class="istpet-mat-field date-field">
             <mat-label>Fecha Apertura Corte</mat-label>
@@ -68,7 +68,7 @@
       <!-- 4. Automatización de Carreras Habilitadas (modalidades_carreras) -->
       <div class="form-section-card">
         <div class="section-title-row">
-          <label class="modal-label">4. Alcance de Carreras y Modalidades de Estudio:</label>
+          <span class="modal-label">4. Alcance de Carreras y Modalidades de Estudio:</span>
           <div class="toggle-mode-pills">
             <button
               type="button"
@@ -163,7 +163,7 @@
       <!-- 5. Modalidades de Titulación Habilitadas -->
       @if (modalidades().length > 0) {
         <div class="form-section-card">
-          <label class="modal-label">5. Modalidades de Titulación Habilitadas para esta Cohorte:</label>
+          <span class="modal-label">5. Modalidades de Titulación Habilitadas para esta Cohorte:</span>
           <div class="modalidades-chips-grid">
             @for (m of modalidades(); track m.idModalidadTitulacion) {
               <label class="modalidad-chip-card" [class.active]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)">

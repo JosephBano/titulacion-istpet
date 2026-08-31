@@ -21,7 +21,7 @@ export interface DictamenModalData {
 export class DictamenModalComponent {
   data = input<DictamenModalData | null>(null);
 
-  close = output<void>();
+  modalClose = output<void>();
   confirm = output<DictamenPostulacionRequest>();
 
   observacionesTexto = signal<string>('');
@@ -38,6 +38,6 @@ export class DictamenModalComponent {
   }
 
   onClose(): void {
-    this.close.emit();
+    this.modalClose.emit();
   }
 }

@@ -65,7 +65,7 @@
       </button>
 
       <mat-menu #userMenu="matMenu" class="istpet-user-menu" xPosition="before">
-        <div class="user-menu-header" (click)="$event.stopPropagation()">
+        <div class="user-menu-header" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
           <span class="avatar-circle avatar-circle--lg">{{ initial() }}</span>
           <div class="user-menu-identity">
             <span class="user-menu-name">{{ user.nombre }}</span>
@@ -75,7 +75,7 @@
 
         @if (!carrerasCargando() && carrerasDisponibles().length > 0) {
           <mat-divider></mat-divider>
-          <div class="user-menu-section" (click)="$event.stopPropagation()">
+          <div class="user-menu-section" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
             <span class="user-menu-label">Carrera activa</span>
             @if (carrerasDisponibles().length === 1) {
               <span class="user-menu-static-value">{{ carrerasDisponibles()[0].nombreCarrera }}</span>

@@ -29,7 +29,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
 
   visible = input<boolean>(false);
 
-  close = output<void>();
+  modalClose = output<void>();
   confirm = output<AperturarPeriodoRequest>();
 
   periodos = signal<{ idPeriodo: string; nombre: string; esActivo?: boolean }[]>([]);
@@ -206,6 +206,6 @@ export class AperturaPeriodoModalComponent implements OnInit {
   }
 
   onClose(): void {
-    this.close.emit();
+    this.modalClose.emit();
   }
 }

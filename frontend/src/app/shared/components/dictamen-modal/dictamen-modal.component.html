@@ -1,6 +1,6 @@
 @if (data(); as modal) {
-<div class="dictamen-modal-backdrop" (click)="onClose()" role="dialog" aria-modal="true">
-  <div class="dictamen-modal-card" (click)="$event.stopPropagation()">
+<div class="dictamen-modal-backdrop" (click)="onClose()" (keydown.escape)="onClose()" tabindex="0" role="dialog" aria-modal="true">
+  <div class="dictamen-modal-card" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
     <h3>Dictaminar Postulación #{{ modal.idPostulacion }}</h3>
     <p>Decisión a aplicar: <strong>{{ modal.decision }}</strong></p>
 
