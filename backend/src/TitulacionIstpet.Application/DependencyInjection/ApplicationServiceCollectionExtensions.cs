@@ -22,15 +22,40 @@ public static class ApplicationServiceCollectionExtensions
 
         services.AddValidatorsFromAssembly(ensamblado);
 
-        // Casos de uso de la feature de ejemplo. Cada uno se registra como
-        // clase concreta (no interfaz) porque no hay polimorfismo que justifique
-        // abstraerlos; el coste de un mock por test es trivial.
+        // Feature: AdjuntosImagenes
         services.AddScoped<CrearAdjunto>();
         services.AddScoped<ActualizarAdjunto>();
         services.AddScoped<EliminarAdjunto>();
         services.AddScoped<ObtenerAdjuntoPorId>();
         services.AddScoped<ListarAdjuntos>();
 
+        // Feature: Postulaciones (Consultas y Comandos)
+        services.AddScoped<Features.Postulaciones.Consultas.ConsultarElegibilidadEstudiante>();
+        services.AddScoped<Features.Postulaciones.Consultas.ListarModalidadesOfertadas>();
+        services.AddScoped<Features.Postulaciones.Consultas.ObtenerMiPostulacion>();
+        services.AddScoped<Features.Postulaciones.Consultas.ObtenerPostulacionPorId>();
+        services.AddScoped<Features.Postulaciones.Consultas.ListarPostulaciones>();
+        services.AddScoped<Features.Postulaciones.Consultas.ListarEstadosPostulacion>();
+
+        services.AddScoped<Features.Postulaciones.Comandos.CrearPostulacion>();
+        services.AddScoped<Features.Postulaciones.Comandos.ActualizarRequisitosPostulacion>();
+        services.AddScoped<Features.Postulaciones.Comandos.CambiarEstadoPostulacion>();
+        services.AddScoped<Features.Postulaciones.Comandos.SolicitarCambioModalidad>();
+        services.AddScoped<Features.Postulaciones.Consultas.ObtenerPortalEstudiante>();
+        services.AddScoped<Features.Postulaciones.Comandos.DictaminarPostulacion>();
+
+        // Feature: ConfiguracionGeneral
+        services.AddScoped<Features.ConfiguracionGeneral.CasosDeUso.ListarConfiguracionGeneral>();
+        services.AddScoped<Features.ConfiguracionGeneral.CasosDeUso.AdministrarModalidades>();
+        services.AddScoped<Features.ConfiguracionGeneral.CasosDeUso.AdministrarRequisitos>();
+        services.AddScoped<Features.ConfiguracionGeneral.CasosDeUso.AdministrarMatrizRequisitosModalidad>();
+
+        // Feature: Convocatorias
+        services.AddScoped<Features.Convocatorias.CasosDeUso.AperturarPeriodoConvocatoria>();
+        services.AddScoped<Features.Convocatorias.CasosDeUso.ConsultarConvocatorias>();
+        services.AddScoped<Features.Convocatorias.CasosDeUso.AdministrarConvocatoria>();
+
         return services;
     }
 }
+

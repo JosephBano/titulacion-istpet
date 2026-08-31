@@ -33,7 +33,45 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok(new { estado = "ok" })).WithTags("Infra");
+
+// Health Checks estructurados (Liveness y Readiness)
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var isDev = app.Environment.IsDevelopment();
+
+        var response = new
+        {
+            status = report.Status.ToString(),
+            totalDurationMs = Math.Round(report.TotalDuration.TotalMilliseconds, 2),
+            environment = app.Environment.EnvironmentName,
+            timestampUtc = DateTime.UtcNow,
+            version = "1.0.0",
+            checks = report.Entries.Select(e => new
+            {
+                name = e.Key,
+                status = e.Value.Status.ToString(),
+                durationMs = Math.Round(e.Value.Duration.TotalMilliseconds, 2),
+                description = e.Value.Description,
+                error = isDev ? e.Value.Exception?.Message : null
+            })
+        };
+
+        await context.Response.WriteAsync(
+            System.Text.Json.JsonSerializer.Serialize(response, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+            }));
+    }
+}).WithTags("Infra");
+
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false
+}).WithTags("Infra");
 
 app.Run();
 

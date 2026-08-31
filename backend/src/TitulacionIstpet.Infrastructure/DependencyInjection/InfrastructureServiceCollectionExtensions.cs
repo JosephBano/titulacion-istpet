@@ -4,6 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using TitulacionIstpet.Application.Auth;
 using TitulacionIstpet.Application.Common.Interfaces;
 using TitulacionIstpet.Application.Features.AdjuntosImagenes;
+using TitulacionIstpet.Application.Features.ConfiguracionGeneral;
+using TitulacionIstpet.Application.Features.Convocatorias;
+using TitulacionIstpet.Application.Features.Postulaciones;
 using TitulacionIstpet.Application.Interfaces;
 using TitulacionIstpet.Domain.Interfaces.Security;
 using TitulacionIstpet.Infrastructure.Auth;
@@ -40,8 +43,11 @@ public static class InfrastructureServiceCollectionExtensions
         // IUnitOfWork resuelve al mismo SigafiDbContext
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SigafiDbContext>());
 
-        // Repositorios existentes
+        // Repositorios existentes y nuevas features
         services.AddScoped<IRepositorioAdjuntosImagenes, RepositorioAdjuntosImagenes>();
+        services.AddScoped<IRepositorioPostulaciones, RepositorioPostulaciones>();
+        services.AddScoped<IRepositorioConfiguracionGeneral, RepositorioConfiguracionGeneral>();
+        services.AddScoped<IRepositorioConvocatorias, RepositorioConvocatorias>();
 
         // Seguridad y Auth
         services.AddScoped<IVerificadorCredenciales, VerificadorCredencialesBcrypt>();

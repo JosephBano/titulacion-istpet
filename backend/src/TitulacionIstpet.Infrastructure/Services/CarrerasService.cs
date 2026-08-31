@@ -8,7 +8,6 @@ namespace TitulacionIstpet.Infrastructure.Services;
 public class CarrerasService : ICarrerasService
 {
     private readonly SigafiDbContext _context;
-    private const int IdCarreraConduccion = 9; // Excluir cursos externos no técnicos
 
     public CarrerasService(SigafiDbContext context)
     {
@@ -19,7 +18,7 @@ public class CarrerasService : ICarrerasService
     {
         return await _context.Carreras
             .AsNoTracking()
-            .Where(c => c.Activa == true && c.IdCarrera != IdCarreraConduccion)
+            .Where(c => (c.EsInstituto == true) && (c.Activa == true || c.Activa == null))
             .OrderBy(c => c.Carrera)
             .Select(c => new CarreraDto(
                 c.IdCarrera,
@@ -38,8 +37,9 @@ public class CarrerasService : ICarrerasService
         // 1. Carreras en las que el alumno está registrado
         var carrerasAlumno = await _context.AlumnosCarreras
             .AsNoTracking()
-            .Where(ac => ac.IdAlumno == idAlumno && ac.IdCarrera != IdCarreraConduccion)
+            .Where(ac => ac.IdAlumno == idAlumno)
             .Join(_context.Carreras, ac => ac.IdCarrera, c => c.IdCarrera, (ac, c) => new { ac, c })
+            .Where(x => (x.c.EsInstituto == true) && (x.c.Activa == true || x.c.Activa == null))
             .ToListAsync(cancellationToken);
 
         // 2. Títulos obtenidos por el alumno
@@ -105,8 +105,9 @@ public class CarrerasService : ICarrerasService
         }
 
         var resultado = new List<ProfesorCarreraDto>();
-        var gruposPorCarrera = asignaciones.Where(pcp => pcp.IdCarreraNavigation != null && pcp.IdCarrera != IdCarreraConduccion)
-                                            .GroupBy(pcp => pcp.IdCarrera);
+        var gruposPorCarrera = asignaciones
+            .Where(pcp => pcp.IdCarreraNavigation != null && (pcp.IdCarreraNavigation.EsInstituto == true))
+            .GroupBy(pcp => pcp.IdCarrera);
 
         foreach (var grupo in gruposPorCarrera)
         {

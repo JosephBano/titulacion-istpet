@@ -1,0 +1,81 @@
+.convocatoria-card-portal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-left: 4px solid var(--istpet-gold, #c59b27);
+  border-radius: var(--radius-card, 4px);
+  margin-bottom: 20px;
+}
+
+.convocatoria-card-portal.abierta {
+  border-left-color: #107c10;
+}
+
+.status-indicator-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #8a8886;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background-color: #107c10;
+  box-shadow: 0 0 0 2px rgba(16, 124, 16, 0.2);
+}
+
+.convocatoria-info h3 {
+  margin: 4px 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.convocatoria-info p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #605e5c);
+}
+
+.conv-tag {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #605e5c);
+}
+
+.convocatoria-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--istpet-gold-subtle, rgba(197, 155, 39, 0.12));
+  padding: 8px 16px;
+  border-radius: var(--radius-card, 4px);
+}
+
+.convocatoria-countdown .days-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--istpet-navy, #1b2a4a);
+}
+
+.convocatoria-countdown .days-lbl {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #605e5c);
+}

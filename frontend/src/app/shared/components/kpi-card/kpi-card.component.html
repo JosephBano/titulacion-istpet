@@ -1,0 +1,7 @@
+<div class="kpi-card">
+  <span class="kpi-eyebrow">{{ eyebrow() }}</span>
+  <span class="kpi-value" [style.fontSize]="valueFontSize()">{{ value() }}</span>
+  @if (subtext()) {
+    <span class="kpi-subtext">{{ subtext() }}</span>
+  }
+</div>

@@ -29,3 +29,13 @@ public sealed record ModalidadResponseDto(
     int IdModalidad,
     string Nombre
 );
+
+public sealed record ModalidadCarreraResponseDto(
+    int IdModalidadCarrera,
+    int IdCarrera,
+    string NombreCarrera,
+    string? AliasCarrera,
+    int IdModalidadEstudio,
+    string NombreModalidadEstudio,
+    bool Activa
+);

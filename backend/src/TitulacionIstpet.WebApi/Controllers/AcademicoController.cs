@@ -43,12 +43,15 @@ public class AcademicoController : ControllerBase
     }
 
     /// <summary>
-    /// Listar períodos lectivos vigentes
+    /// Listar períodos lectivos (por defecto filtrados con prefijos institucionales ABR y OCT de ISTPET)
     /// </summary>
     [HttpGet("periodos")]
-    public async Task<ActionResult<IEnumerable<PeriodoResponseDto>>> GetPeriodos(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<PeriodoResponseDto>>> GetPeriodos(
+        [FromQuery] bool soloActivos = false,
+        [FromQuery] bool soloInstituto = true,
+        CancellationToken cancellationToken = default)
     {
-        var periodos = await _academicoService.GetPeriodosVigentesAsync(cancellationToken);
+        var periodos = await _academicoService.GetPeriodosVigentesAsync(soloActivos, soloInstituto, cancellationToken);
         return Ok(periodos);
     }
 
@@ -70,5 +73,17 @@ public class AcademicoController : ControllerBase
     {
         var modalidades = await _academicoService.GetModalidadesAsync(cancellationToken);
         return Ok(modalidades);
+    }
+
+    /// <summary>
+    /// Listar todas las carreras asociadas a sus modalidades de estudio (Presencial, En Línea, etc.)
+    /// </summary>
+    [HttpGet("modalidades-carreras")]
+    public async Task<ActionResult<IEnumerable<ModalidadCarreraResponseDto>>> GetModalidadesCarreras(
+        [FromQuery] bool soloActivas = true,
+        CancellationToken cancellationToken = default)
+    {
+        var lista = await _academicoService.GetModalidadesCarrerasAsync(soloActivas, cancellationToken);
+        return Ok(lista);
     }
 }

@@ -38,4 +38,10 @@ public class PasswordHasher : IPasswordHasher
 
         return string.Equals(computedHash, hashedPassword, StringComparison.OrdinalIgnoreCase);
     }
+
+    public bool NeedsRehash(string? hashedPassword)
+    {
+        return !_verificador.EsHash(hashedPassword);
+    }
 }
+

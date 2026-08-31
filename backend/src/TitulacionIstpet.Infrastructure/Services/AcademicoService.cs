@@ -47,11 +47,24 @@ public class AcademicoService : IAcademicoService
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<PeriodoResponseDto>> GetPeriodosVigentesAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<PeriodoResponseDto>> GetPeriodosVigentesAsync(
+        bool soloActivos = false,
+        bool soloInstituto = true,
+        CancellationToken cancellationToken = default)
     {
-        return await _context.Periodos
-            .AsNoTracking()
-            .Where(p => p.Activo == true)
+        var query = _context.Periodos.AsNoTracking().AsQueryable();
+
+        if (soloInstituto)
+        {
+            query = query.Where(p => p.IdPeriodo.StartsWith("ABR") || p.IdPeriodo.StartsWith("OCT"));
+        }
+
+        if (soloActivos)
+        {
+            query = query.Where(p => p.Activo == true);
+        }
+
+        return await query
             .OrderByDescending(p => p.IdPeriodo)
             .Select(p => new PeriodoResponseDto(
                 p.IdPeriodo,
@@ -89,6 +102,38 @@ public class AcademicoService : IAcademicoService
             .Select(m => new ModalidadResponseDto(
                 m.IdModalidad,
                 m.Modalidad ?? string.Empty
+            ))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<ModalidadCarreraResponseDto>> GetModalidadesCarrerasAsync(
+        bool soloActivas = true,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.ModalidadesCarreras
+            .AsNoTracking()
+            .Include(mc => mc.IdCarreraNavigation)
+            .Include(mc => mc.IdModalidadNavigation)
+            .AsQueryable();
+
+        if (soloActivas)
+        {
+            query = query.Where(mc =>
+                (mc.EsActivo == true || mc.EsActivo == null) &&
+                (mc.IdCarreraNavigation.Activa == true || mc.IdCarreraNavigation.Activa == null));
+        }
+
+        return await query
+            .OrderBy(mc => mc.IdCarreraNavigation.Carrera)
+            .ThenBy(mc => mc.IdModalidadNavigation.Modalidad)
+            .Select(mc => new ModalidadCarreraResponseDto(
+                mc.IdModalidadCarrera,
+                mc.IdCarrera,
+                mc.IdCarreraNavigation.Carrera ?? string.Empty,
+                mc.IdCarreraNavigation.AliasCarrera,
+                mc.IdModalidad,
+                mc.IdModalidadNavigation.Modalidad ?? string.Empty,
+                (mc.EsActivo ?? true) && (mc.IdCarreraNavigation.Activa ?? true)
             ))
             .ToListAsync(cancellationToken);
     }
