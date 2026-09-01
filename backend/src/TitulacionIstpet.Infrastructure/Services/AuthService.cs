@@ -39,17 +39,80 @@ public class AuthService : IAuthService
 
         if (user == null)
         {
-            throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
-        }
+            // Auto-aprovisionamiento si existe en la tabla Alumnos
+            var alumno = await _context.Alumnos
+                .FirstOrDefaultAsync(a =>
+                    a.IdAlumno == cleanInput ||
+                    (a.UserAlumno != null && a.UserAlumno == cleanInput) ||
+                    (a.EmailInstitucional != null && a.EmailInstitucional == cleanInput) ||
+                    (a.Email != null && a.Email == cleanInput),
+                    cancellationToken);
 
-        if (user.Activo != true)
-        {
-            throw new UnauthorizedAccessException("El usuario se encuentra inactivo.");
-        }
+            if (alumno != null && _passwordHasher.VerifyPassword(request.Password, alumno.Password))
+            {
+                var nombreCompleto = $"{alumno.PrimerNombre} {alumno.ApellidoPaterno}".Trim();
+                if (string.IsNullOrWhiteSpace(nombreCompleto))
+                {
+                    nombreCompleto = alumno.UserAlumno ?? alumno.IdAlumno;
+                }
 
-        if (!_passwordHasher.VerifyPassword(request.Password, user.Contrasenia))
+                var emailInst = !string.IsNullOrWhiteSpace(alumno.EmailInstitucional)
+                    ? alumno.EmailInstitucional
+                    : (!string.IsNullOrWhiteSpace(alumno.Email) ? alumno.Email : $"{alumno.IdAlumno}@istpet.edu.ec");
+
+                user = new Usuarios
+                {
+                    IdSigafi = alumno.IdAlumno,
+                    TablaSigafi = "alumno",
+                    Nombre = nombreCompleto,
+                    Contrasenia = _passwordHasher.HashPassword(request.Password),
+                    Activo = true,
+                    Administrador = false,
+                    EmailInstitucional = emailInst,
+                    EmailValidado = true
+                };
+
+                _context.Usuarios.Add(user);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                // Asignar rol institucional de estudiante: IdRol = 15 ('alumno')
+                var rolAlumno = await _context.RbacRol
+                    .FirstOrDefaultAsync(r => r.IdRol == 15 || r.CodigoRol == "alumno", cancellationToken);
+
+                int idRolAsignar = rolAlumno?.IdRol ?? 15;
+
+                var usuarioRol = new RbacUsuarioRol
+                {
+                    IdUsuario = user.IdUsuario,
+                    IdRol = idRolAsignar,
+                    EsActivo = true
+                };
+                _context.RbacUsuarioRol.Add(usuarioRol);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
+            }
+        }
+        else
         {
-            throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
+            if (user.Activo != true)
+            {
+                throw new UnauthorizedAccessException("El usuario se encuentra inactivo.");
+            }
+
+            if (!_passwordHasher.VerifyPassword(request.Password, user.Contrasenia))
+            {
+                throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
+            }
+
+            // Migración progresiva de contraseña únicamente en la tabla Usuarios
+            if (_passwordHasher.NeedsRehash(user.Contrasenia))
+            {
+                user.Contrasenia = _passwordHasher.HashPassword(request.Password);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
         }
 
         var systemCode = string.IsNullOrWhiteSpace(request.SystemCode) ? "TITULACION" : request.SystemCode;

@@ -13,11 +13,27 @@ public class HealthEndpointTests(ApiFactory factory) : IClassFixture<ApiFactory>
     private readonly ApiFactory _factory = factory;
 
     [Fact]
-    public async Task Health_responde_ok()
+    public async Task Health_responde_con_json_estructurado()
     {
         var cliente = _factory.CreateClient();
 
         var respuesta = await cliente.GetAsync("/health");
+
+        ((int)respuesta.StatusCode).Should().BeOneOf((int)HttpStatusCode.OK, (int)HttpStatusCode.ServiceUnavailable);
+        respuesta.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+
+        var cuerpo = await respuesta.Content.ReadAsStringAsync();
+        cuerpo.Should().Contain("status");
+        cuerpo.Should().Contain("environment");
+        cuerpo.Should().Contain("checks");
+    }
+
+    [Fact]
+    public async Task Health_live_responde_ok()
+    {
+        var cliente = _factory.CreateClient();
+
+        var respuesta = await cliente.GetAsync("/health/live");
 
         respuesta.StatusCode.Should().Be(HttpStatusCode.OK);
     }

@@ -20,6 +20,12 @@ public static class WebApiServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<IUsuarioActual, UsuarioActual>();
 
+        // Health Checks de infraestructura y base de datos
+        services.AddHealthChecks()
+            .AddDbContextCheck<TitulacionIstpet.Infrastructure.Persistence.SigafiDbContext>(
+                name: "mysql_sigafi_database",
+                tags: ["db", "ready"]);
+
         // 1. Configuración de Autenticación JWT Bearer
         var secretKey = configuration["JwtSettings:SecretKey"] ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
         var issuer = configuration["JwtSettings:Issuer"] ?? "TitulacionIstpetApi";

@@ -95,18 +95,40 @@ export class AuthService {
   public hasRole(roleCode: string): boolean {
     const user = this.currentUser();
     if (!user || !user.roles) return false;
-    const cleanTarget = roleCode.toUpperCase().replace(/^TITULACION_/, '');
+    const normalizedTarget = roleCode.toUpperCase().replace(/^TITULACION_/, '');
+    const isTargetAdmin =
+      normalizedTarget === 'ADMIN' ||
+      normalizedTarget === 'ADMINISTRADOR' ||
+      normalizedTarget === 'ADMIN_SIST' ||
+      normalizedTarget === 'GESTOR';
+    const isTargetDocente = normalizedTarget === 'DOCENTE' || normalizedTarget === 'PROFESOR';
+    const isTargetEstudiante = normalizedTarget === 'ESTUDIANTE' || normalizedTarget === 'ALUMNO';
+
     return user.roles.some((r) => {
       const upperRole = r.toUpperCase();
-      const cleanRole = upperRole.replace(/^TITULACION_/, '');
-      return (
-        upperRole === roleCode.toUpperCase() ||
-        cleanRole === cleanTarget ||
-        (cleanTarget === 'ESTUDIANTE' && upperRole === 'ALUMNO') ||
-        (cleanTarget === 'DOCENTE' && upperRole === 'PROFESOR') ||
-        (cleanTarget === 'ADMIN' &&
-          (upperRole === 'ADMINISTRADOR' || upperRole === 'TITULACION_ADMIN'))
-      );
+      const normalizedUserRole = upperRole.replace(/^TITULACION_/, '');
+      const isUserAdmin =
+        normalizedUserRole === 'ADMIN' ||
+        normalizedUserRole === 'ADMINISTRADOR' ||
+        normalizedUserRole === 'ADMIN_SIST' ||
+        normalizedUserRole === 'GESTOR';
+      const isUserDocente =
+        normalizedUserRole === 'DOCENTE' ||
+        normalizedUserRole === 'PROFESOR' ||
+        user.tablaSigafi?.toLowerCase() === 'profesor';
+      const isUserEstudiante =
+        normalizedUserRole === 'ESTUDIANTE' ||
+        normalizedUserRole === 'ALUMNO' ||
+        user.tablaSigafi?.toLowerCase() === 'alumno' ||
+        user.tablaSigafi?.toLowerCase() === 'alumnos';
+
+      if (upperRole === roleCode.toUpperCase() || normalizedUserRole === normalizedTarget) {
+        return true;
+      }
+      if (isTargetAdmin && isUserAdmin) return true;
+      if (isTargetDocente && isUserDocente) return true;
+      if (isTargetEstudiante && isUserEstudiante) return true;
+      return false;
     });
   }
 

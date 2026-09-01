@@ -1,0 +1,313 @@
+{
+  "info": {
+    "_postman_id": "titulacion-istpet-api-2026",
+    "name": "Titulación ISTPET API (Enterprise)",
+    "description": "Colección completa y automatizada para pruebas de desarrollo y producción del Sistema de Titulación ISTPET (.NET 8). Incluye scripts automáticos de autenticación Bearer JWT, Health Checks detallados, Configuración General, Convocatorias/Fechas de Corte y Dictámenes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "00. Infraestructura & Health Checks",
+      "item": [
+        {
+          "name": "Health Check Completo (Readiness + DB)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Verifica el estado del servicio, latencia en ms, versión y conectividad con MySQL."
+          }
+        },
+        {
+          "name": "Health Check Liveness",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "live"]
+            },
+            "description": "Verificación liviana para balanceadores de carga / Kubernetes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01. Autenticación & Sesión (JWT)",
+      "item": [
+        {
+          "name": "Iniciar Sesión (Login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var data = pm.response.json();",
+                  "    pm.environment.set('accessToken', data.accessToken);",
+                  "    pm.environment.set('refreshToken', data.refreshToken);",
+                  "    console.log('Tokens guardados exitosamente en el entorno Postman');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin@istpet.edu.ec\",\n  \"clave\": \"AdminIstpet2026!\",\n  \"systemCode\": \"TITULACION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refrescar Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var data = pm.response.json();",
+                  "    pm.environment.set('accessToken', data.accessToken);",
+                  "    pm.environment.set('refreshToken', data.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "Mi Perfil y Permisos (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me?systemCode=TITULACION",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"],
+              "query": [{ "key": "systemCode", "value": "TITULACION" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Configuración General (Catálogos Maestros)",
+      "item": [
+        {
+          "name": "Listar Modalidades Maestras",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/configuracion/modalidades",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "configuracion", "modalidades"]
+            }
+          }
+        },
+        {
+          "name": "Crear Modalidad Maestra",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modalidadTitulacion\": \"Examen Complexivo Teórico-Práctico\",\n  \"esComplexivo\": \"SI\",\n  \"esArticuloCientifico\": \"NO\",\n  \"generaTesis\": \"NO\",\n  \"cantidadMinima\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/configuracion/modalidades",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "configuracion", "modalidades"]
+            }
+          }
+        },
+        {
+          "name": "Listar Requisitos Maestros",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/configuracion/requisitos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "configuracion", "requisitos"]
+            }
+          }
+        },
+        {
+          "name": "Crear Requisito Maestro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requisito\": \"Certificado de No Adeudar a la Institución\",\n  \"esAdjunto\": true,\n  \"esBool\": false,\n  \"subeAlumno\": true,\n  \"subeColaborador\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/configuracion/requisitos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "configuracion", "requisitos"]
+            }
+          }
+        },
+        {
+          "name": "Ver Matriz de Requisitos por Modalidad",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/configuracion/modalidades/1/requisitos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "configuracion", "modalidades", "1", "requisitos"]
+            }
+          }
+        },
+        {
+          "name": "Asignar Requisito a Modalidad",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/configuracion/modalidades/1/requisitos/1?esRequisitoFinal=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "configuracion", "modalidades", "1", "requisitos", "1"],
+              "query": [{ "key": "esRequisitoFinal", "value": "false" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Convocatorias & Fechas de Corte",
+      "item": [
+        {
+          "name": "Apertura Masiva de Periodo (1 Clic)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPeriodo\": \"2026-I\",\n  \"detalleConvocatoria\": \"Convocatoria Ordinaria de Titulación 2026-I\",\n  \"fechaInicioCorte\": \"2026-09-01T08:00:00Z\",\n  \"fechaFinCorte\": \"2026-09-30T23:59:59Z\",\n  \"diasPermitidos\": 90,\n  \"diasExtension\": 30,\n  \"habilitarTodasLasCarreras\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/convocatorias/aperturar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "convocatorias", "aperturar"]
+            }
+          }
+        },
+        {
+          "name": "Consultar Convocatoria Activa",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/convocatorias/activa",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "convocatorias", "activa"]
+            }
+          }
+        },
+        {
+          "name": "Ajustar / Extender Fechas de Corte",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCohorte\": 1,\n  \"fechaFin\": \"2026-10-15T23:59:59Z\",\n  \"diasExtension\": 15\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/convocatorias/1/fechas-corte",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "convocatorias", "1", "fechas-corte"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Postulaciones & Portal del Alumno",
+      "item": [
+        {
+          "name": "Mi Portal (Consulta Unificada Alumno)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/postulaciones/mi-portal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "postulaciones", "mi-portal"]
+            }
+          }
+        },
+        {
+          "name": "Listar Postulaciones (Bandeja Gestor con Filtros)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/postulaciones?pagina=1&tamanoPagina=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "postulaciones"],
+              "query": [
+                { "key": "pagina", "value": "1" },
+                { "key": "tamanoPagina", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dictaminar Postulación (Aprobar / Observar)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPostulacionAlumnos\": 1,\n  \"decision\": \"APROBAR\",\n  \"observaciones\": \"Documentación completa y verificada.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/postulaciones/1/dictamen",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "postulaciones", "1", "dictamen"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

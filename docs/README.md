@@ -19,6 +19,8 @@ La solución se compone de un backend desacoplado desarrollado en **.NET 8** baj
 - [02. Matriz de Autorización RBAC y Atributo HasPermission](02-backend-api/02-matriz-rbac-y-permisos.md)
 - [03. Especificación de Endpoints (Académico y Actores)](02-backend-api/03-endpoints-academico-y-actores.md)
 - [04. Middleware Global y Manejo de Errores ProblemDetails](02-backend-api/04-middleware-global-y-respuestas.md)
+- [05. Configuración General, Convocatorias y Flujo Automatizado de Titulación](02-backend-api/05-configuracion-general-y-convocatorias.md)
+- [06. Health Checks, Diagnóstico y Suite de Pruebas con Postman](02-backend-api/06-health-checks-y-pruebas-postman.md)
 
 ### 03. Base de Datos (`03-base-de-datos/`)
 - [01. Esquema Relacional SIGAFI y Módulo Tit_*](03-base-de-datos/01-esquema-sigafi-y-modulo-titulacion.md)
@@ -28,6 +30,8 @@ La solución se compone de un backend desacoplado desarrollado en **.NET 8** baj
 - [01. Arquitectura Angular 22 Standalone y Signals](04-frontend-angular/01-arquitectura-angular22-standalone.md)
 - [02. Sistema de Diseño Fluent Design 2 e Identidad ISTPET](04-frontend-angular/02-sistema-de-diseno-fluent2-istpet.md)
 - [03. Servicios, Interceptores HTTP y Guards de Navegación](04-frontend-angular/03-servicios-interceptores-y-guards.md)
+- [04. Resiliencia de Red, Caché Offline y Portal Dinámico de Titulación](04-frontend-angular/04-resiliencia-red-cache-y-portal-titulacion.md)
+- [05. Componentes UI Modulares y Reutilizables (Clean Architecture & Apple HIG)](04-frontend-angular/05-componentes-modulares-reutilizables.md)
 
 ### 05. Despliegue y Operaciones (`05-despliegue-y-operaciones/`)
 - [01. Guía de Ejecución y Configuración del Entorno Local](05-despliegue-y-operaciones/01-guia-ejecucion-local.md)

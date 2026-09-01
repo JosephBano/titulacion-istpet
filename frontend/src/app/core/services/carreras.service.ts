@@ -42,6 +42,8 @@ export interface UsuarioCarrerasResponseDto {
   carrerasDocente: ProfesorCarreraDto[];
 }
 
+export type CarreraUsuarioItem = EstudianteCarreraDto | ProfesorCarreraDto;
+
 @Injectable({
   providedIn: 'root',
 })

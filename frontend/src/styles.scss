@@ -1,10 +1,195 @@
 /* ==========================================================================
-   TITULACION ISTPET — Global Styles — Fluent Design System + ISTPET Brand
+   TITULACIÓN ISTPET — Sistema Global de Diseño (Fluent Design 2 + Apple HIG)
+   Colores Institucionales: Azul Marino (#1b2a4a) y Dorado Académico (#c59b27)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@use '@angular/material' as mat;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
 
+:root {
+  /* Identidad Institucional ISTPET */
+  --istpet-navy: #1b2a4a;
+  --istpet-navy-hover: #253d6b;
+  --istpet-navy-dark: #121d34;
+  --istpet-navy-rail: #12213a;
+  --istpet-navy-subtle: rgba(27, 42, 74, 0.06);
+
+  --istpet-gold: #c59b27;
+  --istpet-gold-hover: #d4af37;
+  --istpet-gold-dark: #b08a20;
+  --istpet-gold-light: #dfb743;
+  --istpet-gold-subtle: rgba(197, 155, 39, 0.12);
+
+  /* Superficies y Fondos — Light Mode */
+  --bg-canvas: #f0f2f5;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-alt: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-acrylic: rgba(255, 255, 255, 0.82);
+
+  /* Jerarquía de Texto — Light Mode */
+  --text-primary: #1a1a1a;
+  --text-secondary: #323130;
+  --text-muted: #605e5c;
+  --text-disabled: #a19f9d;
+
+  /* Bordes y Líneas Divisorias — Light Mode */
+  --border-default: #8a8886;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-color: rgba(0, 0, 0, 0.1);
+
+  /* Estados Semánticos */
+  --status-success: #0e703c;
+  --status-success-bg: rgba(14, 112, 60, 0.08);
+  --status-warning: #9d5d00;
+  --status-warning-bg: rgba(157, 93, 0, 0.08);
+  --status-error: #a4262c;
+  --status-error-bg: rgba(164, 38, 44, 0.08);
+  --status-info: #0078d4;
+  --status-info-bg: rgba(0, 120, 212, 0.08);
+
+  /* Radios de Esquinas */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-pill: 999px;
+
+  /* Sombras y Elevaciones */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-modal: 0 16px 40px rgba(0, 0, 0, 0.18);
+
+  /* Espaciado Modular */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Puente de Tema para Angular Material — se invierten en modo oscuro */
+  --mat-accent-primary: var(--istpet-navy);
+  --mat-accent-on-primary: #ffffff;
+  --mat-accent-primary-container: #dbe2f0;
+  --mat-accent-on-primary-container: #0d1830;
+  --mat-accent-tertiary: var(--istpet-gold);
+  --mat-accent-on-tertiary: var(--istpet-navy-dark);
+  --mat-accent-tertiary-container: #f5e6bd;
+  --mat-accent-on-tertiary-container: #4a3a0a;
+}
+
+/* Modo Oscuro Global */
+[data-theme='dark'] {
+  --bg-canvas: #0d1117;
+  --bg-surface: #161b22;
+  --bg-surface-elevated: #21262d;
+  --bg-surface-alt: #161b22;
+  --bg-card: #161b22;
+  --bg-acrylic: rgba(22, 27, 34, 0.85);
+
+  --text-primary: #f0f6fc;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-disabled: #484f58;
+
+  --border-default: #484f58;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(255, 255, 255, 0.12);
+
+  --status-success: #3fb950;
+  --status-success-bg: rgba(63, 185, 80, 0.12);
+  --status-warning: #d29922;
+  --status-warning-bg: rgba(210, 153, 34, 0.12);
+  --status-error: #f85149;
+  --status-error-bg: rgba(248, 81, 73, 0.12);
+  --status-info: #58a6ff;
+  --status-info-bg: rgba(88, 166, 255, 0.12);
+
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.65);
+
+  /* En modo oscuro los roles primario/terciario de Material se invierten:
+     el dorado pasa a ser el acento principal, igual que en botones/links. */
+  --mat-accent-primary: var(--istpet-gold);
+  --mat-accent-on-primary: var(--istpet-navy-dark);
+  --mat-accent-primary-container: #3a2f10;
+  --mat-accent-on-primary-container: #f0d989;
+  --mat-accent-tertiary: var(--istpet-gold-light);
+  --mat-accent-on-tertiary: var(--istpet-navy-dark);
+  --mat-accent-tertiary-container: #4a3a0a;
+  --mat-accent-on-tertiary-container: #f5e6bd;
+}
+
+/* ==========================================================================
+   Tema Angular Material (M3) — puenteado a los tokens institucionales ISTPET
+   ========================================================================== */
+html {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$blue-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: (
+        plain-family: (
+          'Plus Jakarta Sans',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif,
+        ),
+        brand-family: (
+          'Plus Jakarta Sans',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif,
+        ),
+      ),
+      density: 0,
+    ),
+    $overrides: (
+      primary: var(--mat-accent-primary),
+      on-primary: var(--mat-accent-on-primary),
+      primary-container: var(--mat-accent-primary-container),
+      on-primary-container: var(--mat-accent-on-primary-container),
+      tertiary: var(--mat-accent-tertiary),
+      on-tertiary: var(--mat-accent-on-tertiary),
+      tertiary-container: var(--mat-accent-tertiary-container),
+      on-tertiary-container: var(--mat-accent-on-tertiary-container),
+      surface: var(--bg-surface),
+      surface-container: var(--bg-surface-alt),
+      surface-container-high: var(--bg-surface-alt),
+      surface-container-highest: var(--bg-surface-alt),
+      surface-container-low: var(--bg-surface),
+      surface-container-lowest: var(--bg-surface),
+      on-surface: var(--text-primary),
+      on-surface-variant: var(--text-muted),
+      outline: var(--border-default),
+      outline-variant: var(--border-subtle),
+      error: var(--status-error),
+      on-error: #ffffff,
+      error-container: var(--status-error-bg),
+      on-error-container: var(--status-error)
+    )
+  );
+}
+
+/* ==========================================================================
+   Reset y Base Tipográfica
+   ========================================================================== */
 *,
 *::before,
 *::after {
@@ -16,16 +201,404 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
   font-family:
     'Plus Jakarta Sans',
-    system-ui,
     -apple-system,
+    BlinkMacSystemFont,
     'Segoe UI',
+    Roboto,
     sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* ==========================================================================
+   Scrollbars — Estilo Apple HIG / Fluent Minimalista
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ==========================================================================
+   Clases Utilitarias Globales Fluent Design 2
+   ========================================================================== */
+.fluent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+
+.fluent-card:hover {
+  border-color: var(--border-color);
+}
+
+/* Inputs con foco Fluent (Borde inferior activo) */
+.fluent-input,
+.fluent-select {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  outline: none;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.fluent-input:hover,
+.fluent-select:hover {
+  border-color: var(--text-muted);
+}
+
+.fluent-input:focus,
+.fluent-select:focus {
+  border-color: var(--istpet-navy);
+  border-bottom: 2px solid var(--istpet-navy);
+}
+
+[data-theme='dark'] .fluent-input:focus,
+[data-theme='dark'] .fluent-select:focus {
+  border-color: var(--istpet-gold);
+  border-bottom: 2px solid var(--istpet-gold);
+}
+
+/* Botones Oficiales */
+.fluent-btn-primary {
+  height: 32px;
+  padding: 0 16px;
+  background: var(--istpet-navy);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    background 150ms ease,
+    transform 60ms ease;
+}
+
+.fluent-btn-primary:hover:not(:disabled) {
+  background: var(--istpet-navy-hover);
+}
+
+.fluent-btn-primary:active:not(:disabled) {
+  background: var(--istpet-navy-dark);
+  transform: translateY(1px);
+}
+
+.fluent-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+[data-theme='dark'] .fluent-btn-primary {
+  background: var(--istpet-gold);
+  color: #000000;
+}
+
+[data-theme='dark'] .fluent-btn-primary:hover:not(:disabled) {
+  background: var(--istpet-gold-hover);
+}
+
+.fluent-btn-secondary {
+  height: 32px;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    background 100ms ease,
+    border-color 100ms ease;
+}
+
+.fluent-btn-secondary:hover:not(:disabled) {
+  background: var(--istpet-navy-subtle);
+  border-color: var(--text-muted);
+}
+
+/* Badges e Insignias de Estado */
+.fluent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.fluent-badge--info {
+  background: var(--status-info-bg);
+  color: var(--status-info);
+  border: 1px solid rgba(0, 120, 212, 0.2);
+}
+
+.fluent-badge--success {
+  background: var(--status-success-bg);
+  color: var(--status-success);
+  border: 1px solid rgba(14, 112, 60, 0.2);
+}
+
+.fluent-badge--warning {
+  background: var(--status-warning-bg);
+  color: var(--status-warning);
+  border: 1px solid rgba(157, 93, 0, 0.2);
+}
+
+.fluent-badge--danger {
+  background: var(--status-error-bg);
+  color: var(--status-error);
+  border: 1px solid rgba(164, 38, 44, 0.2);
+}
+
+/* ==========================================================================
+   Firma Visual Institucional ISTPET
+   ========================================================================== */
+.istpet-rule {
+  height: 3px;
+  width: 56px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--istpet-navy) 0%, var(--istpet-gold) 100%);
+}
+
+[data-theme='dark'] .istpet-rule {
+  background: linear-gradient(90deg, var(--istpet-gold) 0%, var(--istpet-gold-light) 100%);
+}
+
+/* Snackbars institucionales (NotificationService) */
+.istpet-snackbar .mdc-snackbar__surface {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-elevated) !important;
+}
+
+.istpet-snackbar--success .mdc-snackbar__surface {
+  background: var(--status-success) !important;
+}
+
+.istpet-snackbar--error .mdc-snackbar__surface {
+  background: var(--status-error) !important;
+}
+
+.istpet-snackbar--info .mdc-snackbar__surface {
+  background: var(--istpet-navy) !important;
+}
+
+.istpet-snackbar .mdc-snackbar__label,
+.istpet-snackbar .mat-mdc-snack-bar-action {
+  color: #ffffff !important;
+}
+
+.istpet-snackbar
+  .mat-mdc-button.mat-mdc-snack-bar-action:hover
+  .mat-mdc-button-persistent-ripple::before {
+  opacity: 0.12;
+}
+
+/* Paginador institucional (mat-paginator) */
+.mat-mdc-paginator {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-family: inherit !important;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.mat-mdc-paginator .mat-mdc-select-value,
+.mat-mdc-paginator-range-label {
+  color: var(--text-secondary) !important;
+  font-size: 0.8125rem !important;
+}
+
+@media (max-width: 640px) {
+  .mat-mdc-paginator-container {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    row-gap: 4px;
+    padding: 8px !important;
+  }
+
+  .mat-mdc-paginator-page-size {
+    margin-right: 8px !important;
+  }
+}
+
+/* Densidad y forma de mat-form-field (formularios de modales) */
+.mat-mdc-form-field,
+.istpet-mat-field {
+  width: 100%;
+  font-family: inherit !important;
+}
+
+.mat-mdc-form-field .mdc-text-field {
+  border-radius: var(--radius-md) !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  background-color: var(--bg-surface) !important;
+}
+
+/* Menú de cuenta del topbar (mat-menu — renderiza en el overlay global) */
+.istpet-user-menu.mat-mdc-menu-panel {
+  min-width: 240px;
+  max-width: 280px;
+  border-radius: var(--radius-lg, 10px) !important;
+  background: var(--bg-surface) !important;
+  box-shadow: var(--shadow-elevated) !important;
+}
+
+.istpet-user-menu .mat-mdc-menu-content {
+  padding: 0 !important;
+}
+
+.istpet-user-menu .user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.istpet-user-menu .avatar-circle--lg {
+  width: 38px;
+  height: 38px;
+  font-size: 0.9375rem;
+}
+
+.istpet-user-menu .user-menu-identity {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.istpet-user-menu .user-menu-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.istpet-user-menu .user-menu-role {
+  font-size: 0.75rem;
+  color: var(--istpet-gold-dark);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .istpet-user-menu .user-menu-role {
+  color: var(--istpet-gold);
+}
+
+.istpet-user-menu .user-menu-section {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.istpet-user-menu .user-menu-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.istpet-user-menu .user-menu-static-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.istpet-user-menu .user-menu-select {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-surface-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+}
+
+.istpet-user-menu .mat-mdc-menu-item {
+  font-family: inherit !important;
+  font-size: 0.8125rem !important;
+  color: var(--status-error) !important;
+  gap: 10px;
+}
+
+.istpet-user-menu .mat-mdc-menu-item svg {
+  flex-shrink: 0;
+}
+
+.istpet-seal-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--istpet-navy);
+  color: var(--istpet-gold);
+  font-weight: 700;
+  border: 2px solid var(--istpet-gold);
+  box-shadow: 0 0 0 2px rgba(197, 155, 39, 0.18);
 }
