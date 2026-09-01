@@ -232,7 +232,9 @@
               <div class="progress-track">
                 <div
                   class="progress-bar"
-                  [style.width.%]="getPorcentajeRequisitos(p.totalRequisitosCompletados, p.totalRequisitos)"
+                  [style.width.%]="
+                    getPorcentajeRequisitos(p.totalRequisitosCompletados, p.totalRequisitos)
+                  "
                 ></div>
               </div>
             </div>
@@ -310,8 +312,8 @@
       <footer class="bandeja-pagination">
         <div class="pagination-left">
           <span class="pagination-range-text">
-            Mostrando <strong>{{ rangoInicio() }}</strong>–<strong>{{ rangoFin() }}</strong> de
-            <strong>{{ total() }}</strong> postulaciones
+            Mostrando <strong>{{ rangoInicio() }}</strong
+            >–<strong>{{ rangoFin() }}</strong> de <strong>{{ total() }}</strong> postulaciones
           </span>
 
           <div class="page-size-selector">

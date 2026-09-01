@@ -4,11 +4,7 @@
       <span class="modalidades-eyebrow">CONFIGURACIÓN ACADÉMICA</span>
       <h2 class="modalidades-title">Modalidades de Titulación y Matriz de Requisitos</h2>
     </div>
-    <button
-      type="button"
-      class="fluent-btn-primary"
-      (click)="nuevaModalidad.emit()"
-    >
+    <button type="button" class="fluent-btn-primary" (click)="nuevaModalidad.emit()">
       + Nueva Modalidad
     </button>
   </div>
@@ -17,7 +13,9 @@
     <div class="modalidades-box-header">
       <div class="header-titles">
         <h3 class="box-title">Opciones de Integración Curricular Institucional</h3>
-        <span class="box-subtitle">Modalidades reconocidas por ISTPET y asociación con requisitos de graduación</span>
+        <span class="box-subtitle"
+          >Modalidades reconocidas por ISTPET y asociación con requisitos de graduación</span
+        >
       </div>
       <span class="box-counter">{{ modalidades().length }} modalidades</span>
     </div>
@@ -29,7 +27,15 @@
       </div>
     } @else if (modalidades().length === 0) {
       <div class="empty-table-msg">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
           <polyline points="2 17 12 22 22 17"></polyline>
           <polyline points="2 12 12 17 22 12"></polyline>
@@ -105,8 +111,16 @@
                 </td>
                 <td>
                   <span class="status-cell">
-                    <span class="status-dot" [class.status-dot--success]="m.esActivo" [class.status-dot--neutral]="!m.esActivo"></span>
-                    <span class="status-label" [class.status-label--success]="m.esActivo" [class.status-label--neutral]="!m.esActivo">
+                    <span
+                      class="status-dot"
+                      [class.status-dot--success]="m.esActivo"
+                      [class.status-dot--neutral]="!m.esActivo"
+                    ></span>
+                    <span
+                      class="status-label"
+                      [class.status-label--success]="m.esActivo"
+                      [class.status-label--neutral]="!m.esActivo"
+                    >
                       {{ m.esActivo ? 'Activa' : 'Inactiva' }}
                     </span>
                   </span>
@@ -118,7 +132,15 @@
                     (click)="abrirMatriz.emit(m)"
                     title="Gestionar matriz de requisitos de esta modalidad"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <line x1="8" y1="6" x2="21" y2="6"></line>
                       <line x1="8" y1="12" x2="21" y2="12"></line>
                       <line x1="8" y1="18" x2="21" y2="18"></line>

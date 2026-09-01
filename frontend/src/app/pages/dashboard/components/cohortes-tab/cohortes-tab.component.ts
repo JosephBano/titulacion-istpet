@@ -1,6 +1,9 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ConvocatoriaDetalle, ConvocatoriaResumen } from '../../../../core/models/titulacion.models';
+import {
+  ConvocatoriaDetalle,
+  ConvocatoriaResumen,
+} from '../../../../core/models/titulacion.models';
 import { ConvocatoriaCardComponent } from '../../../../shared/components/convocatoria-card/convocatoria-card.component';
 
 @Component({

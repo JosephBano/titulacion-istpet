@@ -21,9 +21,12 @@
             <span class="modal-card-eyebrow">CONFIGURACIÓN INSTITUCIONAL</span>
             <span class="step-counter-pill">Paso {{ pasoActual() }} de {{ totalPasos }}</span>
           </div>
-          <h3 id="apertura-modal-title" class="modal-card-title">Aperturar Proceso de Titulación</h3>
+          <h3 id="apertura-modal-title" class="modal-card-title">
+            Aperturar Proceso de Titulación
+          </h3>
           <p class="modal-subtext">
-            Configure la cohorte académica, el cronograma de corte y el alcance de carreras y modalidades.
+            Configure la cohorte académica, el cronograma de corte y el alcance de carreras y
+            modalidades.
           </p>
         </div>
         <button
@@ -103,7 +106,8 @@
               <span class="step-pane-badge">Paso 1</span>
               <h4 class="step-pane-title">Período Académico Institucional</h4>
               <p class="step-pane-desc">
-                Seleccione el período académico de ISTPET / SIGAFI que regirá esta nueva cohorte de titulación.
+                Seleccione el período académico de ISTPET / SIGAFI que regirá esta nueva cohorte de
+                titulación.
               </p>
             </div>
 
@@ -167,7 +171,9 @@
               <div class="callout-content">
                 <strong>Integración Automática SIGAFI</strong>
                 <p>
-                  Al vincular el período <code>{{ form().idPeriodo || '...' }}</code>, el sistema cruzará automáticamente las matrículas activas, egresados y postulaciones correspondientes.
+                  Al vincular el período <code>{{ form().idPeriodo || '...' }}</code
+                  >, el sistema cruzará automáticamente las matrículas activas, egresados y
+                  postulaciones correspondientes.
                 </p>
               </div>
             </div>
@@ -183,7 +189,8 @@
               <span class="step-pane-badge">Paso 2</span>
               <h4 class="step-pane-title">Nombre y Detalle de la Convocatoria</h4>
               <p class="step-pane-desc">
-                Defina el título visible que verán los postulantes y docentes en el portal y reportes oficiales.
+                Defina el título visible que verán los postulantes y docentes en el portal y
+                reportes oficiales.
               </p>
             </div>
 
@@ -192,10 +199,7 @@
                 <label for="detalle-input" class="fluent-field-label">
                   Título de la Convocatoria:
                 </label>
-                <span
-                  class="char-counter"
-                  [class.warning]="form().detalleConvocatoria.length > 40"
-                >
+                <span class="char-counter" [class.warning]="form().detalleConvocatoria.length > 40">
                   {{ form().detalleConvocatoria.length }} / 45 caracteres
                 </span>
               </div>
@@ -245,7 +249,9 @@
               <div class="preview-body">
                 <div class="preview-banner">
                   <span class="preview-eyebrow">PROCESO DE TITULACIÓN {{ form().idPeriodo }}</span>
-                  <h5 class="preview-title">{{ form().detalleConvocatoria || 'Convocatoria de Titulación' }}</h5>
+                  <h5 class="preview-title">
+                    {{ form().detalleConvocatoria || 'Convocatoria de Titulación' }}
+                  </h5>
                   <span class="preview-note">Estado: Postulaciones Abiertas próximamente</span>
                 </div>
               </div>
@@ -262,7 +268,8 @@
               <span class="step-pane-badge">Paso 3</span>
               <h4 class="step-pane-title">Cronograma y Plazos Académicos</h4>
               <p class="step-pane-desc">
-                Navegue entre las fases de postulación, titulación y prórroga para consultar y ajustar las fechas del proceso.
+                Navegue entre las fases de postulación, titulación y prórroga para consultar y
+                ajustar las fechas del proceso.
               </p>
             </div>
 
@@ -346,7 +353,9 @@
 
                     <div class="fase-inputs-control">
                       <div class="input-inline-group">
-                        <label for="dias-post-input" class="inline-field-label">Días de Postulación:</label>
+                        <label for="dias-post-input" class="inline-field-label"
+                          >Días de Postulación:</label
+                        >
                         <input
                           id="dias-post-input"
                           type="number"
@@ -358,10 +367,18 @@
                         />
                       </div>
                       <div class="presets-buttons">
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(10)">10 días</button>
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(15)">15 días</button>
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(30)">30 días</button>
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(45)">45 días</button>
+                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(10)">
+                          10 días
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(15)">
+                          15 días
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(30)">
+                          30 días
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(45)">
+                          45 días
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -373,20 +390,26 @@
                     <div class="fechas-compact-grid">
                       <div class="fecha-compact-card readonly-card">
                         <span class="compact-card-label">INICIO DE TITULACIÓN</span>
-                        <strong class="compact-card-val">{{ cronogramaFases().titulacion.inicioStr }}</strong>
+                        <strong class="compact-card-val">{{
+                          cronogramaFases().titulacion.inicioStr
+                        }}</strong>
                         <span class="compact-sub-hint">Día posterior al cierre de postulación</span>
                       </div>
 
                       <div class="fecha-compact-card readonly-card">
                         <span class="compact-card-label">FIN DE TITULACIÓN</span>
-                        <strong class="compact-card-val">{{ cronogramaFases().titulacion.finStr }}</strong>
+                        <strong class="compact-card-val">{{
+                          cronogramaFases().titulacion.finStr
+                        }}</strong>
                         <span class="compact-sub-hint">Plazo reglamentario cumplido</span>
                       </div>
                     </div>
 
                     <div class="fase-inputs-control">
                       <div class="input-inline-group">
-                        <label for="dias-tit-input" class="inline-field-label">Días para Elaborar Titulación:</label>
+                        <label for="dias-tit-input" class="inline-field-label"
+                          >Días para Elaborar Titulación:</label
+                        >
                         <input
                           id="dias-tit-input"
                           type="number"
@@ -397,10 +420,26 @@
                         />
                       </div>
                       <div class="presets-buttons">
-                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(60)">60 días</button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(90)">90 días (Reglamentario)</button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(120)">120 días</button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(180)">180 días</button>
+                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(60)">
+                          60 días
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(90)">
+                          90 días (Reglamentario)
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-preset"
+                          (click)="aplicarDiasTitPreset(120)"
+                        >
+                          120 días
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-preset"
+                          (click)="aplicarDiasTitPreset(180)"
+                        >
+                          180 días
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -412,20 +451,26 @@
                     <div class="fechas-compact-grid">
                       <div class="fecha-compact-card readonly-card">
                         <span class="compact-card-label">INICIO DE PRÓRROGA</span>
-                        <strong class="compact-card-val">{{ cronogramaFases().prorroga.inicioStr }}</strong>
+                        <strong class="compact-card-val">{{
+                          cronogramaFases().prorroga.inicioStr
+                        }}</strong>
                         <span class="compact-sub-hint">Día posterior al fin de titulación</span>
                       </div>
 
                       <div class="fecha-compact-card readonly-card">
                         <span class="compact-card-label">FIN DE PRÓRROGA</span>
-                        <strong class="compact-card-val">{{ cronogramaFases().prorroga.finStr }}</strong>
+                        <strong class="compact-card-val">{{
+                          cronogramaFases().prorroga.finStr
+                        }}</strong>
                         <span class="compact-sub-hint">Fecha límite máxima de extensión</span>
                       </div>
                     </div>
 
                     <div class="fase-inputs-control">
                       <div class="input-inline-group">
-                        <label for="dias-pro-input" class="inline-field-label">Días de Prórroga / Gracia:</label>
+                        <label for="dias-pro-input" class="inline-field-label"
+                          >Días de Prórroga / Gracia:</label
+                        >
                         <input
                           id="dias-pro-input"
                           type="number"
@@ -436,10 +481,18 @@
                         />
                       </div>
                       <div class="presets-buttons">
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(0)">Sin prórroga</button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(15)">15 días</button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(30)">30 días (Estándar)</button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(45)">45 días</button>
+                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(0)">
+                          Sin prórroga
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(15)">
+                          15 días
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(30)">
+                          30 días (Estándar)
+                        </button>
+                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(45)">
+                          45 días
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -451,14 +504,40 @@
             <div class="mini-calendar-container">
               <div class="mini-cal-header">
                 <div class="cal-nav-group">
-                  <button type="button" class="cal-nav-btn" (click)="prevMes()" title="Mes anterior">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <button
+                    type="button"
+                    class="cal-nav-btn"
+                    (click)="prevMes()"
+                    title="Mes anterior"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                   </button>
                   <span class="mini-cal-title">{{ nombreMesVisual() }}</span>
-                  <button type="button" class="cal-nav-btn" (click)="nextMes()" title="Mes siguiente">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <button
+                    type="button"
+                    class="cal-nav-btn"
+                    (click)="nextMes()"
+                    title="Mes siguiente"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
                   </button>
@@ -543,7 +622,8 @@
               <span class="step-pane-badge">Paso 4</span>
               <h4 class="step-pane-title">Alcance de Carreras Habilitadas</h4>
               <p class="step-pane-desc">
-                Determine si la convocatoria se abre para toda la oferta académica o seleccione de forma personalizada las carreras participantes.
+                Determine si la convocatoria se abre para toda la oferta académica o seleccione de
+                forma personalizada las carreras participantes.
               </p>
             </div>
 
@@ -604,7 +684,12 @@
                 </div>
                 <div class="mode-text">
                   <span class="mode-title">Selección Personalizada</span>
-                  <span>Filtrar por carrera y modalidad ({{ carrerasSeleccionadas().size }} elegidas)</span>
+                  <span
+                    >Filtrar por carrera y modalidad ({{
+                      carrerasSeleccionadas().size
+                    }}
+                    elegidas)</span
+                  >
                 </div>
               </button>
             </div>
@@ -627,9 +712,12 @@
                   </svg>
                 </div>
                 <div class="all-banner-info">
-                  <span class="all-banner-title">Todas las {{ modalidadesCarreras().length }} carreras están habilitadas</span>
+                  <span class="all-banner-title"
+                    >Todas las {{ modalidadesCarreras().length }} carreras están habilitadas</span
+                  >
                   <p>
-                    Los estudiantes de cualquier carrera y modalidad registrada en ISTPET podrán postular a esta convocatoria durante el período de corte.
+                    Los estudiantes de cualquier carrera y modalidad registrada en ISTPET podrán
+                    postular a esta convocatoria durante el período de corte.
                   </p>
                 </div>
               </div>
@@ -710,7 +798,8 @@
                 <div class="custom-actions-bar">
                   <div class="selection-metrics">
                     <span class="metrics-badge">
-                      {{ metricasSeleccion().seleccionadas }} de {{ metricasSeleccion().total }} carreras habilitadas
+                      {{ metricasSeleccion().seleccionadas }} de
+                      {{ metricasSeleccion().total }} carreras habilitadas
                     </span>
                     <span class="metrics-sub">
                       ({{ metricasSeleccion().porcentaje }}% de cobertura institucional)
@@ -718,25 +807,13 @@
                   </div>
 
                   <div class="bulk-actions-buttons">
-                    <button
-                      type="button"
-                      class="btn-bulk"
-                      (click)="seleccionarTodasCarreras()"
-                    >
+                    <button type="button" class="btn-bulk" (click)="seleccionarTodasCarreras()">
                       Marcar Todas
                     </button>
-                    <button
-                      type="button"
-                      class="btn-bulk"
-                      (click)="deseleccionarTodasCarreras()"
-                    >
+                    <button type="button" class="btn-bulk" (click)="deseleccionarTodasCarreras()">
                       Deseleccionar
                     </button>
-                    <button
-                      type="button"
-                      class="btn-bulk"
-                      (click)="invertirSeleccionCarreras()"
-                    >
+                    <button type="button" class="btn-bulk" (click)="invertirSeleccionCarreras()">
                       Invertir
                     </button>
                   </div>
@@ -813,7 +890,8 @@
               <span class="step-pane-badge">Paso 5</span>
               <h4 class="step-pane-title">Modalidades de Grado y Resumen Final</h4>
               <p class="step-pane-desc">
-                Verifique las modalidades de titulación maestras habilitadas y confirme la apertura de la cohorte.
+                Verifique las modalidades de titulación maestras habilitadas y confirme la apertura
+                de la cohorte.
               </p>
             </div>
 
@@ -859,7 +937,8 @@
                     <div class="mod-info">
                       <span class="mod-title">{{ m.modalidadTitulacion }}</span>
                       <span class="mod-stats">
-                        Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) · {{ m.totalRequisitosAsociados }} requisitos
+                        Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) ·
+                        {{ m.totalRequisitosAsociados }} requisitos
                       </span>
                     </div>
                   </div>
@@ -888,14 +967,18 @@
                 <div class="resumen-item">
                   <span class="resumen-label">Ventana de Postulación:</span>
                   <span class="resumen-val">
-                    {{ form().fechaInicioStr }} al {{ form().fechaFinStr }} ({{ duracionConvocatoriaDias() }} días)
+                    {{ form().fechaInicioStr }} al {{ form().fechaFinStr }} ({{
+                      duracionConvocatoriaDias()
+                    }}
+                    días)
                   </span>
                 </div>
 
                 <div class="resumen-item">
                   <span class="resumen-label">Plazos del Proceso:</span>
                   <span class="resumen-val">
-                    {{ form().diasPermitidos }} días desarrollo + {{ form().diasExtension }} días prórroga
+                    {{ form().diasPermitidos }} días desarrollo + {{ form().diasExtension }} días
+                    prórroga
                   </span>
                 </div>
 
@@ -905,7 +988,8 @@
                     @if (form().habilitarTodasLasCarreras) {
                       Todas las carreras ({{ modalidadesCarreras().length }})
                     } @else {
-                      {{ carrerasSeleccionadas().size }} de {{ modalidadesCarreras().length }} seleccionadas
+                      {{ carrerasSeleccionadas().size }} de
+                      {{ modalidadesCarreras().length }} seleccionadas
                     }
                   </span>
                 </div>
@@ -925,9 +1009,7 @@
       <!-- FOOTER DE ACCIONES Y NAVEGACIÓN -->
       <footer class="dictamen-modal-actions">
         <div class="footer-left">
-          <button type="button" class="fluent-btn-ghost" (click)="onClose()">
-            Cancelar
-          </button>
+          <button type="button" class="fluent-btn-ghost" (click)="onClose()">Cancelar</button>
         </div>
 
         <div class="footer-right">

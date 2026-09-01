@@ -21,12 +21,7 @@
             Dictaminar Postulación #{{ modal.idPostulacion }}
           </h3>
         </div>
-        <button
-          type="button"
-          class="modal-close-btn"
-          (click)="onClose()"
-          aria-label="Cerrar modal"
-        >
+        <button type="button" class="modal-close-btn" (click)="onClose()" aria-label="Cerrar modal">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -76,9 +71,7 @@
       </div>
 
       <footer class="dictamen-modal-actions">
-        <button type="button" class="fluent-btn-secondary" (click)="onClose()">
-          Cancelar
-        </button>
+        <button type="button" class="fluent-btn-secondary" (click)="onClose()">Cancelar</button>
         <button type="button" class="fluent-btn-primary" (click)="onConfirm()">
           Confirmar Dictamen
         </button>

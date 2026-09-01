@@ -4,11 +4,7 @@
       <span class="requisitos-eyebrow">CATÁLOGO INSTITUCIONAL</span>
       <h2 class="requisitos-title">Requisitos Maestros de Titulación</h2>
     </div>
-    <button
-      type="button"
-      class="fluent-btn-primary"
-      (click)="nuevoRequisito.emit()"
-    >
+    <button type="button" class="fluent-btn-primary" (click)="nuevoRequisito.emit()">
       + Nuevo Requisito
     </button>
   </div>
@@ -17,7 +13,9 @@
     <div class="requisitos-box-header">
       <div class="header-titles">
         <h3 class="box-title">Documentos y Validaciones Académicas</h3>
-        <span class="box-subtitle">Catálogo de prerrequisitos exigidos para el proceso de titulación</span>
+        <span class="box-subtitle"
+          >Catálogo de prerrequisitos exigidos para el proceso de titulación</span
+        >
       </div>
       <span class="box-counter">{{ requisitos().length }} requisitos</span>
     </div>
@@ -29,7 +27,15 @@
       </div>
     } @else if (requisitos().length === 0) {
       <div class="empty-table-msg">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
           <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -63,15 +69,33 @@
                   <div class="tipo-val-cell">
                     @if (r.esAdjunto) {
                       <span class="tipo-tag tipo-tag--pdf">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
                           <polyline points="14 2 14 8 20 8"></polyline>
                         </svg>
                         <span>Archivo Digital (PDF)</span>
                       </span>
                     } @else {
                       <span class="tipo-tag tipo-tag--bool">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                         <span>Validación Booleana</span>
@@ -86,8 +110,16 @@
                 </td>
                 <td>
                   <span class="status-cell">
-                    <span class="status-dot" [class.status-dot--success]="r.esActivo" [class.status-dot--neutral]="!r.esActivo"></span>
-                    <span class="status-label" [class.status-label--success]="r.esActivo" [class.status-label--neutral]="!r.esActivo">
+                    <span
+                      class="status-dot"
+                      [class.status-dot--success]="r.esActivo"
+                      [class.status-dot--neutral]="!r.esActivo"
+                    ></span>
+                    <span
+                      class="status-label"
+                      [class.status-label--success]="r.esActivo"
+                      [class.status-label--neutral]="!r.esActivo"
+                    >
                       {{ r.esActivo ? 'Activo' : 'Inactivo' }}
                     </span>
                   </span>

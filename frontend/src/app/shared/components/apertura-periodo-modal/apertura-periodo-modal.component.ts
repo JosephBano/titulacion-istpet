@@ -78,9 +78,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
   // ----------------------------------------------------
   // Paso 3: Cronograma Visual y Calendario Multi-Fase
   // ----------------------------------------------------
-  currentCalendarMonth = signal<Date>(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-  );
+  currentCalendarMonth = signal<Date>(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   seleccionModo = signal<'inicio' | 'fin'>('inicio');
   tabFaseActiva = signal<'postulacion' | 'titulacion' | 'prorroga'>('postulacion');
 
@@ -112,9 +110,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const dInicioPro = new Date(dFinTit.getTime() + 24 * 60 * 60 * 1000);
     const diasPro = Math.max(0, Number(f.diasExtension) || 0);
     const dFinPro =
-      diasPro > 0
-        ? new Date(dInicioPro.getTime() + (diasPro - 1) * 24 * 60 * 60 * 1000)
-        : dFinTit;
+      diasPro > 0 ? new Date(dInicioPro.getTime() + (diasPro - 1) * 24 * 60 * 60 * 1000) : dFinTit;
 
     const inicioTitStr = this.toYMD(dInicioTit);
     const finTitStr = this.toYMD(dFinTit);
@@ -206,8 +202,18 @@ export class AperturaPeriodoModalComponent implements OnInit {
   nombreMesVisual = computed(() => {
     const d = this.currentCalendarMonth();
     const meses = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
     ];
     return `${meses[d.getMonth()]} ${d.getFullYear()}`;
   });

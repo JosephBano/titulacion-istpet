@@ -212,12 +212,24 @@ export class TitulacionService {
     );
   }
 
-  public getPeriodosAcademicos(
-    soloVigentes = true,
-  ): Observable<{ idPeriodo: string; nombre: string; esActivo?: boolean; fechaInicial?: string; fechaFinal?: string }[]> {
+  public getPeriodosAcademicos(soloVigentes = true): Observable<
+    {
+      idPeriodo: string;
+      nombre: string;
+      esActivo?: boolean;
+      fechaInicial?: string;
+      fechaFinal?: string;
+    }[]
+  > {
     const params = new HttpParams().set('soloVigentes', soloVigentes.toString());
     return this.http.get<
-      { idPeriodo: string; nombre: string; esActivo?: boolean; fechaInicial?: string; fechaFinal?: string }[]
+      {
+        idPeriodo: string;
+        nombre: string;
+        esActivo?: boolean;
+        fechaInicial?: string;
+        fechaFinal?: string;
+      }[]
     >(`${this.API_URL}/academico/periodos`, { params });
   }
 

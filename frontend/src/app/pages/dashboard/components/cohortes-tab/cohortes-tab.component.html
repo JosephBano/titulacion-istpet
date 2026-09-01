@@ -4,11 +4,7 @@
       <span class="cohortes-eyebrow">GESTIÓN DE COHORTES</span>
       <h2 class="cohortes-title">Convocatorias y Fechas de Corte de Titulación</h2>
     </div>
-    <button
-      type="button"
-      class="fluent-btn-primary"
-      (click)="aperturarNuevo.emit()"
-    >
+    <button type="button" class="fluent-btn-primary" (click)="aperturarNuevo.emit()">
       + Aperturar Nuevo Período
     </button>
   </div>
@@ -38,11 +34,7 @@
         Haga clic en <strong>"+ Aperturar Nuevo Período"</strong> para registrar el período
         académico, fijar las fechas límite de corte y habilitar las carreras del instituto.
       </p>
-      <button
-        type="button"
-        class="fluent-btn-primary"
-        (click)="aperturarNuevo.emit()"
-      >
+      <button type="button" class="fluent-btn-primary" (click)="aperturarNuevo.emit()">
         Aperturar Convocatoria Ahora
       </button>
     </div>
@@ -53,7 +45,9 @@
     <div class="historico-header">
       <div class="historico-title-wrap">
         <h3 class="historico-title">Histórico de Convocatorias Anteriores</h3>
-        <span class="historico-subtitle">Registro cronológico de períodos de titulación institucionales</span>
+        <span class="historico-subtitle"
+          >Registro cronológico de períodos de titulación institucionales</span
+        >
       </div>
       <span class="historico-counter">{{ convocatoriasLista().length }} registradas</span>
     </div>
@@ -65,7 +59,15 @@
       </div>
     } @else if (convocatoriasLista().length === 0) {
       <div class="empty-table-msg">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
           <line x1="16" y1="2" x2="16" y2="6"></line>
           <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -102,9 +104,13 @@
                 </td>
                 <td>
                   <div class="date-range-cell">
-                    <span class="date-val">{{ c.fechaInicio ? (c.fechaInicio | date: 'dd/MM/yyyy') : '-' }}</span>
+                    <span class="date-val">{{
+                      c.fechaInicio ? (c.fechaInicio | date: 'dd/MM/yyyy') : '-'
+                    }}</span>
                     <span class="date-sep">→</span>
-                    <span class="date-val">{{ c.fechaFin ? (c.fechaFin | date: 'dd/MM/yyyy') : '-' }}</span>
+                    <span class="date-val">{{
+                      c.fechaFin ? (c.fechaFin | date: 'dd/MM/yyyy') : '-'
+                    }}</span>
                   </div>
                 </td>
                 <td>
@@ -121,8 +127,16 @@
                 </td>
                 <td class="text-right">
                   <span class="status-cell">
-                    <span class="status-dot" [class.status-dot--success]="c.estaVigenteCorte" [class.status-dot--neutral]="!c.estaVigenteCorte"></span>
-                    <span class="status-label" [class.status-label--success]="c.estaVigenteCorte" [class.status-label--neutral]="!c.estaVigenteCorte">
+                    <span
+                      class="status-dot"
+                      [class.status-dot--success]="c.estaVigenteCorte"
+                      [class.status-dot--neutral]="!c.estaVigenteCorte"
+                    ></span>
+                    <span
+                      class="status-label"
+                      [class.status-label--success]="c.estaVigenteCorte"
+                      [class.status-label--neutral]="!c.estaVigenteCorte"
+                    >
                       {{ c.estaVigenteCorte ? 'Vigente' : 'Cerrada' }}
                     </span>
                   </span>
