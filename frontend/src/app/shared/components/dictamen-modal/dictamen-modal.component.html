@@ -6,6 +6,7 @@
     tabindex="0"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="dictamen-modal-title"
   >
     <div
       class="dictamen-modal-card"
@@ -13,28 +14,75 @@
       (keydown)="$event.stopPropagation()"
       tabindex="0"
     >
-      <h3>Dictaminar Postulación #{{ modal.idPostulacion }}</h3>
-      <p>
-        Decisión a aplicar: <strong>{{ modal.decision }}</strong>
-      </p>
+      <header class="modal-card-header">
+        <div class="modal-title-group">
+          <span class="modal-card-eyebrow">EVALUACIÓN DE EXPEDIENTE</span>
+          <h3 id="dictamen-modal-title" class="modal-card-title">
+            Dictaminar Postulación #{{ modal.idPostulacion }}
+          </h3>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="onClose()"
+          aria-label="Cerrar modal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
 
-      <mat-form-field appearance="outline" class="istpet-mat-field">
-        <mat-label>Observaciones / Instrucciones de Subsanación</mat-label>
-        <textarea
-          matInput
-          rows="4"
-          [ngModel]="modal.observaciones"
-          (ngModelChange)="observacionesTexto.set($event)"
-          placeholder="Ingrese las observaciones específicas para el estudiante..."
-        ></textarea>
-      </mat-form-field>
+      <div class="modal-card-body">
+        <div class="decision-status-row">
+          <span class="decision-label">Resolución a emitir:</span>
+          <span
+            class="decision-badge"
+            [class.decision-badge--success]="modal.decision === 'APROBAR'"
+            [class.decision-badge--warning]="modal.decision === 'OBSERVAR'"
+            [class.decision-badge--danger]="modal.decision === 'RECHAZAR'"
+          >
+            <span class="decision-dot"></span>
+            {{
+              modal.decision === 'APROBAR'
+                ? 'APROBAR POSTULACIÓN'
+                : modal.decision === 'OBSERVAR'
+                  ? 'OBSERVAR CON REQUERIMIENTOS'
+                  : 'RECHAZAR SOLICITUD'
+            }}
+          </span>
+        </div>
 
-      <div class="dictamen-modal-actions">
-        <button type="button" class="fluent-btn-secondary" (click)="onClose()">Cancelar</button>
+        <mat-form-field appearance="outline" class="istpet-mat-field">
+          <mat-label>Observaciones / Instrucciones para el Estudiante</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            [ngModel]="modal.observaciones"
+            (ngModelChange)="observacionesTexto.set($event)"
+            placeholder="Especifique los fundamentos del dictamen o los requisitos a subsanar..."
+          ></textarea>
+          <mat-hint>Este mensaje será visible en el portal académico del postulante.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <footer class="dictamen-modal-actions">
+        <button type="button" class="fluent-btn-secondary" (click)="onClose()">
+          Cancelar
+        </button>
         <button type="button" class="fluent-btn-primary" (click)="onConfirm()">
           Confirmar Dictamen
         </button>
-      </div>
+      </footer>
     </div>
   </div>
 }

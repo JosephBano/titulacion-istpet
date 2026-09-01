@@ -1,0 +1,221 @@
+@if (portal(); as p) {
+  <section class="estudiante-section">
+    <!-- Convocatoria Card -->
+    <app-convocatoria-card
+      [estaAbierta]="p.convocatoria.estaAbierta"
+      [detalle]="
+        'Período Académico: ' +
+        (p.convocatoria.detalle || 'Período Ordinario') +
+        ' (' +
+        periodoNombreAmigable() +
+        ')'
+      "
+      [mensaje]="p.convocatoria.mensaje"
+      [diasRestantes]="p.convocatoria.diasRestantes"
+    />
+
+    <!-- Diagnóstico y Elegibilidad Académica -->
+    <div class="eligibility-box">
+      <div class="eligibility-details">
+        <h3 class="eligibility-name">
+          {{ p.estudiante.nombreCompleto }} (C.I. {{ p.estudiante.cedula }})
+        </h3>
+        <p class="eligibility-career">
+          Carrera: <strong>{{ p.estudiante.nombreCarrera }}</strong> | Matrícula: #{{
+            p.estudiante.idMatricula
+          }}
+        </p>
+      </div>
+      <span
+        class="fluent-badge"
+        [class.fluent-badge--success]="p.estudiante.esElegible"
+        [class.fluent-badge--warning]="!p.estudiante.esElegible"
+      >
+        <span class="status-dot" [class.active]="p.estudiante.esElegible"></span>
+        {{
+          p.estudiante.esElegible
+            ? 'Apto para Postular'
+            : 'Verificar Requisitos Previos'
+        }}
+      </span>
+    </div>
+
+    <!-- CASO A: PRIMERA VEZ / NO HA POSTULADO -->
+    @if (p.postulacionActiva === null) {
+      <!-- Guía Visual de 3 Pasos -->
+      <div class="section-header">
+        <span class="section-eyebrow">PASO A PASO</span>
+        <h2 class="section-title">¿Cómo postularse a la titulación en ISTPET?</h2>
+      </div>
+
+      <div class="process-guide-grid">
+        <div class="process-guide-step">
+          <span class="step-num-badge">Paso 1</span>
+          <h4>Seleccione su Modalidad</h4>
+          <p>
+            Elija la opción de graduación autorizada para su carrera (Examen Complexivo,
+            TIC/Tesis o Artículo Científico).
+          </p>
+        </div>
+        <div class="process-guide-step">
+          <span class="step-num-badge">Paso 2</span>
+          <h4>Revise los Requisitos</h4>
+          <p>
+            Consulte los certificados requeridos por secretaría académica (Inglés,
+            Vinculación, Prácticas).
+          </p>
+        </div>
+        <div class="process-guide-step">
+          <span class="step-num-badge">Paso 3</span>
+          <h4>Envíe su Postulación</h4>
+          <p>
+            Confirme su solicitud dentro del período de corte. Secretaría validará su
+            expediente en 48-72 horas.
+          </p>
+        </div>
+      </div>
+
+      <!-- Catálogo Interactivo de Modalidades -->
+      <div class="section-header section-header--spaced">
+        <span class="section-eyebrow">MODALIDADES OFERTADAS</span>
+        <h2 class="section-title">Seleccione su Modalidad de Graduación</h2>
+      </div>
+
+      @if (p.modalidadesDisponibles.length === 0) {
+        <div class="empty-state-card">
+          <h3>No hay modalidades habilitadas para su carrera en este momento</h3>
+          <p>
+            Por favor comuníquese con la Coordinación de Carrera o Secretaría de Titulación
+            ISTPET.
+          </p>
+        </div>
+      } @else {
+        <div class="modality-cards-grid">
+          @for (
+            mod of p.modalidadesDisponibles;
+            track mod.idModalidadTitulacionCarrera
+          ) {
+            <div
+              class="modality-card-interactive"
+              tabindex="0"
+              [class.selected]="
+                modalidadSeleccionada() === mod.idModalidadTitulacionCarrera
+              "
+              (click)="modalidadSelect.emit(mod.idModalidadTitulacionCarrera)"
+              (keydown.enter)="modalidadSelect.emit(mod.idModalidadTitulacionCarrera)"
+              (keydown.space)="modalidadSelect.emit(mod.idModalidadTitulacionCarrera)"
+            >
+              <div class="modality-card-content">
+                <div class="modality-header">
+                  <h3 class="modality-title">{{ mod.modalidadTitulacion }}</h3>
+                  <input
+                    type="radio"
+                    name="modRadio"
+                    [checked]="modalidadSeleccionada() === mod.idModalidadTitulacionCarrera"
+                    aria-label="Seleccionar modalidad"
+                  />
+                </div>
+                <p class="modality-desc">
+                  Modalidad formal de titulación de {{ p.estudiante.nombreCarrera }}.
+                </p>
+                @if (mod.requisitos && mod.requisitos.length > 0) {
+                  <strong class="modality-reqs-label">
+                    Requisitos que se evaluarán:
+                  </strong>
+                  <ul class="modality-reqs-list">
+                    @for (req of mod.requisitos; track req.idRequisitoModalidad) {
+                      <li>{{ req.nombreRequisito }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="fluent-btn-action"
+                [class.fluent-btn-action--success]="
+                  modalidadSeleccionada() === mod.idModalidadTitulacionCarrera
+                "
+              >
+                {{
+                  modalidadSeleccionada() === mod.idModalidadTitulacionCarrera
+                    ? 'Modalidad Seleccionada'
+                    : 'Elegir esta Modalidad'
+                }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Confirmación de Postulación -->
+        <div class="confirm-postulacion-box">
+          <div class="confirm-info">
+            <strong class="confirm-postulacion-title">¿Listo para postularse?</strong>
+            <span class="confirm-postulacion-note"
+              >Al confirmar, se generará su número de expediente en secretaría.</span
+            >
+          </div>
+          <button
+            type="button"
+            class="fluent-btn-primary fluent-btn-primary--lg"
+            [disabled]="postulando() || !modalidadSeleccionada()"
+            (click)="enviarPostulacion.emit()"
+          >
+            {{
+              postulando() ? 'Enviando postulación...' : 'Confirmar y Enviar Mi Postulación'
+            }}
+          </button>
+        </div>
+      }
+    }
+
+    <!-- CASO B: EXPEDIENTE ACTIVO -->
+    @if (p.postulacionActiva !== null) {
+      <!-- Stepper Dinámico -->
+      <app-stepper
+        [etapaActual]="obtenerEtapaStepper(p.postulacionActiva.nombreEstado)"
+        [estadoNombre]="p.postulacionActiva.nombreEstado"
+        [modalidadNombre]="p.postulacionActiva.modalidadTitulacion"
+        [tienePostulacion]="true"
+      />
+
+      <!-- Tarjeta de Expediente -->
+      <div class="expediente-card">
+        <table class="fluent-table">
+          <thead>
+            <tr>
+              <th>EXPEDIENTE</th>
+              <th>MODALIDAD</th>
+              <th>ESTADO</th>
+              <th>CARRERA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <code>#{{ p.postulacionActiva.idPostulacionAlumnos }}</code>
+              </td>
+              <td>
+                <strong>{{ p.postulacionActiva.modalidadTitulacion }}</strong>
+              </td>
+              <td>
+                <span
+                  class="fluent-badge"
+                  [class.fluent-badge--success]="
+                    p.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
+                  "
+                  [class.fluent-badge--warning]="
+                    !p.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
+                  "
+                >
+                  {{ p.postulacionActiva.nombreEstado }}
+                </span>
+              </td>
+              <td>{{ p.estudiante.nombreCarrera }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

@@ -1,8 +1,6 @@
 <!-- Dashboard — Microsoft Fluent Design 2 (Outlook / M365 Layout Shell) — ISTPET -->
 <div class="fluent-shell" [attr.data-theme]="isDarkMode() ? 'dark' : 'light'">
-  <!-- ============================================================ -->
-  <!-- 1. TOPBAR (componente reutilizable — ver shared/components/topbar) -->
-  <!-- ============================================================ -->
+  <!-- 1. TOPBAR -->
   <app-topbar
     [isDarkMode]="isDarkMode()"
     [isSidebarCollapsed]="isSidebarCollapsed()"
@@ -17,11 +15,9 @@
     (logout)="logout()"
   />
 
-  <!-- ============================================================ -->
-  <!-- 2. BODY LAYOUT (NAVEGACIÓN UNIFICADA + MAIN)                 -->
-  <!-- ============================================================ -->
+  <!-- 2. BODY LAYOUT (NAVEGACIÓN UNIFICADA + MAIN) -->
   <div class="fluent-body-layout">
-    <!-- Fondo oscuro del drawer móvil (visible solo <900px cuando está abierto) -->
+    <!-- Fondo oscuro del drawer móvil -->
     <div
       class="sidebar-backdrop"
       [class.visible]="!isSidebarCollapsed()"
@@ -29,7 +25,7 @@
       aria-hidden="true"
     ></div>
 
-    <!-- Navegación Unificada: expandida = ícono + etiqueta; colapsada = solo ícono -->
+    <!-- Navegación Unificada Lateral -->
     <aside
       id="istpet-sidebar-nav"
       class="fluent-sidebar"
@@ -334,7 +330,7 @@
 
     <!-- ÁREA DE CONTENIDO PRINCIPAL -->
     <main class="fluent-main-content" role="main">
-      <!-- Reusable Network Banner (Apple HIG / Fluent UI) -->
+      <!-- Network Banner -->
       <app-network-banner
         [isOnline]="isOnline()"
         [isLowBandwidth]="isLowBandwidth()"
@@ -368,7 +364,7 @@
         }
       </header>
 
-      <!-- Tabs de Navegación Dinámica según Rol (Apple HIG & Fluent Design) -->
+      <!-- Tabs de Navegación según Rol -->
       <nav class="fluent-tabs" role="tablist">
         @if (isAdmin()) {
           <button
@@ -485,7 +481,6 @@
 
       <!-- 1. PESTAÑA: VISTA GENERAL (RESUMEN & KPIS EN VIVO) -->
       @if (isAdmin() && activeTab() === 'resumen') {
-        <!-- Reusable KPI Grid con Nombres Amigables -->
         <section class="fluent-kpi-grid">
           <app-kpi-card
             eyebrow="TOTAL POSTULACIONES"
@@ -589,824 +584,150 @@
         </section>
       }
 
-      <!-- 2. PESTAÑA: BANDEJA DE POSTULACIONES (GESTOR REAL) -->
+      <!-- 2. PESTAÑA: BANDEJA DE POSTULACIONES (Cards + Paginador 10 + Filtros Minimalistas) -->
       @if (isAdmin() && activeTab() === 'postulaciones') {
-        <section class="fluent-section">
-          <div class="section-header section-header--split">
-            <div>
-              <span class="section-eyebrow">BANDEJA INSTITUCIONAL</span>
-              <h2 class="section-title">Postulaciones de Titulación Registradas</h2>
-            </div>
-            <button type="button" class="fluent-btn-primary" (click)="cargarPostulaciones()">
-              Actualizar Lista
-            </button>
-          </div>
-
-          <!-- Filtros Fluent -->
-          <div class="filter-bar">
-            <input
-              type="text"
-              class="fluent-input filter-input--search"
-              placeholder="Buscar por cédula o nombre..."
-              [ngModel]="filtroBusqueda()"
-              (ngModelChange)="
-                filtroBusqueda.set($event); paginaActual.set(1); cargarPostulaciones()
-              "
-            />
-            <select
-              class="fluent-input filter-input--select"
-              [value]="filtroEstado() || ''"
-              (change)="
-                filtroEstado.set($any($event.target).value ? +$any($event.target).value : null);
-                paginaActual.set(1);
-                cargarPostulaciones()
-              "
-            >
-              <option value="">Todos los Estados</option>
-              @for (est of estadosPostulacion(); track est.idPostulacionEstado) {
-                <option [value]="est.idPostulacionEstado">{{ est.nombre }}</option>
-              }
-            </select>
-          </div>
-
-          <!-- Tabla de Postulaciones con Datos Reales (mat-table + paginación real de servidor) -->
-          <div class="fluent-table-wrapper">
-            @if (postulacionesCargando()) {
-              <div class="table-loading-state">Cargando postulaciones...</div>
-            } @else {
-              <table mat-table [dataSource]="dataSourcePostulaciones" class="istpet-mat-table">
-                <ng-container matColumnDef="id">
-                  <th mat-header-cell *matHeaderCellDef>ID</th>
-                  <td mat-cell *matCellDef="let p">
-                    <code>#{{ p.idPostulacionAlumnos }}</code>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="estudiante">
-                  <th mat-header-cell *matHeaderCellDef>ESTUDIANTE</th>
-                  <td mat-cell *matCellDef="let p">
-                    <strong>{{ p.nombreAlumno }}</strong>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="cedula">
-                  <th mat-header-cell *matHeaderCellDef>CÉDULA</th>
-                  <td mat-cell *matCellDef="let p">{{ p.cedulaAlumno }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="carrera">
-                  <th mat-header-cell *matHeaderCellDef>CARRERA</th>
-                  <td mat-cell *matCellDef="let p">{{ p.nombreCarrera }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="modalidad">
-                  <th mat-header-cell *matHeaderCellDef>MODALIDAD</th>
-                  <td mat-cell *matCellDef="let p">{{ p.modalidadTitulacion }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="estado">
-                  <th mat-header-cell *matHeaderCellDef>ESTADO</th>
-                  <td mat-cell *matCellDef="let p">
-                    <span
-                      class="fluent-badge"
-                      [class.fluent-badge--success]="p.nombreEstado.toUpperCase().includes('APROB')"
-                      [class.fluent-badge--warning]="
-                        p.nombreEstado.toUpperCase().includes('REVIS') ||
-                        p.nombreEstado.toUpperCase().includes('OBSERV')
-                      "
-                      [class.fluent-badge--error]="p.nombreEstado.toUpperCase().includes('RECHAZ')"
-                    >
-                      {{ p.nombreEstado }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="requisitos">
-                  <th mat-header-cell *matHeaderCellDef>REQUISITOS</th>
-                  <td mat-cell *matCellDef="let p">
-                    {{ p.totalRequisitosCompletados }} / {{ p.totalRequisitos }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="acciones">
-                  <th mat-header-cell *matHeaderCellDef class="text-right">ACCIONES</th>
-                  <td mat-cell *matCellDef="let p" class="text-right-nowrap">
-                    <button
-                      type="button"
-                      class="fluent-btn-action fluent-btn-action--success mr-sm"
-                      (click)="abrirModalDictamen(p.idPostulacionAlumnos, 'APROBAR')"
-                    >
-                      Aprobar
-                    </button>
-                    <button
-                      type="button"
-                      class="fluent-btn-action fluent-btn-action--warning mr-sm"
-                      (click)="abrirModalDictamen(p.idPostulacionAlumnos, 'OBSERVAR')"
-                    >
-                      Observar
-                    </button>
-                    <button
-                      type="button"
-                      class="fluent-btn-action fluent-btn-action--danger"
-                      (click)="abrirModalDictamen(p.idPostulacionAlumnos, 'RECHAZAR')"
-                    >
-                      Rechazar
-                    </button>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumnsPostulaciones"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsPostulaciones"></tr>
-
-                <tr class="mat-mdc-row" *matNoDataRow>
-                  <td
-                    [attr.colspan]="displayedColumnsPostulaciones.length"
-                    class="table-empty-cell"
-                  >
-                    <div class="empty-state-card">
-                      <h3>No hay postulaciones registradas en este período</h3>
-                      <p>
-                        Cuando los estudiantes habilitados envíen sus solicitudes de titulación,
-                        aparecerán aquí para revisión formal y dictamen de secretaría.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              @if (postulacionesTotal() > 0) {
-                <mat-paginator
-                  [length]="postulacionesTotal()"
-                  [pageIndex]="paginaActual() - 1"
-                  [pageSize]="tamanoPagina()"
-                  [pageSizeOptions]="[10, 20, 50, 100]"
-                  (page)="onPagePostulaciones($event)"
-                  showFirstLastButtons
-                  aria-label="Paginación de postulaciones"
-                ></mat-paginator>
-              }
-            }
-          </div>
-        </section>
+        <app-postulaciones-bandeja
+          [postulaciones]="postulacionesLista()"
+          [total]="postulacionesTotal()"
+          [loading]="postulacionesCargando()"
+          [estados]="estadosPostulacion()"
+          [carreras]="carrerasDisponibles()"
+          [filtroBusqueda]="filtroBusqueda()"
+          [filtroEstado]="filtroEstado()"
+          [filtroCarrera]="filtroCarrera()"
+          [paginaActual]="paginaActual()"
+          [tamanoPagina]="tamanoPagina()"
+          (busquedaChange)="onFiltroBusquedaChange($event)"
+          (estadoChange)="onFiltroEstadoChange($event)"
+          (carreraChange)="onFiltroCarreraChange($event)"
+          (paginaChange)="onPaginaChange($event)"
+          (tamanoPaginaChange)="onTamanoPaginaChange($event)"
+          (refrescar)="cargarPostulaciones()"
+          (dictamen)="onDictamenEvento($event)"
+        />
       }
 
       <!-- 3. PESTAÑA: CONVOCATORIAS Y CORTES -->
       @if (isAdmin() && activeTab() === 'cohortes') {
-        <section class="fluent-section">
-          <div class="section-header section-header--split">
-            <div>
-              <span class="section-eyebrow">GESTIÓN DE COHORTES</span>
-              <h2 class="section-title">Convocatorias y Fechas de Corte de Titulación</h2>
-            </div>
-            <button
-              type="button"
-              class="fluent-btn-primary"
-              (click)="aperturaModalVisible.set(true)"
-            >
-              + Aperturar Nuevo Período
-            </button>
-          </div>
-
-          <!-- Convocatoria Activa Reutilizable -->
-          @if (convocatoriaActiva(); as activa) {
-            <app-convocatoria-card
-              [estaAbierta]="activa.estaVigenteCorte"
-              [detalle]="activa.detalle + ' — Período: ' + periodoNombreAmigable()"
-              [mensaje]="
-                'Fechas de Corte: ' +
-                (activa.fechaInicio ? (activa.fechaInicio | date: 'mediumDate') : 'No definida') +
-                ' al ' +
-                (activa.fechaFin ? (activa.fechaFin | date: 'mediumDate') : 'No definida') +
-                ' | ' +
-                activa.carrerasHabilitadas.length +
-                ' Carreras Habilitadas (Cód: ' +
-                activa.idPeriodo +
-                ')'
-              "
-              [diasRestantes]="activa.diasPermitidos"
-            />
-          } @else {
-            <div class="empty-state-card">
-              <h3>No existe una convocatoria de titulación activa actualmente</h3>
-              <p>
-                Haga clic en <strong>"+ Aperturar Nuevo Período"</strong> para registrar el período
-                académico, fijar las fechas límite de corte y habilitar las carreras del instituto
-                en un solo paso.
-              </p>
-              <button
-                type="button"
-                class="fluent-btn-primary"
-                (click)="aperturaModalVisible.set(true)"
-              >
-                Aperturar Convocatoria Ahora
-              </button>
-            </div>
-          }
-
-          <!-- Tabla Histórica de Convocatorias (mat-table + orden por columna) -->
-          <div class="fluent-table-wrapper fluent-table-wrapper--spaced">
-            @if (convocatoriasHistoricoCargando()) {
-              <div class="table-loading-state">Cargando convocatorias...</div>
-            } @else {
-              <table
-                mat-table
-                [dataSource]="dataSourceConvocatorias"
-                matSort
-                #sortConvocatorias="matSort"
-                class="istpet-mat-table"
-              >
-                <ng-container matColumnDef="id">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                  <td mat-cell *matCellDef="let c">
-                    <code>#{{ c.idCohorte }}</code>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="periodo">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>PERÍODO</th>
-                  <td mat-cell *matCellDef="let c">
-                    <strong>{{ c.idPeriodo }}</strong>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="detalle">
-                  <th mat-header-cell *matHeaderCellDef>DETALLE</th>
-                  <td mat-cell *matCellDef="let c">{{ c.detalle }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="fechaInicio">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>FECHA INICIO</th>
-                  <td mat-cell *matCellDef="let c">
-                    {{ c.fechaInicio ? (c.fechaInicio | date: 'shortDate') : '-' }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="fechaFin">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>FECHA FIN</th>
-                  <td mat-cell *matCellDef="let c">
-                    {{ c.fechaFin ? (c.fechaFin | date: 'shortDate') : '-' }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="diasCorte">
-                  <th mat-header-cell *matHeaderCellDef>DÍAS CORTE</th>
-                  <td mat-cell *matCellDef="let c">
-                    {{ c.diasPermitidos || 90 }} (+{{ c.diasExtension || 0 }} ext)
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="carreras">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>CARRERAS</th>
-                  <td mat-cell *matCellDef="let c">{{ c.totalCarrerasHabilitadas }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="postulaciones">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>POSTULACIONES</th>
-                  <td mat-cell *matCellDef="let c">{{ c.totalPostulaciones }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="estado">
-                  <th mat-header-cell *matHeaderCellDef>ESTADO</th>
-                  <td mat-cell *matCellDef="let c">
-                    <span
-                      class="fluent-badge"
-                      [class.fluent-badge--success]="c.estaVigenteCorte"
-                      [class.fluent-badge--neutral]="!c.estaVigenteCorte"
-                    >
-                      {{ c.estaVigenteCorte ? 'Vigente' : 'Cerrada' }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumnsConvocatorias"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsConvocatorias"></tr>
-
-                <tr class="mat-mdc-row" *matNoDataRow>
-                  <td [attr.colspan]="displayedColumnsConvocatorias.length" class="text-center-pad">
-                    No existen convocatorias registradas en el histórico.
-                  </td>
-                </tr>
-              </table>
-            }
-          </div>
-        </section>
+        <app-cohortes-tab
+          [convocatoriaActiva]="convocatoriaActiva()"
+          [convocatoriasLista]="convocatoriasLista()"
+          [loading]="convocatoriasHistoricoCargando()"
+          [periodoNombreAmigable]="periodoNombreAmigable()"
+          (aperturarNuevo)="aperturaModalVisible.set(true)"
+        />
       }
 
       <!-- 4. PESTAÑA: REQUISITOS MAESTROS -->
       @if (isAdmin() && activeTab() === 'requisitos') {
-        <section class="fluent-section">
-          <div class="section-header section-header--split">
-            <div>
-              <span class="section-eyebrow">CATÁLOGO INSTITUCIONAL</span>
-              <h2 class="section-title">Requisitos Maestros de Titulación</h2>
-            </div>
-            <button
-              type="button"
-              class="fluent-btn-primary"
-              (click)="nuevoRequisitoModalVisible.set(true)"
-            >
-              + Nuevo Requisito
-            </button>
-          </div>
-
-          <div class="fluent-table-wrapper">
-            <table
-              mat-table
-              [dataSource]="dataSourceRequisitos"
-              matSort
-              #sortRequisitos="matSort"
-              class="istpet-mat-table"
-            >
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                <td mat-cell *matCellDef="let r">
-                  <code>#{{ r.idRequisitos }}</code>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="requisito">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>REQUISITO</th>
-                <td mat-cell *matCellDef="let r">
-                  <strong>{{ r.requisito }}</strong>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="tipo">
-                <th mat-header-cell *matHeaderCellDef>TIPO</th>
-                <td mat-cell *matCellDef="let r">
-                  {{ r.esAdjunto ? 'Archivo Digital (PDF)' : 'Validación Booleana' }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="subidoPor">
-                <th mat-header-cell *matHeaderCellDef>SUBIDO POR</th>
-                <td mat-cell *matCellDef="let r">
-                  {{ r.subeAlumno ? 'Estudiante' : 'Colaborador / Secretaría' }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="estado">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ESTADO</th>
-                <td mat-cell *matCellDef="let r">
-                  <span
-                    class="fluent-badge"
-                    [class.fluent-badge--success]="r.esActivo"
-                    [class.fluent-badge--neutral]="!r.esActivo"
-                  >
-                    {{ r.esActivo ? 'Activo' : 'Inactivo' }}
-                  </span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="acciones">
-                <th mat-header-cell *matHeaderCellDef class="text-right">ACCIONES</th>
-                <td mat-cell *matCellDef="let r" class="text-right">
-                  <button
-                    type="button"
-                    class="fluent-btn-action"
-                    (click)="toggleRequisitoEstado(r)"
-                  >
-                    {{ r.esActivo ? 'Desactivar' : 'Activar' }}
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumnsRequisitos"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumnsRequisitos"></tr>
-
-              <tr class="mat-mdc-row" *matNoDataRow>
-                <td [attr.colspan]="displayedColumnsRequisitos.length" class="text-center-pad">
-                  No hay requisitos maestros registrados.
-                </td>
-              </tr>
-            </table>
-          </div>
-        </section>
+        <app-requisitos-tab
+          [requisitos]="requisitosMaestros()"
+          [loading]="configCargando()"
+          (nuevoRequisito)="nuevoRequisitoModalVisible.set(true)"
+          (toggleEstado)="toggleRequisitoEstado($event)"
+        />
       }
 
       <!-- 5. PESTAÑA: MODALIDADES MAESTRAS Y MATRIZ -->
       @if (isAdmin() && activeTab() === 'modalidades') {
-        <section class="fluent-section">
-          <div class="section-header section-header--split">
-            <div>
-              <span class="section-eyebrow">CONFIGURACIÓN ACADÉMICA</span>
-              <h2 class="section-title">Modalidades de Titulación y Matriz de Requisitos</h2>
-            </div>
-            <button
-              type="button"
-              class="fluent-btn-primary"
-              (click)="nuevaModalidadModalVisible.set(true)"
-            >
-              + Nueva Modalidad
-            </button>
-          </div>
-
-          <div class="fluent-table-wrapper">
-            <table
-              mat-table
-              [dataSource]="dataSourceModalidades"
-              matSort
-              #sortModalidades="matSort"
-              class="istpet-mat-table"
-            >
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-                <td mat-cell *matCellDef="let m">
-                  <code>#{{ m.idModalidadTitulacion }}</code>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="modalidad">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>MODALIDAD</th>
-                <td mat-cell *matCellDef="let m">
-                  <strong>{{ m.modalidadTitulacion }}</strong>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="cantidadMinima">
-                <th mat-header-cell *matHeaderCellDef>CANT. MÍNIMA</th>
-                <td mat-cell *matCellDef="let m">
-                  <span class="fluent-badge fluent-badge--neutral">
-                    {{ m.cantidadMinima || 1 }}
-                    {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
-                  </span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="caracteristicas">
-                <th mat-header-cell *matHeaderCellDef>TIPO / CARACTERÍSTICAS</th>
-                <td mat-cell *matCellDef="let m">
-                  <div class="badge-row">
-                    @if (m.esComplexivo === 'SI') {
-                      <span class="fluent-badge fluent-badge--info">Complexivo</span>
-                    }
-                    @if (m.esArticuloCientifico === 'SI') {
-                      <span class="fluent-badge fluent-badge--warning">Artículo</span>
-                    }
-                    @if (m.generaTesis === 'SI') {
-                      <span class="fluent-badge fluent-badge--success">Proyecto / TIC</span>
-                    }
-                    @if (
-                      m.esComplexivo !== 'SI' &&
-                      m.esArticuloCientifico !== 'SI' &&
-                      m.generaTesis !== 'SI'
-                    ) {
-                      <span class="fluent-badge fluent-badge--neutral">General</span>
-                    }
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="requisitosAsociados">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>REQUISITOS ASOCIADOS</th>
-                <td mat-cell *matCellDef="let m">
-                  <strong>{{ m.totalRequisitosAsociados }}</strong> requisitos
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="estado">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>ESTADO</th>
-                <td mat-cell *matCellDef="let m">
-                  <span
-                    class="fluent-badge"
-                    [class.fluent-badge--success]="m.esActivo"
-                    [class.fluent-badge--neutral]="!m.esActivo"
-                  >
-                    {{ m.esActivo ? 'Activa' : 'Inactiva' }}
-                  </span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="acciones">
-                <th mat-header-cell *matHeaderCellDef class="text-right">ACCIONES</th>
-                <td mat-cell *matCellDef="let m" class="text-right-nowrap">
-                  <button type="button" class="fluent-btn-action mr-sm" (click)="abrirMatriz(m)">
-                    Gestionar Matriz
-                  </button>
-                  <button
-                    type="button"
-                    class="fluent-btn-action"
-                    (click)="toggleModalidadEstado(m)"
-                  >
-                    {{ m.esActivo ? 'Desactivar' : 'Activar' }}
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumnsModalidades"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumnsModalidades"></tr>
-
-              <tr class="mat-mdc-row" *matNoDataRow>
-                <td [attr.colspan]="displayedColumnsModalidades.length" class="text-center-pad">
-                  No hay modalidades maestras registradas.
-                </td>
-              </tr>
-            </table>
-          </div>
-        </section>
+        <app-modalidades-tab
+          [modalidades]="modalidadesMaestras()"
+          [loading]="configCargando()"
+          (nuevaModalidad)="nuevaModalidadModalVisible.set(true)"
+          (abrirMatriz)="abrirMatriz($event)"
+          (toggleEstado)="toggleModalidadEstado($event)"
+        />
       }
 
       <!-- ============================================================ -->
-      <!-- VISTAS DEL ESTUDIANTE / EGRESADO (ONBOARDING INTUITIVO)      -->
+      <!-- VISTAS DEL ESTUDIANTE / EGRESADO                             -->
       <!-- ============================================================ -->
       @if (isEstudiante()) {
-        @if (portalEstudiante(); as portal) {
-          <!-- PESTAÑA: MI PROCESO -->
-          @if (activeTab() === 'postulacion') {
-            <!-- Convocatoria Card -->
-            <app-convocatoria-card
-              [estaAbierta]="portal.convocatoria.estaAbierta"
-              [detalle]="
-                'Período Académico: ' +
-                (portal.convocatoria.detalle || 'Período Ordinario') +
-                ' (' +
-                periodoNombreAmigable() +
-                ')'
-              "
-              [mensaje]="portal.convocatoria.mensaje"
-              [diasRestantes]="portal.convocatoria.diasRestantes"
-            />
+        @if (activeTab() === 'postulacion') {
+          <app-estudiante-proceso
+            [portal]="portalEstudiante()"
+            [modalidadSeleccionada]="modalidadSeleccionada()"
+            [postulando]="postulando()"
+            [periodoNombreAmigable]="periodoNombreAmigable()"
+            (modalidadSelect)="modalidadSeleccionada.set($event)"
+            (enviarPostulacion)="enviarPostulacion()"
+          />
+        }
 
-            <!-- Diagnóstico y Elegibilidad Académica -->
-            <div class="eligibility-box">
-              <div class="eligibility-details">
-                <h3>
-                  {{ portal.estudiante.nombreCompleto }} (C.I. {{ portal.estudiante.cedula }})
-                </h3>
-                <p>
-                  Carrera: <strong>{{ portal.estudiante.nombreCarrera }}</strong> | Matrícula: #{{
-                    portal.estudiante.idMatricula
-                  }}
-                </p>
-              </div>
-              <span
-                class="fluent-badge"
-                [class.fluent-badge--success]="portal.estudiante.esElegible"
-                [class.fluent-badge--warning]="!portal.estudiante.esElegible"
-              >
-                {{
-                  portal.estudiante.esElegible
-                    ? 'Apto para Postular'
-                    : 'Verificar Requisitos Previos'
-                }}
-              </span>
+        @if (activeTab() === 'guia') {
+          <section class="fluent-section">
+            <div class="section-header">
+              <span class="section-eyebrow">REGLAMENTO Y NORMATIVA</span>
+              <h2 class="section-title">Guía Oficial de Titulación ISTPET</h2>
             </div>
+            <div class="guide-content-box">
+              <h3>1. Examen Complexivo</h3>
+              <p>
+                Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
+                conocimiento de la carrera) y una prueba práctica de resolución de caso o
+                desarrollo técnico.
+              </p>
 
-            <!-- CASO A: EL ESTUDIANTE ES PRIMERA VEZ / NO HA POSTULADO -->
-            @if (portal.postulacionActiva === null) {
-              <!-- Guía Visual de 3 Pasos -->
-              <div class="section-header">
-                <span class="section-eyebrow">PASO A PASO</span>
-                <h2 class="section-title">¿Cómo postularse a la titulación en ISTPET?</h2>
-              </div>
+              <h3>2. Trabajo de Integración Curricular (TIC / Tesis)</h3>
+              <p>
+                Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante el
+                período académico, finalizando con la defensa oral ante tribunal.
+              </p>
 
-              <div class="process-guide-grid">
-                <div class="process-guide-step">
-                  <span class="step-num-badge">Paso 1</span>
-                  <h4>Seleccione su Modalidad</h4>
-                  <p>
-                    Elija la opción de graduación autorizada para su carrera (Examen Complexivo,
-                    TIC/Tesis o Artículo Científico).
-                  </p>
-                </div>
-                <div class="process-guide-step">
-                  <span class="step-num-badge">Paso 2</span>
-                  <h4>Revise los Requisitos</h4>
-                  <p>
-                    Consulte los certificados requeridos por secretaría académica (Inglés,
-                    Vinculación, Prácticas).
-                  </p>
-                </div>
-                <div class="process-guide-step">
-                  <span class="step-num-badge">Paso 3</span>
-                  <h4>Envíe su Postulación</h4>
-                  <p>
-                    Confirme su solicitud dentro del período de corte. Secretaría validará su
-                    expediente en 48-72 horas.
-                  </p>
-                </div>
-              </div>
+              <h3>3. Artículo Científico</h3>
+              <p>
+                Redacción de un artículo de investigación científica original bajo formato
+                institucional con carta de aceptación o envío a revista indexada.
+              </p>
+            </div>
+          </section>
+        }
 
-              <!-- Catálogo Interactivo de Modalidades -->
-              <div class="section-header section-header--spaced">
-                <span class="section-eyebrow">MODALIDADES OFERTADAS</span>
-                <h2 class="section-title">Seleccione su Modalidad de Graduación</h2>
-              </div>
-
-              @if (portal.modalidadesDisponibles.length === 0) {
-                <div class="empty-state-card">
-                  <h3>No hay modalidades habilitadas para su carrera en este momento</h3>
-                  <p>
-                    Por favor comuníquese con la Coordinación de Carrera o Secretaría de Titulación
-                    ISTPET.
-                  </p>
-                </div>
-              } @else {
-                <div class="modality-cards-grid">
-                  @for (
-                    mod of portal.modalidadesDisponibles;
-                    track mod.idModalidadTitulacionCarrera
-                  ) {
-                    <div
-                      class="modality-card-interactive"
-                      tabindex="0"
-                      [class.selected]="
-                        modalidadSeleccionada() === mod.idModalidadTitulacionCarrera
-                      "
-                      (click)="modalidadSeleccionada.set(mod.idModalidadTitulacionCarrera)"
-                      (keydown.enter)="modalidadSeleccionada.set(mod.idModalidadTitulacionCarrera)"
-                      (keydown.space)="modalidadSeleccionada.set(mod.idModalidadTitulacionCarrera)"
-                    >
-                      <div>
-                        <div class="modality-header">
-                          <h3 class="modality-title">{{ mod.modalidadTitulacion }}</h3>
-                          <input
-                            type="radio"
-                            name="modRadio"
-                            [checked]="modalidadSeleccionada() === mod.idModalidadTitulacionCarrera"
-                          />
-                        </div>
-                        <p class="modality-desc">
-                          Modalidad formal de titulación de {{ portal.estudiante.nombreCarrera }}.
-                        </p>
-                        @if (mod.requisitos && mod.requisitos.length > 0) {
-                          <strong class="modality-reqs-label">
-                            Requisitos que se evaluarán:
-                          </strong>
-                          <ul class="modality-reqs-list">
-                            @for (req of mod.requisitos; track req.idRequisitoModalidad) {
-                              <li>{{ req.nombreRequisito }}</li>
-                            }
-                          </ul>
-                        }
-                      </div>
-
-                      <button
-                        type="button"
-                        class="fluent-btn-action"
-                        [class.fluent-btn-action--success]="
-                          modalidadSeleccionada() === mod.idModalidadTitulacionCarrera
-                        "
-                      >
-                        {{
-                          modalidadSeleccionada() === mod.idModalidadTitulacionCarrera
-                            ? 'Modalidad Seleccionada'
-                            : 'Elegir esta Modalidad'
-                        }}
-                      </button>
-                    </div>
-                  }
-                </div>
-
-                <!-- Botón de Confirmación Principal -->
-                <div class="confirm-postulacion-box">
-                  <div>
-                    <strong class="confirm-postulacion-title">¿Listo para postularse?</strong>
-                    <span class="confirm-postulacion-note"
-                      >Al confirmar, se generará su número de expediente en secretaría.</span
-                    >
-                  </div>
-                  <button
-                    type="button"
-                    class="fluent-btn-primary fluent-btn-primary--lg"
-                    [disabled]="postulando() || !modalidadSeleccionada()"
-                    (click)="enviarPostulacion()"
-                  >
-                    {{
-                      postulando() ? 'Enviando postulación...' : 'Confirmar y Enviar Mi Postulación'
-                    }}
-                  </button>
-                </div>
-              }
-            }
-
-            <!-- CASO B: EL ESTUDIANTE YA TIENE EXPEDIENTE ACTIVO -->
-            @if (portal.postulacionActiva !== null) {
-              <!-- Stepper Dinámico -->
-              <app-stepper
-                [etapaActual]="obtenerEtapaStepper(portal.postulacionActiva.nombreEstado)"
-                [estadoNombre]="portal.postulacionActiva.nombreEstado"
-                [modalidadNombre]="portal.postulacionActiva.modalidadTitulacion"
-                [tienePostulacion]="true"
-              />
-
-              <!-- Tarjeta de Expediente -->
-              <div class="fluent-table-wrapper fluent-table-wrapper--spaced">
-                <table class="fluent-table">
-                  <thead>
-                    <tr>
-                      <th>EXPEDIENTE</th>
-                      <th>MODALIDAD</th>
-                      <th>ESTADO</th>
-                      <th>CARRERA</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <code>#{{ portal.postulacionActiva.idPostulacionAlumnos }}</code>
-                      </td>
-                      <td>
-                        <strong>{{ portal.postulacionActiva.modalidadTitulacion }}</strong>
-                      </td>
-                      <td>
-                        <span
-                          class="fluent-badge"
-                          [class.fluent-badge--success]="
-                            portal.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
-                          "
-                          [class.fluent-badge--warning]="
-                            !portal.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
-                          "
-                        >
-                          {{ portal.postulacionActiva.nombreEstado }}
-                        </span>
-                      </td>
-                      <td>{{ portal.estudiante.nombreCarrera }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            }
-          }
-
-          <!-- PESTAÑA: GUÍA PASO A PASO -->
-          @if (activeTab() === 'guia') {
-            <section class="fluent-section">
-              <div class="section-header">
-                <span class="section-eyebrow">REGLAMENTO Y NORMATIVA</span>
-                <h2 class="section-title">Guía Oficial de Titulación ISTPET</h2>
-              </div>
-              <div class="guide-content-box">
-                <h3>1. Examen Complexivo</h3>
-                <p>
-                  Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
-                  conocimiento de la carrera) y una prueba práctica de resolución de caso o
-                  desarrollo técnico.
-                </p>
-
-                <h3>2. Trabajo de Integración Curricular (TIC / Tesis)</h3>
-                <p>
-                  Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante el
-                  período académico, finalizando con la defensa oral ante tribunal.
-                </p>
-
-                <h3>3. Artículo Científico</h3>
-                <p>
-                  Redacción de un artículo de investigación científica original bajo formato
-                  institucional con carta de aceptación o envío a revista indexada.
-                </p>
-              </div>
-            </section>
-          }
-
-          <!-- PESTAÑA: CRONOGRAMA -->
-          @if (activeTab() === 'cronograma') {
-            <section class="fluent-section">
-              <div class="section-header">
-                <span class="section-eyebrow">CALENDARIO ACADÉMICO</span>
-                <h2 class="section-title">Fechas Clave de Titulación 2026</h2>
-              </div>
-              <div class="fluent-table-wrapper">
-                <table class="fluent-table">
-                  <thead>
-                    <tr>
-                      <th>FASE</th>
-                      <th>ACTIVIDAD</th>
-                      <th>FECHA ESTIMADA</th>
-                      <th>ESTADO</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Fase 1</td>
-                      <td>Postulación en línea y recepción de expedientes</td>
-                      <td>01 al 30 de Septiembre</td>
-                      <td><span class="fluent-badge fluent-badge--success">En Curso</span></td>
-                    </tr>
-                    <tr>
-                      <td>Fase 2</td>
-                      <td>Validación documental por Secretaría</td>
-                      <td>01 al 10 de Octubre</td>
-                      <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                    </tr>
-                    <tr>
-                      <td>Fase 3</td>
-                      <td>Desarrollo de Examen Complexivo y Tutorías</td>
-                      <td>15 de Octubre al 30 de Noviembre</td>
-                      <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                    </tr>
-                    <tr>
-                      <td>Fase 4</td>
-                      <td>Defensas de Grado y Asentamiento de Actas</td>
-                      <td>Diciembre 2026</td>
-                      <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          }
+        @if (activeTab() === 'cronograma') {
+          <section class="fluent-section">
+            <div class="section-header">
+              <span class="section-eyebrow">CALENDARIO ACADÉMICO</span>
+              <h2 class="section-title">Fechas Clave de Titulación {{ currentYear }}</h2>
+            </div>
+            <div class="fluent-table-wrapper">
+              <table class="fluent-table">
+                <thead>
+                  <tr>
+                    <th>FASE</th>
+                    <th>ACTIVIDAD</th>
+                    <th>FECHA ESTIMADA</th>
+                    <th>ESTADO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Fase 1</td>
+                    <td>Postulación en línea y recepción de expedientes</td>
+                    <td>01 al 30 de Septiembre</td>
+                    <td><span class="fluent-badge fluent-badge--success">En Curso</span></td>
+                  </tr>
+                  <tr>
+                    <td>Fase 2</td>
+                    <td>Validación documental por Secretaría</td>
+                    <td>01 al 10 de Octubre</td>
+                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
+                  </tr>
+                  <tr>
+                    <td>Fase 3</td>
+                    <td>Desarrollo de Examen Complexivo y Tutorías</td>
+                    <td>15 de Octubre al 30 de Noviembre</td>
+                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
+                  </tr>
+                  <tr>
+                    <td>Fase 4</td>
+                    <td>Defensas de Grado y Asentamiento de Actas</td>
+                    <td>Diciembre {{ currentYear }}</td>
+                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         }
       }
 
@@ -1463,7 +784,7 @@
         }
       }
 
-      <!-- Footer Legal (Microsoft 365 style) -->
+      <!-- Footer Legal -->
       <footer class="fluent-legal">
         <span>© {{ currentYear }} Instituto Tecnológico Superior Traversari</span>
         <span aria-hidden="true">·</span>
@@ -1476,7 +797,7 @@
   <!-- MODALES DE GESTIÓN (APPLE HIG / FLUENT DESIGN)               -->
   <!-- ============================================================ -->
 
-  <!-- 1. Reusable Apertura de Período Modal -->
+  <!-- 1. Apertura de Período Modal -->
   <app-apertura-periodo-modal
     [visible]="aperturaModalVisible()"
     (modalClose)="aperturaModalVisible.set(false)"
@@ -1492,6 +813,7 @@
       tabindex="0"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="nuevo-req-title"
     >
       <div
         class="dictamen-modal-card"
@@ -1499,13 +821,33 @@
         (keydown)="$event.stopPropagation()"
         tabindex="0"
       >
-        <h3>Crear Requisito Maestro</h3>
-        <p class="modal-subtext">
-          Defina un nuevo requisito documental o condición institucional para el proceso de
-          titulación.
-        </p>
+        <header class="modal-card-header">
+          <div class="modal-title-group">
+            <span class="modal-card-eyebrow">CATÁLOGO INSTITUCIONAL</span>
+            <h3 id="nuevo-req-title" class="modal-card-title">Crear Requisito Maestro</h3>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            (click)="nuevoRequisitoModalVisible.set(false)"
+            aria-label="Cerrar modal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </header>
 
-        <div class="modal-form-stack">
+        <div class="modal-card-body">
           <mat-form-field appearance="outline" class="istpet-mat-field">
             <mat-label>Nombre del Requisito</mat-label>
             <input
@@ -1516,8 +858,8 @@
           </mat-form-field>
 
           <div class="modal-form-grid">
-            <div>
-              <span class="modal-label modal-form-title">Naturaleza del Requisito:</span>
+            <div class="modal-form-col">
+              <span class="modal-field-title">Naturaleza del Requisito:</span>
               <div class="modal-checkbox-group">
                 <mat-checkbox [(ngModel)]="nuevoRequisitoForm().esAdjunto"
                   >Requiere Archivo Adjunto (PDF)</mat-checkbox
@@ -1528,8 +870,8 @@
               </div>
             </div>
 
-            <div>
-              <span class="modal-label modal-form-title">Responsable de Carga:</span>
+            <div class="modal-form-col">
+              <span class="modal-field-title">Responsable de Carga:</span>
               <div class="modal-checkbox-group">
                 <mat-checkbox [(ngModel)]="nuevoRequisitoForm().subeAlumno"
                   >Lo adjunta el Estudiante</mat-checkbox
@@ -1542,7 +884,7 @@
           </div>
         </div>
 
-        <div class="dictamen-modal-actions">
+        <footer class="dictamen-modal-actions">
           <button
             type="button"
             class="fluent-btn-secondary"
@@ -1553,7 +895,7 @@
           <button type="button" class="fluent-btn-primary" (click)="crearRequisito()">
             Guardar Requisito
           </button>
-        </div>
+        </footer>
       </div>
     </div>
   }
@@ -1567,6 +909,7 @@
       tabindex="0"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="nueva-mod-title"
     >
       <div
         class="dictamen-modal-card"
@@ -1574,12 +917,33 @@
         (keydown)="$event.stopPropagation()"
         tabindex="0"
       >
-        <h3>Crear Modalidad Maestra</h3>
-        <p class="modal-subtext">
-          Registre una nueva opción de titulación y sus características académicas.
-        </p>
+        <header class="modal-card-header">
+          <div class="modal-title-group">
+            <span class="modal-card-eyebrow">CATÁLOGO INSTITUCIONAL</span>
+            <h3 id="nueva-mod-title" class="modal-card-title">Crear Modalidad Maestra</h3>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            (click)="nuevaModalidadModalVisible.set(false)"
+            aria-label="Cerrar modal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </header>
 
-        <div class="modal-form-stack">
+        <div class="modal-card-body">
           <mat-form-field appearance="outline" class="istpet-mat-field">
             <mat-label>Nombre de la Modalidad (máx. 45 caracteres)</mat-label>
             <input
@@ -1600,9 +964,6 @@
               [(ngModel)]="nuevaModalidadForm().cantidadMinima"
               placeholder="1"
             />
-            <mat-hint
-              >Especifique 1 para modalidades individuales o 2 para proyectos en pareja.</mat-hint
-            >
           </mat-form-field>
 
           <div class="modal-form-grid--3">
@@ -1630,7 +991,7 @@
           </div>
         </div>
 
-        <div class="dictamen-modal-actions">
+        <footer class="dictamen-modal-actions">
           <button
             type="button"
             class="fluent-btn-secondary"
@@ -1641,7 +1002,7 @@
           <button type="button" class="fluent-btn-primary" (click)="crearModalidad()">
             Guardar Modalidad
           </button>
-        </div>
+        </footer>
       </div>
     </div>
   }
@@ -1655,6 +1016,7 @@
       tabindex="0"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="matriz-modal-title"
     >
       <div
         class="dictamen-modal-card dictamen-modal-card--wide"
@@ -1662,78 +1024,103 @@
         (keydown)="$event.stopPropagation()"
         tabindex="0"
       >
-        <h3>Requisitos para: {{ modalidadSeleccionadaMatriz()?.modalidadTitulacion }}</h3>
-        <p class="modal-subtext">
-          Asocie o desvincule los requisitos obligatorios para esta modalidad.
-        </p>
-
-        <!-- Asignar nuevo requisito -->
-        <div class="modal-inline-form">
-          <select #selectReq class="fluent-input flex-1">
-            <option value="">Seleccione un requisito del catálogo para asociar...</option>
-            @for (r of requisitosMaestros(); track r.idRequisitos) {
-              <option [value]="r.idRequisitos">{{ r.requisito }}</option>
-            }
-          </select>
+        <header class="modal-card-header">
+          <div class="modal-title-group">
+            <span class="modal-card-eyebrow">ASOCIACIÓN DE REQUISITOS</span>
+            <h3 id="matriz-modal-title" class="modal-card-title">
+              Requisitos para: {{ modalidadSeleccionadaMatriz()?.modalidadTitulacion }}
+            </h3>
+          </div>
           <button
             type="button"
-            class="fluent-btn-primary"
-            (click)="selectReq.value && asignarRequisito(+selectReq.value)"
+            class="modal-close-btn"
+            (click)="matrizModalVisible.set(false)"
+            aria-label="Cerrar modal"
           >
-            Asociar
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
-        </div>
+        </header>
 
-        <!-- Lista de Requisitos Asignados -->
-        <div class="fluent-table-wrapper fluent-table-wrapper--scroll">
-          <table class="fluent-table">
-            <thead>
-              <tr>
-                <th>REQUISITO ASIGNADO</th>
-                <th>TIPO</th>
-                <th class="text-right">ACCIÓN</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if (matrizRequisitos().length === 0) {
+        <div class="modal-card-body">
+          <!-- Asignar nuevo requisito -->
+          <div class="modal-inline-form">
+            <select #selectReq class="fluent-select flex-1">
+              <option value="">Seleccione un requisito del catálogo para asociar...</option>
+              @for (r of requisitosMaestros(); track r.idRequisitos) {
+                <option [value]="r.idRequisitos">{{ r.requisito }}</option>
+              }
+            </select>
+            <button
+              type="button"
+              class="fluent-btn-primary"
+              (click)="selectReq.value && asignarRequisito(+selectReq.value)"
+            >
+              Asociar Requisito
+            </button>
+          </div>
+
+          <!-- Lista de Requisitos Asignados -->
+          <div class="fluent-table-wrapper fluent-table-wrapper--scroll">
+            <table class="fluent-table">
+              <thead>
                 <tr>
-                  <td colspan="3" class="text-center-pad">
-                    Esta modalidad aún no tiene requisitos asociados.
-                  </td>
+                  <th>REQUISITO ASIGNADO</th>
+                  <th>TIPO</th>
+                  <th class="text-right">ACCIÓN</th>
                 </tr>
-              } @else {
-                @for (mr of matrizRequisitos(); track mr.idRequisitoModalidad) {
+              </thead>
+              <tbody>
+                @if (matrizRequisitos().length === 0) {
                   <tr>
-                    <td>
-                      <strong>{{ mr.nombreRequisito }}</strong>
-                    </td>
-                    <td>{{ mr.esAdjunto ? 'Archivo PDF' : 'Validación Booleana' }}</td>
-                    <td class="text-right">
-                      <button
-                        type="button"
-                        class="fluent-btn-action fluent-btn-action--danger"
-                        (click)="desasignarRequisito(mr.idRequisitoModalidad)"
-                      >
-                        Quitar
-                      </button>
+                    <td colspan="3" class="text-center-pad">
+                      Esta modalidad aún no tiene requisitos asociados.
                     </td>
                   </tr>
+                } @else {
+                  @for (mr of matrizRequisitos(); track mr.idRequisitoModalidad) {
+                    <tr>
+                      <td>
+                        <strong>{{ mr.nombreRequisito }}</strong>
+                      </td>
+                      <td>{{ mr.esAdjunto ? 'Archivo PDF' : 'Validación Booleana' }}</td>
+                      <td class="text-right">
+                        <button
+                          type="button"
+                          class="fluent-btn-action fluent-btn-action--danger"
+                          (click)="desasignarRequisito(mr.idRequisitoModalidad)"
+                        >
+                          Quitar
+                        </button>
+                      </td>
+                    </tr>
+                  }
                 }
-              }
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="dictamen-modal-actions">
+        <footer class="dictamen-modal-actions">
           <button type="button" class="fluent-btn-primary" (click)="matrizModalVisible.set(false)">
             Cerrar
           </button>
-        </div>
+        </footer>
       </div>
     </div>
   }
 
-  <!-- 5. Reusable Modal de Dictamen del Gestor -->
+  <!-- 5. Modal de Dictamen del Gestor -->
   <app-dictamen-modal
     [data]="dictamenModal()"
     (modalClose)="cerrarModalDictamen()"

@@ -1,11 +1,19 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+// @vitest-environment jsdom
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TitulacionService } from './titulacion.service';
 import { NetworkStatusService } from './network-status.service';
 import { API_BASE_URL } from '../config/api.config';
 import { PortalEstudiante, HealthCheckResponse } from '../models/titulacion.models';
+
+try {
+  TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+} catch {
+  // Entorno ya inicializado
+}
 
 describe('TitulacionService & Network Resilience Tests', () => {
   let service: TitulacionService;
@@ -15,6 +23,7 @@ describe('TitulacionService & Network Resilience Tests', () => {
   const mockApiUrl = 'http://localhost:5000';
 
   beforeEach(() => {
+    TestBed.resetTestingModule();
     try {
       if (
         typeof window !== 'undefined' &&
@@ -40,6 +49,11 @@ describe('TitulacionService & Network Resilience Tests', () => {
     service = TestBed.inject(TitulacionService);
     networkService = TestBed.inject(NetworkStatusService);
     httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+    TestBed.resetTestingModule();
   });
 
   it('debe obtener el estado de Health Check del backend', () => {

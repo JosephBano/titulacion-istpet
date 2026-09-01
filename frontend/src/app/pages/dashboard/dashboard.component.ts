@@ -1,10 +1,7 @@
-import { Component, effect, inject, signal, viewChild, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -35,11 +32,19 @@ import {
 
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { NetworkBannerComponent } from '../../shared/components/network-banner/network-banner.component';
-import { ConvocatoriaCardComponent } from '../../shared/components/convocatoria-card/convocatoria-card.component';
-import { StepperComponent } from '../../shared/components/stepper/stepper.component';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
 import { DictamenModalComponent } from '../../shared/components/dictamen-modal/dictamen-modal.component';
 import { AperturaPeriodoModalComponent } from '../../shared/components/apertura-periodo-modal/apertura-periodo-modal.component';
+
+// Subcomponentes modulares de feature
+import {
+  PostulacionesBandejaComponent,
+  DictamenEvento,
+} from './components/postulaciones-bandeja/postulaciones-bandeja.component';
+import { CohortesTabComponent } from './components/cohortes-tab/cohortes-tab.component';
+import { RequisitosTabComponent } from './components/requisitos-tab/requisitos-tab.component';
+import { ModalidadesTabComponent } from './components/modalidades-tab/modalidades-tab.component';
+import { EstudianteProcesoComponent } from './components/estudiante-proceso/estudiante-proceso.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,20 +52,20 @@ import { AperturaPeriodoModalComponent } from '../../shared/components/apertura-
   imports: [
     CommonModule,
     FormsModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
     TopbarComponent,
     NetworkBannerComponent,
-    ConvocatoriaCardComponent,
-    StepperComponent,
     KpiCardComponent,
     DictamenModalComponent,
     AperturaPeriodoModalComponent,
+    PostulacionesBandejaComponent,
+    CohortesTabComponent,
+    RequisitosTabComponent,
+    ModalidadesTabComponent,
+    EstudianteProcesoComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -76,7 +81,6 @@ export class DashboardComponent implements OnInit {
   currentUser = this.authService.currentUser;
   currentYear = new Date().getFullYear();
   isDarkMode = signal(false);
-  // En escritorio arranca expandida; en pantallas angostas arranca oculta (drawer).
   isSidebarCollapsed = signal(typeof window !== 'undefined' && window.innerWidth < 900);
   activeTab = signal('resumen');
 
@@ -103,7 +107,7 @@ export class DashboardComponent implements OnInit {
   convocatoriasHistoricoCargando = signal<boolean>(false);
   resumenGeneral = signal<ResumenGeneralSistema | null>(null);
 
-  // Postulaciones Generales (Gestor)
+  // Postulaciones Generales (Gestor) — Paginación por defecto de 10
   postulacionesLista = signal<PostulacionResumen[]>([]);
   postulacionesTotal = signal<number>(0);
   postulacionesCargando = signal<boolean>(false);
@@ -112,7 +116,7 @@ export class DashboardComponent implements OnInit {
   filtroCarrera = signal<number | null>(null);
   filtroBusqueda = signal<string>('');
   paginaActual = signal<number>(1);
-  tamanoPagina = signal<number>(20);
+  tamanoPagina = signal<number>(10);
 
   // Configuración Maestra
   modalidadesMaestras = signal<ModalidadMaestra[]>([]);
@@ -120,86 +124,6 @@ export class DashboardComponent implements OnInit {
   matrizRequisitos = signal<RequisitoModalidadMatriz[]>([]);
   modalidadSeleccionadaMatriz = signal<ModalidadMaestra | null>(null);
   configCargando = signal<boolean>(false);
-
-  // --------------------------------------------------------
-  // Mat-table: fuentes de datos, orden y paginación
-  // --------------------------------------------------------
-  readonly displayedColumnsPostulaciones = [
-    'id',
-    'estudiante',
-    'cedula',
-    'carrera',
-    'modalidad',
-    'estado',
-    'requisitos',
-    'acciones',
-  ];
-  dataSourcePostulaciones = new MatTableDataSource<PostulacionResumen>([]);
-
-  readonly displayedColumnsConvocatorias = [
-    'id',
-    'periodo',
-    'detalle',
-    'fechaInicio',
-    'fechaFin',
-    'diasCorte',
-    'carreras',
-    'postulaciones',
-    'estado',
-  ];
-  dataSourceConvocatorias = new MatTableDataSource<ConvocatoriaResumen>([]);
-  sortConvocatorias = viewChild<MatSort>('sortConvocatorias');
-
-  readonly displayedColumnsRequisitos = [
-    'id',
-    'requisito',
-    'tipo',
-    'subidoPor',
-    'estado',
-    'acciones',
-  ];
-  dataSourceRequisitos = new MatTableDataSource<RequisitoMaestro>([]);
-  sortRequisitos = viewChild<MatSort>('sortRequisitos');
-
-  readonly displayedColumnsModalidades = [
-    'id',
-    'modalidad',
-    'cantidadMinima',
-    'caracteristicas',
-    'requisitosAsociados',
-    'estado',
-    'acciones',
-  ];
-  dataSourceModalidades = new MatTableDataSource<ModalidadMaestra>([]);
-  sortModalidades = viewChild<MatSort>('sortModalidades');
-
-  private readonly _syncDataSourcePostulaciones = effect(() => {
-    this.dataSourcePostulaciones.data = this.postulacionesLista();
-  });
-
-  private readonly _syncDataSourceConvocatorias = effect(() => {
-    this.dataSourceConvocatorias.data = this.convocatoriasLista();
-    const sort = this.sortConvocatorias();
-    if (sort) this.dataSourceConvocatorias.sort = sort;
-  });
-
-  private readonly _syncDataSourceRequisitos = effect(() => {
-    this.dataSourceRequisitos.data = this.requisitosMaestros();
-    const sort = this.sortRequisitos();
-    if (sort) this.dataSourceRequisitos.sort = sort;
-  });
-
-  private readonly _syncDataSourceModalidades = effect(() => {
-    this.dataSourceModalidades.data = this.modalidadesMaestras();
-    const sort = this.sortModalidades();
-    if (sort) this.dataSourceModalidades.sort = sort;
-  });
-
-  onPagePostulaciones(event: PageEvent): void {
-    this.paginaActual.set(event.pageIndex + 1);
-    this.tamanoPagina.set(event.pageSize);
-    this.cargarPostulaciones();
-  }
 
   // Modales
   aperturaModalVisible = signal<boolean>(false);
@@ -319,7 +243,6 @@ export class DashboardComponent implements OnInit {
     this.carrerasCargando.set(true);
 
     if (this.isAdmin()) {
-      // Para Administrador Institucional: Listar TODAS las carreras del Instituto (EsInstituto == true)
       this.carrerasService.getCarrerasTodas().subscribe({
         next: (carreras) => {
           const lista: CarreraUsuarioItem[] = (carreras || []).map((c) => ({
@@ -347,7 +270,6 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    // Para Docentes y Estudiantes: Listar sus carreras asignadas / matriculadas
     this.carrerasService.getMisCarreras().subscribe({
       next: (data: UsuarioCarrerasResponseDto) => {
         let lista: CarreraUsuarioItem[];
@@ -394,17 +316,6 @@ export class DashboardComponent implements OnInit {
         this.portalCargando.set(false);
       },
     });
-  }
-
-  obtenerEtapaStepper(estado?: string): number {
-    if (!estado) return 1;
-    const est = estado.toUpperCase();
-    if (est.includes('REGISTRAD') || est.includes('POSTULAD')) return 1;
-    if (est.includes('REVIS') || est.includes('PENDIENT') || est.includes('OBSERV')) return 2;
-    if (est.includes('APROBAD') || est.includes('MODALIDAD')) return 3;
-    if (est.includes('EVALUA') || est.includes('COMPLEXIVO') || est.includes('TUTOR')) return 4;
-    if (est.includes('TITULAD') || est.includes('GRADUAD') || est.includes('ACTA')) return 5;
-    return 2;
   }
 
   enviarPostulacion(): void {
@@ -689,6 +600,10 @@ export class DashboardComponent implements OnInit {
   // ----------------------------------------------------
   // Dictámenes y Calificación
   // ----------------------------------------------------
+  onDictamenEvento(evento: DictamenEvento): void {
+    this.abrirModalDictamen(evento.idPostulacion, evento.decision);
+  }
+
   abrirModalDictamen(idPostulacion: number, decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR'): void {
     this.dictamenModal.set({
       visible: true,
@@ -740,9 +655,39 @@ export class DashboardComponent implements OnInit {
       this.carreraSeleccionada.set(seleccionada);
       if (this.isAdmin()) {
         this.filtroCarrera.set(idCarrera);
+        this.paginaActual.set(1);
         this.cargarPostulaciones();
       }
     }
+  }
+
+  onFiltroBusquedaChange(valor: string): void {
+    this.filtroBusqueda.set(valor);
+    this.paginaActual.set(1);
+    this.cargarPostulaciones();
+  }
+
+  onFiltroEstadoChange(valor: number | null): void {
+    this.filtroEstado.set(valor);
+    this.paginaActual.set(1);
+    this.cargarPostulaciones();
+  }
+
+  onFiltroCarreraChange(valor: number | null): void {
+    this.filtroCarrera.set(valor);
+    this.paginaActual.set(1);
+    this.cargarPostulaciones();
+  }
+
+  onPaginaChange(pagina: number): void {
+    this.paginaActual.set(pagina);
+    this.cargarPostulaciones();
+  }
+
+  onTamanoPaginaChange(tamano: number): void {
+    this.tamanoPagina.set(tamano);
+    this.paginaActual.set(1);
+    this.cargarPostulaciones();
   }
 
   toggleTheme(): void {

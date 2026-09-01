@@ -1,0 +1,137 @@
+<section class="cohortes-section">
+  <div class="cohortes-header">
+    <div class="cohortes-header-info">
+      <span class="cohortes-eyebrow">GESTIÓN DE COHORTES</span>
+      <h2 class="cohortes-title">Convocatorias y Fechas de Corte de Titulación</h2>
+    </div>
+    <button
+      type="button"
+      class="fluent-btn-primary"
+      (click)="aperturarNuevo.emit()"
+    >
+      + Aperturar Nuevo Período
+    </button>
+  </div>
+
+  <!-- Convocatoria Activa -->
+  @if (convocatoriaActiva(); as activa) {
+    <app-convocatoria-card
+      [estaAbierta]="activa.estaVigenteCorte"
+      [detalle]="activa.detalle + ' — Período: ' + periodoNombreAmigable()"
+      [mensaje]="
+        'Fechas de Corte: ' +
+        (activa.fechaInicio ? (activa.fechaInicio | date: 'mediumDate') : 'No definida') +
+        ' al ' +
+        (activa.fechaFin ? (activa.fechaFin | date: 'mediumDate') : 'No definida') +
+        ' | ' +
+        activa.carrerasHabilitadas.length +
+        ' Carreras Habilitadas (Cód: ' +
+        activa.idPeriodo +
+        ')'
+      "
+      [diasRestantes]="activa.diasPermitidos"
+    />
+  } @else {
+    <div class="empty-state-card">
+      <h3 class="empty-title">No existe una convocatoria de titulación activa actualmente</h3>
+      <p class="empty-desc">
+        Haga clic en <strong>"+ Aperturar Nuevo Período"</strong> para registrar el período
+        académico, fijar las fechas límite de corte y habilitar las carreras del instituto.
+      </p>
+      <button
+        type="button"
+        class="fluent-btn-primary"
+        (click)="aperturarNuevo.emit()"
+      >
+        Aperturar Convocatoria Ahora
+      </button>
+    </div>
+  }
+
+  <!-- Histórico de Convocatorias -->
+  <div class="historico-box">
+    <div class="historico-header">
+      <div class="historico-title-wrap">
+        <h3 class="historico-title">Histórico de Convocatorias Anteriores</h3>
+        <span class="historico-subtitle">Registro cronológico de períodos de titulación institucionales</span>
+      </div>
+      <span class="historico-counter">{{ convocatoriasLista().length }} registradas</span>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <span>Cargando histórico de convocatorias...</span>
+      </div>
+    } @else if (convocatoriasLista().length === 0) {
+      <div class="empty-table-msg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <p>No existen convocatorias registradas en el histórico.</p>
+      </div>
+    } @else {
+      <div class="cohortes-table-wrapper">
+        <table class="fluent-table">
+          <thead>
+            <tr>
+              <th class="th-id">ID</th>
+              <th>PERÍODO</th>
+              <th>DETALLE / DESCRIPCIÓN</th>
+              <th>VIGENCIA DE CORTE</th>
+              <th>DÍAS LÍMITE</th>
+              <th>CARRERAS</th>
+              <th>POSTULACIONES</th>
+              <th class="text-right">ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of convocatoriasLista(); track c.idCohorte) {
+              <tr>
+                <td class="td-id">
+                  <span class="code-badge">#{{ c.idCohorte }}</span>
+                </td>
+                <td>
+                  <strong class="periodo-tag">{{ c.idPeriodo }}</strong>
+                </td>
+                <td>
+                  <span class="detalle-text">{{ c.detalle }}</span>
+                </td>
+                <td>
+                  <div class="date-range-cell">
+                    <span class="date-val">{{ c.fechaInicio ? (c.fechaInicio | date: 'dd/MM/yyyy') : '-' }}</span>
+                    <span class="date-sep">→</span>
+                    <span class="date-val">{{ c.fechaFin ? (c.fechaFin | date: 'dd/MM/yyyy') : '-' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="limit-days">{{ c.diasPermitidos || 90 }} días</span>
+                  @if (c.diasExtension) {
+                    <span class="limit-ext">(+{{ c.diasExtension }} ext)</span>
+                  }
+                </td>
+                <td>
+                  <span class="count-pill">{{ c.totalCarrerasHabilitadas }} habilitadas</span>
+                </td>
+                <td>
+                  <span class="count-pill">{{ c.totalPostulaciones }} registradas</span>
+                </td>
+                <td class="text-right">
+                  <span class="status-cell">
+                    <span class="status-dot" [class.status-dot--success]="c.estaVigenteCorte" [class.status-dot--neutral]="!c.estaVigenteCorte"></span>
+                    <span class="status-label" [class.status-label--success]="c.estaVigenteCorte" [class.status-label--neutral]="!c.estaVigenteCorte">
+                      {{ c.estaVigenteCorte ? 'Vigente' : 'Cerrada' }}
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
