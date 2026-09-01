@@ -6,7 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { AperturarPeriodoRequest, ModalidadMaestra, ModalidadCarreraDto } from '../../../core/models/titulacion.models';
+import {
+  AperturarPeriodoRequest,
+  ModalidadMaestra,
+  ModalidadCarreraDto,
+} from '../../../core/models/titulacion.models';
 import { TitulacionService } from '../../../core/services/titulacion.service';
 
 @Component({
@@ -185,9 +189,10 @@ export class AperturaPeriodoModalComponent implements OnInit {
       ? undefined
       : Array.from(this.carrerasSeleccionadas());
 
-    const idsModalidades = this.modalidadesSeleccionadas().size > 0
-      ? Array.from(this.modalidadesSeleccionadas())
-      : undefined;
+    const idsModalidades =
+      this.modalidadesSeleccionadas().size > 0
+        ? Array.from(this.modalidadesSeleccionadas())
+        : undefined;
 
     const finCorte = new Date(f.fechaFinCorte);
     finCorte.setHours(23, 59, 59, 0);

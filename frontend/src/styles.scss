@@ -182,7 +182,7 @@ html {
       error: var(--status-error),
       on-error: #ffffff,
       error-container: var(--status-error-bg),
-      on-error-container: var(--status-error),
+      on-error-container: var(--status-error)
     )
   );
 }
@@ -218,7 +218,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
 /* ==========================================================================
@@ -258,7 +260,9 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
-  transition: box-shadow 150ms ease, border-color 150ms ease;
+  transition:
+    box-shadow 150ms ease,
+    border-color 150ms ease;
 }
 
 .fluent-card:hover {
@@ -278,7 +282,9 @@ body {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .fluent-input:hover,
@@ -314,7 +320,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: background 150ms ease, transform 60ms ease;
+  transition:
+    background 150ms ease,
+    transform 60ms ease;
 }
 
 .fluent-btn-primary:hover:not(:disabled) {
@@ -355,7 +363,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: background 100ms ease, border-color 100ms ease;
+  transition:
+    background 100ms ease,
+    border-color 100ms ease;
 }
 
 .fluent-btn-secondary:hover:not(:disabled) {
@@ -436,7 +446,9 @@ body {
   color: #ffffff !important;
 }
 
-.istpet-snackbar .mat-mdc-button.mat-mdc-snack-bar-action:hover .mat-mdc-button-persistent-ripple::before {
+.istpet-snackbar
+  .mat-mdc-button.mat-mdc-snack-bar-action:hover
+  .mat-mdc-button-persistent-ripple::before {
   opacity: 0.12;
 }
 

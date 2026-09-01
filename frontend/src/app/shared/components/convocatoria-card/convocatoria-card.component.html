@@ -2,15 +2,17 @@
   <div class="convocatoria-info">
     <div class="status-indicator-wrapper">
       <span class="status-dot" [class.active]="estaAbierta()"></span>
-      <span class="conv-tag">{{ estaAbierta() ? 'Convocatoria Activa' : 'Convocatoria Finalizada' }}</span>
+      <span class="conv-tag">{{
+        estaAbierta() ? 'Convocatoria Activa' : 'Convocatoria Finalizada'
+      }}</span>
     </div>
     <h3>{{ detalle() }}</h3>
     <p>{{ mensaje() }}</p>
   </div>
   @if (diasRestantes() !== null) {
-  <div class="convocatoria-countdown">
-    <span class="days-num">{{ diasRestantes() }}</span>
-    <span class="days-lbl">Días Restantes</span>
-  </div>
+    <div class="convocatoria-countdown">
+      <span class="days-num">{{ diasRestantes() }}</span>
+      <span class="days-lbl">Días Restantes</span>
+    </div>
   }
 </div>

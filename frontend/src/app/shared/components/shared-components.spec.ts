@@ -18,7 +18,8 @@ describe('Shared UI Components Tests', () => {
   });
 
   it('NetworkBannerComponent: debe renderizar alerta de modo sin conexión cuando isOnline es false', () => {
-    const fixture: ComponentFixture<NetworkBannerComponent> = TestBed.createComponent(NetworkBannerComponent);
+    const fixture: ComponentFixture<NetworkBannerComponent> =
+      TestBed.createComponent(NetworkBannerComponent);
     fixture.componentRef.setInput('isOnline', false);
     fixture.detectChanges();
 
@@ -28,7 +29,8 @@ describe('Shared UI Components Tests', () => {
   });
 
   it('ConvocatoriaCardComponent: debe mostrar estado activo y cuenta regresiva de días', () => {
-    const fixture: ComponentFixture<ConvocatoriaCardComponent> = TestBed.createComponent(ConvocatoriaCardComponent);
+    const fixture: ComponentFixture<ConvocatoriaCardComponent> =
+      TestBed.createComponent(ConvocatoriaCardComponent);
     fixture.componentRef.setInput('estaAbierta', true);
     fixture.componentRef.setInput('detalle', 'Convocatoria Ordinaria 2026-I');
     fixture.componentRef.setInput('diasRestantes', 15);
@@ -66,7 +68,8 @@ describe('Shared UI Components Tests', () => {
   });
 
   it('DictamenModalComponent: debe emitir evento confirm al confirmar dictamen', () => {
-    const fixture: ComponentFixture<DictamenModalComponent> = TestBed.createComponent(DictamenModalComponent);
+    const fixture: ComponentFixture<DictamenModalComponent> =
+      TestBed.createComponent(DictamenModalComponent);
     fixture.componentRef.setInput('data', {
       idPostulacion: 101,
       decision: 'APROBAR',
@@ -85,7 +88,9 @@ describe('Shared UI Components Tests', () => {
   });
 
   it('AperturaPeriodoModalComponent: debe emitir evento confirm con datos estructurados', () => {
-    const fixture: ComponentFixture<AperturaPeriodoModalComponent> = TestBed.createComponent(AperturaPeriodoModalComponent);
+    const fixture: ComponentFixture<AperturaPeriodoModalComponent> = TestBed.createComponent(
+      AperturaPeriodoModalComponent,
+    );
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
 

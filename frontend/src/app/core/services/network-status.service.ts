@@ -28,14 +28,19 @@ export class NetworkStatusService {
   }
 
   public checkNetworkQuality(): void {
-    const nav = navigator as unknown as { connection?: { effectiveType?: string; downlink?: number; rtt?: number } };
+    const nav = navigator as unknown as {
+      connection?: { effectiveType?: string; downlink?: number; rtt?: number };
+    };
     if (nav.connection) {
       const conn = nav.connection;
       const type = conn.effectiveType || 'unknown';
       this.connectionType.set(type);
 
       // Si es 2g, slow-2g o el downlink es menor a 0.5 Mbps
-      const isSlow = type === 'slow-2g' || type === '2g' || (typeof conn.downlink === 'number' && conn.downlink < 0.8);
+      const isSlow =
+        type === 'slow-2g' ||
+        type === '2g' ||
+        (typeof conn.downlink === 'number' && conn.downlink < 0.8);
       this.isLowBandwidth.set(isSlow);
     }
   }

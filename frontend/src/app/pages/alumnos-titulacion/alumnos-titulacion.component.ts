@@ -11,7 +11,14 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
 @Component({
   selector: 'app-alumnos-titulacion',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatTableModule, MatSortModule, MatPaginatorModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+  ],
   template: `
     <div class="alumnos-container">
       <header class="page-header">
@@ -73,7 +80,13 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
       @if (!cargando() && tabActiva() === 'aptos') {
         <div class="table-card">
           <div class="table-responsive">
-            <table mat-table [dataSource]="dataSourceAptos" matSort #sortAptos="matSort" class="data-table">
+            <table
+              mat-table
+              [dataSource]="dataSourceAptos"
+              matSort
+              #sortAptos="matSort"
+              class="data-table"
+            >
               <ng-container matColumnDef="id">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Identificación</th>
                 <td mat-cell *matCellDef="let alumno" class="font-mono">{{ alumno.idAlumno }}</td>
@@ -81,14 +94,18 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
 
               <ng-container matColumnDef="nombres">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombres Completos</th>
-                <td mat-cell *matCellDef="let alumno" class="font-bold">{{ alumno.nombresCompletos }}</td>
+                <td mat-cell *matCellDef="let alumno" class="font-bold">
+                  {{ alumno.nombresCompletos }}
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="contacto">
                 <th mat-header-cell *matHeaderCellDef>Contacto</th>
                 <td mat-cell *matCellDef="let alumno">
                   <div class="contact-info">
-                    <span><i class="bi bi-envelope"></i> {{ alumno.emailInstitucional || 'N/A' }}</span>
+                    <span
+                      ><i class="bi bi-envelope"></i> {{ alumno.emailInstitucional || 'N/A' }}</span
+                    >
                     <span><i class="bi bi-phone"></i> {{ alumno.celular || 'N/A' }}</span>
                   </div>
                 </td>
@@ -96,7 +113,9 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
 
               <ng-container matColumnDef="modalidad">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Modalidad</th>
-                <td mat-cell *matCellDef="let alumno"><span class="badge-modalidad">{{ alumno.modalidad }}</span></td>
+                <td mat-cell *matCellDef="let alumno">
+                  <span class="badge-modalidad">{{ alumno.modalidad }}</span>
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="periodo">
@@ -114,7 +133,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumnsAptos"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumnsAptos;"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsAptos"></tr>
 
               <tr class="mat-mdc-row" *matNoDataRow>
                 <td [attr.colspan]="displayedColumnsAptos.length" class="empty-state">
@@ -123,7 +142,12 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
               </tr>
             </table>
           </div>
-          <mat-paginator #paginatorAptos [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons aria-label="Paginación de alumnos aptos"></mat-paginator>
+          <mat-paginator
+            #paginatorAptos
+            [pageSizeOptions]="[10, 20, 50]"
+            showFirstLastButtons
+            aria-label="Paginación de alumnos aptos"
+          ></mat-paginator>
         </div>
       }
 
@@ -131,7 +155,13 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
       @if (!cargando() && tabActiva() === 'graduados') {
         <div class="table-card">
           <div class="table-responsive">
-            <table mat-table [dataSource]="dataSourceGraduados" matSort #sortGraduados="matSort" class="data-table">
+            <table
+              mat-table
+              [dataSource]="dataSourceGraduados"
+              matSort
+              #sortGraduados="matSort"
+              class="data-table"
+            >
               <ng-container matColumnDef="cedula">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Cédula</th>
                 <td mat-cell *matCellDef="let g" class="font-mono">{{ g.idAlumno }}</td>
@@ -139,7 +169,9 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
 
               <ng-container matColumnDef="acta">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>N° Acta</th>
-                <td mat-cell *matCellDef="let g"><span class="badge-acta">{{ g.numeroActa }}</span></td>
+                <td mat-cell *matCellDef="let g">
+                  <span class="badge-acta">{{ g.numeroActa }}</span>
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="fechaActa">
@@ -149,30 +181,42 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
 
               <ng-container matColumnDef="promedio">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Promedio</th>
-                <td mat-cell *matCellDef="let g" class="font-bold text-accent">{{ g.promedioEstudios || 'N/A' }}</td>
+                <td mat-cell *matCellDef="let g" class="font-bold text-accent">
+                  {{ g.promedioEstudios || 'N/A' }}
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="notaFinal">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Nota Final</th>
-                <td mat-cell *matCellDef="let g" class="font-bold text-success">{{ g.notaFinal || 'N/A' }}</td>
+                <td mat-cell *matCellDef="let g" class="font-bold text-success">
+                  {{ g.notaFinal || 'N/A' }}
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="titulo">
                 <th mat-header-cell *matHeaderCellDef>Título Tesis / Proyecto</th>
-                <td mat-cell *matCellDef="let g" class="text-sm">{{ g.tituloTesis || 'Título Registrado' }}</td>
+                <td mat-cell *matCellDef="let g" class="text-sm">
+                  {{ g.tituloTesis || 'Título Registrado' }}
+                </td>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="displayedColumnsGraduados"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumnsGraduados;"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsGraduados"></tr>
 
               <tr class="mat-mdc-row" *matNoDataRow>
                 <td [attr.colspan]="displayedColumnsGraduados.length" class="empty-state">
-                  <i class="bi bi-journal-x"></i> No se encontraron registros de graduados históricos.
+                  <i class="bi bi-journal-x"></i> No se encontraron registros de graduados
+                  históricos.
                 </td>
               </tr>
             </table>
           </div>
-          <mat-paginator #paginatorGraduados [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons aria-label="Paginación de graduados"></mat-paginator>
+          <mat-paginator
+            #paginatorGraduados
+            [pageSizeOptions]="[10, 20, 50]"
+            showFirstLastButtons
+            aria-label="Paginación de graduados"
+          ></mat-paginator>
         </div>
       }
     </div>
@@ -181,7 +225,13 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
     `
       :host {
         display: block;
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family:
+          'Plus Jakarta Sans',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
       }
       .alumnos-container {
         padding: 32px;
@@ -222,7 +272,9 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         border-radius: var(--radius-md, 6px);
         font-weight: 600;
         font-size: 0.8125rem;
-        transition: background 150ms ease, border-color 150ms ease;
+        transition:
+          background 150ms ease,
+          border-color 150ms ease;
       }
       .btn-back:hover {
         background-color: var(--istpet-navy-subtle, rgba(27, 42, 74, 0.06));
@@ -256,7 +308,9 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         white-space: nowrap;
         border-bottom: 2px solid transparent;
         margin-bottom: -1px;
-        transition: color 150ms ease, border-color 150ms ease;
+        transition:
+          color 150ms ease,
+          border-color 150ms ease;
       }
       .tab-btn:hover {
         color: var(--text-primary, #1a1a1a);
@@ -304,7 +358,9 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         color: var(--text-primary, #1a1a1a);
         background: var(--bg-surface-alt, #f8f9fa);
         outline: none;
-        transition: border-color 150ms ease, background 150ms ease;
+        transition:
+          border-color 150ms ease,
+          background 150ms ease;
       }
       .input-search:focus {
         border-color: var(--istpet-navy, #1b2a4a);
@@ -531,7 +587,14 @@ export class AlumnosTitulacionComponent implements OnInit {
   private readonly sortAptos = viewChild<MatSort>('sortAptos');
   private readonly paginatorAptos = viewChild<MatPaginator>('paginatorAptos');
 
-  readonly displayedColumnsGraduados = ['cedula', 'acta', 'fechaActa', 'promedio', 'notaFinal', 'titulo'];
+  readonly displayedColumnsGraduados = [
+    'cedula',
+    'acta',
+    'fechaActa',
+    'promedio',
+    'notaFinal',
+    'titulo',
+  ];
   dataSourceGraduados = new MatTableDataSource<GraduadoHistorico>([]);
   private readonly sortGraduados = viewChild<MatSort>('sortGraduados');
   private readonly paginatorGraduados = viewChild<MatPaginator>('paginatorGraduados');

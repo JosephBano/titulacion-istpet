@@ -1,24 +1,40 @@
 @if (data(); as modal) {
-<div class="dictamen-modal-backdrop" (click)="onClose()" (keydown.escape)="onClose()" tabindex="0" role="dialog" aria-modal="true">
-  <div class="dictamen-modal-card" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
-    <h3>Dictaminar Postulación #{{ modal.idPostulacion }}</h3>
-    <p>Decisión a aplicar: <strong>{{ modal.decision }}</strong></p>
+  <div
+    class="dictamen-modal-backdrop"
+    (click)="onClose()"
+    (keydown.escape)="onClose()"
+    tabindex="0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      class="dictamen-modal-card"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      tabindex="0"
+    >
+      <h3>Dictaminar Postulación #{{ modal.idPostulacion }}</h3>
+      <p>
+        Decisión a aplicar: <strong>{{ modal.decision }}</strong>
+      </p>
 
-    <mat-form-field appearance="outline" class="istpet-mat-field">
-      <mat-label>Observaciones / Instrucciones de Subsanación</mat-label>
-      <textarea
-        matInput
-        rows="4"
-        [ngModel]="modal.observaciones"
-        (ngModelChange)="observacionesTexto.set($event)"
-        placeholder="Ingrese las observaciones específicas para el estudiante..."
-      ></textarea>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="istpet-mat-field">
+        <mat-label>Observaciones / Instrucciones de Subsanación</mat-label>
+        <textarea
+          matInput
+          rows="4"
+          [ngModel]="modal.observaciones"
+          (ngModelChange)="observacionesTexto.set($event)"
+          placeholder="Ingrese las observaciones específicas para el estudiante..."
+        ></textarea>
+      </mat-form-field>
 
-    <div class="dictamen-modal-actions">
-      <button type="button" class="fluent-btn-secondary" (click)="onClose()">Cancelar</button>
-      <button type="button" class="fluent-btn-primary" (click)="onConfirm()">Confirmar Dictamen</button>
+      <div class="dictamen-modal-actions">
+        <button type="button" class="fluent-btn-secondary" (click)="onClose()">Cancelar</button>
+        <button type="button" class="fluent-btn-primary" (click)="onConfirm()">
+          Confirmar Dictamen
+        </button>
+      </div>
     </div>
   </div>
-</div>
 }

@@ -122,7 +122,10 @@ export class TitulacionService {
     return this.http.post<ConvocatoriaDetalle>(`${this.API_URL}/convocatorias/aperturar`, request);
   }
 
-  public ajustarFechasCorte(idCohorte: number, request: AjustarFechasCorteRequest): Observable<void> {
+  public ajustarFechasCorte(
+    idCohorte: number,
+    request: AjustarFechasCorteRequest,
+  ): Observable<void> {
     return this.http.patch<void>(
       `${this.API_URL}/convocatorias/${idCohorte}/fechas-corte`,
       request,
@@ -209,7 +212,9 @@ export class TitulacionService {
     );
   }
 
-  public getPeriodosAcademicos(): Observable<{ idPeriodo: string; nombre: string; esActivo?: boolean }[]> {
+  public getPeriodosAcademicos(): Observable<
+    { idPeriodo: string; nombre: string; esActivo?: boolean }[]
+  > {
     return this.http.get<{ idPeriodo: string; nombre: string; esActivo?: boolean }[]>(
       `${this.API_URL}/academico/periodos`,
     );
@@ -221,6 +226,8 @@ export class TitulacionService {
 
   public getModalidadesCarreras(soloActivas = true): Observable<ModalidadCarreraDto[]> {
     const params = new HttpParams().set('soloActivas', soloActivas.toString());
-    return this.http.get<ModalidadCarreraDto[]>(`${this.API_URL}/academico/modalidades-carreras`, { params });
+    return this.http.get<ModalidadCarreraDto[]>(`${this.API_URL}/academico/modalidades-carreras`, {
+      params,
+    });
   }
 }

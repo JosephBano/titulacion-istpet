@@ -178,7 +178,9 @@ describe('TitulacionService & Network Resilience Tests', () => {
       expect(res.items[0].nombreAlumno).toBe('Carlos Gómez');
     });
 
-    const req = httpMock.expectOne(`${mockApiUrl}/api/v1/postulaciones?pagina=1&tamanoPagina=20&idCarrera=1`);
+    const req = httpMock.expectOne(
+      `${mockApiUrl}/api/v1/postulaciones?pagina=1&tamanoPagina=20&idCarrera=1`,
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mockRes);
   });
@@ -201,7 +203,9 @@ describe('TitulacionService & Network Resilience Tests', () => {
       expect(data[0].modalidadTitulacion).toBe('Examen Complexivo');
     });
 
-    const req = httpMock.expectOne(`${mockApiUrl}/api/v1/configuracion/modalidades?soloActivas=false`);
+    const req = httpMock.expectOne(
+      `${mockApiUrl}/api/v1/configuracion/modalidades?soloActivas=false`,
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mockModalidades);
   });

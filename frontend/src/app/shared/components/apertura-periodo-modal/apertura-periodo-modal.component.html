@@ -1,194 +1,264 @@
 @if (visible()) {
-<div class="dictamen-modal-backdrop" (click)="onClose()" (keydown.escape)="onClose()" tabindex="0" role="dialog" aria-modal="true">
-  <div class="dictamen-modal-card custom-modal-wide" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()" tabindex="0">
-    <header class="modal-card-header">
-      <span class="modal-card-eyebrow">AUTOMATIZACIÓN DE PROCESOS ACADÉMICOS</span>
-      <h3>Aperturar Nuevo Período de Titulación</h3>
-      <p class="modal-subtext">Configure las fechas de corte, los plazos oficiales de entrega y personalice las carreras y modalidades de estudio participantes.</p>
-    </header>
+  <div
+    class="dictamen-modal-backdrop"
+    (click)="onClose()"
+    (keydown.escape)="onClose()"
+    tabindex="0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      class="dictamen-modal-card custom-modal-wide"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      tabindex="0"
+    >
+      <header class="modal-card-header">
+        <span class="modal-card-eyebrow">AUTOMATIZACIÓN DE PROCESOS ACADÉMICOS</span>
+        <h3>Aperturar Nuevo Período de Titulación</h3>
+        <p class="modal-subtext">
+          Configure las fechas de corte, los plazos oficiales de entrega y personalice las carreras
+          y modalidades de estudio participantes.
+        </p>
+      </header>
 
-    <div class="form-grid">
-      <!-- 1. Período Académico Institucional -->
-      <div class="form-section-card">
-        <span class="modal-label">1. Período Académico Institucional (ISTPET):</span>
-        @if (periodos().length > 0) {
+      <div class="form-grid">
+        <!-- 1. Período Académico Institucional -->
+        <div class="form-section-card">
+          <span class="modal-label">1. Período Académico Institucional (ISTPET):</span>
+          @if (periodos().length > 0) {
+            <mat-form-field appearance="outline" class="istpet-mat-field">
+              <mat-select
+                [value]="form().idPeriodo"
+                (selectionChange)="onPeriodoSelect($event.value)"
+              >
+                @for (p of periodos(); track p.idPeriodo) {
+                  <mat-option [value]="p.idPeriodo">
+                    {{ p.nombre }} (Código: {{ p.idPeriodo }})
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" class="istpet-mat-field">
+              <input matInput [(ngModel)]="form().idPeriodo" placeholder="Ej: ABR2026" />
+            </mat-form-field>
+          }
+        </div>
+
+        <!-- 2. Detalle de la Convocatoria -->
+        <div class="form-section-card">
+          <span class="modal-label">2. Nombre / Detalle Oficial (máx. 45 caracteres):</span>
           <mat-form-field appearance="outline" class="istpet-mat-field">
-            <mat-select [value]="form().idPeriodo" (selectionChange)="onPeriodoSelect($event.value)">
-              @for (p of periodos(); track p.idPeriodo) {
-                <mat-option [value]="p.idPeriodo">
-                  {{ p.nombre }} (Código: {{ p.idPeriodo }})
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        } @else {
-          <mat-form-field appearance="outline" class="istpet-mat-field">
-            <input matInput [(ngModel)]="form().idPeriodo" placeholder="Ej: ABR2026" />
-          </mat-form-field>
-        }
-      </div>
-
-      <!-- 2. Detalle de la Convocatoria -->
-      <div class="form-section-card">
-        <span class="modal-label">2. Nombre / Detalle Oficial (máx. 45 caracteres):</span>
-        <mat-form-field appearance="outline" class="istpet-mat-field">
-          <input matInput maxlength="45" [(ngModel)]="form().detalleConvocatoria" placeholder="Ej: Convocatoria Ordinaria ABR2026" />
-        </mat-form-field>
-      </div>
-
-      <!-- 3. Fechas de Corte y Plazos -->
-      <div class="form-section-card">
-        <span class="modal-label">3. Ventana de Postulación y Plazos de Titulación:</span>
-        <div class="date-row">
-          <mat-form-field appearance="outline" class="istpet-mat-field date-field">
-            <mat-label>Fecha Apertura Corte</mat-label>
-            <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="form().fechaInicioCorte" />
-            <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
-            <mat-datepicker #pickerInicio></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="istpet-mat-field date-field">
-            <mat-label>Fecha Límite Corte</mat-label>
-            <input matInput [matDatepicker]="pickerFin" [(ngModel)]="form().fechaFinCorte" />
-            <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
-            <mat-datepicker #pickerFin></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="istpet-mat-field date-field">
-            <mat-label>Días Permitidos Proceso</mat-label>
-            <input matInput type="number" min="1" max="365" [(ngModel)]="form().diasPermitidos" placeholder="90" />
-            <mat-hint>Días reglamentarios (ej. 90).</mat-hint>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="istpet-mat-field date-field">
-            <mat-label>Días Prórroga / Extensión</mat-label>
-            <input matInput type="number" min="0" max="180" [(ngModel)]="form().diasExtension" placeholder="30" />
-            <mat-hint>Días de gracia (ej. 30).</mat-hint>
+            <input
+              matInput
+              maxlength="45"
+              [(ngModel)]="form().detalleConvocatoria"
+              placeholder="Ej: Convocatoria Ordinaria ABR2026"
+            />
           </mat-form-field>
         </div>
-      </div>
 
-      <!-- 4. Automatización de Carreras Habilitadas (modalidades_carreras) -->
-      <div class="form-section-card">
-        <div class="section-title-row">
-          <span class="modal-label">4. Alcance de Carreras y Modalidades de Estudio:</span>
-          <div class="toggle-mode-pills">
-            <button
-              type="button"
-              class="pill-btn"
-              [class.active]="form().habilitarTodasLasCarreras"
-              (click)="toggleHabilitarTodasLasCarreras(true)"
-            >
-              Habilitar Todas ({{ modalidadesCarreras().length }})
-            </button>
-            <button
-              type="button"
-              class="pill-btn"
-              [class.active]="!form().habilitarTodasLasCarreras"
-              (click)="toggleHabilitarTodasLasCarreras(false)"
-            >
-              Selección Personalizada ({{ carrerasSeleccionadas().size }})
-            </button>
+        <!-- 3. Fechas de Corte y Plazos -->
+        <div class="form-section-card">
+          <span class="modal-label">3. Ventana de Postulación y Plazos de Titulación:</span>
+          <div class="date-row">
+            <mat-form-field appearance="outline" class="istpet-mat-field date-field">
+              <mat-label>Fecha Apertura Corte</mat-label>
+              <input
+                matInput
+                [matDatepicker]="pickerInicio"
+                [(ngModel)]="form().fechaInicioCorte"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="istpet-mat-field date-field">
+              <mat-label>Fecha Límite Corte</mat-label>
+              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="form().fechaFinCorte" />
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="istpet-mat-field date-field">
+              <mat-label>Días Permitidos Proceso</mat-label>
+              <input
+                matInput
+                type="number"
+                min="1"
+                max="365"
+                [(ngModel)]="form().diasPermitidos"
+                placeholder="90"
+              />
+              <mat-hint>Días reglamentarios (ej. 90).</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="istpet-mat-field date-field">
+              <mat-label>Días Prórroga / Extensión</mat-label>
+              <input
+                matInput
+                type="number"
+                min="0"
+                max="180"
+                [(ngModel)]="form().diasExtension"
+                placeholder="30"
+              />
+              <mat-hint>Días de gracia (ej. 30).</mat-hint>
+            </mat-form-field>
           </div>
         </div>
 
-        @if (!form().habilitarTodasLasCarreras) {
-          <div class="carreras-selector-box">
-            <!-- Barra de búsqueda y filtros -->
-            <div class="carreras-filters-bar">
-              <input
-                type="text"
-                class="fluent-input-micro"
-                [ngModel]="filtroTextoCarrera()"
-                (ngModelChange)="filtroTextoCarrera.set($event)"
-                placeholder="Buscar carrera por nombre o modalidad..."
-              />
+        <!-- 4. Automatización de Carreras Habilitadas (modalidades_carreras) -->
+        <div class="form-section-card">
+          <div class="section-title-row">
+            <span class="modal-label">4. Alcance de Carreras y Modalidades de Estudio:</span>
+            <div class="toggle-mode-pills">
+              <button
+                type="button"
+                class="pill-btn"
+                [class.active]="form().habilitarTodasLasCarreras"
+                (click)="toggleHabilitarTodasLasCarreras(true)"
+              >
+                Habilitar Todas ({{ modalidadesCarreras().length }})
+              </button>
+              <button
+                type="button"
+                class="pill-btn"
+                [class.active]="!form().habilitarTodasLasCarreras"
+                (click)="toggleHabilitarTodasLasCarreras(false)"
+              >
+                Selección Personalizada ({{ carrerasSeleccionadas().size }})
+              </button>
+            </div>
+          </div>
 
-              <div class="modality-filter-pills">
-                <button
-                  type="button"
-                  class="btn-filter-pill"
-                  [class.active]="filtroModalidadEstudio() === 'TODAS'"
-                  (click)="filtroModalidadEstudio.set('TODAS')"
-                >
-                  Todas
-                </button>
-                @for (m of modalidadesEstudioDisponibles(); track m) {
+          @if (!form().habilitarTodasLasCarreras) {
+            <div class="carreras-selector-box">
+              <!-- Barra de búsqueda y filtros -->
+              <div class="carreras-filters-bar">
+                <input
+                  type="text"
+                  class="fluent-input-micro"
+                  [ngModel]="filtroTextoCarrera()"
+                  (ngModelChange)="filtroTextoCarrera.set($event)"
+                  placeholder="Buscar carrera por nombre o modalidad..."
+                />
+
+                <div class="modality-filter-pills">
                   <button
                     type="button"
                     class="btn-filter-pill"
-                    [class.active]="filtroModalidadEstudio() === m"
-                    (click)="filtroModalidadEstudio.set(m)"
+                    [class.active]="filtroModalidadEstudio() === 'TODAS'"
+                    (click)="filtroModalidadEstudio.set('TODAS')"
                   >
-                    {{ m }}
+                    Todas
                   </button>
+                  @for (m of modalidadesEstudioDisponibles(); track m) {
+                    <button
+                      type="button"
+                      class="btn-filter-pill"
+                      [class.active]="filtroModalidadEstudio() === m"
+                      (click)="filtroModalidadEstudio.set(m)"
+                    >
+                      {{ m }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Barra de acciones rápidas -->
+              <div class="carreras-actions-bar">
+                <span class="carreras-count"
+                  >Mostrando: {{ carrerasFiltradas().length }} · Seleccionadas:
+                  {{ carrerasSeleccionadas().size }} de {{ modalidadesCarreras().length }}</span
+                >
+                <div style="display: flex; gap: 8px">
+                  <button type="button" class="btn-micro" (click)="seleccionarTodasCarreras()">
+                    Seleccionar Todas
+                  </button>
+                  <button type="button" class="btn-micro" (click)="deseleccionarTodasCarreras()">
+                    Limpiar Selección
+                  </button>
+                </div>
+              </div>
+
+              <!-- Grilla interactiva de carreras y modalidades -->
+              <div class="carreras-checklist-grid">
+                @if (carrerasFiltradas().length === 0) {
+                  <p
+                    style="
+                      grid-column: 1 / -1;
+                      font-size: 12px;
+                      color: var(--text-muted);
+                      text-align: center;
+                      padding: 12px;
+                    "
+                  >
+                    No se encontraron carreras que coincidan con el filtro.
+                  </p>
+                } @else {
+                  @for (c of carrerasFiltradas(); track c.idModalidadCarrera) {
+                    <label
+                      class="carrera-check-item"
+                      [class.selected]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
+                        (change)="toggleCarrera(c.idModalidadCarrera)"
+                      />
+                      <div class="carrera-item-content">
+                        <span class="carrera-name">{{ c.nombreCarrera }}</span>
+                        <span
+                          class="fluent-badge fluent-badge--info"
+                          style="font-size: 10px; padding: 1px 6px"
+                        >
+                          {{ c.nombreModalidadEstudio }}
+                        </span>
+                      </div>
+                    </label>
+                  }
                 }
               </div>
             </div>
+          }
+        </div>
 
-            <!-- Barra de acciones rápidas -->
-            <div class="carreras-actions-bar">
-              <span class="carreras-count">Mostrando: {{ carrerasFiltradas().length }} · Seleccionadas: {{ carrerasSeleccionadas().size }} de {{ modalidadesCarreras().length }}</span>
-              <div style="display: flex; gap: 8px;">
-                <button type="button" class="btn-micro" (click)="seleccionarTodasCarreras()">Seleccionar Todas</button>
-                <button type="button" class="btn-micro" (click)="deseleccionarTodasCarreras()">Limpiar Selección</button>
-              </div>
-            </div>
-
-            <!-- Grilla interactiva de carreras y modalidades -->
-            <div class="carreras-checklist-grid">
-              @if (carrerasFiltradas().length === 0) {
-                <p style="grid-column: 1 / -1; font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px;">
-                  No se encontraron carreras que coincidan con el filtro.
-                </p>
-              } @else {
-                @for (c of carrerasFiltradas(); track c.idModalidadCarrera) {
-                  <label class="carrera-check-item" [class.selected]="carrerasSeleccionadas().has(c.idModalidadCarrera)">
-                    <input
-                      type="checkbox"
-                      [checked]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
-                      (change)="toggleCarrera(c.idModalidadCarrera)"
-                    />
-                    <div class="carrera-item-content">
-                      <span class="carrera-name">{{ c.nombreCarrera }}</span>
-                      <span class="fluent-badge fluent-badge--info" style="font-size: 10px; padding: 1px 6px;">
-                        {{ c.nombreModalidadEstudio }}
-                      </span>
-                    </div>
-                  </label>
-                }
+        <!-- 5. Modalidades de Titulación Habilitadas -->
+        @if (modalidades().length > 0) {
+          <div class="form-section-card">
+            <span class="modal-label"
+              >5. Modalidades de Titulación Habilitadas para esta Cohorte:</span
+            >
+            <div class="modalidades-chips-grid">
+              @for (m of modalidades(); track m.idModalidadTitulacion) {
+                <label
+                  class="modalidad-chip-card"
+                  [class.active]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
+                >
+                  <input
+                    type="checkbox"
+                    [checked]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
+                    (change)="toggleModalidad(m.idModalidadTitulacion)"
+                  />
+                  <div class="chip-info">
+                    <strong>{{ m.modalidadTitulacion }}</strong>
+                    <span
+                      >Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) ·
+                      {{ m.totalRequisitosAsociados }} requisitos</span
+                    >
+                  </div>
+                </label>
               }
             </div>
           </div>
         }
       </div>
 
-      <!-- 5. Modalidades de Titulación Habilitadas -->
-      @if (modalidades().length > 0) {
-        <div class="form-section-card">
-          <span class="modal-label">5. Modalidades de Titulación Habilitadas para esta Cohorte:</span>
-          <div class="modalidades-chips-grid">
-            @for (m of modalidades(); track m.idModalidadTitulacion) {
-              <label class="modalidad-chip-card" [class.active]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)">
-                <input
-                  type="checkbox"
-                  [checked]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
-                  (change)="toggleModalidad(m.idModalidadTitulacion)"
-                />
-                <div class="chip-info">
-                  <strong>{{ m.modalidadTitulacion }}</strong>
-                  <span>Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) · {{ m.totalRequisitosAsociados }} requisitos</span>
-                </div>
-              </label>
-            }
-          </div>
-        </div>
-      }
+      <footer class="dictamen-modal-actions">
+        <button type="button" class="fluent-btn-secondary" (click)="onClose()">Cancelar</button>
+        <button type="button" class="fluent-btn-primary" (click)="onConfirm()">
+          Aperturar y Automatizar Convocatoria
+        </button>
+      </footer>
     </div>
-
-    <footer class="dictamen-modal-actions">
-      <button type="button" class="fluent-btn-secondary" (click)="onClose()">Cancelar</button>
-      <button type="button" class="fluent-btn-primary" (click)="onConfirm()">
-        Aperturar y Automatizar Convocatoria
-      </button>
-    </footer>
   </div>
-</div>
 }

@@ -1,19 +1,34 @@
 <section class="fluent-stepper-card">
   <div class="stepper-header">
     <h2 class="stepper-title">Etapas de Mi Proceso de Titulación</h2>
-    <span class="fluent-badge"
+    <span
+      class="fluent-badge"
       [class.fluent-badge--success]="esEtapaAprobada()"
-      [class.fluent-badge--warning]="!esEtapaAprobada()">
+      [class.fluent-badge--warning]="!esEtapaAprobada()"
+    >
       {{ estadoNombre() }}
     </span>
   </div>
 
   <div class="stepper-grid">
     <!-- Paso 1 -->
-    <div class="stepper-step" [class.completed]="etapaActual() >= 1" [class.active]="etapaActual() === 1">
+    <div
+      class="stepper-step"
+      [class.completed]="etapaActual() >= 1"
+      [class.active]="etapaActual() === 1"
+    >
       <div class="step-icon-circle">
         @if (etapaActual() > 1) {
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         } @else {
           1
         }
@@ -23,10 +38,23 @@
     </div>
 
     <!-- Paso 2 -->
-    <div class="stepper-step" [class.completed]="etapaActual() >= 2" [class.active]="etapaActual() === 2">
+    <div
+      class="stepper-step"
+      [class.completed]="etapaActual() >= 2"
+      [class.active]="etapaActual() === 2"
+    >
       <div class="step-icon-circle">
         @if (etapaActual() > 2) {
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         } @else {
           2
         }
@@ -36,10 +64,23 @@
     </div>
 
     <!-- Paso 3 -->
-    <div class="stepper-step" [class.completed]="etapaActual() >= 3" [class.active]="etapaActual() === 3">
+    <div
+      class="stepper-step"
+      [class.completed]="etapaActual() >= 3"
+      [class.active]="etapaActual() === 3"
+    >
       <div class="step-icon-circle">
         @if (etapaActual() > 3) {
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         } @else {
           3
         }
@@ -49,10 +90,23 @@
     </div>
 
     <!-- Paso 4 -->
-    <div class="stepper-step" [class.completed]="etapaActual() >= 4" [class.active]="etapaActual() === 4">
+    <div
+      class="stepper-step"
+      [class.completed]="etapaActual() >= 4"
+      [class.active]="etapaActual() === 4"
+    >
       <div class="step-icon-circle">
         @if (etapaActual() > 4) {
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         } @else {
           4
         }
@@ -62,7 +116,11 @@
     </div>
 
     <!-- Paso 5 -->
-    <div class="stepper-step" [class.completed]="etapaActual() >= 5" [class.active]="etapaActual() === 5">
+    <div
+      class="stepper-step"
+      [class.completed]="etapaActual() >= 5"
+      [class.active]="etapaActual() === 5"
+    >
       <div class="step-icon-circle">5</div>
       <span class="step-label">5. Titulación</span>
       <span class="step-status">Acta de Grado</span>

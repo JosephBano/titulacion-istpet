@@ -150,7 +150,14 @@ export class DashboardComponent implements OnInit {
   dataSourceConvocatorias = new MatTableDataSource<ConvocatoriaResumen>([]);
   sortConvocatorias = viewChild<MatSort>('sortConvocatorias');
 
-  readonly displayedColumnsRequisitos = ['id', 'requisito', 'tipo', 'subidoPor', 'estado', 'acciones'];
+  readonly displayedColumnsRequisitos = [
+    'id',
+    'requisito',
+    'tipo',
+    'subidoPor',
+    'estado',
+    'acciones',
+  ];
   dataSourceRequisitos = new MatTableDataSource<RequisitoMaestro>([]);
   sortRequisitos = viewChild<MatSort>('sortRequisitos');
 
@@ -256,12 +263,16 @@ export class DashboardComponent implements OnInit {
   isDocente(): boolean {
     const user = this.currentUser();
     const esProfesorSigafi = user?.tablaSigafi?.toLowerCase() === 'profesor';
-    return (this.hasRole('DOCENTE') || this.hasRole('PROFESOR') || esProfesorSigafi) && !this.isAdmin();
+    return (
+      (this.hasRole('DOCENTE') || this.hasRole('PROFESOR') || esProfesorSigafi) && !this.isAdmin()
+    );
   }
 
   isEstudiante(): boolean {
     const user = this.currentUser();
-    const esAlumnoSigafi = user?.tablaSigafi?.toLowerCase() === 'alumno' || user?.tablaSigafi?.toLowerCase() === 'alumnos';
+    const esAlumnoSigafi =
+      user?.tablaSigafi?.toLowerCase() === 'alumno' ||
+      user?.tablaSigafi?.toLowerCase() === 'alumnos';
     return (
       (this.hasRole('ESTUDIANTE') || this.hasRole('ALUMNO') || esAlumnoSigafi) &&
       !this.isAdmin() &&
@@ -321,7 +332,9 @@ export class DashboardComponent implements OnInit {
           this.carrerasDisponibles.set(lista);
           if (lista.length > 0) {
             const actual = this.carreraSeleccionada();
-            const existe = actual ? lista.find((item) => item.idCarrera === actual.idCarrera) : null;
+            const existe = actual
+              ? lista.find((item) => item.idCarrera === actual.idCarrera)
+              : null;
             this.carreraSeleccionada.set(existe || lista[0]);
           }
           this.carrerasCargando.set(false);
@@ -370,7 +383,9 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.portalEstudiante.set(data);
         if (data.modalidadesDisponibles && data.modalidadesDisponibles.length > 0) {
-          this.modalidadSeleccionada.set(data.modalidadesDisponibles[0].idModalidadTitulacionCarrera);
+          this.modalidadSeleccionada.set(
+            data.modalidadesDisponibles[0].idModalidadTitulacionCarrera,
+          );
         }
         this.portalCargando.set(false);
       },
@@ -430,19 +445,26 @@ export class DashboardComponent implements OnInit {
     const busqueda = this.filtroBusqueda() || undefined;
 
     this.titulacionService
-      .getPostulaciones(this.paginaActual(), this.tamanoPagina(), idCarrera, undefined, idEstado, busqueda)
+      .getPostulaciones(
+        this.paginaActual(),
+        this.tamanoPagina(),
+        idCarrera,
+        undefined,
+        idEstado,
+        busqueda,
+      )
       .subscribe({
-      next: (data) => {
-        this.postulacionesLista.set(data.items || []);
-        this.postulacionesTotal.set(data.total || 0);
-        this.postulacionesCargando.set(false);
-      },
-      error: (err) => {
-        console.warn('Error al cargar postulaciones:', err);
-        this.postulacionesLista.set([]);
-        this.postulacionesCargando.set(false);
-      },
-    });
+        next: (data) => {
+          this.postulacionesLista.set(data.items || []);
+          this.postulacionesTotal.set(data.total || 0);
+          this.postulacionesCargando.set(false);
+        },
+        error: (err) => {
+          console.warn('Error al cargar postulaciones:', err);
+          this.postulacionesLista.set([]);
+          this.postulacionesCargando.set(false);
+        },
+      });
   }
 
   cargarEstadosPostulacion(): void {
@@ -453,16 +475,16 @@ export class DashboardComponent implements OnInit {
   }
 
   totalAprobadas(): number {
-    return this.postulacionesLista().filter((p) =>
-      p.nombreEstado.toUpperCase().includes('APROB'),
-    ).length;
+    return this.postulacionesLista().filter((p) => p.nombreEstado.toUpperCase().includes('APROB'))
+      .length;
   }
 
   totalEnRevision(): number {
-    return this.postulacionesLista().filter((p) =>
-      p.nombreEstado.toUpperCase().includes('REVIS') ||
-      p.nombreEstado.toUpperCase().includes('OBSERV') ||
-      p.nombreEstado.toUpperCase().includes('REGISTR'),
+    return this.postulacionesLista().filter(
+      (p) =>
+        p.nombreEstado.toUpperCase().includes('REVIS') ||
+        p.nombreEstado.toUpperCase().includes('OBSERV') ||
+        p.nombreEstado.toUpperCase().includes('REGISTR'),
     ).length;
   }
 
@@ -573,7 +595,8 @@ export class DashboardComponent implements OnInit {
         this.mostrarMensaje('exito', `Modalidad "${m.modalidadTitulacion}" actualizada.`);
         this.cargarConfiguracionesMaestras();
       },
-      error: (err) => this.mostrarMensaje('error', err.error?.message || 'Error al actualizar estado.'),
+      error: (err) =>
+        this.mostrarMensaje('error', err.error?.message || 'Error al actualizar estado.'),
     });
   }
 
@@ -584,7 +607,8 @@ export class DashboardComponent implements OnInit {
         this.mostrarMensaje('exito', `Requisito "${r.requisito}" actualizado.`);
         this.cargarConfiguracionesMaestras();
       },
-      error: (err) => this.mostrarMensaje('error', err.error?.message || 'Error al actualizar estado.'),
+      error: (err) =>
+        this.mostrarMensaje('error', err.error?.message || 'Error al actualizar estado.'),
     });
   }
 
@@ -601,7 +625,8 @@ export class DashboardComponent implements OnInit {
         this.nuevaModalidadModalVisible.set(false);
         this.cargarConfiguracionesMaestras();
       },
-      error: (err) => this.mostrarMensaje('error', err.error?.message || 'Error al crear la modalidad.'),
+      error: (err) =>
+        this.mostrarMensaje('error', err.error?.message || 'Error al crear la modalidad.'),
     });
   }
 
@@ -618,7 +643,8 @@ export class DashboardComponent implements OnInit {
         this.nuevoRequisitoModalVisible.set(false);
         this.cargarConfiguracionesMaestras();
       },
-      error: (err) => this.mostrarMensaje('error', err.error?.message || 'Error al crear requisito.'),
+      error: (err) =>
+        this.mostrarMensaje('error', err.error?.message || 'Error al crear requisito.'),
     });
   }
 
@@ -635,13 +661,16 @@ export class DashboardComponent implements OnInit {
     const m = this.modalidadSeleccionadaMatriz();
     if (!m) return;
 
-    this.titulacionService.asignarRequisitoAModalidad(m.idModalidadTitulacion, idRequisito).subscribe({
-      next: () => {
-        this.mostrarMensaje('exito', 'Requisito asignado a la modalidad.');
-        this.abrirMatriz(m);
-      },
-      error: (err) => this.mostrarMensaje('error', err.error?.message || 'Error al asociar requisito.'),
-    });
+    this.titulacionService
+      .asignarRequisitoAModalidad(m.idModalidadTitulacion, idRequisito)
+      .subscribe({
+        next: () => {
+          this.mostrarMensaje('exito', 'Requisito asignado a la modalidad.');
+          this.abrirMatriz(m);
+        },
+        error: (err) =>
+          this.mostrarMensaje('error', err.error?.message || 'Error al asociar requisito.'),
+      });
   }
 
   desasignarRequisito(idRequisitoModalidad: number): void {
@@ -675,11 +704,15 @@ export class DashboardComponent implements OnInit {
 
   enviarDictamen(solicitud?: DictamenPostulacionRequest): void {
     const modal = this.dictamenModal();
-    const req: DictamenPostulacionRequest | null = solicitud || (modal ? {
-      idPostulacionAlumnos: modal.idPostulacion,
-      decision: modal.decision,
-      observaciones: modal.observaciones,
-    } : null);
+    const req: DictamenPostulacionRequest | null =
+      solicitud ||
+      (modal
+        ? {
+            idPostulacionAlumnos: modal.idPostulacion,
+            decision: modal.decision,
+            observaciones: modal.observaciones,
+          }
+        : null);
 
     if (!req) return;
 
