@@ -45,6 +45,23 @@ export class NetworkStatusService {
     }
   }
 
+  private memoryStorage = new Map<string, string>();
+
+  private getStorage(): { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void } {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.getItem === 'function') {
+        return window.localStorage;
+      }
+    } catch {
+      // Fallback a memoria
+    }
+    return {
+      getItem: (k: string) => this.memoryStorage.get(k) ?? null,
+      setItem: (k: string, v: string) => { this.memoryStorage.set(k, v); },
+      removeItem: (k: string) => { this.memoryStorage.delete(k); },
+    };
+  }
+
   // Cache helper con TTL para conexiones lentas u offline
   public setCachedData<T>(key: string, data: T, ttlMinutes = 30): void {
     try {
@@ -52,7 +69,7 @@ export class NetworkStatusService {
         value: data,
         expiresAt: Date.now() + ttlMinutes * 60 * 1000,
       };
-      localStorage.setItem(`titulacion_cache_${key}`, JSON.stringify(record));
+      this.getStorage().setItem(`titulacion_cache_${key}`, JSON.stringify(record));
     } catch {
       // Ignorar quota exceeded
     }
@@ -60,11 +77,11 @@ export class NetworkStatusService {
 
   public getCachedData<T>(key: string): T | null {
     try {
-      const itemStr = localStorage.getItem(`titulacion_cache_${key}`);
+      const itemStr = this.getStorage().getItem(`titulacion_cache_${key}`);
       if (!itemStr) return null;
       const record = JSON.parse(itemStr);
       if (Date.now() > record.expiresAt) {
-        localStorage.removeItem(`titulacion_cache_${key}`);
+        this.getStorage().removeItem(`titulacion_cache_${key}`);
         return null;
       }
       return record.value as T;

@@ -15,7 +15,13 @@ describe('TitulacionService & Network Resilience Tests', () => {
   const mockApiUrl = 'http://localhost:5000';
 
   beforeEach(() => {
-    localStorage.clear();
+    try {
+      if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.clear === 'function') {
+        window.localStorage.clear();
+      }
+    } catch {
+      // Ignorar entorno sin localStorage
+    }
 
     TestBed.configureTestingModule({
       providers: [
