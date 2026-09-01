@@ -58,4 +58,3 @@ public static class ApplicationServiceCollectionExtensions
         return services;
     }
 }
-

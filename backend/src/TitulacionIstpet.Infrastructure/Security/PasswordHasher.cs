@@ -44,4 +44,3 @@ public class PasswordHasher : IPasswordHasher
         return !_verificador.EsHash(hashedPassword);
     }
 }
-

@@ -181,12 +181,12 @@ export class AperturaPeriodoModalComponent implements OnInit {
 
   onConfirm(): void {
     const f = this.form();
-    const idsModalidadesCarreras = f.habilitarTodasLasCarreras 
-      ? undefined 
+    const idsModalidadesCarreras = f.habilitarTodasLasCarreras
+      ? undefined
       : Array.from(this.carrerasSeleccionadas());
 
-    const idsModalidades = this.modalidadesSeleccionadas().size > 0 
-      ? Array.from(this.modalidadesSeleccionadas()) 
+    const idsModalidades = this.modalidadesSeleccionadas().size > 0
+      ? Array.from(this.modalidadesSeleccionadas())
       : undefined;
 
     const finCorte = new Date(f.fechaFinCorte);
