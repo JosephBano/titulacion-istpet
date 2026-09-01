@@ -47,9 +47,17 @@ export class NetworkStatusService {
 
   private memoryStorage = new Map<string, string>();
 
-  private getStorage(): { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void } {
+  private getStorage(): {
+    getItem(k: string): string | null;
+    setItem(k: string, v: string): void;
+    removeItem(k: string): void;
+  } {
     try {
-      if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.getItem === 'function') {
+      if (
+        typeof window !== 'undefined' &&
+        window.localStorage &&
+        typeof window.localStorage.getItem === 'function'
+      ) {
         return window.localStorage;
       }
     } catch {
@@ -57,8 +65,12 @@ export class NetworkStatusService {
     }
     return {
       getItem: (k: string) => this.memoryStorage.get(k) ?? null,
-      setItem: (k: string, v: string) => { this.memoryStorage.set(k, v); },
-      removeItem: (k: string) => { this.memoryStorage.delete(k); },
+      setItem: (k: string, v: string) => {
+        this.memoryStorage.set(k, v);
+      },
+      removeItem: (k: string) => {
+        this.memoryStorage.delete(k);
+      },
     };
   }
 

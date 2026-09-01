@@ -16,7 +16,11 @@ describe('TitulacionService & Network Resilience Tests', () => {
 
   beforeEach(() => {
     try {
-      if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.clear === 'function') {
+      if (
+        typeof window !== 'undefined' &&
+        window.localStorage &&
+        typeof window.localStorage.clear === 'function'
+      ) {
         window.localStorage.clear();
       }
     } catch {
