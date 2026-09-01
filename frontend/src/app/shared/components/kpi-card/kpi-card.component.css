@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  flex: 1;
+  min-width: 200px;
+}
+
 .kpi-card {
   background-color: var(--bg-surface, #ffffff);
   border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
@@ -7,13 +13,15 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  box-shadow: var(--shadow-subtle, 0 1px 3px rgba(0, 0, 0, 0.03));
-  transition: box-shadow 167ms ease, transform 167ms ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color var(--duration-fast, 83ms) ease, box-shadow var(--duration-normal, 167ms) ease;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .kpi-card:hover {
-  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.06));
-  transform: translateY(-1px);
+  border-color: var(--border-default, #8a8886);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .kpi-eyebrow {
@@ -22,13 +30,16 @@
   color: var(--text-muted, #605e5c);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  line-height: 1.3;
 }
 
 .kpi-value {
   font-size: 1.75rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--istpet-navy, #1b2a4a);
-  line-height: 1.1;
+  line-height: 1.15;
+  margin: 2px 0;
+  letter-spacing: -0.01em;
 }
 
 :host-context([data-theme="dark"]) .kpi-value {
@@ -37,6 +48,7 @@
 
 .kpi-subtext {
   font-size: 0.75rem;
+  font-weight: 400;
   color: var(--text-muted, #605e5c);
-  margin-top: 2px;
+  line-height: 1.3;
 }

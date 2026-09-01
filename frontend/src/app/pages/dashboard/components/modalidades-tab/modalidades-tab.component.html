@@ -1,0 +1,170 @@
+<section class="modalidades-section">
+  <div class="modalidades-header">
+    <div class="modalidades-header-info">
+      <span class="modalidades-eyebrow">CONFIGURACIÓN ACADÉMICA</span>
+      <h2 class="modalidades-title">Modalidades de Titulación y Matriz de Requisitos</h2>
+    </div>
+    <button type="button" class="fluent-btn-primary" (click)="nuevaModalidad.emit()">
+      + Nueva Modalidad
+    </button>
+  </div>
+
+  <div class="modalidades-box">
+    <div class="modalidades-box-header">
+      <div class="header-titles">
+        <h3 class="box-title">Opciones de Integración Curricular Institucional</h3>
+        <span class="box-subtitle"
+          >Modalidades reconocidas por ISTPET y asociación con requisitos de graduación</span
+        >
+      </div>
+      <span class="box-counter">{{ modalidades().length }} modalidades</span>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <span>Cargando modalidades de titulación...</span>
+      </div>
+    } @else if (modalidades().length === 0) {
+      <div class="empty-table-msg">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <p>No hay modalidades maestras registradas en el catálogo.</p>
+      </div>
+    } @else {
+      <div class="modalidades-table-wrapper">
+        <table class="fluent-table">
+          <thead>
+            <tr>
+              <th class="th-id">ID</th>
+              <th>MODALIDAD DE TITULACIÓN</th>
+              <th>INTEGRANTES</th>
+              <th>CARACTERÍSTICAS</th>
+              <th>REQUISITOS ASOCIADOS</th>
+              <th>ESTADO</th>
+              <th class="text-right">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of modalidades(); track m.idModalidadTitulacion) {
+              <tr>
+                <td class="td-id">
+                  <span class="code-badge">#{{ m.idModalidadTitulacion }}</span>
+                </td>
+                <td>
+                  <span class="modalidad-nombre">{{ m.modalidadTitulacion }}</span>
+                </td>
+                <td>
+                  <span class="integrantes-tag">
+                    {{ m.cantidadMinima || 1 }}
+                    {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="caracteristicas-row">
+                    @if (m.esComplexivo === 'SI') {
+                      <span class="chip-feature chip-feature--complexivo">
+                        <span class="feature-dot"></span>
+                        <span>Complexivo</span>
+                      </span>
+                    }
+                    @if (m.esArticuloCientifico === 'SI') {
+                      <span class="chip-feature chip-feature--articulo">
+                        <span class="feature-dot"></span>
+                        <span>Artículo</span>
+                      </span>
+                    }
+                    @if (m.generaTesis === 'SI') {
+                      <span class="chip-feature chip-feature--tesis">
+                        <span class="feature-dot"></span>
+                        <span>Proyecto / TIC</span>
+                      </span>
+                    }
+                    @if (
+                      m.esComplexivo !== 'SI' &&
+                      m.esArticuloCientifico !== 'SI' &&
+                      m.generaTesis !== 'SI'
+                    ) {
+                      <span class="chip-feature chip-feature--general">
+                        <span class="feature-dot"></span>
+                        <span>General</span>
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="req-count-badge">
+                    <strong>{{ m.totalRequisitosAsociados }}</strong>
+                    <span>{{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}</span>
+                  </span>
+                </td>
+                <td>
+                  <span class="status-cell">
+                    <span
+                      class="status-dot"
+                      [class.status-dot--success]="m.esActivo"
+                      [class.status-dot--neutral]="!m.esActivo"
+                    ></span>
+                    <span
+                      class="status-label"
+                      [class.status-label--success]="m.esActivo"
+                      [class.status-label--neutral]="!m.esActivo"
+                    >
+                      {{ m.esActivo ? 'Activa' : 'Inactiva' }}
+                    </span>
+                  </span>
+                </td>
+                <td class="text-right-nowrap">
+                  <button
+                    type="button"
+                    class="table-action-btn table-action-btn--primary mr-sm"
+                    (click)="abrirMatriz.emit(m)"
+                    title="Gestionar matriz de requisitos de esta modalidad"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="8" y1="6" x2="21" y2="6"></line>
+                      <line x1="8" y1="12" x2="21" y2="12"></line>
+                      <line x1="8" y1="18" x2="21" y2="18"></line>
+                      <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                      <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                      <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    <span>Gestionar Matriz</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="table-action-btn"
+                    [class.table-action-btn--deactivate]="m.esActivo"
+                    [class.table-action-btn--activate]="!m.esActivo"
+                    (click)="toggleEstado.emit(m)"
+                  >
+                    {{ m.esActivo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

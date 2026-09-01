@@ -1,0 +1,145 @@
+<section class="requisitos-section">
+  <div class="requisitos-header">
+    <div class="requisitos-header-info">
+      <span class="requisitos-eyebrow">CATÁLOGO INSTITUCIONAL</span>
+      <h2 class="requisitos-title">Requisitos Maestros de Titulación</h2>
+    </div>
+    <button type="button" class="fluent-btn-primary" (click)="nuevoRequisito.emit()">
+      + Nuevo Requisito
+    </button>
+  </div>
+
+  <div class="requisitos-box">
+    <div class="requisitos-box-header">
+      <div class="header-titles">
+        <h3 class="box-title">Documentos y Validaciones Académicas</h3>
+        <span class="box-subtitle"
+          >Catálogo de prerrequisitos exigidos para el proceso de titulación</span
+        >
+      </div>
+      <span class="box-counter">{{ requisitos().length }} requisitos</span>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <span>Cargando catálogo de requisitos...</span>
+      </div>
+    } @else if (requisitos().length === 0) {
+      <div class="empty-table-msg">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <p>No hay requisitos maestros registrados en el catálogo.</p>
+      </div>
+    } @else {
+      <div class="requisitos-table-wrapper">
+        <table class="fluent-table">
+          <thead>
+            <tr>
+              <th class="th-id">ID</th>
+              <th>NOMBRE DEL REQUISITO</th>
+              <th>TIPO DE VALIDACIÓN</th>
+              <th>RESPONSABLE DE CARGA</th>
+              <th>ESTADO</th>
+              <th class="text-right">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of requisitos(); track r.idRequisitos) {
+              <tr>
+                <td class="td-id">
+                  <span class="code-badge">#{{ r.idRequisitos }}</span>
+                </td>
+                <td>
+                  <span class="requisito-nombre">{{ r.requisito }}</span>
+                </td>
+                <td>
+                  <div class="tipo-val-cell">
+                    @if (r.esAdjunto) {
+                      <span class="tipo-tag tipo-tag--pdf">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>Archivo Digital (PDF)</span>
+                      </span>
+                    } @else {
+                      <span class="tipo-tag tipo-tag--bool">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Validación Booleana</span>
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="responsable-badge" [class.responsable-badge--student]="r.subeAlumno">
+                    {{ r.subeAlumno ? 'Estudiante' : 'Secretaría Académica' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-cell">
+                    <span
+                      class="status-dot"
+                      [class.status-dot--success]="r.esActivo"
+                      [class.status-dot--neutral]="!r.esActivo"
+                    ></span>
+                    <span
+                      class="status-label"
+                      [class.status-label--success]="r.esActivo"
+                      [class.status-label--neutral]="!r.esActivo"
+                    >
+                      {{ r.esActivo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </span>
+                </td>
+                <td class="text-right">
+                  <button
+                    type="button"
+                    class="table-action-btn"
+                    [class.table-action-btn--deactivate]="r.esActivo"
+                    [class.table-action-btn--activate]="!r.esActivo"
+                    (click)="toggleEstado.emit(r)"
+                  >
+                    {{ r.esActivo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

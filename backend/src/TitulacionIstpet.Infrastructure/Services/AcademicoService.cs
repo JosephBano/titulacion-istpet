@@ -50,18 +50,32 @@ public class AcademicoService : IAcademicoService
     public async Task<IEnumerable<PeriodoResponseDto>> GetPeriodosVigentesAsync(
         bool soloActivos = false,
         bool soloInstituto = true,
+        bool soloVigentesOFuturos = false,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Periodos.AsNoTracking().AsQueryable();
 
         if (soloInstituto)
         {
-            query = query.Where(p => p.IdPeriodo.StartsWith("ABR") || p.IdPeriodo.StartsWith("OCT"));
+            query = query.Where(p => p.IdPeriodo.StartsWith("ABR") || p.IdPeriodo.StartsWith("OCT") || p.EsInstituto == true || p.Periodoactivoinstituto == true);
         }
 
         if (soloActivos)
         {
-            query = query.Where(p => p.Activo == true);
+            query = query.Where(p => p.Activo == true || p.Periodoactivoinstituto == true);
+        }
+
+        if (soloVigentesOFuturos)
+        {
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            query = query.Where(p =>
+                p.Activo == true
+                || p.Periodoactivoinstituto == true
+                || p.PeriodoPlanificacion == true
+                || (p.FechaFinal != null && p.FechaFinal >= today.AddMonths(-2))
+                || (p.FechaInicial != null && p.FechaInicial >= today)
+                || (p.Cerrado != true && (p.Activo == true || p.PeriodoPlanificacion == true))
+            );
         }
 
         return await query
@@ -71,7 +85,7 @@ public class AcademicoService : IAcademicoService
                 p.Detalle ?? p.IdPeriodo,
                 p.FechaInicial,
                 p.FechaFinal,
-                p.Activo ?? false
+                (p.Activo == true || p.Periodoactivoinstituto == true)
             ))
             .ToListAsync(cancellationToken);
     }

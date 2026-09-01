@@ -49,9 +49,10 @@ public class AcademicoController : ControllerBase
     public async Task<ActionResult<IEnumerable<PeriodoResponseDto>>> GetPeriodos(
         [FromQuery] bool soloActivos = false,
         [FromQuery] bool soloInstituto = true,
+        [FromQuery] bool soloVigentes = false,
         CancellationToken cancellationToken = default)
     {
-        var periodos = await _academicoService.GetPeriodosVigentesAsync(soloActivos, soloInstituto, cancellationToken);
+        var periodos = await _academicoService.GetPeriodosVigentesAsync(soloActivos, soloInstituto, soloVigentes, cancellationToken);
         return Ok(periodos);
     }
 
