@@ -35,6 +35,12 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Health Checks estructurados (Liveness y Readiness)
+var healthJsonOptions = new System.Text.Json.JsonSerializerOptions
+{
+    WriteIndented = true,
+    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+};
+
 app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     ResponseWriter = async (context, report) =>
@@ -60,11 +66,7 @@ app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks
         };
 
         await context.Response.WriteAsync(
-            System.Text.Json.JsonSerializer.Serialize(response, new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-            }));
+            System.Text.Json.JsonSerializer.Serialize(response, healthJsonOptions));
     }
 }).WithTags("Infra");
 
