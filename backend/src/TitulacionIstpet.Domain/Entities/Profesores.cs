@@ -125,5 +125,7 @@ public partial class Profesores
 
     public virtual ICollection<TitulosProfesores> TitulosProfesores { get; set; } = new List<TitulosProfesores>();
 
+    public virtual ICollection<TitulResponsableRequisitos> TitulResponsableRequisitos { get; set; } = new List<TitulResponsableRequisitos>();
+
     public virtual ICollection<VacConfigDiasExtrasExcepciones> VacConfigDiasExtrasExcepciones { get; set; } = new List<VacConfigDiasExtrasExcepciones>();
 }

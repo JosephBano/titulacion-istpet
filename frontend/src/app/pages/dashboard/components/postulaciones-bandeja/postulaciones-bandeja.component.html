@@ -5,90 +5,7 @@
       <span class="bandeja-eyebrow">BANDEJA INSTITUCIONAL DE GESTIÓN</span>
       <h2 class="bandeja-title">Postulaciones de Titulación</h2>
     </div>
-  </header>
-
-  <!-- 2. Barra Superior Unificada: Filtros y Acciones al Mismo Nivel Horizontal -->
-  <div class="bandeja-primary-filters">
-    <!-- Grupo Izquierdo: Buscador, Carrera y Limpiar Filtros -->
-    <div class="filters-left-group">
-      <!-- Buscador por texto / cédula / nombre -->
-      <div class="search-box">
-        <svg
-          class="search-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Buscar por cédula, nombre o ID..."
-          [ngModel]="filtroBusqueda()"
-          (ngModelChange)="onSearchChange($event)"
-        />
-        @if (filtroBusqueda()) {
-          <button
-            type="button"
-            class="search-clear-btn"
-            (click)="limpiarBusqueda()"
-            aria-label="Limpiar búsqueda"
-          >
-            ×
-          </button>
-        }
-      </div>
-
-      <!-- Selector de Carrera (si aplica) -->
-      @if (carreras().length > 1) {
-        <div class="carrera-select-wrap">
-          <select
-            class="toolbar-select"
-            [value]="filtroCarrera() ?? ''"
-            (change)="onCarreraSelect($event)"
-            aria-label="Filtrar por carrera"
-          >
-            <option value="">Todas las Carreras</option>
-            @for (c of carreras(); track c.idCarrera) {
-              <option [value]="c.idCarrera">{{ c.nombreCarrera }}</option>
-            }
-          </select>
-        </div>
-      }
-
-      <!-- Botón Limpiar Filtros Minimalista -->
-      @if (tieneFiltrosActivos()) {
-        <button
-          type="button"
-          class="btn-clear-filters"
-          (click)="limpiarTodosFiltros()"
-          title="Restablecer todos los filtros aplicados"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-          </svg>
-          <span>Limpiar filtros</span>
-        </button>
-      }
-    </div>
-
-    <!-- Grupo Derecho: Conteo de Postulaciones y Botón Actualizar (Mismo nivel horizontal) -->
-    <div class="filters-right-group">
+    <div class="bandeja-header-actions">
       <span class="meta-counter">
         {{ total() }} {{ total() === 1 ? 'postulación' : 'postulaciones' }}
       </span>
@@ -101,8 +18,8 @@
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
+          width="13"
+          height="13"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -116,278 +33,360 @@
         <span>Actualizar</span>
       </button>
     </div>
-  </div>
+  </header>
 
-  <!-- 3. Pestañas de Estado tipo Hojas de Excel a Ancho Completo (Sin pestaña "Todas") -->
-  <nav class="excel-tabs-bar" role="tablist" aria-label="Hojas de estado de postulación">
-    @for (est of estados(); track est.idPostulacionEstado) {
+  <!-- 2. Barra de Filtros en Una Sola Línea Horizontal (Sin caja contenedora, flotante) -->
+  <div class="filters-single-row">
+    <!-- Buscador compacto -->
+    <div class="search-box-compact">
+      <svg
+        class="search-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar cédula, nombre o ID..."
+        [ngModel]="filtroBusqueda()"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      @if (filtroBusqueda()) {
+        <button
+          type="button"
+          class="search-clear-btn"
+          (click)="limpiarBusqueda()"
+          aria-label="Limpiar búsqueda"
+        >
+          ×
+        </button>
+      }
+    </div>
+
+    <!-- Selector de Carrera Pequeño -->
+    @if (carreras().length > 1) {
+      <div class="carrera-select-compact-wrap">
+        <select
+          class="toolbar-select-compact"
+          [value]="filtroCarrera() ?? ''"
+          (change)="onCarreraSelect($event)"
+          aria-label="Filtrar por carrera"
+        >
+          <option value="">Todas las Carreras</option>
+          @for (c of carreras(); track c.idCarrera) {
+            <option [value]="c.idCarrera">{{ c.aliasCarrera || c.nombreCarrera }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <!-- Píldoras de Estado en la Misma Línea -->
+    <div class="filter-pill-group">
       <button
         type="button"
-        class="excel-tab"
-        [class.active]="filtroEstado() === est.idPostulacionEstado"
-        (click)="seleccionarEstado(est.idPostulacionEstado)"
-        role="tab"
-        [attr.aria-selected]="filtroEstado() === est.idPostulacionEstado"
+        class="filter-pill-btn"
+        [class.active]="filtroEstado() === null"
+        (click)="seleccionarEstado(null)"
       >
-        <span class="excel-tab-dot" [ngClass]="getEstadoDotClass(est.nombre)"></span>
-        <span class="excel-tab-label">{{ est.nombre }}</span>
+        <span>Todas</span>
+      </button>
+      @for (est of estados(); track est.idPostulacionEstado) {
+        <button
+          type="button"
+          class="filter-pill-btn"
+          [class.active]="filtroEstado() === est.idPostulacionEstado"
+          (click)="seleccionarEstado(est.idPostulacionEstado)"
+        >
+          <span class="pill-dot" [ngClass]="getEstadoDotClass(est.nombre)"></span>
+          <span>{{ est.nombre }}</span>
+        </button>
+      }
+    </div>
+
+    <!-- Botón Limpiar Filtros -->
+    @if (tieneFiltrosActivos()) {
+      <button
+        type="button"
+        class="btn-clear-filters"
+        (click)="limpiarTodosFiltros()"
+        title="Restablecer todos los filtros aplicados"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>
+        <span>Limpiar</span>
       </button>
     }
-  </nav>
+  </div>
 
-  <!-- 4. Grid de Tarjetas de Postulación -->
-  <div class="bandeja-content-area">
-    @if (loading()) {
-      <div class="loading-state-box">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Cargando expedientes de titulación...</p>
+  <!-- 3. Grid de Tarjetas de Postulación Flotantes (Sin caja ni marco de fondo) -->
+  @if (loading()) {
+    <div class="loading-state-box">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Cargando expedientes de titulación...</p>
+    </div>
+  } @else if (postulaciones().length === 0) {
+    <div class="empty-state-box">
+      <div class="empty-icon-wrap">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
       </div>
-    } @else if (postulaciones().length === 0) {
-      <div class="empty-state-box">
-        <div class="empty-icon-wrap">
+      <h3 class="empty-title">No se encontraron postulaciones</h3>
+      <p class="empty-desc">
+        @if (tieneFiltrosActivos()) {
+          No existen registros que coincidan con los filtros aplicados.
+        } @else {
+          No hay postulaciones registradas en la convocatoria actual.
+        }
+      </p>
+      @if (tieneFiltrosActivos()) {
+        <button
+          type="button"
+          class="btn-clear-filters btn-clear-filters--center"
+          (click)="limpiarTodosFiltros()"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="36"
-            height="36"
+            width="13"
+            height="13"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.5"
+            stroke-width="2"
           >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
           </svg>
-        </div>
-        <h3 class="empty-title">No se encontraron postulaciones</h3>
-        <p class="empty-desc">
-          @if (tieneFiltrosActivos()) {
-            No existen registros que coincidan con los filtros aplicados.
-          } @else {
-            No hay postulaciones registradas en la convocatoria actual.
-          }
-        </p>
-        @if (tieneFiltrosActivos()) {
-          <button
-            type="button"
-            class="btn-clear-filters btn-clear-filters--center"
-            (click)="limpiarTodosFiltros()"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
-              <line x1="1" y1="1" x2="23" y2="23"></line>
-            </svg>
-            <span>Restablecer todos los filtros</span>
-          </button>
-        }
-      </div>
-    } @else {
-      <div class="cards-grid">
-        @for (p of postulaciones(); track p.idPostulacionAlumnos) {
-          <article class="card-item" [ngClass]="getEstadoClass(p.nombreEstado)">
-            <!-- Top: ID y Estado -->
-            <div class="card-header">
-              <span class="card-id">EXP-{{ p.idPostulacionAlumnos }}</span>
-              <span class="card-status-tag">
-                <span class="status-dot" [ngClass]="getEstadoDotClass(p.nombreEstado)"></span>
-                <span class="status-name">{{ p.nombreEstado }}</span>
+          <span>Restablecer todos los filtros</span>
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="cards-grid">
+      @for (p of postulaciones(); track p.idPostulacionAlumnos) {
+        <article class="card-item" [ngClass]="getEstadoClass(p.nombreEstado)">
+          <!-- Top: ID y Estado -->
+          <div class="card-header">
+            <span class="card-id">EXP-{{ p.idPostulacionAlumnos }}</span>
+            <span class="card-status-tag">
+              <span class="status-dot" [ngClass]="getEstadoDotClass(p.nombreEstado)"></span>
+              <span class="status-name">{{ p.nombreEstado }}</span>
+            </span>
+          </div>
+
+          <!-- Estudiante -->
+          <div class="card-student">
+            <h3 class="student-name" [title]="p.nombreAlumno">{{ p.nombreAlumno }}</h3>
+            <span class="student-meta">C.I. {{ p.cedulaAlumno }}</span>
+          </div>
+
+          <!-- Detalles Académicos -->
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="detail-key">Carrera:</span>
+              <span class="detail-val" [title]="p.nombreCarrera">{{ p.nombreCarrera }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">Modalidad:</span>
+              <span class="detail-val font-semibold">{{ p.modalidadTitulacion }}</span>
+            </div>
+          </div>
+
+          <!-- Progreso de Requisitos -->
+          <div class="card-progress">
+            <div class="progress-info">
+              <span class="progress-title">Requisitos Verificados</span>
+              <span class="progress-count">
+                {{ p.totalRequisitosCompletados }} / {{ p.totalRequisitos }}
               </span>
             </div>
-
-            <!-- Estudiante -->
-            <div class="card-student">
-              <h3 class="student-name" [title]="p.nombreAlumno">{{ p.nombreAlumno }}</h3>
-              <span class="student-meta">C.I. {{ p.cedulaAlumno }}</span>
+            <div class="progress-track">
+              <div
+                class="progress-bar"
+                [style.width.%]="
+                  getPorcentajeRequisitos(p.totalRequisitosCompletados, p.totalRequisitos)
+                "
+              ></div>
             </div>
+          </div>
 
-            <!-- Detalles Académicos -->
-            <div class="card-details">
-              <div class="detail-item">
-                <span class="detail-key">Carrera:</span>
-                <span class="detail-val" [title]="p.nombreCarrera">{{ p.nombreCarrera }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-key">Modalidad:</span>
-                <span class="detail-val font-semibold">{{ p.modalidadTitulacion }}</span>
-              </div>
-            </div>
-
-            <!-- Progreso de Requisitos -->
-            <div class="card-progress">
-              <div class="progress-info">
-                <span class="progress-title">Requisitos Verificados</span>
-                <span class="progress-count">
-                  {{ p.totalRequisitosCompletados }} / {{ p.totalRequisitos }}
-                </span>
-              </div>
-              <div class="progress-track">
-                <div
-                  class="progress-bar"
-                  [style.width.%]="
-                    getPorcentajeRequisitos(p.totalRequisitosCompletados, p.totalRequisitos)
-                  "
-                ></div>
-              </div>
-            </div>
-
-            <!-- Acciones Minimalistas -->
-            <div class="card-actions">
-              <button
-                type="button"
-                class="action-btn action-btn--approve"
-                (click)="emitirDictamen(p.idPostulacionAlumnos, 'APROBAR')"
-                title="Aprobar postulación formal"
+          <!-- Acciones Minimalistas -->
+          <div class="card-actions">
+            <button
+              type="button"
+              class="action-btn action-btn--approve"
+              (click)="emitirDictamen(p.idPostulacionAlumnos, 'APROBAR')"
+              title="Aprobar postulación formal"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Aprobar</span>
-              </button>
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Aprobar</span>
+            </button>
 
-              <button
-                type="button"
-                class="action-btn action-btn--observe"
-                (click)="emitirDictamen(p.idPostulacionAlumnos, 'OBSERVAR')"
-                title="Observar y solicitar subsanación"
+            <button
+              type="button"
+              class="action-btn action-btn--observe"
+              (click)="emitirDictamen(p.idPostulacionAlumnos, 'OBSERVAR')"
+              title="Observar y solicitar subsanación"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <span>Observar</span>
-              </button>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>Observar</span>
+            </button>
 
-              <button
-                type="button"
-                class="action-btn action-btn--reject"
-                (click)="emitirDictamen(p.idPostulacionAlumnos, 'RECHAZAR')"
-                title="Rechazar solicitud"
+            <button
+              type="button"
+              class="action-btn action-btn--reject"
+              (click)="emitirDictamen(p.idPostulacionAlumnos, 'RECHAZAR')"
+              title="Rechazar solicitud"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-                <span>Rechazar</span>
-              </button>
-            </div>
-          </article>
-        }
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Rechazar</span>
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+
+    <!-- 4. Paginador Integrado -->
+    <footer class="bandeja-pagination">
+      <div class="pagination-left">
+        <span class="pagination-range-text">
+          Mostrando <strong>{{ rangoInicio() }}</strong
+          >–<strong>{{ rangoFin() }}</strong> de <strong>{{ total() }}</strong> postulaciones
+        </span>
+
+        <div class="page-size-selector">
+          <span class="size-label">Por pág:</span>
+          <select
+            class="size-select"
+            [value]="tamanoPagina()"
+            (change)="onTamanoPaginaChange($event)"
+            aria-label="Registros por página"
+          >
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
       </div>
 
-      <!-- 5. Paginador Integrado -->
-      <footer class="bandeja-pagination">
-        <div class="pagination-left">
-          <span class="pagination-range-text">
-            Mostrando <strong>{{ rangoInicio() }}</strong
-            >–<strong>{{ rangoFin() }}</strong> de <strong>{{ total() }}</strong> postulaciones
-          </span>
+      <nav class="pagination-nav" aria-label="Paginación de resultados">
+        <button
+          type="button"
+          class="nav-btn nav-btn--prev"
+          [disabled]="paginaActual() <= 1"
+          (click)="irAPagina(paginaActual() - 1)"
+          aria-label="Página anterior"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>Anterior</span>
+        </button>
 
-          <div class="page-size-selector">
-            <span class="size-label">Por pág:</span>
-            <select
-              class="size-select"
-              [value]="tamanoPagina()"
-              (change)="onTamanoPaginaChange($event)"
-              aria-label="Registros por página"
+        <div class="page-numbers">
+          @for (p of paginasDisponibles(); track p) {
+            <button
+              type="button"
+              class="num-btn"
+              [class.active]="p === paginaActual()"
+              (click)="irAPagina(p)"
             >
-              <option [value]="10">10</option>
-              <option [value]="20">20</option>
-              <option [value]="50">50</option>
-            </select>
-          </div>
+              {{ p }}
+            </button>
+          }
         </div>
 
-        <nav class="pagination-nav" aria-label="Paginación de resultados">
-          <button
-            type="button"
-            class="nav-btn nav-btn--prev"
-            [disabled]="paginaActual() <= 1"
-            (click)="irAPagina(paginaActual() - 1)"
-            aria-label="Página anterior"
+        <button
+          type="button"
+          class="nav-btn nav-btn--next"
+          [disabled]="paginaActual() >= totalPaginas()"
+          (click)="irAPagina(paginaActual() + 1)"
+          aria-label="Página siguiente"
+        >
+          <span>Siguiente</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            <span>Anterior</span>
-          </button>
-
-          <div class="page-numbers">
-            @for (p of paginasDisponibles(); track p) {
-              <button
-                type="button"
-                class="num-btn"
-                [class.active]="p === paginaActual()"
-                (click)="irAPagina(p)"
-              >
-                {{ p }}
-              </button>
-            }
-          </div>
-
-          <button
-            type="button"
-            class="nav-btn nav-btn--next"
-            [disabled]="paginaActual() >= totalPaginas()"
-            (click)="irAPagina(paginaActual() + 1)"
-            aria-label="Página siguiente"
-          >
-            <span>Siguiente</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        </nav>
-      </footer>
-    }
-  </div>
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </nav>
+    </footer>
+  }
 </section>

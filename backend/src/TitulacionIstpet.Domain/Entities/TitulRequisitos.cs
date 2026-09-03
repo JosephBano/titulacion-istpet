@@ -22,4 +22,6 @@ public partial class TitulRequisitos
     public bool? EsActivo { get; set; }
 
     public virtual ICollection<TitulRequisitoModalidad> TitulRequisitoModalidad { get; set; } = new List<TitulRequisitoModalidad>();
+
+    public virtual ICollection<TitulResponsableRequisitos> TitulResponsableRequisitos { get; set; } = new List<TitulResponsableRequisitos>();
 }

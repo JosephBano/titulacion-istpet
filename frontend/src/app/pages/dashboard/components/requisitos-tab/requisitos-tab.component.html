@@ -10,14 +10,61 @@
   </div>
 
   <div class="requisitos-box">
+    <!-- Header con Buscador y Filtro Rápido Normalizado -->
     <div class="requisitos-box-header">
-      <div class="header-titles">
-        <h3 class="box-title">Documentos y Validaciones Académicas</h3>
-        <span class="box-subtitle"
-          >Catálogo de prerrequisitos exigidos para el proceso de titulación</span
-        >
+      <div class="header-left-tools">
+        <!-- Buscador -->
+        <div class="req-search-box">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar requisito por nombre o ID..."
+            [ngModel]="busqueda()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+          @if (busqueda()) {
+            <button type="button" class="search-clear-btn" (click)="onSearchChange('')">×</button>
+          }
+        </div>
+
+        <!-- Botones de Filtro Rápido de Estado -->
+        <div class="filter-pill-group">
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroEstado() === 'TODOS'"
+            (click)="setFiltroEstado('TODOS')"
+          >
+            <span>Todos ({{ requisitos().length }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroEstado() === 'ACTIVOS'"
+            (click)="setFiltroEstado('ACTIVOS')"
+          >
+            <span class="pill-dot dot-success"></span>
+            <span>Activos ({{ totalActivos() }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroEstado() === 'INACTIVOS'"
+            (click)="setFiltroEstado('INACTIVOS')"
+          >
+            <span class="pill-dot dot-neutral"></span>
+            <span>Inactivos ({{ totalInactivos() }})</span>
+          </button>
+        </div>
       </div>
-      <span class="box-counter">{{ requisitos().length }} requisitos</span>
+
+      <div class="header-right-meta">
+        <span class="box-counter">{{ totalFiltrados() }} mostrado(s)</span>
+      </div>
     </div>
 
     @if (loading()) {
@@ -43,6 +90,14 @@
         </svg>
         <p>No hay requisitos maestros registrados en el catálogo.</p>
       </div>
+    } @else if (requisitosFiltrados().length === 0) {
+      <div class="empty-table-msg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <p>No se encontraron requisitos que coincidan con la búsqueda.</p>
+      </div>
     } @else {
       <div class="requisitos-table-wrapper">
         <table class="fluent-table">
@@ -57,7 +112,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (r of requisitos(); track r.idRequisitos) {
+            @for (r of requisitosPaginados(); track r.idRequisitos) {
               <tr>
                 <td class="td-id">
                   <span class="code-badge">#{{ r.idRequisitos }}</span>
@@ -125,21 +180,101 @@
                   </span>
                 </td>
                 <td class="text-right">
-                  <button
-                    type="button"
-                    class="table-action-btn"
-                    [class.table-action-btn--deactivate]="r.esActivo"
-                    [class.table-action-btn--activate]="!r.esActivo"
-                    (click)="toggleEstado.emit(r)"
-                  >
-                    {{ r.esActivo ? 'Desactivar' : 'Activar' }}
-                  </button>
+                  <div class="table-actions-group">
+                    <button
+                      type="button"
+                      class="table-action-btn table-action-btn--manage"
+                      title="Asignar profesores responsables de validar este requisito"
+                      (click)="gestionarResponsables.emit(r)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                      <span>Docentes</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="table-action-btn"
+                      [class.table-action-btn--deactivate]="r.esActivo"
+                      [class.table-action-btn--activate]="!r.esActivo"
+                      (click)="toggleEstado.emit(r)"
+                    >
+                      {{ r.esActivo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </div>
                 </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+
+      <!-- Paginador Integrado -->
+      <footer class="table-pagination">
+        <div class="pagination-left">
+          <span class="pagination-range-text">
+            Mostrando <strong>{{ rangoInicio() }}</strong>–<strong>{{ rangoFin() }}</strong> de <strong>{{ totalFiltrados() }}</strong> requisitos
+          </span>
+
+          <div class="page-size-selector">
+            <span class="size-label">Por pág:</span>
+            <select
+              class="size-select"
+              [value]="tamanoPagina()"
+              (change)="onTamanoPaginaChange($event)"
+              aria-label="Registros por página"
+            >
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+
+        <nav class="pagination-nav" aria-label="Paginación de resultados">
+          <button
+            type="button"
+            class="nav-btn nav-btn--prev"
+            [disabled]="paginaActual() <= 1"
+            (click)="irAPagina(paginaActual() - 1)"
+            aria-label="Página anterior"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Anterior</span>
+          </button>
+
+          <div class="page-numbers">
+            @for (p of paginasDisponibles(); track p) {
+              <button
+                type="button"
+                class="num-btn"
+                [class.active]="p === paginaActual()"
+                (click)="irAPagina(p)"
+              >
+                {{ p }}
+              </button>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="nav-btn nav-btn--next"
+            [disabled]="paginaActual() >= totalPaginas()"
+            (click)="irAPagina(paginaActual() + 1)"
+            aria-label="Página siguiente"
+          >
+            <span>Siguiente</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </nav>
+      </footer>
     }
   </div>
 </section>

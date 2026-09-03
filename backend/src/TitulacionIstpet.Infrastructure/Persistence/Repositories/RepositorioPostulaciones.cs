@@ -3,6 +3,7 @@ using TitulacionIstpet.Application.Common.Models;
 using TitulacionIstpet.Application.Features.Postulaciones;
 using TitulacionIstpet.Application.Features.Postulaciones.DTOs;
 using TitulacionIstpet.Domain.Entities;
+using TitulacionIstpet.Domain.Exceptions;
 using TitulacionIstpet.Infrastructure.Persistence;
 
 namespace TitulacionIstpet.Infrastructure.Persistence.Repositories;
@@ -70,6 +71,49 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
 
         var idCarrera = matricula.IdNivelNavigation?.IdCarrera;
         var nombreCarrera = matricula.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera no identificada";
+
+        // Regla institucional: Estudiantes de 1ro, 2do y 3er nivel/semestre no pueden postularse
+        var nivelObj = matricula.IdNivelNavigation;
+        bool esNivelInicial = false;
+        if (nivelObj != null)
+        {
+            if (nivelObj.Jerarquia.HasValue && nivelObj.Jerarquia.Value <= 3 && nivelObj.Jerarquia.Value > 0)
+            {
+                esNivelInicial = true;
+            }
+            else if (nivelObj.Orden.HasValue && nivelObj.Orden.Value <= 3 && nivelObj.Orden.Value > 0)
+            {
+                esNivelInicial = true;
+            }
+            else if (!string.IsNullOrWhiteSpace(nivelObj.Nivel))
+            {
+                var nUpper = nivelObj.Nivel.ToUpperInvariant();
+                if (nUpper.Contains("PRIMER") || nUpper.Contains("SEGUND") || nUpper.Contains("TERCER") ||
+                    nUpper.StartsWith('1') || nUpper.StartsWith('2') || nUpper.StartsWith('3'))
+                {
+                    esNivelInicial = true;
+                }
+            }
+        }
+
+        if (esNivelInicial)
+        {
+            return new ElegibilidadPostulacionDto(
+                EsElegible: false,
+                Mensaje: "Los estudiantes de 1ro, 2do y 3er nivel no están habilitados para participar en el proceso de titulación. El proceso está disponible a partir de 4to nivel o egresados.",
+                IdMatricula: matricula.IdMatricula,
+                IdAlumno: idAlumno,
+                NombreCompleto: nombreCompleto,
+                IdCarrera: idCarrera,
+                NombreCarrera: nombreCarrera,
+                IdCohorte: null,
+                DetalleCohorte: null,
+                TienePostulacionActiva: false,
+                IdPostulacionActiva: null,
+                EstadoPostulacionActiva: null,
+                ModalidadesOfertadas: Array.Empty<ModalidadOfertadaDto>()
+            );
+        }
 
         // Buscar cohorte activa para la carrera/modalidad
         var cohorteCarrera = await _context.TitulCohortesCarreras
@@ -178,6 +222,19 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
     public async Task<PostulacionDetalleDto?> ObtenerMiPostulacionActivaAsync(
         string idAlumno, CancellationToken ct = default)
     {
+        var postulacionId = await _context.TitulPostulacionAlumnos
+            .Where(p => p.IdMatriculaNavigation.IdAlumno == idAlumno && p.EsActivo == true)
+            .OrderByDescending(p => p.IdPostulacionAlumnos)
+            .Select(p => p.IdPostulacionAlumnos)
+            .FirstOrDefaultAsync(ct);
+
+        if (postulacionId == 0)
+        {
+            return null;
+        }
+
+        await SincronizarRequisitosModalidadAsync(postulacionId, ct);
+
         var postulacion = await _context.TitulPostulacionAlumnos
             .AsNoTracking()
             .Include(p => p.IdMatriculaNavigation)
@@ -196,9 +253,11 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                     .ThenInclude(rm => rm.IdRequisitosNavigation)
             .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
                 .ThenInclude(parm => parm.IdAdjuntosImagenesNavigation)
-            .Where(p => p.IdMatriculaNavigation.IdAlumno == idAlumno && p.EsActivo == true)
-            .OrderByDescending(p => p.IdPostulacionAlumnos)
-            .FirstOrDefaultAsync(ct);
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(parm => parm.TitulResponsableEvidencia)
+                    .ThenInclude(tre => tre.IdResponsableEvidenciasNavigation)
+                        .ThenInclude(trr => trr.IdProfesorNavigation)
+            .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == postulacionId, ct);
 
         if (postulacion == null)
         {
@@ -211,6 +270,8 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
     public async Task<PostulacionDetalleDto?> ObtenerPorIdAsync(
         int idPostulacionAlumnos, CancellationToken ct = default)
     {
+        await SincronizarRequisitosModalidadAsync(idPostulacionAlumnos, ct);
+
         var postulacion = await _context.TitulPostulacionAlumnos
             .AsNoTracking()
             .Include(p => p.IdMatriculaNavigation)
@@ -229,6 +290,10 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                     .ThenInclude(rm => rm.IdRequisitosNavigation)
             .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
                 .ThenInclude(parm => parm.IdAdjuntosImagenesNavigation)
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(parm => parm.TitulResponsableEvidencia)
+                    .ThenInclude(tre => tre.IdResponsableEvidenciasNavigation)
+                        .ThenInclude(trr => trr.IdProfesorNavigation)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct);
 
         if (postulacion == null)
@@ -237,6 +302,56 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         }
 
         return MapearDetalle(postulacion);
+    }
+
+    private async Task SincronizarRequisitosModalidadAsync(int idPostulacionAlumnos, CancellationToken ct = default)
+    {
+        var postulacion = await _context.TitulPostulacionAlumnos
+            .Include(p => p.IdModalidadTitulacionCarreraNavigation)
+            .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct);
+
+        if (postulacion == null) return;
+
+        int idModalidad = postulacion.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacion ?? 0;
+        if (idModalidad == 0)
+        {
+            idModalidad = await _context.TitulModalidadesTitulacionCarreras
+                .Where(m => m.IdModalidadTitulacionCarrera == postulacion.IdModalidadTitulacionCarrera)
+                .Select(m => m.IdModalidadTitulacion)
+                .FirstOrDefaultAsync(ct);
+        }
+
+        if (idModalidad == 0) return;
+
+        // Requisitos activos de la modalidad
+        var requisitosModalidadActivos = await _context.TitulRequisitoModalidad
+            .Where(rm => rm.IdModalidadTitulacion == idModalidad && rm.EsActivo == true)
+            .Select(rm => rm.IdRequisitoModalidad)
+            .ToListAsync(ct);
+
+        if (requisitosModalidadActivos.Count == 0) return;
+
+        // Requisitos ya existentes en el expediente de la postulación
+        var requisitosExistentes = await _context.TitulPostulacionAlumnosRequisitosModalidad
+            .Where(r => r.IdPostulacionAlumnos == idPostulacionAlumnos)
+            .Select(r => r.IdRequisitoModalidad)
+            .ToListAsync(ct);
+
+        var faltantes = requisitosModalidadActivos.Except(requisitosExistentes).ToList();
+        if (faltantes.Count > 0)
+        {
+            foreach (var idReqMod in faltantes)
+            {
+                _context.TitulPostulacionAlumnosRequisitosModalidad.Add(new TitulPostulacionAlumnosRequisitosModalidad
+                {
+                    IdPostulacionAlumnos = idPostulacionAlumnos,
+                    IdRequisitoModalidad = idReqMod,
+                    IdAdjuntosImagenes = null,
+                    ValorBool = false
+                });
+            }
+            await _context.SaveChangesAsync(ct);
+        }
     }
 
     public async Task<PaginaPostulacionesDto> ListarPostulacionesAsync(
@@ -432,6 +547,9 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             await _context.SaveChangesAsync(ct);
         }
 
+        // Sincronizar todos los requisitos activos que la modalidad tenga configurados
+        await SincronizarRequisitosModalidadAsync(postulacion.IdPostulacionAlumnos, ct);
+
         return postulacion.IdPostulacionAlumnos;
     }
 
@@ -487,12 +605,40 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         CancellationToken ct = default)
     {
         var postulacion = await _context.TitulPostulacionAlumnos
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.IdRequisitoModalidadNavigation)
+                    .ThenInclude(rm => rm.IdRequisitosNavigation)
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.TitulResponsableEvidencia)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct)
             ?? throw new NoEncontradoException("Postulación", idPostulacionAlumnos);
 
         var estado = await _context.TitulPostulacionEstados
             .FirstOrDefaultAsync(e => e.IdPostulacionEstado == idNuevoEstado, ct)
             ?? throw new NoEncontradoException("Estado de postulación", idNuevoEstado);
+
+        if (estado.Nombre != null && (estado.Nombre.Contains("Aprob", StringComparison.OrdinalIgnoreCase) || estado.Nombre.Contains("Acept", StringComparison.OrdinalIgnoreCase)))
+        {
+            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
+            if (reqs.Count > 0)
+            {
+                var pendientes = reqs.Where(r =>
+                {
+                    var ultEvidencia = r.TitulResponsableEvidencia?
+                        .OrderByDescending(e => e.Actualizado ?? e.Creado)
+                        .FirstOrDefault();
+
+                    bool aprobado = ultEvidencia?.Estado == "APROBADO" || r.ValorBool == true;
+                    return !aprobado;
+                }).ToList();
+
+                if (pendientes.Count > 0)
+                {
+                    var nombresPendientes = string.Join(", ", pendientes.Select(p => p.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito"));
+                    throw new DominioException($"No se puede aprobar la postulación: faltan requisitos por ser aprobados por los docentes responsables ({nombresPendientes}).");
+                }
+            }
+        }
 
         postulacion.IdPostulacionEstado = idNuevoEstado;
 
@@ -592,6 +738,11 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
     {
         var postulacion = await _context.TitulPostulacionAlumnos
             .Include(p => p.IdPostulacionEstadoNavigation)
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.IdRequisitoModalidadNavigation)
+                    .ThenInclude(rm => rm.IdRequisitosNavigation)
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.TitulResponsableEvidencia)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == comando.IdPostulacionAlumnos, ct)
             ?? throw new NoEncontradoException("Postulación", comando.IdPostulacionAlumnos);
 
@@ -608,6 +759,100 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             _ => throw new ArgumentException($"Decisión no reconocida: {comando.Decision}")
         };
 
+        if (comando.Decision.Equals("APROBAR", StringComparison.OrdinalIgnoreCase))
+        {
+            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
+            if (reqs.Count == 0)
+            {
+                throw new DominioException("La postulación no cuenta con requisitos configurados para ser evaluados.");
+            }
+
+            var pendientes = reqs.Where(r =>
+            {
+                var ultEvidencia = r.TitulResponsableEvidencia?
+                    .OrderByDescending(e => e.Actualizado ?? e.Creado)
+                    .FirstOrDefault();
+
+                bool aprobado = ultEvidencia?.Estado == "APROBADO" || r.ValorBool == true;
+                return !aprobado;
+            }).ToList();
+
+            if (pendientes.Count > 0)
+            {
+                var nombresPendientes = string.Join(", ", pendientes.Select(p => p.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito"));
+                throw new DominioException($"No se puede aprobar la postulación: faltan requisitos por ser aprobados por los docentes responsables ({nombresPendientes}).");
+            }
+        }
+
+        if (comando.Decision.Equals("RECHAZAR", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(comando.Observaciones))
+        {
+            var obsTexto = comando.Observaciones.Trim();
+            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
+            foreach (var req in reqs)
+            {
+                var ultEvidencia = req.TitulResponsableEvidencia?
+                    .OrderByDescending(e => e.Actualizado ?? e.Creado)
+                    .FirstOrDefault();
+
+                if (ultEvidencia != null)
+                {
+                    ultEvidencia.Estado = "RECHAZADO";
+                    ultEvidencia.Observaciones = obsTexto;
+                    ultEvidencia.Actualizado = DateTime.UtcNow;
+                    ultEvidencia.IdActualizado = "ADMIN";
+                }
+                else
+                {
+                    int idReq = req.IdRequisitoModalidadNavigation?.IdRequisitos ?? 0;
+                    if (idReq == 0 && req.IdRequisitoModalidad > 0)
+                    {
+                        idReq = await _context.TitulRequisitoModalidad
+                            .Where(rm => rm.IdRequisitoModalidad == req.IdRequisitoModalidad)
+                            .Select(rm => rm.IdRequisitos)
+                            .FirstOrDefaultAsync(ct);
+                    }
+
+                    if (idReq > 0)
+                    {
+                        var resp = await _context.TitulResponsableRequisitos
+                            .FirstOrDefaultAsync(tr => tr.IdRequisitos == idReq, ct);
+
+                        if (resp == null)
+                        {
+                            var primerProfesor = await _context.Profesores
+                                .Where(p => p.Activo == true)
+                                .Select(p => p.IdProfesor)
+                                .FirstOrDefaultAsync(ct);
+
+                            if (primerProfesor != null)
+                            {
+                                resp = new TitulResponsableRequisitos
+                                {
+                                    IdRequisitos = idReq,
+                                    IdProfesor = primerProfesor
+                                };
+                                _context.TitulResponsableRequisitos.Add(resp);
+                                await _context.SaveChangesAsync(ct);
+                            }
+                        }
+
+                        if (resp != null)
+                        {
+                            _context.TitulResponsableEvidencia.Add(new TitulResponsableEvidencia
+                            {
+                                IdPostulacionAlumnoRequisitoModalidad = req.IdPostulacionAlumnoRequisitoModalidad,
+                                IdResponsableEvidencias = resp.IdResponsableEvidencias,
+                                Estado = "RECHAZADO",
+                                Observaciones = obsTexto,
+                                Creado = DateTime.UtcNow,
+                                IdCreado = "ADMIN"
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
         postulacion.IdPostulacionEstado = idNuevoEstado;
 
         await _context.SaveChangesAsync(ct);
@@ -623,21 +868,50 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         var nombreCompleto = $"{alumno?.PrimerNombre} {alumno?.SegundoNombre} {alumno?.ApellidoPaterno} {alumno?.ApellidoMaterno}".Replace("  ", " ").Trim();
 
         var requisitos = p.TitulPostulacionAlumnosRequisitosModalidad
-            .Select(r => new PostulacionRequisitoDetalleDto(
-                IdPostulacionAlumnoRequisitoModalidad: r.IdPostulacionAlumnoRequisitoModalidad,
-                IdPostulacionAlumnos: r.IdPostulacionAlumnos,
-                IdRequisitoModalidad: r.IdRequisitoModalidad,
-                IdRequisitos: r.IdRequisitoModalidadNavigation?.IdRequisitos ?? 0,
-                NombreRequisito: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? string.Empty,
-                EsAdjunto: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.EsAdjunto == true,
-                EsBool: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.EsBool == true,
-                SubeAlumno: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.SubeAlumno == true,
-                IdAdjuntosImagenes: r.IdAdjuntosImagenes,
-                NombreArchivoAdjunto: r.IdAdjuntosImagenesNavigation?.NombreArchivos,
-                RutaArchivoAdjunto: r.IdAdjuntosImagenesNavigation?.Ruta,
-                ValorBool: r.ValorBool
-            ))
+            .Select(r =>
+            {
+                var ultEvidencia = r.TitulResponsableEvidencia?
+                    .OrderByDescending(e => e.Actualizado ?? e.Creado)
+                    .FirstOrDefault();
+
+                string estadoValidacion = ultEvidencia?.Estado ?? (r.ValorBool == true ? "APROBADO" : "PENDIENTE");
+                string? observaciones = ultEvidencia?.Observaciones;
+                
+                var profesorNav = ultEvidencia?.IdResponsableEvidenciasNavigation?.IdProfesorNavigation;
+                string? nombreEvaluador = profesorNav != null 
+                    ? $"{profesorNav.Nombres} {profesorNav.Apellidos}".Trim() 
+                    : null;
+                string? cedulaEvaluador = ultEvidencia?.IdResponsableEvidenciasNavigation?.IdProfesor ?? ultEvidencia?.IdActualizado ?? ultEvidencia?.IdCreado;
+                DateTime? fechaEvaluacion = ultEvidencia?.Actualizado ?? ultEvidencia?.Creado;
+
+                return new PostulacionRequisitoDetalleDto(
+                    IdPostulacionAlumnoRequisitoModalidad: r.IdPostulacionAlumnoRequisitoModalidad,
+                    IdPostulacionAlumnos: r.IdPostulacionAlumnos,
+                    IdRequisitoModalidad: r.IdRequisitoModalidad,
+                    IdRequisitos: r.IdRequisitoModalidadNavigation?.IdRequisitos ?? 0,
+                    NombreRequisito: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? string.Empty,
+                    EsAdjunto: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.EsAdjunto == true,
+                    EsBool: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.EsBool == true,
+                    SubeAlumno: r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.SubeAlumno == true,
+                    IdAdjuntosImagenes: r.IdAdjuntosImagenes,
+                    NombreArchivoAdjunto: r.IdAdjuntosImagenesNavigation?.NombreArchivos,
+                    RutaArchivoAdjunto: r.IdAdjuntosImagenesNavigation?.Ruta,
+                    ValorBool: r.ValorBool,
+                    EstadoValidacion: estadoValidacion,
+                    Observaciones: observaciones,
+                    NombreEvaluador: nombreEvaluador,
+                    CedulaEvaluador: cedulaEvaluador,
+                    FechaEvaluacion: fechaEvaluacion
+                );
+            })
             .ToList();
+
+        string? observacionDictamen = p.TitulPostulacionAlumnosRequisitosModalidad
+            .SelectMany(r => r.TitulResponsableEvidencia ?? Enumerable.Empty<TitulResponsableEvidencia>())
+            .Where(e => !string.IsNullOrWhiteSpace(e.Observaciones))
+            .OrderByDescending(e => e.Actualizado ?? e.Creado)
+            .Select(e => e.Observaciones)
+            .FirstOrDefault();
 
         return new PostulacionDetalleDto(
             IdPostulacionAlumnos: p.IdPostulacionAlumnos,
@@ -657,7 +931,8 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             NombreEstado: p.IdPostulacionEstadoNavigation?.Nombre ?? string.Empty,
             EsActivo: p.EsActivo,
             EsCambioModalidad: p.EsCambioModalidad,
-            Requisitos: requisitos
+            Requisitos: requisitos,
+            ObservacionDictamen: observacionDictamen
         );
     }
 }

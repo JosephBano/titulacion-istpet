@@ -530,6 +530,10 @@ public partial class SigafiDbContext : DbContext
 
     public virtual DbSet<TitulRequisitos> TitulRequisitos { get; set; }
 
+    public virtual DbSet<TitulResponsableEvidencia> TitulResponsableEvidencia { get; set; }
+
+    public virtual DbSet<TitulResponsableRequisitos> TitulResponsableRequisitos { get; set; }
+
     public virtual DbSet<Titulos> Titulos { get; set; }
 
     public virtual DbSet<TitulosEnCurso> TitulosEnCurso { get; set; }
@@ -10125,6 +10129,87 @@ public partial class SigafiDbContext : DbContext
                 .HasDefaultValueSql("'0'")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("subeColaborador");
+        });
+
+        modelBuilder.Entity<TitulResponsableEvidencia>(entity =>
+        {
+            entity.HasKey(e => e.IdTitulResponsableEvidencia).HasName("PRIMARY");
+
+            entity.ToTable("titul_responsable_evidencia");
+
+            entity.HasIndex(e => e.IdPostulacionAlumnoRequisitoModalidad, "fk_titul_responsable_evidencia_postulacion_idx");
+
+            entity.HasIndex(e => e.IdResponsableEvidencias, "fk_titul_responsable_evidencia_responsable_idx");
+
+            entity.Property(e => e.IdTitulResponsableEvidencia)
+                .HasColumnType("int(11)")
+                .HasColumnName("idtitulResponsableEvidecnia");
+            entity.Property(e => e.Actualizado)
+                .HasColumnType("datetime")
+                .HasColumnName("actualizado");
+            entity.Property(e => e.Creado)
+                .HasColumnType("datetime")
+                .HasColumnName("creado");
+            entity.Property(e => e.Estado)
+                .HasMaxLength(45)
+                .HasColumnName("estado");
+            entity.Property(e => e.IdActualizado)
+                .HasMaxLength(14)
+                .HasColumnName("idActualizado");
+            entity.Property(e => e.IdCreado)
+                .HasMaxLength(14)
+                .HasColumnName("idCreado");
+            entity.Property(e => e.IdPostulacionAlumnoRequisitoModalidad)
+                .HasColumnType("int(11)")
+                .HasColumnName("idPostulacionAlumnoRequisitoModalidad");
+            entity.Property(e => e.IdResponsableEvidencias)
+                .HasColumnType("int(11)")
+                .HasColumnName("idResponsableEvidencias");
+            entity.Property(e => e.Observaciones)
+                .HasMaxLength(500)
+                .HasColumnName("observaciones");
+
+            entity.HasOne(d => d.IdPostulacionAlumnoRequisitoModalidadNavigation).WithMany(p => p.TitulResponsableEvidencia)
+                .HasForeignKey(d => d.IdPostulacionAlumnoRequisitoModalidad)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_titul_responsable_evidencia_postulacion");
+
+            entity.HasOne(d => d.IdResponsableEvidenciasNavigation).WithMany(p => p.TitulResponsableEvidencia)
+                .HasForeignKey(d => d.IdResponsableEvidencias)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_titul_responsable_evidencia_responsable");
+        });
+
+        modelBuilder.Entity<TitulResponsableRequisitos>(entity =>
+        {
+            entity.HasKey(e => e.IdResponsableEvidencias).HasName("PRIMARY");
+
+            entity.ToTable("titul_responsable_requisitos");
+
+            entity.HasIndex(e => e.IdProfesor, "fk_titul_responsable_requisitos_profesores_idx");
+
+            entity.HasIndex(e => e.IdRequisitos, "fk_titul_responsable_requisitos_requisitos_idx");
+
+            entity.Property(e => e.IdResponsableEvidencias)
+                .HasColumnType("int(11)")
+                .HasColumnName("idResponsableEvidencias");
+            entity.Property(e => e.IdProfesor)
+                .IsRequired()
+                .HasMaxLength(14)
+                .HasColumnName("idProfesor");
+            entity.Property(e => e.IdRequisitos)
+                .HasColumnType("int(11)")
+                .HasColumnName("idRequisitos");
+
+            entity.HasOne(d => d.IdProfesorNavigation).WithMany(p => p.TitulResponsableRequisitos)
+                .HasForeignKey(d => d.IdProfesor)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_titul_responsable_requisitos_profesores");
+
+            entity.HasOne(d => d.IdRequisitosNavigation).WithMany(p => p.TitulResponsableRequisitos)
+                .HasForeignKey(d => d.IdRequisitos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_titul_responsable_requisitos_requisitos");
         });
 
         modelBuilder.Entity<Titulos>(entity =>

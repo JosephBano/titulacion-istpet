@@ -87,6 +87,7 @@ export interface PostulacionDetalle {
   nombreEstado: string;
   esCambioModalidad: boolean | null;
   requisitos: PostulacionRequisitoDetalle[];
+  observacionDictamen?: string | null;
 }
 
 export interface PostulacionRequisitoDetalle {
@@ -102,6 +103,66 @@ export interface PostulacionRequisitoDetalle {
   nombreArchivoAdjunto: string | null;
   rutaArchivoAdjunto: string | null;
   valorBool: boolean | null;
+  estadoValidacion?: string;
+  observaciones?: string | null;
+  nombreEvaluador?: string | null;
+  cedulaEvaluador?: string | null;
+  fechaEvaluacion?: string | Date | null;
+}
+
+export interface ResponsableRequisito {
+  idResponsableEvidencias: number;
+  idRequisitos: number;
+  nombreRequisito: string;
+  idProfesor: string;
+  nombreProfesor: string;
+  emailProfesor: string;
+  activo: boolean;
+}
+
+export interface ProfesorCandidato {
+  idProfesor: string;
+  nombresCompletos: string;
+  email: string;
+  celular: string;
+  activo: boolean;
+}
+
+export interface RequisitoEvaluacionDocente {
+  idPostulacionAlumnos: number;
+  idPostulacionAlumnoRequisitoModalidad: number;
+  idResponsableEvidencias: number;
+  idRequisitos: number;
+  nombreRequisito: string;
+  idAlumno: string;
+  nombreAlumno: string;
+  cedulaAlumno: string;
+  carrera: string;
+  modalidad: string;
+  estadoEvaluacion?: string;
+  observaciones?: string | null;
+  idAdjuntosImagenes?: number | null;
+  nombreArchivoAdjunto?: string | null;
+  rutaArchivoAdjunto?: string | null;
+  aprobado: boolean;
+}
+
+export interface EvaluarRequisitoDocenteRequest {
+  idPostulacionAlumnoRequisitoModalidad: number;
+  idResponsableEvidencias: number;
+  aprobado: boolean;
+  observaciones?: string;
+  idAdjuntosImagenes?: number | null;
+}
+
+export interface EvaluacionDocenteItem {
+  idTitulResponsableEvidencia: number;
+  idPostulacionAlumnoRequisitoModalidad: number;
+  idResponsableEvidencias: number;
+  estado: string;
+  observaciones?: string | null;
+  actualizado?: string | null;
+  evaluadorNombre?: string | null;
 }
 
 export interface PostulacionResumen {

@@ -55,6 +55,15 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<Features.Convocatorias.CasosDeUso.ConsultarConvocatorias>();
         services.AddScoped<Features.Convocatorias.CasosDeUso.AdministrarConvocatoria>();
 
+        // Feature: ResponsablesRequisitos
+        services.AddScoped<Features.ResponsablesRequisitos.Consultas.ListarResponsablesPorRequisito>();
+        services.AddScoped<Features.ResponsablesRequisitos.Consultas.ListarProfesoresCandidatos>();
+        services.AddScoped<Features.ResponsablesRequisitos.Consultas.ListarPendientesDocente>();
+        services.AddScoped<Features.ResponsablesRequisitos.Consultas.ListarEvaluacionesRequisitoPostulacion>();
+        services.AddScoped<Features.ResponsablesRequisitos.Comandos.AsignarProfesorRequisito>();
+        services.AddScoped<Features.ResponsablesRequisitos.Comandos.DesasignarProfesorRequisito>();
+        services.AddScoped<Features.ResponsablesRequisitos.Comandos.EvaluarRequisitoDocente>();
+
         return services;
     }
 }

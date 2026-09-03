@@ -152,86 +152,148 @@
   min-width: 0;
 }
 
-/* Banner Institucional */
+/* Banner Institucional con Estilo Glassmorphism ISTPET */
 .fluent-banner-card {
-  background: linear-gradient(135deg, var(--istpet-navy, #1b2a4a) 0%, var(--istpet-navy-dark, #121d34) 100%);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(27, 42, 74, 0.92) 0%, rgba(18, 29, 52, 0.85) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-left: 5px solid var(--istpet-gold, #c59b27);
-  border-radius: var(--radius-card, 4px);
-  padding: 20px 24px;
+  border-radius: 12px;
+  padding: 24px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px 0 rgba(0, 18, 45, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  margin-bottom: 4px;
+}
+
+.fluent-banner-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(197, 155, 39, 0.18) 0%, rgba(27, 42, 74, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .banner-info {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  width: 100%;
 }
 
 .banner-eyebrow {
-  font-size: 0.6875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--istpet-gold-light, #dfb743);
   text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .banner-title {
   margin: 0;
-  font-size: 1.375rem;
-  font-weight: 600;
+  font-size: 1.45rem;
+  font-weight: 700;
   color: #ffffff;
   line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .banner-description {
   margin: 0;
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.8);
-  max-width: 720px;
-  line-height: 1.4;
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 800px;
+  line-height: 1.45;
 }
 
-/* Tabs de Navegación */
+/* Tabs de Navegación Glassmorphism Ocupando Todo el Ancho */
 .fluent-tabs {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  flex-wrap: wrap;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(0, 31, 63, 0.08);
+  border-radius: 10px;
+  padding: 6px 8px;
+  box-shadow: 0 4px 16px rgba(0, 31, 63, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   overflow-x: auto;
-  white-space: nowrap;
+}
+
+:host-context([data-theme="dark"]) .fluent-tabs {
+  background: rgba(18, 29, 52, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .fluent-tab-item {
-  padding: 10px 16px;
-  font-size: 0.875rem;
-  font-weight: 400;
+  flex: 1 1 auto;
+  min-width: fit-content;
+  text-align: center;
+  padding: 10px 18px;
+  font-size: 0.84rem;
+  font-weight: 500;
   font-family: inherit;
-  color: var(--text-muted, #605e5c);
+  color: var(--text-muted, #555e6d);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 83ms ease, border-color 83ms ease;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .fluent-tab-item:hover {
-  color: var(--text-primary, #1a1a1a);
+  color: var(--istpet-navy, #1b2a4a);
+  background: rgba(27, 42, 74, 0.05);
+  border-color: rgba(27, 42, 74, 0.1);
+}
+
+:host-context([data-theme="dark"]) .fluent-tab-item:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .fluent-tab-item.active {
-  color: var(--istpet-navy, #1b2a4a);
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--istpet-navy, #1b2a4a) 0%, #15223c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   font-weight: 600;
-  border-bottom-color: var(--istpet-navy, #1b2a4a);
+  box-shadow: 0 4px 12px rgba(27, 42, 74, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 :host-context([data-theme="dark"]) .fluent-tab-item.active {
-  color: var(--istpet-gold, #c59b27);
-  border-bottom-color: var(--istpet-gold, #c59b27);
+  color: #0b1325;
+  background: linear-gradient(135deg, var(--istpet-gold, #c59b27) 0%, #dfb743 100%);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 14px rgba(197, 155, 39, 0.35);
 }
 
 /* KPI Grid */

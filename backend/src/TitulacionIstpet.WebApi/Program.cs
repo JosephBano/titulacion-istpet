@@ -25,6 +25,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(WebApiServiceCollectionExtensions.PoliticaCorsFrontend);
 
+var staticPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+if (!Directory.Exists(staticPath)) Directory.CreateDirectory(staticPath);
+var evidenciasPath = Path.Combine(staticPath, "evidencias");
+if (!Directory.Exists(evidenciasPath)) Directory.CreateDirectory(evidenciasPath);
+
+app.UseStaticFiles();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();

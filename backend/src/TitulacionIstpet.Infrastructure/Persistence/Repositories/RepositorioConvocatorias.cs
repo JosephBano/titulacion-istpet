@@ -87,11 +87,13 @@ public sealed class RepositorioConvocatorias(SigafiDbContext context) : IReposit
             _context.TitulCohortesCarreras.Add(cohorteCarrera);
             await _context.SaveChangesAsync(ct);
 
+            var idGenerado = cohorteCarrera.IdCohorteCarrera;
+
             foreach (var mt in modalidadesTitulacion)
             {
                 var mtc = new TitulModalidadesTitulacionCarreras
                 {
-                    IdCohorteCarrera = cohorteCarrera.IdCohorteCarrera,
+                    IdCohorteCarrera = idGenerado,
                     IdModalidadTitulacion = mt.IdModalidadTitulacion,
                     FechaRegistro = DateTime.UtcNow,
                     EsActivo = true
@@ -99,6 +101,8 @@ public sealed class RepositorioConvocatorias(SigafiDbContext context) : IReposit
 
                 _context.TitulModalidadesTitulacionCarreras.Add(mtc);
             }
+
+            await _context.SaveChangesAsync(ct);
         }
 
         await _context.SaveChangesAsync(ct);

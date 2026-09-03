@@ -1,10 +1,11 @@
-<section class="fluent-stepper-card">
+<section class="fluent-stepper-card" [class.fluent-stepper-card--rejected]="esRechazado()">
   <div class="stepper-header">
     <h2 class="stepper-title">Etapas de Mi Proceso de Titulación</h2>
     <span
       class="fluent-badge"
-      [class.fluent-badge--success]="esEtapaAprobada()"
-      [class.fluent-badge--warning]="!esEtapaAprobada()"
+      [class.fluent-badge--danger]="esRechazado()"
+      [class.fluent-badge--success]="!esRechazado() && esEtapaAprobada()"
+      [class.fluent-badge--warning]="!esRechazado() && !esEtapaAprobada()"
     >
       {{ estadoNombre() }}
     </span>
@@ -40,11 +41,24 @@
     <!-- Paso 2 -->
     <div
       class="stepper-step"
-      [class.completed]="etapaActual() >= 2"
-      [class.active]="etapaActual() === 2"
+      [class.completed]="!esRechazado() && etapaActual() >= 2"
+      [class.active]="!esRechazado() && etapaActual() === 2"
+      [class.rejected]="esRechazado()"
     >
-      <div class="step-icon-circle">
-        @if (etapaActual() > 2) {
+      <div class="step-icon-circle" [class.circle-danger]="esRechazado()">
+        @if (esRechazado()) {
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        } @else if (etapaActual() > 2) {
           <svg
             width="12"
             height="12"
@@ -60,7 +74,7 @@
         }
       </div>
       <span class="step-label">2. Requisitos</span>
-      <span class="step-status">{{ estadoNombre() }}</span>
+      <span class="step-status" [class.text-danger]="esRechazado()">{{ estadoNombre() }}</span>
     </div>
 
     <!-- Paso 3 -->

@@ -20,6 +20,11 @@ import {
   EstadoPostulacion,
   ResumenGeneralSistema,
   ModalidadCarreraDto,
+  ResponsableRequisito,
+  ProfesorCandidato,
+  RequisitoEvaluacionDocente,
+  EvaluarRequisitoDocenteRequest,
+  EvaluacionDocenteItem,
 } from '../models/titulacion.models';
 
 @Injectable({
@@ -90,6 +95,10 @@ export class TitulacionService {
 
   public getEstadosPostulacion(): Observable<EstadoPostulacion[]> {
     return this.http.get<EstadoPostulacion[]>(`${this.API_URL}/postulaciones/estados`);
+  }
+
+  public getPostulacionPorId(id: number): Observable<PostulacionDetalle> {
+    return this.http.get<PostulacionDetalle>(this.API_URL + "/postulaciones/" + id);
   }
 
   public dictaminarPostulacion(request: DictamenPostulacionRequest): Observable<void> {
@@ -242,5 +251,73 @@ export class TitulacionService {
     return this.http.get<ModalidadCarreraDto[]>(`${this.API_URL}/academico/modalidades-carreras`, {
       params,
     });
+  }
+
+  // ----------------------------------------------------
+  // 5. Responsables y Validación de Requisitos
+  // ----------------------------------------------------
+  public getResponsablesPorRequisito(idRequisito: number): Observable<ResponsableRequisito[]> {
+    return this.http.get<ResponsableRequisito[]>(
+      `${this.API_URL}/responsables-requisitos/requisito/${idRequisito}`,
+    );
+  }
+
+  public getProfesoresCandidatos(busqueda?: string): Observable<ProfesorCandidato[]> {
+    let params = new HttpParams();
+    if (busqueda && busqueda.trim()) {
+      params = params.set('busqueda', busqueda.trim());
+    }
+    return this.http.get<ProfesorCandidato[]>(
+      `${this.API_URL}/responsables-requisitos/profesores-candidatos`,
+      { params },
+    );
+  }
+
+  public asignarProfesorRequisito(
+    idRequisitos: number,
+    idProfesor: string,
+  ): Observable<{ idResponsableEvidencias: number; message: string }> {
+    return this.http.post<{ idResponsableEvidencias: number; message: string }>(
+      `${this.API_URL}/responsables-requisitos/asignar`,
+      { idRequisitos, idProfesor },
+    );
+  }
+
+  public desasignarProfesorRequisito(idResponsableEvidencias: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.API_URL}/responsables-requisitos/${idResponsableEvidencias}`,
+    );
+  }
+
+  public getMisPendientesDocente(): Observable<RequisitoEvaluacionDocente[]> {
+    return this.http.get<RequisitoEvaluacionDocente[]>(
+      `${this.API_URL}/responsables-requisitos/docente/mis-pendientes`,
+    );
+  }
+
+  public evaluarRequisitoDocente(request: EvaluarRequisitoDocenteRequest): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/responsables-requisitos/evaluar`, request);
+  }
+
+  public getEvaluacionesRequisitoPostulacion(
+    idPostulacionAlumnoRequisitoModalidad: number,
+  ): Observable<EvaluacionDocenteItem[]> {
+    return this.http.get<EvaluacionDocenteItem[]>(
+      `${this.API_URL}/responsables-requisitos/requisito-postulacion/${idPostulacionAlumnoRequisitoModalidad}/evaluaciones`,
+    );
+  }
+
+  public subirAdjunto(archivo: File): Observable<{ idAdjuntosImagenes: number; nombreArchivos: string }> {
+    const comando = {
+      nombreArchivos: archivo.name.substring(0, 85),
+      extension: archivo.name.split('.').pop() || '',
+      mimeTypes: archivo.type || 'application/octet-stream',
+      tamanioBytes: archivo.size,
+      ruta: `/evidencias/${archivo.name}`
+    };
+    return this.http.post<{ idAdjuntosImagenes: number; nombreArchivos: string }>(
+      `${this.apiBaseUrl}/api/adjuntos-imagenes`,
+      comando
+    );
   }
 }

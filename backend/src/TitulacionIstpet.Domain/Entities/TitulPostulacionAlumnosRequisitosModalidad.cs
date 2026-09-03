@@ -22,4 +22,6 @@ public partial class TitulPostulacionAlumnosRequisitosModalidad
     public virtual TitulPostulacionAlumnos IdPostulacionAlumnosNavigation { get; set; }
 
     public virtual TitulRequisitoModalidad IdRequisitoModalidadNavigation { get; set; }
+
+    public virtual ICollection<TitulResponsableEvidencia> TitulResponsableEvidencia { get; set; } = new List<TitulResponsableEvidencia>();
 }
