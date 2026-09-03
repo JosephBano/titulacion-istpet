@@ -155,7 +155,10 @@ public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) :
             var carrera = p.IdMatriculaNavigation?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera no especificada";
             var modalidad = p.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacionNavigation?.ModalidadTitulacion ?? "Modalidad no especificada";
             var idReq = item.IdRequisitoModalidadNavigation?.IdRequisitos ?? 0;
-            if (idReq == 0) continue;
+            if (idReq == 0)
+            {
+                continue;
+            }
             var idResp = mapAsignacion.TryGetValue(idReq, out var rId) ? rId : 0;
 
             var evidenciaDocente = item.TitulResponsableEvidencia

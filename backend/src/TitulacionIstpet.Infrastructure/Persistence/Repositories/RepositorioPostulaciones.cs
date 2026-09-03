@@ -310,7 +310,10 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             .Include(p => p.IdModalidadTitulacionCarreraNavigation)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct);
 
-        if (postulacion == null) return;
+        if (postulacion == null)
+        {
+            return;
+        }
 
         int idModalidad = postulacion.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacion ?? 0;
         if (idModalidad == 0)
@@ -321,7 +324,10 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                 .FirstOrDefaultAsync(ct);
         }
 
-        if (idModalidad == 0) return;
+        if (idModalidad == 0)
+        {
+            return;
+        }
 
         // Requisitos activos de la modalidad
         var requisitosModalidadActivos = await _context.TitulRequisitoModalidad
@@ -329,7 +335,10 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             .Select(rm => rm.IdRequisitoModalidad)
             .ToListAsync(ct);
 
-        if (requisitosModalidadActivos.Count == 0) return;
+        if (requisitosModalidadActivos.Count == 0)
+        {
+            return;
+        }
 
         // Requisitos ya existentes en el expediente de la postulación
         var requisitosExistentes = await _context.TitulPostulacionAlumnosRequisitosModalidad
