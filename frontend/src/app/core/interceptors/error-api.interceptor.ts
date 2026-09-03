@@ -14,11 +14,14 @@ export const errorApiInterceptor: HttpInterceptorFn = (req, next) =>
       }
 
       const cuerpo = error.error as
-        { title?: string; detail?: string; message?: string; errors?: Record<string, string[]> } | string | null;
+        | { title?: string; detail?: string; message?: string; errors?: Record<string, string[]> }
+        | string
+        | null;
 
       const problema = typeof cuerpo === 'object' && cuerpo !== null ? cuerpo : null;
 
-      const detalleTexto = problema?.detail || problema?.message || (typeof cuerpo === 'string' ? cuerpo : undefined);
+      const detalleTexto =
+        problema?.detail || problema?.message || (typeof cuerpo === 'string' ? cuerpo : undefined);
 
       const normalizado: ErrorApi = {
         estado: error.status,

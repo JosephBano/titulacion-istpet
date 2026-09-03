@@ -885,10 +885,10 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
 
                 string estadoValidacion = ultEvidencia?.Estado ?? (r.ValorBool == true ? "APROBADO" : "PENDIENTE");
                 string? observaciones = ultEvidencia?.Observaciones;
-                
+
                 var profesorNav = ultEvidencia?.IdResponsableEvidenciasNavigation?.IdProfesorNavigation;
-                string? nombreEvaluador = profesorNav != null 
-                    ? $"{profesorNav.Nombres} {profesorNav.Apellidos}".Trim() 
+                string? nombreEvaluador = profesorNav != null
+                    ? $"{profesorNav.Nombres} {profesorNav.Apellidos}".Trim()
                     : null;
                 string? cedulaEvaluador = ultEvidencia?.IdResponsableEvidenciasNavigation?.IdProfesor ?? ultEvidencia?.IdActualizado ?? ultEvidencia?.IdCreado;
                 DateTime? fechaEvaluacion = ultEvidencia?.Actualizado ?? ultEvidencia?.Creado;

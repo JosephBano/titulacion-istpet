@@ -37,7 +37,8 @@ export class EstudianteProcesoComponent {
 
   totalAprobados(requisitos?: PostulacionRequisitoDetalle[]): number {
     if (!requisitos) return 0;
-    return requisitos.filter(r => r.valorBool === true || r.estadoValidacion === 'APROBADO').length;
+    return requisitos.filter((r) => r.valorBool === true || r.estadoValidacion === 'APROBADO')
+      .length;
   }
 
   esRequisitoAprobado(req: PostulacionRequisitoDetalle): boolean {
@@ -52,12 +53,19 @@ export class EstudianteProcesoComponent {
 
   obtenerObservacionPostulacion(postulacion: PostulacionDetalle | null): string | null {
     if (!postulacion) return null;
-    if (postulacion.observacionDictamen && typeof postulacion.observacionDictamen === 'string' && postulacion.observacionDictamen.trim().length > 0) {
+    if (
+      postulacion.observacionDictamen &&
+      typeof postulacion.observacionDictamen === 'string' &&
+      postulacion.observacionDictamen.trim().length > 0
+    ) {
       return postulacion.observacionDictamen.trim();
     }
     if (postulacion.requisitos && Array.isArray(postulacion.requisitos)) {
       const conObs = postulacion.requisitos.find(
-        (r) => r.observaciones && typeof r.observaciones === 'string' && r.observaciones.trim().length > 0
+        (r) =>
+          r.observaciones &&
+          typeof r.observaciones === 'string' &&
+          r.observaciones.trim().length > 0,
       );
       if (conObs && conObs.observaciones) {
         return conObs.observaciones.trim();

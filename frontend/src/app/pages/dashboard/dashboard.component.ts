@@ -46,7 +46,10 @@ import { CohortesTabComponent } from './components/cohortes-tab/cohortes-tab.com
 import { RequisitosTabComponent } from './components/requisitos-tab/requisitos-tab.component';
 import { ModalidadesTabComponent } from './components/modalidades-tab/modalidades-tab.component';
 import { EstudianteProcesoComponent } from './components/estudiante-proceso/estudiante-proceso.component';
-import { EvaluacionDocenteTabComponent, GuardarEvaluacionEvento } from './components/evaluacion-docente-tab/evaluacion-docente-tab.component';
+import {
+  EvaluacionDocenteTabComponent,
+  GuardarEvaluacionEvento,
+} from './components/evaluacion-docente-tab/evaluacion-docente-tab.component';
 import { ResponsablesModalComponent } from '../../shared/components/responsables-modal/responsables-modal.component';
 
 @Component({
@@ -362,7 +365,10 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.postulando.set(false);
-        this.mostrarMensaje('error', this.extraerMensajeError(err, 'Error al enviar la postulación.'));
+        this.mostrarMensaje(
+          'error',
+          this.extraerMensajeError(err, 'Error al enviar la postulación.'),
+        );
       },
     });
   }
@@ -646,8 +652,7 @@ export class DashboardComponent implements OnInit {
     const ejecutarPeticion = (idAdjunto?: number | null) => {
       this.titulacionService
         .evaluarRequisitoDocente({
-          idPostulacionAlumnoRequisitoModalidad:
-            evento.item.idPostulacionAlumnoRequisitoModalidad,
+          idPostulacionAlumnoRequisitoModalidad: evento.item.idPostulacionAlumnoRequisitoModalidad,
           idResponsableEvidencias: evento.item.idResponsableEvidencias,
           aprobado: evento.aprobado,
           observaciones: evento.observaciones,

@@ -1,7 +1,11 @@
 import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RequisitoMaestro, ResponsableRequisito, ProfesorCandidato } from '../../../core/models/titulacion.models';
+import {
+  RequisitoMaestro,
+  ResponsableRequisito,
+  ProfesorCandidato,
+} from '../../../core/models/titulacion.models';
 import { TitulacionService } from '../../../core/services/titulacion.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -10,7 +14,7 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './responsables-modal.component.html',
-  styleUrls: ['./responsables-modal.component.css']
+  styleUrls: ['./responsables-modal.component.css'],
 })
 export class ResponsablesModalComponent {
   private readonly titulacionService = inject(TitulacionService);
@@ -35,10 +39,11 @@ export class ResponsablesModalComponent {
     const q = this.busquedaProfesor().toLowerCase().trim();
     const lista = this.profesoresCandidatos();
     if (!q) return lista;
-    return lista.filter(p =>
-      p.idProfesor.toLowerCase().includes(q) ||
-      p.nombresCompletos.toLowerCase().includes(q) ||
-      (p.email && p.email.toLowerCase().includes(q))
+    return lista.filter(
+      (p) =>
+        p.idProfesor.toLowerCase().includes(q) ||
+        p.nombresCompletos.toLowerCase().includes(q) ||
+        (p.email && p.email.toLowerCase().includes(q)),
     );
   });
 
@@ -47,10 +52,11 @@ export class ResponsablesModalComponent {
     const q = this.filtroAsignados().toLowerCase().trim();
     const lista = this.responsables();
     if (!q) return lista;
-    return lista.filter(r =>
-      r.idProfesor.toLowerCase().includes(q) ||
-      r.nombreProfesor.toLowerCase().includes(q) ||
-      (r.emailProfesor && r.emailProfesor.toLowerCase().includes(q))
+    return lista.filter(
+      (r) =>
+        r.idProfesor.toLowerCase().includes(q) ||
+        r.nombreProfesor.toLowerCase().includes(q) ||
+        (r.emailProfesor && r.emailProfesor.toLowerCase().includes(q)),
     );
   });
 
@@ -75,14 +81,14 @@ export class ResponsablesModalComponent {
         this.responsables.set(data);
         this.cargando.set(false);
       },
-      error: () => this.cargando.set(false)
+      error: () => this.cargando.set(false),
     });
   }
 
   cargarCandidatos(): void {
     this.titulacionService.getProfesoresCandidatos().subscribe({
       next: (data) => this.profesoresCandidatos.set(data),
-      error: () => this.profesoresCandidatos.set([])
+      error: () => this.profesoresCandidatos.set([]),
     });
   }
 
@@ -107,7 +113,7 @@ export class ResponsablesModalComponent {
       error: (err) => {
         this.asignando.set(false);
         this.notificationService.error(err.error?.message || 'Error al asignar docente.');
-      }
+      },
     });
   }
 
@@ -121,7 +127,8 @@ export class ResponsablesModalComponent {
         this.cargarResponsables(r.idRequisitos);
         this.cambioAsignaciones.emit();
       },
-      error: (err) => this.notificationService.error(err.error?.message || 'Error al remover asignación.')
+      error: (err) =>
+        this.notificationService.error(err.error?.message || 'Error al remover asignación.'),
     });
   }
 }

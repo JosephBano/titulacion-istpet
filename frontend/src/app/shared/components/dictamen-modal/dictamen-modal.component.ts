@@ -36,7 +36,7 @@ export class DictamenModalComponent {
   observacionesTexto = signal<string>('');
   cargandoDetalle = signal<boolean>(false);
   detallePostulacion = signal<PostulacionDetalle | null>(null);
-  
+
   // Archivo seleccionado para previsualización en vivo (PDF / Imagen)
   requisitoSeleccionadoParaVisor = signal<PostulacionRequisitoDetalle | null>(null);
 

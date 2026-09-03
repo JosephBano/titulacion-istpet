@@ -55,11 +55,15 @@
             <div class="student-summary-strip">
               <div class="student-meta-item">
                 <span class="meta-label">Estudiante</span>
-                <strong class="meta-val">{{ det.nombreAlumno }} (C.I. {{ det.cedulaAlumno }})</strong>
+                <strong class="meta-val"
+                  >{{ det.nombreAlumno }} (C.I. {{ det.cedulaAlumno }})</strong
+                >
               </div>
               <div class="student-meta-item">
                 <span class="meta-label">Carrera y Modalidad</span>
-                <strong class="meta-val">{{ det.nombreCarrera }} &bull; {{ det.modalidadTitulacion }}</strong>
+                <strong class="meta-val"
+                  >{{ det.nombreCarrera }} &bull; {{ det.modalidadTitulacion }}</strong
+                >
               </div>
               <div class="student-meta-item">
                 <span class="meta-label">Resolución a emitir</span>
@@ -85,7 +89,15 @@
             @if (modal.decision === 'RECHAZAR') {
               <div class="dictamen-rejection-reason-box">
                 <div class="rejection-reason-header">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -93,7 +105,9 @@
                   <strong>Motivo de Rechazo (Observación para el estudiante)</strong>
                 </div>
                 <p class="rejection-reason-help">
-                  Ingrese las razones académicas o administrativas por las que se rechaza la postulación. Esta observación será visible de forma destacada en el portal del estudiante.
+                  Ingrese las razones académicas o administrativas por las que se rechaza la
+                  postulación. Esta observación será visible de forma destacada en el portal del
+                  estudiante.
                 </p>
                 <textarea
                   class="rejection-textarea"
@@ -118,28 +132,55 @@
                   @for (req of det.requisitos; track req.idPostulacionAlumnoRequisitoModalidad) {
                     <div
                       class="req-audit-card"
-                      [class.active]="requisitoSeleccionadoParaVisor()?.idPostulacionAlumnoRequisitoModalidad === req.idPostulacionAlumnoRequisitoModalidad"
-                      [class.card-approved]="req.estadoValidacion === 'APROBADO' || req.valorBool === true"
+                      [class.active]="
+                        requisitoSeleccionadoParaVisor()?.idPostulacionAlumnoRequisitoModalidad ===
+                        req.idPostulacionAlumnoRequisitoModalidad
+                      "
+                      [class.card-approved]="
+                        req.estadoValidacion === 'APROBADO' || req.valorBool === true
+                      "
                       [class.card-observed]="req.estadoValidacion === 'OBSERVADO'"
-                      [class.card-pending]="req.estadoValidacion !== 'APROBADO' && req.estadoValidacion !== 'OBSERVADO' && !req.valorBool"
+                      [class.card-pending]="
+                        req.estadoValidacion !== 'APROBADO' &&
+                        req.estadoValidacion !== 'OBSERVADO' &&
+                        !req.valorBool
+                      "
                     >
                       <div class="req-card-top">
                         <div class="req-title-wrap">
                           <span class="req-title-text">{{ req.nombreRequisito }}</span>
-                          <span class="req-type-pill">{{ req.esAdjunto ? 'PDF / Adjunto' : 'Booleano' }}</span>
+                          <span class="req-type-pill">{{
+                            req.esAdjunto ? 'PDF / Adjunto' : 'Booleano'
+                          }}</span>
                         </div>
 
                         <!-- Estado del Requisito -->
                         @if (req.estadoValidacion === 'APROBADO' || req.valorBool === true) {
                           <span class="audit-status-tag status-tag--ok">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2.5"
+                            >
                               <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                             <span>Aprobado</span>
                           </span>
                         } @else if (req.estadoValidacion === 'OBSERVADO') {
                           <span class="audit-status-tag status-tag--warn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2.5"
+                            >
                               <circle cx="12" cy="12" r="10"></circle>
                               <line x1="12" y1="8" x2="12" y2="12"></line>
                               <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -156,13 +197,28 @@
                       <!-- Auditoría de Evaluador / Docente Responsable -->
                       @if (req.nombreEvaluador || req.cedulaEvaluador || req.fechaEvaluacion) {
                         <div class="audit-evaluator-info">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                           </svg>
-                          <span>Validado por: <strong>{{ req.nombreEvaluador || ('Docente C.I. ' + req.cedulaEvaluador) }}</strong></span>
+                          <span
+                            >Validado por:
+                            <strong>{{
+                              req.nombreEvaluador || 'Docente C.I. ' + req.cedulaEvaluador
+                            }}</strong></span
+                          >
                           @if (req.fechaEvaluacion) {
-                            <span class="audit-date">&bull; {{ req.fechaEvaluacion | date: 'short' }}</span>
+                            <span class="audit-date"
+                              >&bull; {{ req.fechaEvaluacion | date: 'short' }}</span
+                            >
                           }
                         </div>
                       }
@@ -170,8 +226,18 @@
                       <!-- Observación del Evaluador -->
                       @if (req.observaciones) {
                         <div class="audit-obs-bubble">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                            ></path>
                           </svg>
                           <p><strong>Observación de revisión:</strong> {{ req.observaciones }}</p>
                         </div>
@@ -183,10 +249,22 @@
                           <button
                             type="button"
                             class="btn-view-doc"
-                            [class.btn-view-doc--active]="requisitoSeleccionadoParaVisor()?.idPostulacionAlumnoRequisitoModalidad === req.idPostulacionAlumnoRequisitoModalidad"
+                            [class.btn-view-doc--active]="
+                              requisitoSeleccionadoParaVisor()
+                                ?.idPostulacionAlumnoRequisitoModalidad ===
+                              req.idPostulacionAlumnoRequisitoModalidad
+                            "
                             (click)="seleccionarParaVisor(req)"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
                               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                               <circle cx="12" cy="12" r="3"></circle>
                             </svg>
@@ -198,8 +276,18 @@
                             class="btn-download-doc"
                             title="Abrir en pestaña externa"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <path
+                                d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                              ></path>
                               <polyline points="15 3 21 3 21 9"></polyline>
                               <line x1="10" y1="14" x2="21" y2="3"></line>
                             </svg>
@@ -219,18 +307,46 @@
                   <div class="live-preview-box">
                     <div class="preview-header">
                       <div class="preview-doc-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
                           <polyline points="14 2 14 8 20 8"></polyline>
                         </svg>
-                        <span class="doc-name-truncate" [title]="vis.nombreArchivoAdjunto || vis.nombreRequisito">
+                        <span
+                          class="doc-name-truncate"
+                          [title]="vis.nombreArchivoAdjunto || vis.nombreRequisito"
+                        >
                           {{ vis.nombreArchivoAdjunto || vis.nombreRequisito }}
                         </span>
                       </div>
                       <div class="preview-actions">
-                        <a [href]="getArchivoUrl(vis.rutaArchivoAdjunto)" target="_blank" class="btn-preview-ext" title="Abrir en ventana completa">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <a
+                          [href]="getArchivoUrl(vis.rutaArchivoAdjunto)"
+                          target="_blank"
+                          class="btn-preview-ext"
+                          title="Abrir en ventana completa"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                            ></path>
                             <polyline points="15 3 21 3 21 9"></polyline>
                             <line x1="10" y1="14" x2="21" y2="3"></line>
                           </svg>
@@ -247,16 +363,34 @@
                         ></iframe>
                       } @else if (esImagen() && vis.rutaArchivoAdjunto) {
                         <div class="image-viewport-wrapper">
-                          <img [src]="getArchivoUrl(vis.rutaArchivoAdjunto)" alt="Evidencia adjunta" class="img-preview" />
+                          <img
+                            [src]="getArchivoUrl(vis.rutaArchivoAdjunto)"
+                            alt="Evidencia adjunta"
+                            class="img-preview"
+                          />
                         </div>
                       } @else {
                         <div class="unsupported-preview">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="36"
+                            height="36"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                          >
+                            <path
+                              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                            ></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
                           </svg>
                           <p>Documento listo para descargar o abrir externamente</p>
-                          <a [href]="getArchivoUrl(vis.rutaArchivoAdjunto)" target="_blank" class="fluent-btn-secondary">
+                          <a
+                            [href]="getArchivoUrl(vis.rutaArchivoAdjunto)"
+                            target="_blank"
+                            class="fluent-btn-secondary"
+                          >
                             Descargar Archivo
                           </a>
                         </div>
@@ -265,21 +399,31 @@
                   </div>
                 } @else {
                   <div class="live-preview-empty">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                       <polyline points="14 2 14 8 20 8"></polyline>
                       <line x1="16" y1="13" x2="8" y2="13"></line>
                       <line x1="16" y1="17" x2="8" y2="17"></line>
                     </svg>
                     <h4>Visor de Evidencias</h4>
-                    <p>Haga clic en "Ver Documento en Vivo" sobre cualquier requisito para previsualizar el archivo adjunto aquí.</p>
+                    <p>
+                      Haga clic en "Ver Documento en Vivo" sobre cualquier requisito para
+                      previsualizar el archivo adjunto aquí.
+                    </p>
                   </div>
                 }
               </div>
             </div>
           }
         }
-
       </div>
 
       <!-- Pie del Modal con Acciones -->

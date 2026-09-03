@@ -26,15 +26,15 @@ export class ModalidadesTabComponent {
   paginaActual = signal<number>(1);
   tamanoPagina = signal<number>(10);
 
-  totalActivas = computed(() => this.modalidades().filter(m => m.esActivo).length);
-  totalInactivas = computed(() => this.modalidades().filter(m => !m.esActivo).length);
+  totalActivas = computed(() => this.modalidades().filter((m) => m.esActivo).length);
+  totalInactivas = computed(() => this.modalidades().filter((m) => !m.esActivo).length);
 
   modalidadesFiltradas = computed(() => {
     const raw = this.modalidades();
     const query = this.busqueda().toLowerCase().trim();
     const est = this.filtroEstado();
 
-    return raw.filter(m => {
+    return raw.filter((m) => {
       if (est === 'ACTIVAS' && !m.esActivo) return false;
       if (est === 'INACTIVAS' && m.esActivo) return false;
 

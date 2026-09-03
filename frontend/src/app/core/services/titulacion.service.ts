@@ -98,7 +98,7 @@ export class TitulacionService {
   }
 
   public getPostulacionPorId(id: number): Observable<PostulacionDetalle> {
-    return this.http.get<PostulacionDetalle>(this.API_URL + "/postulaciones/" + id);
+    return this.http.get<PostulacionDetalle>(this.API_URL + '/postulaciones/' + id);
   }
 
   public dictaminarPostulacion(request: DictamenPostulacionRequest): Observable<void> {
@@ -307,17 +307,19 @@ export class TitulacionService {
     );
   }
 
-  public subirAdjunto(archivo: File): Observable<{ idAdjuntosImagenes: number; nombreArchivos: string }> {
+  public subirAdjunto(
+    archivo: File,
+  ): Observable<{ idAdjuntosImagenes: number; nombreArchivos: string }> {
     const comando = {
       nombreArchivos: archivo.name.substring(0, 85),
       extension: archivo.name.split('.').pop() || '',
       mimeTypes: archivo.type || 'application/octet-stream',
       tamanioBytes: archivo.size,
-      ruta: `/evidencias/${archivo.name}`
+      ruta: `/evidencias/${archivo.name}`,
     };
     return this.http.post<{ idAdjuntosImagenes: number; nombreArchivos: string }>(
       `${this.apiBaseUrl}/api/adjuntos-imagenes`,
-      comando
+      comando,
     );
   }
 }

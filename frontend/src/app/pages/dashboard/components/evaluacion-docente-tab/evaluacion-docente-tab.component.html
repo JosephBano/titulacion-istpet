@@ -4,7 +4,9 @@
       <span class="evaluacion-eyebrow">PANEL DOCENTE EVALUADOR</span>
       <h2 class="evaluacion-title">Validación y Aprobación de Requisitos</h2>
       <p class="evaluacion-desc">
-        Revise y califique los requisitos de titulación asignados a su cuenta docente. Valide el cumplimiento, agregue observaciones visibles para el estudiante y opcionalmente adjunte certificados de soporte.
+        Revise y califique los requisitos de titulación asignados a su cuenta docente. Valide el
+        cumplimiento, agregue observaciones visibles para el estudiante y opcionalmente adjunte
+        certificados de soporte.
       </p>
     </div>
   </div>
@@ -15,7 +17,16 @@
       <div class="header-left-tools">
         <!-- Buscador -->
         <div class="eval-search-box">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            class="search-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -74,7 +85,15 @@
       </div>
     } @else if (items().length === 0) {
       <div class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
           <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
@@ -83,7 +102,15 @@
       </div>
     } @else if (itemsFiltrados().length === 0) {
       <div class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -111,7 +138,9 @@
                   <div class="student-info">
                     <strong class="student-name">{{ item.nombreAlumno }}</strong>
                     <span class="student-ci font-mono">C.I. {{ item.cedulaAlumno }}</span>
-                    <span class="student-career">{{ item.carrera }} &bull; {{ item.modalidad }}</span>
+                    <span class="student-career"
+                      >{{ item.carrera }} &bull; {{ item.modalidad }}</span
+                    >
                   </div>
                 </td>
 
@@ -133,8 +162,18 @@
                       (change)="setAprobado(item, chk.checked)"
                     />
                     <span class="checkbox-custom"></span>
-                    <span class="checkbox-text" [class.text-success]="getAprobado(item)" [class.text-warning]="!getAprobado(item)">
-                      {{ getAprobado(item) ? 'Requisito Aprobado' : (getObservaciones(item) ? 'Observado (No Cumple)' : 'Pendiente') }}
+                    <span
+                      class="checkbox-text"
+                      [class.text-success]="getAprobado(item)"
+                      [class.text-warning]="!getAprobado(item)"
+                    >
+                      {{
+                        getAprobado(item)
+                          ? 'Requisito Aprobado'
+                          : getObservaciones(item)
+                            ? 'Observado (No Cumple)'
+                            : 'Pendiente'
+                      }}
                     </span>
                   </label>
                 </td>
@@ -144,11 +183,26 @@
                   <div class="attachment-controls">
                     @if (item.nombreArchivoAdjunto) {
                       <div class="existing-attachment">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
                           <polyline points="14 2 14 8 20 8"></polyline>
                         </svg>
-                        <a [href]="item.rutaArchivoAdjunto" target="_blank" class="attachment-link" [title]="item.nombreArchivoAdjunto">
+                        <a
+                          [href]="item.rutaArchivoAdjunto"
+                          target="_blank"
+                          class="attachment-link"
+                          [title]="item.nombreArchivoAdjunto"
+                        >
                           {{ item.nombreArchivoAdjunto }}
                         </a>
                       </div>
@@ -160,7 +214,11 @@
                         (change)="onFileChange(item.idPostulacionAlumnoRequisitoModalidad, $event)"
                         accept=".pdf,.png,.jpg,.jpeg"
                       />
-                      <span>{{ archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad] ? 'Archivo seleccionado' : 'Adjuntar soporte' }}</span>
+                      <span>{{
+                        archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]
+                          ? 'Archivo seleccionado'
+                          : 'Adjuntar soporte'
+                      }}</span>
                     </label>
                     @if (archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]; as f) {
                       <span class="selected-filename">{{ f.name }}</span>
@@ -170,10 +228,25 @@
 
                 <!-- Observaciones Mejoradas (Glass/Fluent Input con Icono) -->
                 <td class="td-obs">
-                  <div class="obs-input-wrapper" [class.has-content]="getObservaciones(item).trim().length > 0">
+                  <div
+                    class="obs-input-wrapper"
+                    [class.has-content]="getObservaciones(item).trim().length > 0"
+                  >
                     <div class="obs-icon-badge">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                        ></path>
                       </svg>
                     </div>
                     <textarea
@@ -185,7 +258,10 @@
                       (input)="setObservaciones(item, txtObs.value)"
                     ></textarea>
                     @if (getObservaciones(item).trim().length > 0) {
-                      <span class="obs-indicator-dot" title="Contiene observación registrada"></span>
+                      <span
+                        class="obs-indicator-dot"
+                        title="Contiene observación registrada"
+                      ></span>
                     }
                   </div>
                 </td>
@@ -198,7 +274,11 @@
                     [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
                     (click)="enviarGuardado(item)"
                   >
-                    {{ guardandoId() === item.idPostulacionAlumnoRequisitoModalidad ? 'Guardando...' : 'Guardar Validación' }}
+                    {{
+                      guardandoId() === item.idPostulacionAlumnoRequisitoModalidad
+                        ? 'Guardando...'
+                        : 'Guardar Validación'
+                    }}
                   </button>
                 </td>
               </tr>
@@ -211,7 +291,9 @@
       <footer class="table-pagination">
         <div class="pagination-left">
           <span class="pagination-range-text">
-            Mostrando <strong>{{ rangoInicio() }}</strong>–<strong>{{ rangoFin() }}</strong> de <strong>{{ totalFiltrados() }}</strong> requisitos
+            Mostrando <strong>{{ rangoInicio() }}</strong
+            >–<strong>{{ rangoFin() }}</strong> de
+            <strong>{{ totalFiltrados() }}</strong> requisitos
           </span>
 
           <div class="page-size-selector">
@@ -237,7 +319,15 @@
             (click)="irAPagina(paginaActual() - 1)"
             aria-label="Página anterior"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
             <span>Anterior</span>
@@ -264,7 +354,15 @@
             aria-label="Página siguiente"
           >
             <span>Siguiente</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>

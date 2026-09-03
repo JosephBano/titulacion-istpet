@@ -21,7 +21,8 @@
             Docentes Evaluadores: {{ requisito()?.requisito }}
           </h2>
           <p class="modal-subtitle">
-            Configure qué docentes están facultados para validar y cargar evidencia de este requisito.
+            Configure qué docentes están facultados para validar y cargar evidencia de este
+            requisito.
           </p>
         </div>
         <button type="button" class="btn-close" (click)="cerrar.emit()" aria-label="Cerrar modal">
@@ -32,9 +33,20 @@
       <div class="modal-body">
         <!-- Formulario para Asignar Docente -->
         <div class="add-section">
-          <label class="form-label" for="buscarDocente">Buscar y Asignar Nuevo Docente Responsable</label>
+          <label class="form-label" for="buscarDocente"
+            >Buscar y Asignar Nuevo Docente Responsable</label
+          >
           <div class="search-filter-box">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              class="search-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -67,7 +79,13 @@
               [disabled]="asignando()"
             >
               <option value="">
-                {{ profesoresFiltrados().length === 0 ? '-- No se encontraron docentes con ese criterio --' : '-- Seleccione un docente de la lista (' + profesoresFiltrados().length + ' disponibles) --' }}
+                {{
+                  profesoresFiltrados().length === 0
+                    ? '-- No se encontraron docentes con ese criterio --'
+                    : '-- Seleccione un docente de la lista (' +
+                      profesoresFiltrados().length +
+                      ' disponibles) --'
+                }}
               </option>
               @for (p of profesoresFiltrados(); track p.idProfesor) {
                 <option [value]="p.idProfesor">
@@ -113,14 +131,25 @@
             </div>
           } @else if (responsables().length === 0) {
             <div class="empty-state">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
               <p>Este requisito aún no tiene docentes responsables asignados.</p>
-              <span class="empty-hint">Asigne al menos un docente para que las postulaciones de este requisito puedan ser validadas.</span>
+              <span class="empty-hint"
+                >Asigne al menos un docente para que las postulaciones de este requisito puedan ser
+                validadas.</span
+              >
             </div>
           } @else if (responsablesFiltrados().length === 0) {
             <div class="empty-state">
@@ -141,7 +170,9 @@
                   @for (resp of responsablesFiltrados(); track resp.idResponsableEvidencias) {
                     <tr>
                       <td class="font-mono">{{ resp.idProfesor }}</td>
-                      <td><strong>{{ resp.nombreProfesor }}</strong></td>
+                      <td>
+                        <strong>{{ resp.nombreProfesor }}</strong>
+                      </td>
                       <td>{{ resp.emailProfesor || 'N/A' }}</td>
                       <td class="text-right">
                         <button
@@ -163,9 +194,7 @@
       </div>
 
       <footer class="modal-footer">
-        <button type="button" class="fluent-btn-secondary" (click)="cerrar.emit()">
-          Cerrar
-        </button>
+        <button type="button" class="fluent-btn-secondary" (click)="cerrar.emit()">Cerrar</button>
       </footer>
     </div>
   </div>

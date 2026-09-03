@@ -15,7 +15,7 @@ export interface GuardarEvaluacionEvento {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './evaluacion-docente-tab.component.html',
-  styleUrls: ['./evaluacion-docente-tab.component.css']
+  styleUrls: ['./evaluacion-docente-tab.component.css'],
 })
 export class EvaluacionDocenteTabComponent {
   items = input<RequisitoEvaluacionDocente[]>([]);
@@ -39,11 +39,11 @@ export class EvaluacionDocenteTabComponent {
 
   // Conteo de items
   totalPendientes = computed(() => {
-    return this.items().filter(item => !this.getAprobado(item)).length;
+    return this.items().filter((item) => !this.getAprobado(item)).length;
   });
 
   totalAprobados = computed(() => {
-    return this.items().filter(item => this.getAprobado(item)).length;
+    return this.items().filter((item) => this.getAprobado(item)).length;
   });
 
   // Items filtrados y ordenados (priorizando no aprobados)
@@ -53,7 +53,7 @@ export class EvaluacionDocenteTabComponent {
     const filtro = this.filtroCumplimiento();
 
     return rawItems
-      .filter(item => {
+      .filter((item) => {
         const esAprob = this.getAprobado(item);
         if (filtro === 'PENDIENTES' && esAprob) return false;
         if (filtro === 'APROBADOS' && !esAprob) return false;
@@ -145,9 +145,9 @@ export class EvaluacionDocenteTabComponent {
     const inputEl = event.target as HTMLInputElement;
     if (inputEl.files && inputEl.files.length > 0) {
       const file = inputEl.files[0];
-      this.archivosPorFila.update(map => ({
+      this.archivosPorFila.update((map) => ({
         ...map,
-        [idPostulacionAlumnoRequisitoModalidad]: file
+        [idPostulacionAlumnoRequisitoModalidad]: file,
       }));
     }
   }
@@ -159,9 +159,9 @@ export class EvaluacionDocenteTabComponent {
   }
 
   setAprobado(item: RequisitoEvaluacionDocente, valor: boolean): void {
-    this.aprobadoPorFila.update(map => ({
+    this.aprobadoPorFila.update((map) => ({
       ...map,
-      [item.idPostulacionAlumnoRequisitoModalidad]: valor
+      [item.idPostulacionAlumnoRequisitoModalidad]: valor,
     }));
   }
 
@@ -172,9 +172,9 @@ export class EvaluacionDocenteTabComponent {
   }
 
   setObservaciones(item: RequisitoEvaluacionDocente, valor: string): void {
-    this.observacionesPorFila.update(map => ({
+    this.observacionesPorFila.update((map) => ({
       ...map,
-      [item.idPostulacionAlumnoRequisitoModalidad]: valor
+      [item.idPostulacionAlumnoRequisitoModalidad]: valor,
     }));
   }
 
@@ -187,7 +187,7 @@ export class EvaluacionDocenteTabComponent {
       item,
       aprobado,
       observaciones,
-      archivo
+      archivo,
     });
   }
 }

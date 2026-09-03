@@ -30,15 +30,19 @@ export class CohortesTabComponent {
   paginaActual = signal<number>(1);
   tamanoPagina = signal<number>(10);
 
-  totalVigentes = computed(() => this.convocatoriasLista().filter(c => c.estaVigenteCorte).length);
-  totalCerradas = computed(() => this.convocatoriasLista().filter(c => !c.estaVigenteCorte).length);
+  totalVigentes = computed(
+    () => this.convocatoriasLista().filter((c) => c.estaVigenteCorte).length,
+  );
+  totalCerradas = computed(
+    () => this.convocatoriasLista().filter((c) => !c.estaVigenteCorte).length,
+  );
 
   convocatoriasFiltradas = computed(() => {
     const raw = this.convocatoriasLista();
     const query = this.busqueda().toLowerCase().trim();
     const est = this.filtroEstado();
 
-    return raw.filter(c => {
+    return raw.filter((c) => {
       if (est === 'VIGENTES' && !c.estaVigenteCorte) return false;
       if (est === 'CERRADAS' && c.estaVigenteCorte) return false;
 

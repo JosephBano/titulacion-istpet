@@ -28,8 +28,8 @@ export class RequisitosTabComponent {
   tamanoPagina = signal<number>(10);
 
   // Conteo
-  totalActivos = computed(() => this.requisitos().filter(r => r.esActivo).length);
-  totalInactivos = computed(() => this.requisitos().filter(r => !r.esActivo).length);
+  totalActivos = computed(() => this.requisitos().filter((r) => r.esActivo).length);
+  totalInactivos = computed(() => this.requisitos().filter((r) => !r.esActivo).length);
 
   requisitosFiltrados = computed(() => {
     const raw = this.requisitos();
@@ -37,7 +37,7 @@ export class RequisitosTabComponent {
     const est = this.filtroEstado();
     const tipo = this.filtroTipo();
 
-    return raw.filter(r => {
+    return raw.filter((r) => {
       if (est === 'ACTIVOS' && !r.esActivo) return false;
       if (est === 'INACTIVOS' && r.esActivo) return false;
 
