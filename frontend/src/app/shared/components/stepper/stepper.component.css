@@ -101,3 +101,16 @@
 .fluent-badge--success { color: #107c10; }
 .fluent-badge--warning { color: #b78103; }
 .fluent-badge--error   { color: #a4262c; }
+.fluent-badge--danger  { color: #dc2626; font-weight: 700; }
+
+.circle-danger {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.text-danger {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+

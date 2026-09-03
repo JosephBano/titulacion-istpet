@@ -75,7 +75,8 @@ public sealed record PostulacionDetalleDto(
     string NombreEstado,
     bool EsActivo,
     bool? EsCambioModalidad,
-    IReadOnlyList<PostulacionRequisitoDetalleDto> Requisitos
+    IReadOnlyList<PostulacionRequisitoDetalleDto> Requisitos,
+    string? ObservacionDictamen = null
 );
 
 public sealed record PostulacionRequisitoDetalleDto(
@@ -90,7 +91,12 @@ public sealed record PostulacionRequisitoDetalleDto(
     int? IdAdjuntosImagenes,
     string? NombreArchivoAdjunto,
     string? RutaArchivoAdjunto,
-    bool? ValorBool
+    bool? ValorBool,
+    string? EstadoValidacion = "PENDIENTE",
+    string? Observaciones = null,
+    string? NombreEvaluador = null,
+    string? CedulaEvaluador = null,
+    DateTime? FechaEvaluacion = null
 );
 
 public sealed record EstadoPostulacionDto(

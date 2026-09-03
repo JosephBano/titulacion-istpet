@@ -87,7 +87,7 @@ export class PostulacionesBandejaComponent {
     this.busquedaChange.emit('');
   }
 
-  seleccionarEstado(idEstado: number): void {
+  seleccionarEstado(idEstado: number | null): void {
     const nuevo = this.filtroEstado() === idEstado ? null : idEstado;
     this.estadoChange.emit(nuevo);
   }

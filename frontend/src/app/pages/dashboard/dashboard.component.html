@@ -170,14 +170,14 @@
 
       @if (isDocente()) {
         <div class="sidebar-group">
-          <h4 class="sidebar-eyebrow">Gestión Académica</h4>
+          <h4 class="sidebar-eyebrow">Validación Docente</h4>
           <nav class="sidebar-nav">
             <button
               type="button"
               class="sidebar-nav-item"
               [class.active]="activeTab() === 'evaluacion'"
               (click)="setActiveTab('evaluacion')"
-              title="Mis Estudiantes"
+              title="Validación de Requisitos"
             >
               <span class="nav-icon">
                 <svg
@@ -189,59 +189,11 @@
                   stroke="currentColor"
                   stroke-width="2"
                 >
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  <path d="M9 11l3 3L22 4"></path>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
               </span>
-              <span class="nav-label">Mis Estudiantes</span>
-            </button>
-            <button
-              type="button"
-              class="sidebar-nav-item"
-              [class.active]="activeTab() === 'complexivo'"
-              (click)="setActiveTab('complexivo')"
-              title="Examen Complexivo"
-            >
-              <span class="nav-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-              </span>
-              <span class="nav-label">Examen Complexivo</span>
-            </button>
-            <button
-              type="button"
-              class="sidebar-nav-item"
-              [class.active]="activeTab() === 'articulos'"
-              (click)="setActiveTab('articulos')"
-              title="Artículos Científicos"
-            >
-              <span class="nav-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-                </svg>
-              </span>
-              <span class="nav-label">Artículos Científicos</span>
+              <span class="nav-label">Validar Requisitos</span>
             </button>
           </nav>
         </div>
@@ -345,9 +297,9 @@
               {{
                 isEstudiante()
                   ? 'PORTAL DEL POSTULANTE A TITULACIÓN'
-                  : isDocente()
-                    ? 'PANEL DOCENTE DE TUTORÍA Y EVALUACIÓN'
-                    : 'PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL'
+                  : isAdmin()
+                    ? 'PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL'
+                    : 'PANEL DOCENTE DE TUTORÍA Y EVALUACIÓN'
               }}
             </span>
             <h1 class="banner-title">Bienvenido(a), {{ user.nombre }}</h1>
@@ -355,9 +307,9 @@
               {{
                 isEstudiante()
                   ? 'Gestione su postulación, consulte requisitos y siga en tiempo real su avance académico de graduación.'
-                  : isDocente()
-                    ? 'Seguimiento de estudiantes a cargo, revisión de avances de integración curricular y exámenes complexivos.'
-                    : 'Administración Global del Sistema de Titulación — Instituto Tecnológico Superior Traversari (ISTPET)'
+                  : isAdmin()
+                    ? 'Administración Global del Sistema de Titulación — Instituto Tecnológico Superior Traversari (ISTPET)'
+                    : 'Seguimiento de estudiantes a cargo, revisión de avances de integración curricular y exámenes complexivos.'
               }}
             </p>
           </div>
@@ -422,25 +374,7 @@
             (click)="setActiveTab('evaluacion')"
             role="tab"
           >
-            Mis Estudiantes Asignados
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'complexivo'"
-            (click)="setActiveTab('complexivo')"
-            role="tab"
-          >
-            Examen Complexivo
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'articulos'"
-            (click)="setActiveTab('articulos')"
-            role="tab"
-          >
-            Artículos Científicos
+            Validación de Requisitos Asignados ({{ requisitosDocentePendientes().length }})
           </button>
         }
 
@@ -625,6 +559,7 @@
           [loading]="configCargando()"
           (nuevoRequisito)="nuevoRequisitoModalVisible.set(true)"
           (toggleEstado)="toggleRequisitoEstado($event)"
+          (gestionarResponsables)="abrirGestionResponsables($event)"
         />
       }
 
@@ -736,19 +671,12 @@
       <!-- ============================================================ -->
       @if (isDocente()) {
         @if (activeTab() === 'evaluacion') {
-          <section class="fluent-section">
-            <div class="section-header">
-              <span class="section-eyebrow">CARGA ACADÉMICA</span>
-              <h2 class="section-title">Estudiantes Asignados a Mi Tutoría y Evaluación</h2>
-            </div>
-            <div class="empty-state-card">
-              <h3>No tiene estudiantes asignados para el período actual</h3>
-              <p>
-                La Comisión Académica de Titulación notificará en este panel la distribución de
-                estudiantes para tutorías de TIC, reactivos de complexivo o jurados de defensa.
-              </p>
-            </div>
-          </section>
+          <app-evaluacion-docente-tab
+            [items]="requisitosDocentePendientes()"
+            [cargando]="requisitosDocenteCargando()"
+            [guardandoId]="guardandoEvaluacionId()"
+            (guardarEvaluacion)="onGuardarEvaluacionDocente($event)"
+          />
         }
 
         @if (activeTab() === 'complexivo') {
@@ -1125,5 +1053,13 @@
     [data]="dictamenModal()"
     (modalClose)="cerrarModalDictamen()"
     (confirm)="enviarDictamen($event)"
+  />
+
+  <!-- 6. Modal de Profesores Responsables de Requisitos -->
+  <app-responsables-modal
+    [visible]="responsablesModalVisible()"
+    [requisito]="requisitoParaResponsables()"
+    (cerrar)="responsablesModalVisible.set(false)"
+    (cambioAsignaciones)="cargarConfiguracionesMaestras()"
   />
 </div>

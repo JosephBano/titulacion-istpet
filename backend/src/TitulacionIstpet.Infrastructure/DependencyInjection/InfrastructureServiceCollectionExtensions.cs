@@ -48,6 +48,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IRepositorioPostulaciones, RepositorioPostulaciones>();
         services.AddScoped<IRepositorioConfiguracionGeneral, RepositorioConfiguracionGeneral>();
         services.AddScoped<IRepositorioConvocatorias, RepositorioConvocatorias>();
+        services.AddScoped<Application.Features.ResponsablesRequisitos.IRepositorioResponsablesRequisitos, RepositorioResponsablesRequisitos>();
 
         // Seguridad y Auth
         services.AddScoped<IVerificadorCredenciales, VerificadorCredencialesBcrypt>();

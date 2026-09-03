@@ -14,5 +14,10 @@ export class StepperComponent {
   modalidadNombre = input<string>('Por seleccionar');
   tienePostulacion = input<boolean>(false);
 
-  esEtapaAprobada = computed(() => this.etapaActual() >= 3);
+  esRechazado = computed(() => {
+    const est = (this.estadoNombre() || '').toUpperCase();
+    return est.includes('RECHAZ') || est.includes('NEGAD');
+  });
+
+  esEtapaAprobada = computed(() => !this.esRechazado() && this.etapaActual() >= 3);
 }

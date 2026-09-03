@@ -77,7 +77,32 @@
         <h2 class="section-title">Seleccione su Modalidad de Graduación</h2>
       </div>
 
-      @if (p.modalidadesDisponibles.length === 0) {
+      @if (!p.estudiante.esElegible) {
+        <div class="empty-state-card warning-state-card">
+          <div class="warning-icon-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3>Inhabilitado para Postulación</h3>
+          <p class="warning-message-text">
+            {{
+              p.estudiante.mensajeElegibilidad ||
+                'Usted no cumple con los requisitos previos para participar en el proceso de titulación.'
+            }}
+          </p>
+        </div>
+      } @else if (p.modalidadesDisponibles.length === 0) {
         <div class="empty-state-card">
           <h3>No hay modalidades habilitadas para su carrera en este momento</h3>
           <p>
@@ -165,14 +190,76 @@
         [tienePostulacion]="true"
       />
 
+      <!-- Banner de Alerta Prominente cuando la Solicitud es Rechazada -->
+      @if (esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
+        <div class="postulacion-rejected-banner">
+          <div class="rejected-banner-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <div class="rejected-banner-content">
+            <div class="rejected-badge-pill">RESOLUCIÓN OFICIAL: SOLICITUD RECHAZADA</div>
+            <h3 class="rejected-banner-title">Su postulación de titulación no fue aprobada</h3>
+            <p class="rejected-banner-desc">
+              La Coordinación y Secretaría Académica de Titulación ISTPET han concluido la revisión
+              de su expediente #{{ p.postulacionActiva.idPostulacionAlumnos }} con dictamen de
+              <strong>RECHAZO</strong>.
+            </p>
+
+            @if (obtenerObservacionPostulacion(p.postulacionActiva); as obs) {
+              <div class="rejected-obs-box">
+                <span class="rejected-obs-title">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  Motivo / Observación del Dictamen Académico:
+                </span>
+                <p class="rejected-obs-text">{{ obs }}</p>
+              </div>
+            } @else {
+              <div class="rejected-obs-box">
+                <p class="rejected-obs-text-muted">
+                  Comuníquese con Secretaría de Titulación o con la Coordinación de Carrera para
+                  solventar inquietudes o consultar sobre la apertura de un nuevo trámite en la
+                  siguiente convocatoria.
+                </p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Tarjeta de Expediente -->
-      <div class="expediente-card">
+      <div
+        class="expediente-card"
+        [class.expediente-card--rejected]="esPostulacionRechazada(p.postulacionActiva.nombreEstado)"
+      >
         <table class="fluent-table">
           <thead>
             <tr>
               <th>EXPEDIENTE</th>
               <th>MODALIDAD</th>
-              <th>ESTADO</th>
+              <th>ESTADO GENERAL</th>
+              <th>PROGRESO REQUISITOS</th>
               <th>CARRERA</th>
             </tr>
           </thead>
@@ -187,20 +274,180 @@
               <td>
                 <span
                   class="fluent-badge"
+                  [class.fluent-badge--danger]="
+                    esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                  "
                   [class.fluent-badge--success]="
+                    !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
                     p.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
                   "
                   [class.fluent-badge--warning]="
+                    !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
                     !p.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
                   "
                 >
                   {{ p.postulacionActiva.nombreEstado }}
                 </span>
               </td>
+              <td>
+                <span
+                  class="badge-progress"
+                  [class.badge-progress--rejected]="
+                    esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                  "
+                >
+                  {{ totalAprobados(p.postulacionActiva.requisitos) }} de
+                  {{ p.postulacionActiva.requisitos.length }} aprobados
+                </span>
+              </td>
               <td>{{ p.estudiante.nombreCarrera }}</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Desglose de Validación de Requisitos -->
+      <div
+        class="requisitos-validacion-box"
+        [class.requisitos-validacion-box--rejected]="
+          esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+        "
+      >
+        <div class="box-header">
+          <div class="header-titles">
+            <span
+              class="box-eyebrow"
+              [class.text-danger]="esPostulacionRechazada(p.postulacionActiva.nombreEstado)"
+            >
+              {{
+                esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                  ? 'DICTAMEN FINAL: RECHAZADO'
+                  : 'ESTADO DE VALIDACIÓN'
+              }}
+            </span>
+            <h3 class="box-title">Requisitos Académicos de Titulación</h3>
+            <p class="box-subtitle">
+              {{
+                esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                  ? 'El expediente finalizó con dictamen de rechazo. A continuación se detalla el estado final registrado en cada requisito:'
+                  : 'Los docentes responsables están verificando el cumplimiento de sus requisitos. Todos deben estar aprobados para la admisión definitiva.'
+              }}
+            </p>
+          </div>
+          <div
+            class="progress-pill"
+            [class.progress-pill--danger]="esPostulacionRechazada(p.postulacionActiva.nombreEstado)"
+            [class.all-done]="
+              !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+              totalAprobados(p.postulacionActiva.requisitos) ===
+                p.postulacionActiva.requisitos.length
+            "
+          >
+            {{ totalAprobados(p.postulacionActiva.requisitos) }}/{{
+              p.postulacionActiva.requisitos.length
+            }}
+            Cumplidos
+          </div>
+        </div>
+
+        <div class="requisitos-cards-grid">
+          @for (
+            req of p.postulacionActiva.requisitos;
+            track req.idPostulacionAlumnoRequisitoModalidad
+          ) {
+            <div
+              class="req-status-card"
+              [class.approved]="esRequisitoAprobado(req)"
+              [class.rejected]="
+                esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                !esRequisitoAprobado(req)
+              "
+              [class.pending]="
+                !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                !esRequisitoAprobado(req)
+              "
+            >
+              <div class="req-card-top">
+                <div class="req-title-wrapper">
+                  <span
+                    class="status-indicator-dot"
+                    [class.dot-success]="esRequisitoAprobado(req)"
+                    [class.dot-danger]="
+                      esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                      !esRequisitoAprobado(req)
+                    "
+                  ></span>
+                  <strong class="req-card-name">{{ req.nombreRequisito }}</strong>
+                </div>
+                <span
+                  class="status-pill"
+                  [class.status-pill--success]="esRequisitoAprobado(req)"
+                  [class.status-pill--danger]="
+                    esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                    !esRequisitoAprobado(req)
+                  "
+                  [class.status-pill--warning]="
+                    !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                    !esRequisitoAprobado(req)
+                  "
+                >
+                  {{
+                    esRequisitoAprobado(req)
+                      ? 'Aprobado'
+                      : esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                        ? req.estadoValidacion || 'No Admitido'
+                        : req.estadoValidacion || 'En Validación'
+                  }}
+                </span>
+              </div>
+
+              <!-- Observaciones del Docente Evaluador -->
+              @if (req.observaciones) {
+                <div class="req-feedback-box">
+                  <span class="feedback-label">Observación del Evaluador:</span>
+                  <p class="feedback-text">{{ req.observaciones }}</p>
+                </div>
+              } @else {
+                <div class="req-feedback-box feedback-empty">
+                  <span class="feedback-text-muted">
+                    {{
+                      esRequisitoAprobado(req)
+                        ? 'Requisito verificado y validado por secretaría/docente.'
+                        : esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                          ? 'Trámite cerrado con dictamen de rechazo.'
+                          : 'Pendiente de revisión por el docente asignado.'
+                    }}
+                  </span>
+                </div>
+              }
+
+              <!-- Documento de Soporte / Adjunto si existe -->
+              @if (req.nombreArchivoAdjunto) {
+                <div class="req-attachment-info">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <a
+                    [href]="req.rutaArchivoAdjunto"
+                    target="_blank"
+                    class="attachment-download-link"
+                  >
+                    {{ req.nombreArchivoAdjunto }}
+                  </a>
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
     }
   </section>

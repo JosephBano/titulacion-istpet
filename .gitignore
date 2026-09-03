@@ -69,6 +69,7 @@ id_ed25519*
 project.lock.json
 project.fragment.lock.json
 artifacts/
+salida-publish/
 BenchmarkDotNet.Artifacts/
 *.nupkg
 *.snupkg

@@ -28,6 +28,7 @@ import {
   PostulacionResumen,
   EstadoPostulacion,
   ResumenGeneralSistema,
+  RequisitoEvaluacionDocente,
 } from '../../core/models/titulacion.models';
 
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
@@ -45,6 +46,11 @@ import { CohortesTabComponent } from './components/cohortes-tab/cohortes-tab.com
 import { RequisitosTabComponent } from './components/requisitos-tab/requisitos-tab.component';
 import { ModalidadesTabComponent } from './components/modalidades-tab/modalidades-tab.component';
 import { EstudianteProcesoComponent } from './components/estudiante-proceso/estudiante-proceso.component';
+import {
+  EvaluacionDocenteTabComponent,
+  GuardarEvaluacionEvento,
+} from './components/evaluacion-docente-tab/evaluacion-docente-tab.component';
+import { ResponsablesModalComponent } from '../../shared/components/responsables-modal/responsables-modal.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -66,6 +72,8 @@ import { EstudianteProcesoComponent } from './components/estudiante-proceso/estu
     RequisitosTabComponent,
     ModalidadesTabComponent,
     EstudianteProcesoComponent,
+    EvaluacionDocenteTabComponent,
+    ResponsablesModalComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -130,6 +138,13 @@ export class DashboardComponent implements OnInit {
   nuevoRequisitoModalVisible = signal<boolean>(false);
   nuevaModalidadModalVisible = signal<boolean>(false);
   matrizModalVisible = signal<boolean>(false);
+  responsablesModalVisible = signal<boolean>(false);
+  requisitoParaResponsables = signal<RequisitoMaestro | null>(null);
+
+  // Estado del Docente Evaluador
+  requisitosDocentePendientes = signal<RequisitoEvaluacionDocente[]>([]);
+  requisitosDocenteCargando = signal<boolean>(false);
+  guardandoEvaluacionId = signal<number | null>(null);
 
   // Formulario de Apertura de Convocatoria
   aperturaForm = signal({
@@ -187,9 +202,7 @@ export class DashboardComponent implements OnInit {
   isDocente(): boolean {
     const user = this.currentUser();
     const esProfesorSigafi = user?.tablaSigafi?.toLowerCase() === 'profesor';
-    return (
-      (this.hasRole('DOCENTE') || this.hasRole('PROFESOR') || esProfesorSigafi) && !this.isAdmin()
-    );
+    return this.hasRole('DOCENTE') || this.hasRole('PROFESOR') || esProfesorSigafi;
   }
 
   isEstudiante(): boolean {
@@ -225,8 +238,19 @@ export class DashboardComponent implements OnInit {
     if (this.isEstudiante()) {
       this.activeTab.set('postulacion');
       this.cargarPortalEstudiante();
+    } else if (this.isAdmin()) {
+      this.activeTab.set('resumen');
+      this.cargarResumenGeneral();
+      this.cargarConvocatoriaActiva();
+      this.cargarPostulaciones();
+      this.cargarConfiguracionesMaestras();
+      this.cargarEstadosPostulacion();
+      if (this.isDocente()) {
+        this.cargarMisPendientesDocente();
+      }
     } else if (this.isDocente()) {
       this.activeTab.set('evaluacion');
+      this.cargarMisPendientesDocente();
     } else {
       this.activeTab.set('resumen');
       this.cargarResumenGeneral();
@@ -341,7 +365,10 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.postulando.set(false);
-        this.mostrarMensaje('error', err.error?.message || 'Error al enviar la postulación.');
+        this.mostrarMensaje(
+          'error',
+          this.extraerMensajeError(err, 'Error al enviar la postulación.'),
+        );
       },
     });
   }
@@ -598,6 +625,71 @@ export class DashboardComponent implements OnInit {
   }
 
   // ----------------------------------------------------
+  // Docentes Responsables de Requisitos y Evaluación
+  // ----------------------------------------------------
+  abrirGestionResponsables(requisito: RequisitoMaestro): void {
+    this.requisitoParaResponsables.set(requisito);
+    this.responsablesModalVisible.set(true);
+  }
+
+  cargarMisPendientesDocente(): void {
+    this.requisitosDocenteCargando.set(true);
+    this.titulacionService.getMisPendientesDocente().subscribe({
+      next: (items) => {
+        this.requisitosDocentePendientes.set(items);
+        this.requisitosDocenteCargando.set(false);
+      },
+      error: () => {
+        this.requisitosDocentePendientes.set([]);
+        this.requisitosDocenteCargando.set(false);
+      },
+    });
+  }
+
+  onGuardarEvaluacionDocente(evento: GuardarEvaluacionEvento): void {
+    this.guardandoEvaluacionId.set(evento.item.idPostulacionAlumnoRequisitoModalidad);
+
+    const ejecutarPeticion = (idAdjunto?: number | null) => {
+      this.titulacionService
+        .evaluarRequisitoDocente({
+          idPostulacionAlumnoRequisitoModalidad: evento.item.idPostulacionAlumnoRequisitoModalidad,
+          idResponsableEvidencias: evento.item.idResponsableEvidencias,
+          aprobado: evento.aprobado,
+          observaciones: evento.observaciones,
+          idAdjuntosImagenes: idAdjunto ?? evento.item.idAdjuntosImagenes,
+        })
+        .subscribe({
+          next: () => {
+            this.guardandoEvaluacionId.set(null);
+            this.mostrarMensaje('exito', 'Evaluación de requisito registrada exitosamente.');
+            this.cargarMisPendientesDocente();
+          },
+          error: (err) => {
+            this.guardandoEvaluacionId.set(null);
+            this.mostrarMensaje(
+              'error',
+              err.error?.message || 'Error al guardar la evaluación del requisito.',
+            );
+          },
+        });
+    };
+
+    if (evento.archivo) {
+      this.titulacionService.subirAdjunto(evento.archivo).subscribe({
+        next: (res) => {
+          ejecutarPeticion(res.idAdjuntosImagenes);
+        },
+        error: () => {
+          this.guardandoEvaluacionId.set(null);
+          this.mostrarMensaje('error', 'Error al subir el archivo adjunto.');
+        },
+      });
+    } else {
+      ejecutarPeticion();
+    }
+  }
+
+  // ----------------------------------------------------
   // Dictámenes y Calificación
   // ----------------------------------------------------
   onDictamenEvento(evento: DictamenEvento): void {
@@ -641,6 +733,23 @@ export class DashboardComponent implements OnInit {
         this.mostrarMensaje('error', err.error?.message || 'Error al registrar el dictamen.');
       },
     });
+  }
+
+  extraerMensajeError(err: unknown, fallback = 'Ha ocurrido un error inesperado.'): string {
+    if (!err) return fallback;
+    if (typeof err === 'string') return err;
+    if (typeof err === 'object') {
+      const e = err as Record<string, unknown>;
+      const innerErr = e['error'] as Record<string, unknown> | undefined;
+      return (
+        (e['detalle'] as string) ||
+        (innerErr?.['detail'] as string) ||
+        (innerErr?.['message'] as string) ||
+        (e['message'] as string) ||
+        fallback
+      );
+    }
+    return fallback;
   }
 
   mostrarMensaje(tipo: 'exito' | 'error' | 'info', texto: string): void {
@@ -715,6 +824,8 @@ export class DashboardComponent implements OnInit {
       this.cargarConfiguracionesMaestras();
     } else if (tab === 'postulacion') {
       this.cargarPortalEstudiante();
+    } else if (tab === 'evaluacion') {
+      this.cargarMisPendientesDocente();
     }
   }
 

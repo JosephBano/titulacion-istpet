@@ -42,14 +42,70 @@
 
   <!-- Histórico de Convocatorias -->
   <div class="historico-box">
-    <div class="historico-header">
-      <div class="historico-title-wrap">
-        <h3 class="historico-title">Histórico de Convocatorias Anteriores</h3>
-        <span class="historico-subtitle"
-          >Registro cronológico de períodos de titulación institucionales</span
-        >
+    <!-- Header con Buscador y Filtro Rápido Normalizado -->
+    <div class="historico-box-header">
+      <div class="header-left-tools">
+        <!-- Buscador -->
+        <div class="coh-search-box">
+          <svg
+            class="search-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar cohorte por período o detalle..."
+            [ngModel]="busqueda()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+          @if (busqueda()) {
+            <button type="button" class="search-clear-btn" (click)="onSearchChange('')">×</button>
+          }
+        </div>
+
+        <!-- Botones de Filtro Rápido de Estado -->
+        <div class="filter-pill-group">
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroEstado() === 'TODAS'"
+            (click)="setFiltroEstado('TODAS')"
+          >
+            <span>Todas ({{ convocatoriasLista().length }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroEstado() === 'VIGENTES'"
+            (click)="setFiltroEstado('VIGENTES')"
+          >
+            <span class="pill-dot dot-success"></span>
+            <span>Vigentes ({{ totalVigentes() }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroEstado() === 'CERRADAS'"
+            (click)="setFiltroEstado('CERRADAS')"
+          >
+            <span class="pill-dot dot-neutral"></span>
+            <span>Cerradas ({{ totalCerradas() }})</span>
+          </button>
+        </div>
       </div>
-      <span class="historico-counter">{{ convocatoriasLista().length }} registradas</span>
+
+      <div class="header-right-meta">
+        <span class="box-counter">{{ totalFiltrados() }} mostrado(s)</span>
+      </div>
     </div>
 
     @if (loading()) {
@@ -75,6 +131,22 @@
         </svg>
         <p>No existen convocatorias registradas en el histórico.</p>
       </div>
+    } @else if (convocatoriasFiltradas().length === 0) {
+      <div class="empty-table-msg">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <p>No se encontraron convocatorias que coincidan con la búsqueda.</p>
+      </div>
     } @else {
       <div class="cohortes-table-wrapper">
         <table class="fluent-table">
@@ -91,7 +163,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (c of convocatoriasLista(); track c.idCohorte) {
+            @for (c of convocatoriasPaginadas(); track c.idCohorte) {
               <tr>
                 <td class="td-id">
                   <span class="code-badge">#{{ c.idCohorte }}</span>
@@ -146,6 +218,88 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Paginador Integrado -->
+      <footer class="table-pagination">
+        <div class="pagination-left">
+          <span class="pagination-range-text">
+            Mostrando <strong>{{ rangoInicio() }}</strong
+            >–<strong>{{ rangoFin() }}</strong> de
+            <strong>{{ totalFiltrados() }}</strong> convocatorias
+          </span>
+
+          <div class="page-size-selector">
+            <span class="size-label">Por pág:</span>
+            <select
+              class="size-select"
+              [value]="tamanoPagina()"
+              (change)="onTamanoPaginaChange($event)"
+              aria-label="Registros por página"
+            >
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+
+        <nav class="pagination-nav" aria-label="Paginación de resultados">
+          <button
+            type="button"
+            class="nav-btn nav-btn--prev"
+            [disabled]="paginaActual() <= 1"
+            (click)="irAPagina(paginaActual() - 1)"
+            aria-label="Página anterior"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Anterior</span>
+          </button>
+
+          <div class="page-numbers">
+            @for (p of paginasDisponibles(); track p) {
+              <button
+                type="button"
+                class="num-btn"
+                [class.active]="p === paginaActual()"
+                (click)="irAPagina(p)"
+              >
+                {{ p }}
+              </button>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="nav-btn nav-btn--next"
+            [disabled]="paginaActual() >= totalPaginas()"
+            (click)="irAPagina(paginaActual() + 1)"
+            aria-label="Página siguiente"
+          >
+            <span>Siguiente</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </nav>
+      </footer>
     }
   </div>
 </section>

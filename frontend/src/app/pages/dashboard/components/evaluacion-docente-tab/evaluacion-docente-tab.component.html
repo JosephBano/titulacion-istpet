@@ -1,0 +1,373 @@
+<section class="evaluacion-section">
+  <div class="evaluacion-header">
+    <div class="evaluacion-header-info">
+      <span class="evaluacion-eyebrow">PANEL DOCENTE EVALUADOR</span>
+      <h2 class="evaluacion-title">Validación y Aprobación de Requisitos</h2>
+      <p class="evaluacion-desc">
+        Revise y califique los requisitos de titulación asignados a su cuenta docente. Valide el
+        cumplimiento, agregue observaciones visibles para el estudiante y opcionalmente adjunte
+        certificados de soporte.
+      </p>
+    </div>
+  </div>
+
+  <div class="evaluacion-box">
+    <!-- Header con Buscador y Filtro Rápido de Estado -->
+    <div class="evaluacion-box-header">
+      <div class="header-left-tools">
+        <!-- Buscador -->
+        <div class="eval-search-box">
+          <svg
+            class="search-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar estudiante, cédula, carrera o requisito..."
+            [ngModel]="busqueda()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+          @if (busqueda()) {
+            <button type="button" class="search-clear-btn" (click)="onSearchChange('')">×</button>
+          }
+        </div>
+
+        <!-- Botones de Filtro Rápido (Default: Todos) -->
+        <div class="filter-pill-group">
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroCumplimiento() === 'TODOS'"
+            (click)="setFiltro('TODOS')"
+          >
+            <span>Todos ({{ items().length }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroCumplimiento() === 'PENDIENTES'"
+            (click)="setFiltro('PENDIENTES')"
+          >
+            <span class="pill-dot dot-warning"></span>
+            <span>Por Validar / Pendientes ({{ totalPendientes() }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroCumplimiento() === 'APROBADOS'"
+            (click)="setFiltro('APROBADOS')"
+          >
+            <span class="pill-dot dot-success"></span>
+            <span>Aprobados ({{ totalAprobados() }})</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="header-right-meta">
+        <span class="box-counter">{{ totalFiltrados() }} mostrado(s)</span>
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <span>Cargando requisitos asignados...</span>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="empty-state">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <h3>No tiene requisitos pendientes de evaluación</h3>
+        <p>Actualmente no registra estudiantes con requisitos por validar asignados a su cuenta.</p>
+      </div>
+    } @else if (itemsFiltrados().length === 0) {
+      <div class="empty-state">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <h3>No se encontraron resultados</h3>
+        <p>No hay requisitos que coincidan con los filtros o el término de búsqueda actual.</p>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="fluent-table">
+          <thead>
+            <tr>
+              <th>ESTUDIANTE / CARRERA</th>
+              <th>REQUISITO A VALIDAR</th>
+              <th>ESTADO CUMPLIMIENTO</th>
+              <th>EVIDENCIA / CERTIFICADO</th>
+              <th>OBSERVACIONES (VISIBLES AL ALUMNO)</th>
+              <th class="text-right">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of itemsPaginados(); track item.idPostulacionAlumnoRequisitoModalidad) {
+              <tr [class.row-approved]="getAprobado(item)" [class.row-pending]="!getAprobado(item)">
+                <!-- Estudiante & Carrera -->
+                <td class="td-student">
+                  <div class="student-info">
+                    <strong class="student-name">{{ item.nombreAlumno }}</strong>
+                    <span class="student-ci font-mono">C.I. {{ item.cedulaAlumno }}</span>
+                    <span class="student-career"
+                      >{{ item.carrera }} &bull; {{ item.modalidad }}</span
+                    >
+                  </div>
+                </td>
+
+                <!-- Requisito -->
+                <td class="td-req">
+                  <div class="req-badge-group">
+                    <span class="req-title">{{ item.nombreRequisito }}</span>
+                    <span class="expediente-ref">Expediente #{{ item.idPostulacionAlumnos }}</span>
+                  </div>
+                </td>
+
+                <!-- Checkbox de Cumplimiento -->
+                <td class="td-check">
+                  <label class="custom-checkbox-label">
+                    <input
+                      #chk
+                      type="checkbox"
+                      [checked]="getAprobado(item)"
+                      (change)="setAprobado(item, chk.checked)"
+                    />
+                    <span class="checkbox-custom"></span>
+                    <span
+                      class="checkbox-text"
+                      [class.text-success]="getAprobado(item)"
+                      [class.text-warning]="!getAprobado(item)"
+                    >
+                      {{
+                        getAprobado(item)
+                          ? 'Requisito Aprobado'
+                          : getObservaciones(item)
+                            ? 'Observado (No Cumple)'
+                            : 'Pendiente'
+                      }}
+                    </span>
+                  </label>
+                </td>
+
+                <!-- Adjuntos / Archivos Opcionales -->
+                <td class="td-attachment">
+                  <div class="attachment-controls">
+                    @if (item.nombreArchivoAdjunto) {
+                      <div class="existing-attachment">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <a
+                          [href]="item.rutaArchivoAdjunto"
+                          target="_blank"
+                          class="attachment-link"
+                          [title]="item.nombreArchivoAdjunto"
+                        >
+                          {{ item.nombreArchivoAdjunto }}
+                        </a>
+                      </div>
+                    }
+
+                    <label class="file-upload-btn" title="Cargar certificado o evidencia opcional">
+                      <input
+                        type="file"
+                        (change)="onFileChange(item.idPostulacionAlumnoRequisitoModalidad, $event)"
+                        accept=".pdf,.png,.jpg,.jpeg"
+                      />
+                      <span>{{
+                        archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]
+                          ? 'Archivo seleccionado'
+                          : 'Adjuntar soporte'
+                      }}</span>
+                    </label>
+                    @if (archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]; as f) {
+                      <span class="selected-filename">{{ f.name }}</span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Observaciones Mejoradas (Glass/Fluent Input con Icono) -->
+                <td class="td-obs">
+                  <div
+                    class="obs-input-wrapper"
+                    [class.has-content]="getObservaciones(item).trim().length > 0"
+                  >
+                    <div class="obs-icon-badge">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <textarea
+                      #txtObs
+                      class="fluent-obs-input"
+                      rows="2"
+                      placeholder="Escriba observaciones de retroalimentación para el alumno..."
+                      [value]="getObservaciones(item)"
+                      (input)="setObservaciones(item, txtObs.value)"
+                    ></textarea>
+                    @if (getObservaciones(item).trim().length > 0) {
+                      <span
+                        class="obs-indicator-dot"
+                        title="Contiene observación registrada"
+                      ></span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Acciones -->
+                <td class="text-right td-action">
+                  <button
+                    type="button"
+                    class="fluent-btn-primary fluent-btn-sm"
+                    [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
+                    (click)="enviarGuardado(item)"
+                  >
+                    {{
+                      guardandoId() === item.idPostulacionAlumnoRequisitoModalidad
+                        ? 'Guardando...'
+                        : 'Guardar Validación'
+                    }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginador Integrado en la Tabla -->
+      <footer class="table-pagination">
+        <div class="pagination-left">
+          <span class="pagination-range-text">
+            Mostrando <strong>{{ rangoInicio() }}</strong
+            >–<strong>{{ rangoFin() }}</strong> de
+            <strong>{{ totalFiltrados() }}</strong> requisitos
+          </span>
+
+          <div class="page-size-selector">
+            <span class="size-label">Por pág:</span>
+            <select
+              class="size-select"
+              [value]="tamanoPagina()"
+              (change)="onTamanoPaginaChange($event)"
+              aria-label="Registros por página"
+            >
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+            </select>
+          </div>
+        </div>
+
+        <nav class="pagination-nav" aria-label="Paginación de resultados">
+          <button
+            type="button"
+            class="nav-btn nav-btn--prev"
+            [disabled]="paginaActual() <= 1"
+            (click)="irAPagina(paginaActual() - 1)"
+            aria-label="Página anterior"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Anterior</span>
+          </button>
+
+          <div class="page-numbers">
+            @for (p of paginasDisponibles(); track p) {
+              <button
+                type="button"
+                class="num-btn"
+                [class.active]="p === paginaActual()"
+                (click)="irAPagina(p)"
+              >
+                {{ p }}
+              </button>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="nav-btn nav-btn--next"
+            [disabled]="paginaActual() >= totalPaginas()"
+            (click)="irAPagina(paginaActual() + 1)"
+            aria-label="Página siguiente"
+          >
+            <span>Siguiente</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </nav>
+      </footer>
+    }
+  </div>
+</section>

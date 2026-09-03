@@ -33,6 +33,34 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         </a>
       </header>
 
+      <!-- Banner Normativa Institucional: Restricción Semestres Iniciales -->
+      <div class="restriction-notice-banner">
+        <div class="notice-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="notice-content">
+          <strong>Restricción Académica Institucional de Postulación</strong>
+          <p>
+            Los estudiantes matriculados en 1ro, 2do y 3er nivel/semestre no están habilitados para
+            participar en el proceso de titulación y se encuentran bloqueados automáticamente por el
+            sistema. El proceso de admisión es exclusivo para estudiantes de 4to nivel en adelante o
+            egresados.
+          </p>
+        </div>
+      </div>
+
       <!-- Pestañas de Navegación (Tabs) -->
       <div class="tabs-nav">
         <button class="tab-btn" [class.active]="tabActiva() === 'aptos'" (click)="setTab('aptos')">
@@ -279,6 +307,46 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
       .btn-back:hover {
         background-color: var(--istpet-navy-subtle, rgba(27, 42, 74, 0.06));
         border-color: var(--istpet-navy, #1b2a4a);
+      }
+      .restriction-notice-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 14px 18px;
+        background: rgba(183, 129, 3, 0.08);
+        border: 1px solid rgba(183, 129, 3, 0.25);
+        border-left: 4px solid #b78103;
+        border-radius: var(--radius-md, 6px);
+        margin-bottom: 20px;
+      }
+      .restriction-notice-banner .notice-icon {
+        color: #b78103;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        margin-top: 2px;
+      }
+      .restriction-notice-banner .notice-content strong {
+        display: block;
+        font-size: 0.875rem;
+        color: var(--text-primary, #1a1a1a);
+        margin-bottom: 2px;
+      }
+      .restriction-notice-banner .notice-content p {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--text-secondary, #484644);
+        line-height: 1.4;
+      }
+      [data-theme='dark'] .restriction-notice-banner {
+        background: rgba(197, 155, 39, 0.1);
+        border-color: rgba(197, 155, 39, 0.3);
+      }
+      [data-theme='dark'] .restriction-notice-banner .notice-content strong {
+        color: var(--istpet-gold, #c59b27);
+      }
+      [data-theme='dark'] .restriction-notice-banner .notice-content p {
+        color: #cbd5e1;
       }
       .tabs-nav {
         display: flex;
