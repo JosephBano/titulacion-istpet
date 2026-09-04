@@ -449,6 +449,13 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         return new PaginaPostulacionesDto(items, pagina, tamanoPagina, total);
     }
 
+    public async Task<int> ContarTotalPostulacionesAsync(CancellationToken ct = default)
+    {
+        return await _context.TitulPostulacionAlumnos
+            .AsNoTracking()
+            .CountAsync(ct);
+    }
+
     public async Task<IReadOnlyList<EstadoPostulacionDto>> ListarEstadosAsync(CancellationToken ct = default)
     {
         var estados = await _context.TitulPostulacionEstados

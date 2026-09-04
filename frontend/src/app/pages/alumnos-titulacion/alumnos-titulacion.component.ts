@@ -279,7 +279,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
       .header-title h1 {
         font-size: 1.625rem;
         font-weight: 700;
-        color: var(--istpet-navy, #1b2a4a);
+        color: var(--istpet-navy, #0d1b4c);
         letter-spacing: -0.01em;
         margin: 0;
       }
@@ -305,8 +305,8 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
           border-color 150ms ease;
       }
       .btn-back:hover {
-        background-color: var(--istpet-navy-subtle, rgba(27, 42, 74, 0.06));
-        border-color: var(--istpet-navy, #1b2a4a);
+        background-color: var(--istpet-navy-subtle, rgba(13, 27, 76, 0.06));
+        border-color: var(--istpet-navy, #0d1b4c);
       }
       .restriction-notice-banner {
         display: flex;
@@ -384,7 +384,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         color: var(--text-primary, #1a1a1a);
       }
       .tab-btn.active {
-        color: var(--istpet-navy, #1b2a4a);
+        color: var(--istpet-navy, #0d1b4c);
         border-bottom-color: var(--istpet-gold, #c59b27);
       }
       [data-theme='dark'] .tab-btn.active {
@@ -431,7 +431,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
           background 150ms ease;
       }
       .input-search:focus {
-        border-color: var(--istpet-navy, #1b2a4a);
+        border-color: var(--istpet-navy, #0d1b4c);
         background: var(--bg-surface, #ffffff);
       }
       .btn-refresh {
@@ -440,7 +440,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         gap: 8px;
         height: 38px;
         padding: 0 18px;
-        background: var(--istpet-navy, #1b2a4a);
+        background: var(--istpet-navy, #0d1b4c);
         color: #ffffff;
         border: none;
         border-radius: var(--radius-md, 6px);
@@ -451,11 +451,11 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         transition: background 150ms ease;
       }
       .btn-refresh:hover {
-        background: var(--istpet-navy-hover, #253d6b);
+        background: var(--istpet-navy-hover, #162a70);
       }
       [data-theme='dark'] .btn-refresh {
         background: var(--istpet-gold, #c59b27);
-        color: var(--istpet-navy-dark, #121d34);
+        color: var(--istpet-navy-dark, #081133);
       }
       [data-theme='dark'] .btn-refresh:hover {
         background: var(--istpet-gold-hover, #d4af37);
@@ -522,7 +522,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
       .font-mono {
         font-family: 'SFMono-Regular', Consolas, monospace;
         font-weight: 600;
-        color: var(--istpet-navy, #1b2a4a);
+        color: var(--istpet-navy, #0d1b4c);
       }
       [data-theme='dark'] .font-mono {
         color: var(--istpet-gold, #c59b27);
@@ -535,7 +535,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         color: var(--text-secondary, #323130);
       }
       .text-accent {
-        color: var(--istpet-navy, #1b2a4a);
+        color: var(--istpet-navy, #0d1b4c);
       }
       [data-theme='dark'] .text-accent {
         color: var(--istpet-gold, #c59b27);
@@ -595,7 +595,7 @@ import { AlumnoApto, GraduadoHistorico } from '../../core/models/alumno-filtro.m
         width: 36px;
         height: 36px;
         border: 3px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
-        border-top-color: var(--istpet-navy, #1b2a4a);
+        border-top-color: var(--istpet-navy, #0d1b4c);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 12px;

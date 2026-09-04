@@ -16,6 +16,7 @@ public class PostulacionesController(
     ObtenerMiPostulacion obtenerMiPostulacion,
     ObtenerPostulacionPorId obtenerPorId,
     ListarPostulaciones listarPostulaciones,
+    ContarTotalPostulaciones contarTotalPostulaciones,
     ListarEstadosPostulacion listarEstados,
     CrearPostulacion crearPostulacion,
     ActualizarRequisitosPostulacion actualizarRequisitos,
@@ -29,6 +30,7 @@ public class PostulacionesController(
     private readonly ObtenerMiPostulacion _obtenerMiPostulacion = obtenerMiPostulacion;
     private readonly ObtenerPostulacionPorId _obtenerPorId = obtenerPorId;
     private readonly ListarPostulaciones _listarPostulaciones = listarPostulaciones;
+    private readonly ContarTotalPostulaciones _contarTotalPostulaciones = contarTotalPostulaciones;
     private readonly ListarEstadosPostulacion _listarEstados = listarEstados;
     private readonly CrearPostulacion _crearPostulacion = crearPostulacion;
     private readonly ActualizarRequisitosPostulacion _actualizarRequisitos = actualizarRequisitos;
@@ -127,6 +129,17 @@ public class PostulacionesController(
         );
 
         var resultado = await _listarPostulaciones.EjecutarAsync(consulta, ct);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Conteo total ligero de postulaciones para optimización de carga inicial en Home/Dashboard
+    /// </summary>
+    [HttpGet("total")]
+    [ProducesResponseType(typeof(TotalPostulacionesDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<TotalPostulacionesDto>> ObtenerTotalPostulaciones(CancellationToken ct)
+    {
+        var resultado = await _contarTotalPostulaciones.EjecutarAsync(ct);
         return Ok(resultado);
     }
 

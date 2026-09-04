@@ -93,6 +93,10 @@ export class TitulacionService {
     return this.http.get<PaginaPostulaciones>(`${this.API_URL}/postulaciones`, { params });
   }
 
+  public getTotalPostulaciones(): Observable<{ totalPostulaciones: number }> {
+    return this.http.get<{ totalPostulaciones: number }>(`${this.API_URL}/postulaciones/total`);
+  }
+
   public getEstadosPostulacion(): Observable<EstadoPostulacion[]> {
     return this.http.get<EstadoPostulacion[]>(`${this.API_URL}/postulaciones/estados`);
   }

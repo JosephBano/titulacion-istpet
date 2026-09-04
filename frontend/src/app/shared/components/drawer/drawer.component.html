@@ -1,0 +1,133 @@
+﻿@if (isOpen()) {
+  <!-- Contenedor general del Drawer -->
+  <div class="drawer-host" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+    <!-- 1. Backdrop oscuro con efecto glassmorphism -->
+    <div
+      class="drawer-backdrop"
+      (click)="onBackdropClick()"
+      aria-hidden="true"
+    ></div>
+
+    <!-- 2. Panel Drawer que nace de la derecha -->
+    <aside
+      class="drawer-panel"
+      [class.size-sm]="size() === 'sm'"
+      [class.size-md]="size() === 'md'"
+      [class.size-lg]="size() === 'lg'"
+      [class.size-xl]="size() === 'xl'"
+      [class.size-full]="size() === 'full'"
+    >
+      <!-- Encabezado del Drawer -->
+      <header class="drawer-header">
+        <div class="drawer-header-info">
+          @if (eyebrow()) {
+            <span class="drawer-eyebrow">{{ eyebrow() }}</span>
+          }
+          <h2 class="drawer-title">{{ title() }}</h2>
+          @if (subtitle()) {
+            <p class="drawer-subtitle">{{ subtitle() }}</p>
+          }
+        </div>
+
+        <div class="drawer-header-actions">
+          <ng-content select="[drawer-header-actions]"></ng-content>
+          <button
+            type="button"
+            class="drawer-close-btn"
+            (click)="requestClose()"
+            aria-label="Cerrar panel"
+            title="Cerrar panel"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Cuerpo del Drawer (Scroll independiente) -->
+      <div class="drawer-body">
+        <ng-content></ng-content>
+      </div>
+
+      <!-- Footer opcional del Drawer -->
+      <footer class="drawer-footer">
+        <ng-content select="[drawer-footer]"></ng-content>
+      </footer>
+    </aside>
+
+    <!-- 3. Modal de Advertencia de Pérdida de Datos (si hasDirtyData es true) -->
+    @if (showDiscardModal()) {
+      <div
+        class="discard-modal-backdrop"
+        (click)="cancelDiscard()"
+        aria-hidden="true"
+      >
+        <div
+          class="discard-modal-card"
+          (click)="$event.stopPropagation()"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="discard-modal-title"
+          aria-describedby="discard-modal-desc"
+        >
+          <!-- Icono de advertencia institucional -->
+          <div class="discard-modal-icon-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+
+          <div class="discard-modal-content">
+            <h3 id="discard-modal-title" class="discard-modal-title">
+              {{ discardModalTitle() }}
+            </h3>
+            <p id="discard-modal-desc" class="discard-modal-message">
+              {{ discardModalMessage() }}
+            </p>
+          </div>
+
+          <div class="discard-modal-actions">
+            <button
+              type="button"
+              class="discard-btn discard-btn--cancel"
+              (click)="cancelDiscard()"
+            >
+              Continuar editando
+            </button>
+            <button
+              type="button"
+              class="discard-btn discard-btn--danger"
+              (click)="confirmDiscard()"
+            >
+              Descartar y salir
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

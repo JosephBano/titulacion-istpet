@@ -1,6 +1,6 @@
 ---
 name: titulacion-ui-design
-description: Estándar de diseño UI/UX basado en Microsoft Fluent Design 2 para Titulación ISTPET (ISTPET), integrado con los colores oficiales del Instituto (Azul Marino #1b2a4a y Dorado Académico #c59b27) y soporte nativo para Modo Claro y Modo Oscuro.
+description: Estándar de diseño UI/UX basado en Microsoft Fluent Design 2 para Titulación ISTPET (ISTPET), integrado con los colores oficiales del Instituto (Azul Marino #0d1b4c y Dorado Académico #c59b27) y soporte nativo para Modo Claro y Modo Oscuro.
 ---
 
 # Estándar de Diseño Microsoft Fluent Design 2 — ISTPET Titulación ISTPET
@@ -57,7 +57,7 @@ Basado en el login real de Microsoft 365 observado en producción:
 | Propiedad | Light Mode | Dark Mode |
 |---|---|---|
 | Color base canvas | `#e8eaf0` — azul-lavanda suave | `#0d1117` — negro azulado profundo |
-| Formas abstractas | Rombos/paralelogramos en `rgba(255,255,255,0.65)` — sin `border-radius`, sin `filter:blur` | Rombos en `rgba(27,42,74,0.45)` |
+| Formas abstractas | Rombos/paralelogramos en `rgba(255,255,255,0.65)` — sin `border-radius`, sin `filter:blur` | Rombos en `rgba(13,27,76,0.45)` |
 | Efecto | Formas nítidas superpuestas como capas de papel cortadas en diagonal | Identico |
 | Patrón adicional | Ninguno. Fondo completamente limpio | Ninguno |
 
@@ -127,8 +127,8 @@ Dark Mode:
 .logo-grid .sq { display: block; border-radius: 1px; }
 .sq-gold-dark  { background: #b08a20; }
 .sq-gold       { background: #c59b27; }
-.sq-navy       { background: #1b2a4a; }
-.sq-navy-light { background: #2b4070; }
+.sq-navy       { background: #0d1b4c; }
+.sq-navy-light { background: #1a2f73; }
 ```
 
 ### 2.4 Footer Legal — Esquina Inferior Derecha
@@ -217,8 +217,8 @@ No usar valores arbitrarios como `13px`, `17px`, `22px`. Si no es múltiplo de `
 
 /* Tecnica Microsoft: borde inferior se engrosa en foco */
 .fluent-input:focus {
-  border-color: #1b2a4a;
-  border-bottom: 2px solid #1b2a4a;
+  border-color: #0d1b4c;
+  border-bottom: 2px solid #0d1b4c;
   outline: none;
 }
 ```
@@ -245,7 +245,7 @@ Dark Mode:
 .fluent-btn-primary {
   height: 32px;
   padding: 0 16px;
-  background: #1b2a4a;
+  background: #0d1b4c;
   color: #ffffff;
   border: none;
   border-radius: 2px;
@@ -255,8 +255,8 @@ Dark Mode:
   cursor: pointer;
   transition: background 167ms ease;
 }
-.fluent-btn-primary:hover:not(:disabled)  { background: #253d6b; }
-.fluent-btn-primary:active:not(:disabled) { background: #121d34; }
+.fluent-btn-primary:hover:not(:disabled)  { background: #162a70; }
+.fluent-btn-primary:active:not(:disabled) { background: #081133; }
 .fluent-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 ```
 
@@ -266,7 +266,7 @@ Dark Mode:
 .fluent-btn-pill {
   height: 40px;
   padding: 0 24px;
-  background: #1b2a4a;
+  background: #0d1b4c;
   color: #ffffff;
   border: none;
   border-radius: 999px;
@@ -284,7 +284,7 @@ Dark Mode:
   height: 32px;
   padding: 0 16px;
   background: transparent;
-  color: #1b2a4a;
+  color: #0d1b4c;
   border: 1px solid #8a8886;
   border-radius: 2px;
   font-size: 0.875rem;
@@ -336,8 +336,8 @@ Dark Mode:
 .fluent-table tbody tr:hover td { background: rgba(0,0,0,0.03); }
 
 .fluent-table tbody tr.selected td {
-  background: rgba(27,42,74,0.06);
-  border-left: 2px solid #1b2a4a;
+  background: rgba(13,27,76,0.06);
+  border-left: 2px solid #0d1b4c;
 }
 ```
 
@@ -416,13 +416,13 @@ Dos niveles de navegacion lateral, como en Outlook web:
 ```
 
 ### Topbar (48px)
-- Background: `#1b2a4a`
+- Background: `#0d1b4c`
 - Logo: cuatro cuadros + "ISTPET Titulación ISTPET" en blanco
 - Busqueda centrada: input fondo `rgba(255,255,255,0.12)`, borde `rgba(255,255,255,0.2)`
 - Iconos derecha: notificaciones, configuracion, avatar en `rgba(255,255,255,0.85)`
 
 ### Icon Rail (48px)
-- Background: `#12213a` (mas oscuro que topbar)
+- Background: `#091338` (mas oscuro que topbar)
 - Iconos: `20px`, color `rgba(255,255,255,0.7)`, activo `#ffffff`
 - Item activo: borde izquierdo `3px solid #c59b27`
 - Sin texto — solo iconos
@@ -446,10 +446,10 @@ Dos niveles de navegacion lateral, como en Outlook web:
   font-family: 'Segoe UI', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
   /* Marca ISTPET */
-  --istpet-navy:         #1b2a4a;
-  --istpet-navy-hover:   #253d6b;
-  --istpet-navy-dark:    #121d34;
-  --istpet-navy-rail:    #12213a;
+  --istpet-navy:         #0d1b4c;
+  --istpet-navy-hover:   #162a70;
+  --istpet-navy-dark:    #081133;
+  --istpet-navy-rail:    #091338;
   --istpet-gold:         #c59b27;
   --istpet-gold-hover:   #d4af37;
   --istpet-gold-subtle:  rgba(197, 155, 39, 0.12);
@@ -513,7 +513,7 @@ Dos niveles de navegacion lateral, como en Outlook web:
   --bg-canvas:           #0d1117;
   --bg-surface:          #1f2937;
   --bg-surface-alt:      #111827;
-  --bg-shape:            rgba(27, 42, 74, 0.45);
+  --bg-shape:            rgba(13, 27, 76, 0.45);
   --text-primary:        #f9fafb;
   --text-secondary:      #e5e7eb;
   --text-muted:          #9ca3af;

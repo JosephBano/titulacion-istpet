@@ -101,7 +101,7 @@
 .step-num-badge {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background: var(--istpet-gold-subtle, rgba(197, 155, 39, 0.12));
@@ -154,8 +154,8 @@
 }
 
 .modality-card-interactive.selected {
-  border: 2px solid var(--istpet-navy, #1b2a4a);
-  background: rgba(27, 42, 74, 0.02);
+  border: 2px solid var(--istpet-navy, #0d1b4c);
+  background: rgba(13, 27, 76, 0.02);
 }
 
 :host-context([data-theme="dark"]) .modality-card-interactive.selected {
@@ -348,7 +348,7 @@
 .fluent-btn-primary {
   height: 32px;
   padding: 0 16px;
-  background: var(--istpet-navy, #1b2a4a);
+  background: var(--istpet-navy, #0d1b4c);
   color: #ffffff;
   border: none;
   border-radius: 2px;
@@ -360,7 +360,7 @@
 }
 
 .fluent-btn-primary:hover:not(:disabled) {
-  background: var(--istpet-navy-hover, #253d6b);
+  background: var(--istpet-navy-hover, #162a70);
 }
 
 .fluent-btn-primary:disabled {
@@ -429,7 +429,7 @@
   margin: 2px 0;
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
 }
 
 :host-context([data-theme="dark"]) .box-title {

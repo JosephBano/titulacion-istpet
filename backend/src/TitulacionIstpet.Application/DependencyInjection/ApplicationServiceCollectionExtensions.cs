@@ -35,6 +35,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<Features.Postulaciones.Consultas.ObtenerMiPostulacion>();
         services.AddScoped<Features.Postulaciones.Consultas.ObtenerPostulacionPorId>();
         services.AddScoped<Features.Postulaciones.Consultas.ListarPostulaciones>();
+        services.AddScoped<Features.Postulaciones.Consultas.ContarTotalPostulaciones>();
         services.AddScoped<Features.Postulaciones.Consultas.ListarEstadosPostulacion>();
 
         services.AddScoped<Features.Postulaciones.Comandos.CrearPostulacion>();

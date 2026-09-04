@@ -209,6 +209,18 @@ describe('TitulacionService & Network Resilience Tests', () => {
     req.flush(mockRes);
   });
 
+  it('debe obtener el conteo total ligero de postulaciones', () => {
+    const mockRes = { totalPostulaciones: 42 };
+
+    service.getTotalPostulaciones().subscribe((res) => {
+      expect(res.totalPostulaciones).toBe(42);
+    });
+
+    const req = httpMock.expectOne(`${mockApiUrl}/api/v1/postulaciones/total`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockRes);
+  });
+
   it('debe listar y crear modalidades maestras', () => {
     const mockModalidades = [
       {

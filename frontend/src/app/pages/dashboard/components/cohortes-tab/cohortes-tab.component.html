@@ -152,7 +152,6 @@
         <table class="fluent-table">
           <thead>
             <tr>
-              <th class="th-id">ID</th>
               <th>PERÍODO</th>
               <th>DETALLE / DESCRIPCIÓN</th>
               <th>VIGENCIA DE CORTE</th>
@@ -165,9 +164,6 @@
           <tbody>
             @for (c of convocatoriasPaginadas(); track c.idCohorte) {
               <tr>
-                <td class="td-id">
-                  <span class="code-badge">#{{ c.idCohorte }}</span>
-                </td>
                 <td>
                   <strong class="periodo-tag">{{ c.idPeriodo }}</strong>
                 </td>

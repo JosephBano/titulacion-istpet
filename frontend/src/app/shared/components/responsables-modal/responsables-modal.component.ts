@@ -1,6 +1,8 @@
-import { Component, input, output, signal, computed, effect, inject } from '@angular/core';
+import { Component, input, output, signal, computed, effect, inject, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, Subscription, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import {
   RequisitoMaestro,
   ResponsableRequisito,
@@ -8,15 +10,16 @@ import {
 } from '../../../core/models/titulacion.models';
 import { TitulacionService } from '../../../core/services/titulacion.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { DrawerComponent } from '../drawer/drawer.component';
 
 @Component({
   selector: 'app-responsables-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DrawerComponent],
   templateUrl: './responsables-modal.component.html',
   styleUrls: ['./responsables-modal.component.css'],
 })
-export class ResponsablesModalComponent {
+export class ResponsablesModalComponent implements OnDestroy {
   private readonly titulacionService = inject(TitulacionService);
   private readonly notificationService = inject(NotificationService);
 
@@ -29,25 +32,30 @@ export class ResponsablesModalComponent {
   responsables = signal<ResponsableRequisito[]>([]);
   profesoresCandidatos = signal<ProfesorCandidato[]>([]);
   cargando = signal<boolean>(false);
+  cargandoCandidatos = signal<boolean>(false);
   busquedaProfesor = signal<string>('');
   filtroAsignados = signal<string>('');
-  profesorSeleccionado = signal<string>('');
-  asignando = signal<boolean>(false);
+  mostrarDropdown = signal<boolean>(false);
+  asignandoId = signal<string | null>(null);
 
-  // Docentes candidatos filtrados localmente o por búsqueda remota
-  profesoresFiltrados = computed(() => {
-    const q = this.busquedaProfesor().toLowerCase().trim();
-    const lista = this.profesoresCandidatos();
-    if (!q) return lista;
-    return lista.filter(
-      (p) =>
-        p.idProfesor.toLowerCase().includes(q) ||
-        p.nombresCompletos.toLowerCase().includes(q) ||
-        (p.email && p.email.toLowerCase().includes(q)),
+  // Flujo reactivo para búsqueda remota en backend con debounce de 1 segundo
+  private readonly busquedaSubject = new Subject<string>();
+  private readonly searchSub: Subscription;
+
+  /**
+   * Docentes devueltos por la base de datos que aún NO están asignados a este requisito.
+   * Si ya están asignados, se excluyen automáticamente para que no vuelvan a aparecer.
+   */
+  candidatosDisponibles = computed(() => {
+    const asignadosIds = new Set(
+      this.responsables().map((r) => r.idProfesor.trim().toLowerCase())
+    );
+    return this.profesoresCandidatos().filter(
+      (p) => !asignadosIds.has(p.idProfesor.trim().toLowerCase())
     );
   });
 
-  // Docentes ya asignados filtrados
+  // Docentes ya asignados filtrados en la tabla inferior
   responsablesFiltrados = computed(() => {
     const q = this.filtroAsignados().toLowerCase().trim();
     const lista = this.responsables();
@@ -61,17 +69,46 @@ export class ResponsablesModalComponent {
   });
 
   constructor() {
+    this.searchSub = this.busquedaSubject
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged(),
+        switchMap((termino) => {
+          this.cargandoCandidatos.set(true);
+          return this.titulacionService.getProfesoresCandidatos(termino).pipe(
+            catchError(() => of([])),
+            finalize(() => this.cargandoCandidatos.set(false)),
+          );
+        }),
+      )
+      .subscribe((data) => {
+        this.profesoresCandidatos.set(data);
+        if (this.busquedaProfesor().trim()) {
+          this.mostrarDropdown.set(true);
+        }
+      });
+
     effect(() => {
       const r = this.requisito();
       const isVisible = this.visible();
       if (isVisible && r) {
         this.busquedaProfesor.set('');
         this.filtroAsignados.set('');
-        this.profesorSeleccionado.set('');
+        this.mostrarDropdown.set(false);
+        this.asignandoId.set(null);
+        this.profesoresCandidatos.set([]);
         this.cargarResponsables(r.idRequisitos);
-        this.cargarCandidatos();
       }
     });
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.mostrarDropdown.set(false);
+  }
+
+  ngOnDestroy(): void {
+    this.searchSub.unsubscribe();
   }
 
   cargarResponsables(idRequisito: number): void {
@@ -85,33 +122,71 @@ export class ResponsablesModalComponent {
     });
   }
 
-  cargarCandidatos(): void {
-    this.titulacionService.getProfesoresCandidatos().subscribe({
-      next: (data) => this.profesoresCandidatos.set(data),
-      error: () => this.profesoresCandidatos.set([]),
+  cargarCandidatos(termino = ''): void {
+    this.cargandoCandidatos.set(true);
+    this.titulacionService.getProfesoresCandidatos(termino).pipe(
+      catchError(() => of([])),
+      finalize(() => this.cargandoCandidatos.set(false)),
+    ).subscribe((data) => {
+      this.profesoresCandidatos.set(data);
+      if (termino.trim()) {
+        this.mostrarDropdown.set(true);
+      }
     });
   }
 
-  onBusquedaChange(): void {
-    // El computed profesoresFiltrados se actualiza reactivamente
+  onBusquedaInput(valor: string): void {
+    this.busquedaProfesor.set(valor);
+    if (!valor.trim()) {
+      this.mostrarDropdown.set(false);
+      this.profesoresCandidatos.set([]);
+      return;
+    }
+    this.busquedaSubject.next(valor);
   }
 
-  asignarProfesor(): void {
-    const r = this.requisito();
-    const idProf = this.profesorSeleccionado();
-    if (!r || !idProf) return;
+  buscarInmediato(): void {
+    if (this.busquedaProfesor().trim()) {
+      this.cargarCandidatos(this.busquedaProfesor());
+    }
+  }
 
-    this.asignando.set(true);
-    this.titulacionService.asignarProfesorRequisito(r.idRequisitos, idProf).subscribe({
+  limpiarBusqueda(): void {
+    this.busquedaProfesor.set('');
+    this.mostrarDropdown.set(false);
+    this.profesoresCandidatos.set([]);
+  }
+
+  onInputFocus(): void {
+    if (this.busquedaProfesor().trim() && this.profesoresCandidatos().length > 0) {
+      this.mostrarDropdown.set(true);
+    }
+  }
+
+  getIniciales(nombre: string): string {
+    if (!nombre) return 'D';
+    const partes = nombre.trim().split(/\s+/);
+    if (partes.length === 1) return partes[0].substring(0, 2).toUpperCase();
+    return (partes[0][0] + partes[1][0]).toUpperCase();
+  }
+
+  seleccionarYAsignar(profesor: ProfesorCandidato): void {
+    const r = this.requisito();
+    if (!r || !profesor || this.asignandoId()) return;
+
+    this.asignandoId.set(profesor.idProfesor);
+    this.titulacionService.asignarProfesorRequisito(r.idRequisitos, profesor.idProfesor).subscribe({
       next: () => {
-        this.asignando.set(false);
-        this.profesorSeleccionado.set('');
-        this.notificationService.success('Docente asignado exitosamente como responsable.');
+        this.asignandoId.set(null);
+        this.mostrarDropdown.set(false);
+        this.busquedaProfesor.set('');
+        this.profesoresCandidatos.set([]);
+        this.notificationService.success(`Docente ${profesor.nombresCompletos} asignado exitosamente.`);
         this.cargarResponsables(r.idRequisitos);
         this.cambioAsignaciones.emit();
       },
       error: (err) => {
-        this.asignando.set(false);
+        this.asignandoId.set(null);
         this.notificationService.error(err.error?.message || 'Error al asignar docente.');
       },
     });
@@ -123,7 +198,7 @@ export class ResponsablesModalComponent {
 
     this.titulacionService.desasignarProfesorRequisito(idResponsableEvidencias).subscribe({
       next: () => {
-        this.notificationService.success('Asignación de docente removida.');
+        this.notificationService.success('Asignación de docente removida. Vuelve a estar disponible.');
         this.cargarResponsables(r.idRequisitos);
         this.cambioAsignaciones.emit();
       },

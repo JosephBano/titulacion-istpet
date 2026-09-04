@@ -114,6 +114,10 @@ public sealed record PaginaPostulacionesDto(
     int Total
 );
 
+public sealed record TotalPostulacionesDto(
+    int TotalPostulaciones
+);
+
 public sealed record RequisitoPostulacionInputDto(
     int IdRequisitoModalidad,
     int? IdAdjuntosImagenes,

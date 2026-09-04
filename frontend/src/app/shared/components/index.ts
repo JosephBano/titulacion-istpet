@@ -5,3 +5,4 @@ export * from './stepper/stepper.component';
 export * from './kpi-card/kpi-card.component';
 export * from './dictamen-modal/dictamen-modal.component';
 export * from './apertura-periodo-modal/apertura-periodo-modal.component';
+export * from './drawer/drawer.component';

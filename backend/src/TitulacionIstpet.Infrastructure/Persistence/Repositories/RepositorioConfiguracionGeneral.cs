@@ -204,7 +204,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
             .AsNoTracking()
             .Include(rm => rm.IdModalidadTitulacionNavigation)
             .Include(rm => rm.IdRequisitosNavigation)
-            .Where(rm => rm.IdModalidadTitulacion == idModalidad)
+            .Where(rm => rm.IdModalidadTitulacion == idModalidad && rm.EsActivo)
             .Select(rm => new RequisitoModalidadMatrizDto(
                 rm.IdRequisitoModalidad,
                 rm.IdModalidadTitulacion,

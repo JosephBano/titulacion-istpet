@@ -1,201 +1,209 @@
-@if (visible()) {
-  <div
-    class="modal-backdrop"
-    (click)="cerrar.emit()"
-    (keydown.escape)="cerrar.emit()"
-    tabindex="0"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="responsables-modal-title"
-  >
-    <div
-      class="modal-container"
-      (click)="$event.stopPropagation()"
-      (keydown)="$event.stopPropagation()"
-      tabindex="0"
-    >
-      <header class="modal-header">
-        <div class="header-titles">
-          <span class="modal-eyebrow">CONFIGURACIÓN DE RESPONSABLES</span>
-          <h2 class="modal-title" id="responsables-modal-title">
-            Docentes Evaluadores: {{ requisito()?.requisito }}
-          </h2>
-          <p class="modal-subtitle">
-            Configure qué docentes están facultados para validar y cargar evidencia de este
-            requisito.
-          </p>
-        </div>
-        <button type="button" class="btn-close" (click)="cerrar.emit()" aria-label="Cerrar modal">
-          &times;
-        </button>
-      </header>
-
-      <div class="modal-body">
-        <!-- Formulario para Asignar Docente -->
-        <div class="add-section">
-          <label class="form-label" for="buscarDocente"
-            >Buscar y Asignar Nuevo Docente Responsable</label
-          >
-          <div class="search-filter-box">
-            <svg
-              class="search-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input
-              id="buscarDocente"
-              type="text"
-              class="fluent-input-search"
-              placeholder="Filtrar por cédula, nombres o apellidos del docente..."
-              [ngModel]="busquedaProfesor()"
-              (ngModelChange)="busquedaProfesor.set($event)"
-            />
-            @if (busquedaProfesor()) {
-              <button
-                type="button"
-                class="btn-clear-search"
-                (click)="busquedaProfesor.set('')"
-                title="Limpiar búsqueda"
-              >
-                &times;
-              </button>
-            }
-          </div>
-
-          <div class="add-row">
-            <select
-              id="selectProfesor"
-              class="fluent-select"
-              [ngModel]="profesorSeleccionado()"
-              (ngModelChange)="profesorSeleccionado.set($event)"
-              [disabled]="asignando()"
-            >
-              <option value="">
-                {{
-                  profesoresFiltrados().length === 0
-                    ? '-- No se encontraron docentes con ese criterio --'
-                    : '-- Seleccione un docente de la lista (' +
-                      profesoresFiltrados().length +
-                      ' disponibles) --'
-                }}
-              </option>
-              @for (p of profesoresFiltrados(); track p.idProfesor) {
-                <option [value]="p.idProfesor">
-                  {{ p.nombresCompletos }} (CI: {{ p.idProfesor }}) - {{ p.email }}
-                </option>
-              }
-            </select>
-            <button
-              type="button"
-              class="fluent-btn-primary"
-              [disabled]="!profesorSeleccionado() || asignando()"
-              (click)="asignarProfesor()"
-            >
-              {{ asignando() ? 'Asignando...' : '+ Asignar Docente' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Listado de Responsables Asignados -->
-        <div class="list-section">
-          <div class="list-header">
-            <div>
-              <h3>Docentes Asignados Actualmente</h3>
-              <span class="count-badge">{{ responsables().length }} asignado(s)</span>
-            </div>
-            @if (responsables().length > 2) {
-              <div class="filter-assigned-box">
-                <input
-                  type="text"
-                  class="fluent-input-search-sm"
-                  placeholder="Filtrar asignados..."
-                  [ngModel]="filtroAsignados()"
-                  (ngModelChange)="filtroAsignados.set($event)"
-                />
-              </div>
-            }
-          </div>
-
-          @if (cargando()) {
-            <div class="loading-state">
-              <div class="spinner"></div>
-              <span>Cargando docentes responsables...</span>
-            </div>
-          } @else if (responsables().length === 0) {
-            <div class="empty-state">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-              <p>Este requisito aún no tiene docentes responsables asignados.</p>
-              <span class="empty-hint"
-                >Asigne al menos un docente para que las postulaciones de este requisito puedan ser
-                validadas.</span
-              >
-            </div>
-          } @else if (responsablesFiltrados().length === 0) {
-            <div class="empty-state">
-              <p>No hay docentes asignados que coincidan con "{{ filtroAsignados() }}"</p>
-            </div>
-          } @else {
-            <div class="table-wrapper">
-              <table class="fluent-table">
-                <thead>
-                  <tr>
-                    <th>IDENTIFICACIÓN</th>
-                    <th>DOCENTE EVALUADOR</th>
-                    <th>CORREO ELECTRÓNICO</th>
-                    <th class="text-right">ACCIÓN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (resp of responsablesFiltrados(); track resp.idResponsableEvidencias) {
-                    <tr>
-                      <td class="font-mono">{{ resp.idProfesor }}</td>
-                      <td>
-                        <strong>{{ resp.nombreProfesor }}</strong>
-                      </td>
-                      <td>{{ resp.emailProfesor || 'N/A' }}</td>
-                      <td class="text-right">
-                        <button
-                          type="button"
-                          class="btn-danger-text"
-                          title="Eliminar asignación de este docente"
-                          (click)="desasignar(resp.idResponsableEvidencias)"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
-        </div>
+<app-drawer
+  [isOpen]="visible()"
+  [title]="'Docentes Evaluadores: ' + (requisito()?.requisito || '')"
+  subtitle="Configure qué docentes están facultados para evaluar y validar este requisito."
+  eyebrow="CONFIGURACIÓN DE RESPONSABLES"
+  size="lg"
+  [hasDirtyData]="false"
+  (closed)="cerrar.emit()"
+>
+  <div class="modal-body">
+    <!-- Formulario para Buscar y Asignar Docente -->
+    <div class="add-section">
+      <div class="section-title-row">
+        <label class="form-label" for="buscarDocente">Buscar y Asignar Docente</label>
+        <span class="count-badge-disponibles">
+          {{ responsables().length }} asignado(s)
+        </span>
       </div>
 
-      <footer class="modal-footer">
-        <button type="button" class="fluent-btn-secondary" (click)="cerrar.emit()">Cerrar</button>
-      </footer>
+      <!-- Contenedor Autocomplete con Búsqueda y Resultados debajo -->
+      <div class="search-autocomplete-container" (click)="$event.stopPropagation()">
+        <div class="search-filter-box">
+          <svg
+            class="search-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            id="buscarDocente"
+            type="text"
+            class="fluent-input-search"
+            placeholder="Buscar docente..."
+            [ngModel]="busquedaProfesor()"
+            (ngModelChange)="onBusquedaInput($event)"
+            (keydown.enter)="buscarInmediato()"
+            (focus)="onInputFocus()"
+            autocomplete="off"
+          />
+          @if (cargandoCandidatos()) {
+            <div class="search-spinner-box" title="Buscando en la base de datos...">
+              <div class="spinner-tiny"></div>
+            </div>
+          } @else if (busquedaProfesor()) {
+            <button
+              type="button"
+              class="btn-clear-search"
+              (click)="limpiarBusqueda()"
+              title="Limpiar búsqueda"
+            >
+              &times;
+            </button>
+          }
+        </div>
+
+        <!-- Resultados que se despliegan directamente por debajo del input -->
+        @if (mostrarDropdown()) {
+          <div class="autocomplete-dropdown shadow-flyout">
+            @if (cargandoCandidatos()) {
+              <div class="dropdown-status-item">
+                <div class="spinner-tiny"></div>
+                <span>Buscando docentes en la base de datos...</span>
+              </div>
+            } @else if (candidatosDisponibles().length === 0) {
+              <div class="dropdown-status-item empty">
+                <span>No se encontraron docentes disponibles con "{{ busquedaProfesor() }}"</span>
+              </div>
+            } @else {
+              <div class="dropdown-header">
+                <span>{{ candidatosDisponibles().length }} docente(s) disponible(s)</span>
+              </div>
+              <ul class="dropdown-list">
+                @for (p of candidatosDisponibles(); track p.idProfesor) {
+                  <li
+                    class="dropdown-item"
+                    [class.item-assigning]="asignandoId() === p.idProfesor"
+                    (click)="seleccionarYAsignar(p)"
+                    title="Haga clic para asignar inmediatamente a este docente"
+                  >
+                    <div class="dropdown-item-avatar">
+                      {{ getIniciales(p.nombresCompletos) }}
+                    </div>
+                    <div class="dropdown-item-info">
+                      <div class="item-name">{{ p.nombresCompletos }}</div>
+                      <div class="item-meta">
+                        <span class="font-mono">CI: {{ p.idProfesor }}</span>
+                        @if (p.email) {
+                          <span class="meta-dot">·</span>
+                          <span class="meta-email">{{ p.email }}</span>
+                        }
+                      </div>
+                    </div>
+                    <div class="dropdown-item-action">
+                      @if (asignandoId() === p.idProfesor) {
+                        <span class="badge-assigning">
+                          <span class="spinner-tiny"></span> Asignando...
+                        </span>
+                      } @else {
+                        <span class="badge-select-action">+ Asignar</span>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Listado de Responsables Asignados -->
+    <div class="list-section">
+      <div class="list-header">
+        <div>
+          <h3>Docentes Asignados Actualmente</h3>
+          <span class="count-badge">{{ responsables().length }} asignado(s)</span>
+        </div>
+        @if (responsables().length > 2) {
+          <div class="filter-assigned-box">
+            <input
+              type="text"
+              class="fluent-input-search-sm"
+              placeholder="Filtrar asignados..."
+              [ngModel]="filtroAsignados()"
+              (ngModelChange)="filtroAsignados.set($event)"
+            />
+          </div>
+        }
+      </div>
+
+      @if (cargando()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>Cargando docentes responsables...</span>
+        </div>
+      } @else if (responsables().length === 0) {
+        <div class="empty-state">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <p>Este requisito aún no tiene docentes responsables asignados.</p>
+          <span class="empty-hint">
+            Asigne al menos un docente para que las postulaciones de este requisito puedan ser validadas en el portal del docente.
+          </span>
+        </div>
+      } @else if (responsablesFiltrados().length === 0) {
+        <div class="empty-state">
+          <p>No hay docentes asignados que coincidan con "{{ filtroAsignados() }}"</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="fluent-table">
+            <thead>
+              <tr>
+                <th>IDENTIFICACIÓN</th>
+                <th>DOCENTE EVALUADOR</th>
+                <th>CORREO ELECTRÓNICO</th>
+                <th class="text-right">ACCIÓN</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (resp of responsablesFiltrados(); track resp.idResponsableEvidencias) {
+                <tr>
+                  <td class="font-mono">{{ resp.idProfesor }}</td>
+                  <td>
+                    <strong>{{ resp.nombreProfesor }}</strong>
+                  </td>
+                  <td>{{ resp.emailProfesor || 'N/A' }}</td>
+                  <td class="text-right">
+                    <button
+                      type="button"
+                      class="btn-danger-text"
+                      title="Eliminar asignación de este docente y devolverlo al desplegable"
+                      (click)="desasignar(resp.idResponsableEvidencias)"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
   </div>
-}
+
+  <div drawer-footer>
+    <button type="button" class="fluent-btn-primary" (click)="cerrar.emit()">Listo</button>
+  </div>
+</app-drawer>
