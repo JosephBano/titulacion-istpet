@@ -144,9 +144,7 @@ export class DashboardComponent implements OnInit {
     const busqueda = this.busquedaRequisitoMatriz().toLowerCase().trim();
 
     const idsAsignados = new Set(
-      asignados
-        .filter((mr) => mr.esActivo !== false)
-        .map((mr) => mr.idRequisitos)
+      asignados.filter((mr) => mr.esActivo !== false).map((mr) => mr.idRequisitos),
     );
 
     return todos.filter((r) => {

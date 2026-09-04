@@ -326,15 +326,33 @@
             <span class="page-header-breadcrumb">
               Titulación ISTPET &nbsp;/&nbsp;
               @switch (activeTab()) {
-                @case ('postulaciones') { Gestión de Postulantes }
-                @case ('cohortes') { Planificación de Convocatorias }
-                @case ('requisitos') { Catálogos Maestros }
-                @case ('modalidades') { Modalidades de Grado }
-                @case ('evaluacion') { Validación y Dictamen }
-                @case ('postulacion') { Portal del Postulante }
-                @case ('guia') { Documentación Oficial }
-                @case ('cronograma') { Cronograma Institucional }
-                @default { Módulo Activo }
+                @case ('postulaciones') {
+                  Gestión de Postulantes
+                }
+                @case ('cohortes') {
+                  Planificación de Convocatorias
+                }
+                @case ('requisitos') {
+                  Catálogos Maestros
+                }
+                @case ('modalidades') {
+                  Modalidades de Grado
+                }
+                @case ('evaluacion') {
+                  Validación y Dictamen
+                }
+                @case ('postulacion') {
+                  Portal del Postulante
+                }
+                @case ('guia') {
+                  Documentación Oficial
+                }
+                @case ('cronograma') {
+                  Cronograma Institucional
+                }
+                @default {
+                  Módulo Activo
+                }
               }
             </span>
             <h1 class="page-header-title">
@@ -343,10 +361,14 @@
                   Bandeja de Postulaciones
                   <span class="page-header-badge">{{ postulacionesTotal() }} registradas</span>
                 }
-                @case ('cohortes') { Convocatorias y Cortes }
+                @case ('cohortes') {
+                  Convocatorias y Cortes
+                }
                 @case ('requisitos') {
                   Requisitos Maestros
-                  <span class="page-header-badge">{{ requisitosMaestros().length }} configurados</span>
+                  <span class="page-header-badge"
+                    >{{ requisitosMaestros().length }} configurados</span
+                  >
                 }
                 @case ('modalidades') {
                   Modalidades y Matriz
@@ -354,12 +376,22 @@
                 }
                 @case ('evaluacion') {
                   Validación de Requisitos Asignados
-                  <span class="page-header-badge">{{ requisitosDocentePendientes().length }} pendientes</span>
+                  <span class="page-header-badge"
+                    >{{ requisitosDocentePendientes().length }} pendientes</span
+                  >
                 }
-                @case ('postulacion') { Mi Proceso de Titulación }
-                @case ('guia') { Guía Oficial de Titulación }
-                @case ('cronograma') { Calendario Académico {{ currentYear }} }
-                @default { Titulación ISTPET }
+                @case ('postulacion') {
+                  Mi Proceso de Titulación
+                }
+                @case ('guia') {
+                  Guía Oficial de Titulación
+                }
+                @case ('cronograma') {
+                  Calendario Académico {{ currentYear }}
+                }
+                @default {
+                  Titulación ISTPET
+                }
               }
             </h1>
           </div>
@@ -716,7 +748,9 @@
           maxlength="150"
           autocomplete="off"
         />
-        <span class="req-helper-text">Nombre oficial con el que se identificará este requisito en el catálogo.</span>
+        <span class="req-helper-text"
+          >Nombre oficial con el que se identificará este requisito en el catálogo.</span
+        >
       </div>
 
       <div class="req-section-divider"></div>
@@ -734,7 +768,9 @@
           />
           <div class="req-option-info">
             <span class="req-option-title">Requiere adjuntar documento (PDF)</span>
-            <span class="req-option-desc">El postulante o responsable debe subir un archivo digital para revisión.</span>
+            <span class="req-option-desc"
+              >El postulante o responsable debe subir un archivo digital para revisión.</span
+            >
           </div>
         </label>
 
@@ -747,11 +783,13 @@
           />
           <div class="req-option-info">
             <span class="req-option-title">Validación directa (Cumple / No adeuda)</span>
-            <span class="req-option-desc">Sin archivo adjunto; se registra directamente como apto o exonerado.</span>
+            <span class="req-option-desc"
+              >Sin archivo adjunto; se registra directamente como apto o exonerado.</span
+            >
           </div>
         </label>
 
-        <span class="req-options-header" style="margin-top: 6px;">RESPONSABLE Y VISIBILIDAD</span>
+        <span class="req-options-header" style="margin-top: 6px">RESPONSABLE Y VISIBILIDAD</span>
 
         <!-- Fila 3: Carga Estudiante -->
         <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeAlumno">
@@ -762,7 +800,9 @@
           />
           <div class="req-option-info">
             <span class="req-option-title">Disponible para el estudiante</span>
-            <span class="req-option-desc">El postulante lo visualiza y lo entrega desde su portal estudiantil.</span>
+            <span class="req-option-desc"
+              >El postulante lo visualiza y lo entrega desde su portal estudiantil.</span
+            >
           </div>
         </label>
 
@@ -775,7 +815,9 @@
           />
           <div class="req-option-info">
             <span class="req-option-title">Validado por secretaría o docente</span>
-            <span class="req-option-desc">El personal administrativo o docente asignado evalúa y aprueba el requisito.</span>
+            <span class="req-option-desc"
+              >El personal administrativo o docente asignado evalúa y aprueba el requisito.</span
+            >
           </div>
         </label>
       </div>
@@ -827,7 +869,9 @@
           maxlength="45"
           autocomplete="off"
         />
-        <span class="req-helper-text">Nombre oficial de la opción de titulación (máx. 45 caracteres).</span>
+        <span class="req-helper-text"
+          >Nombre oficial de la opción de titulación (máx. 45 caracteres).</span
+        >
       </div>
 
       <!-- Input Cantidad Mínima de Estudiantes -->
@@ -864,21 +908,30 @@
           />
           <div class="req-option-info">
             <span class="req-option-title">Examen Complexivo</span>
-            <span class="req-option-desc">Evalúa conocimientos mediante pruebas teóricas o prácticas de fin de carrera.</span>
+            <span class="req-option-desc"
+              >Evalúa conocimientos mediante pruebas teóricas o prácticas de fin de carrera.</span
+            >
           </div>
         </label>
 
         <!-- Fila 2: Artículo Científico -->
-        <label class="req-option-row" [class.checked]="nuevaModalidadForm().esArticuloCientifico === 'SI'">
+        <label
+          class="req-option-row"
+          [class.checked]="nuevaModalidadForm().esArticuloCientifico === 'SI'"
+        >
           <input
             type="checkbox"
             class="req-option-checkbox"
             [checked]="nuevaModalidadForm().esArticuloCientifico === 'SI'"
-            (change)="nuevaModalidadForm().esArticuloCientifico = $any($event.target).checked ? 'SI' : 'NO'"
+            (change)="
+              nuevaModalidadForm().esArticuloCientifico = $any($event.target).checked ? 'SI' : 'NO'
+            "
           />
           <div class="req-option-info">
             <span class="req-option-title">Artículo o Publicación Científica</span>
-            <span class="req-option-desc">Requiere redacción, validación y publicación de artículo indexado.</span>
+            <span class="req-option-desc"
+              >Requiere redacción, validación y publicación de artículo indexado.</span
+            >
           </div>
         </label>
 
@@ -892,7 +945,9 @@
           />
           <div class="req-option-info">
             <span class="req-option-title">Genera Proyecto de Grado o Tesis</span>
-            <span class="req-option-desc">Requiere entrega de memoria técnica, informe escrito y defensa ante tribunal.</span>
+            <span class="req-option-desc"
+              >Requiere entrega de memoria técnica, informe escrito y defensa ante tribunal.</span
+            >
           </div>
         </label>
       </div>
@@ -927,9 +982,9 @@
     [hasDirtyData]="false"
     (closed)="matrizModalVisible.set(false)"
   >
-    <div class="req-drawer-content" (click)="mostrarDropdownMatriz.set(false)">
+    <div class="req-drawer-content">
       <!-- Sección de Búsqueda y Autocompletado Instantáneo (Igual que en Docentes) -->
-      <div class="matriz-add-section" (click)="$event.stopPropagation()">
+      <div class="matriz-add-section">
         <div class="section-title-row">
           <label class="req-form-label" for="buscarReqMatriz">
             Buscar y Asociar Requisito del Catálogo
@@ -989,33 +1044,41 @@
                 </div>
               } @else {
                 <div class="dropdown-header">
-                  <span>{{ requisitosDisponiblesParaMatriz().length }} requisito(s) disponible(s) en catálogo</span>
+                  <span
+                    >{{ requisitosDisponiblesParaMatriz().length }} requisito(s) disponible(s) en
+                    catálogo</span
+                  >
                 </div>
                 <ul class="dropdown-list">
                   @for (r of requisitosDisponiblesParaMatriz(); track r.idRequisitos) {
-                    <li
-                      class="dropdown-item"
-                      [class.item-assigning]="asignandoRequisitoId() === r.idRequisitos"
-                      (click)="seleccionarYAsignarRequisito(r)"
-                      title="Haga clic para asociar inmediatamente este requisito a la modalidad"
-                    >
-                      <div class="dropdown-item-info">
-                        <div class="item-name">{{ r.requisito }}</div>
-                        <div class="item-meta">
-                          <span>{{ r.esAdjunto ? 'Requiere PDF' : 'Validación directa' }}</span>
-                          <span class="meta-dot">·</span>
-                          <span>{{ r.subeAlumno ? 'Carga: Estudiante' : 'Valida: Secretaría' }}</span>
+                    <li class="dropdown-item-wrapper">
+                      <button
+                        type="button"
+                        class="dropdown-item"
+                        [class.item-assigning]="asignandoRequisitoId() === r.idRequisitos"
+                        (click)="seleccionarYAsignarRequisito(r)"
+                        title="Haga clic para asociar inmediatamente este requisito a la modalidad"
+                      >
+                        <div class="dropdown-item-info">
+                          <div class="item-name">{{ r.requisito }}</div>
+                          <div class="item-meta">
+                            <span>{{ r.esAdjunto ? 'Requiere PDF' : 'Validación directa' }}</span>
+                            <span class="meta-dot">·</span>
+                            <span>{{
+                              r.subeAlumno ? 'Carga: Estudiante' : 'Valida: Secretaría'
+                            }}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div class="dropdown-item-action">
-                        @if (asignandoRequisitoId() === r.idRequisitos) {
-                          <span class="badge-assigning">
-                            <span class="spinner-tiny"></span> Asociando...
-                          </span>
-                        } @else {
-                          <span class="badge-select-action">+ Asociar</span>
-                        }
-                      </div>
+                        <div class="dropdown-item-action">
+                          @if (asignandoRequisitoId() === r.idRequisitos) {
+                            <span class="badge-assigning">
+                              <span class="spinner-tiny"></span> Asociando...
+                            </span>
+                          } @else {
+                            <span class="badge-select-action">+ Asociar</span>
+                          }
+                        </div>
+                      </button>
                     </li>
                   }
                 </ul>
@@ -1039,11 +1102,13 @@
         </div>
 
         @if (requisitosAsignadosMatriz().length === 0) {
-          <div class="empty-state-card" style="padding: 24px 16px;">
-            <p style="margin: 0; font-size: 0.8125rem; color: var(--text-primary); font-weight: 600;">
+          <div class="empty-state-card" style="padding: 24px 16px">
+            <p
+              style="margin: 0; font-size: 0.8125rem; color: var(--text-primary); font-weight: 600"
+            >
               Esta modalidad aún no tiene requisitos obligatorios asociados.
             </p>
-            <span style="font-size: 0.71875rem; color: var(--text-muted);">
+            <span style="font-size: 0.71875rem; color: var(--text-muted)">
               Busque un requisito en la caja superior y haga clic para asociarlo automáticamente.
             </span>
           </div>
@@ -1073,11 +1138,7 @@
     </div>
 
     <div drawer-footer>
-      <button
-        type="button"
-        class="fluent-btn-primary"
-        (click)="matrizModalVisible.set(false)"
-      >
+      <button type="button" class="fluent-btn-primary" (click)="matrizModalVisible.set(false)">
         Listo
       </button>
     </div>

@@ -8,1013 +8,573 @@
   (closed)="onClose()"
   (discardConfirmed)="onClose()"
 >
-
-
-      <!-- BARRA DE STEPPER -->
-      <nav class="modal-stepper-bar" aria-label="Progreso del asistente">
-        @for (step of steps; track step.id; let isLast = $last) {
-          <button
-            type="button"
-            class="stepper-step"
-            [class.active]="pasoActual() === step.id"
-            [class.completed]="pasoActual() > step.id"
-            [class.disabled]="step.id > pasoActual() && !esPasoValido(step.id - 1)"
-            (click)="irAPaso(step.id)"
-            [disabled]="step.id > pasoActual() && !esPasoValido(step.id - 1)"
-          >
-            <div class="step-indicator">
-              @if (pasoActual() > step.id) {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              } @else {
-                <span class="step-number">{{ step.id }}</span>
-              }
-            </div>
-            <div class="step-text-group">
-              <span class="step-label">{{ step.label }}</span>
-              <span class="step-subtitle">{{ step.subtitle }}</span>
-            </div>
-          </button>
-          @if (!isLast) {
-            <div
-              class="stepper-connector"
-              [class.completed]="pasoActual() > step.id"
-              aria-hidden="true"
-            ></div>
+  <!-- BARRA DE STEPPER -->
+  <nav class="modal-stepper-bar" aria-label="Progreso del asistente">
+    @for (step of steps; track step.id; let isLast = $last) {
+      <button
+        type="button"
+        class="stepper-step"
+        [class.active]="pasoActual() === step.id"
+        [class.completed]="pasoActual() > step.id"
+        [class.disabled]="step.id > pasoActual() && !esPasoValido(step.id - 1)"
+        (click)="irAPaso(step.id)"
+        [disabled]="step.id > pasoActual() && !esPasoValido(step.id - 1)"
+      >
+        <div class="step-indicator">
+          @if (pasoActual() > step.id) {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          } @else {
+            <span class="step-number">{{ step.id }}</span>
           }
-        }
-      </nav>
+        </div>
+        <div class="step-text-group">
+          <span class="step-label">{{ step.label }}</span>
+          <span class="step-subtitle">{{ step.subtitle }}</span>
+        </div>
+      </button>
+      @if (!isLast) {
+        <div
+          class="stepper-connector"
+          [class.completed]="pasoActual() > step.id"
+          aria-hidden="true"
+        ></div>
+      }
+    }
+  </nav>
 
-      <!-- CUERPO DE PASOS -->
-      <div class="modal-steps-container">
-        <!-- ============================================================ -->
-        <!-- PASO 1: PERÍODO ACADÉMICO INSTITUCIONAL                      -->
-        <!-- ============================================================ -->
-        @if (pasoActual() === 1) {
-          <div class="step-content-pane">
-            <div class="step-pane-header">
-              <span class="step-pane-badge">Paso 1</span>
-              <h4 class="step-pane-title">Período Académico Institucional</h4>
-              <p class="step-pane-desc">
-                Seleccione el período académico de ISTPET / SIGAFI que regirá esta nueva cohorte de
-                titulación.
-              </p>
-            </div>
+  <!-- CUERPO DE PASOS -->
+  <div class="modal-steps-container">
+    <!-- ============================================================ -->
+    <!-- PASO 1: PERÍODO ACADÉMICO INSTITUCIONAL                      -->
+    <!-- ============================================================ -->
+    @if (pasoActual() === 1) {
+      <div class="step-content-pane">
+        <div class="step-pane-header">
+          <span class="step-pane-badge">Paso 1</span>
+          <h4 class="step-pane-title">Período Académico Institucional</h4>
+          <p class="step-pane-desc">
+            Seleccione el período académico de ISTPET / SIGAFI que regirá esta nueva cohorte de
+            titulación.
+          </p>
+        </div>
 
-            <div class="form-section-card">
-              <label for="periodo-select" class="fluent-field-label">
-                Período Registrado en SIGAFI:
-              </label>
+        <div class="form-section-card">
+          <label for="periodo-select" class="fluent-field-label">
+            Período Registrado en SIGAFI:
+          </label>
 
-              @if (periodos().length > 0) {
-                <div class="periodos-cards-grid">
-                  @for (p of periodos(); track p.idPeriodo) {
-                    <div
-                      class="periodo-card-item"
-                      [class.selected]="form().idPeriodo === p.idPeriodo"
-                      (click)="onPeriodoSelect(p.idPeriodo)"
-                      (keydown.enter)="onPeriodoSelect(p.idPeriodo)"
-                      tabindex="0"
-                      role="radio"
-                      [attr.aria-checked]="form().idPeriodo === p.idPeriodo"
-                    >
-                      <div class="periodo-card-top">
-                        <span class="periodo-code">{{ p.idPeriodo }}</span>
-                        @if (p.esActivo) {
-                          <span class="status-badge-active">ACTUAL</span>
-                        }
-                      </div>
-                      <span class="periodo-name">{{ p.nombre }}</span>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <div class="fluent-field-box">
-                  <input
-                    id="periodo-select"
-                    type="text"
-                    class="fluent-input"
-                    [(ngModel)]="form().idPeriodo"
-                    placeholder="Ej: ABR2026"
-                  />
-                  <span class="field-hint">Ingrese el código institucional del período.</span>
+          @if (periodos().length > 0) {
+            <div class="periodos-cards-grid">
+              @for (p of periodos(); track p.idPeriodo) {
+                <div
+                  class="periodo-card-item"
+                  [class.selected]="form().idPeriodo === p.idPeriodo"
+                  (click)="onPeriodoSelect(p.idPeriodo)"
+                  (keydown.enter)="onPeriodoSelect(p.idPeriodo)"
+                  tabindex="0"
+                  role="radio"
+                  [attr.aria-checked]="form().idPeriodo === p.idPeriodo"
+                >
+                  <div class="periodo-card-top">
+                    <span class="periodo-code">{{ p.idPeriodo }}</span>
+                    @if (p.esActivo) {
+                      <span class="status-badge-active">ACTUAL</span>
+                    }
+                  </div>
+                  <span class="periodo-name">{{ p.nombre }}</span>
                 </div>
               }
             </div>
+          } @else {
+            <div class="fluent-field-box">
+              <input
+                id="periodo-select"
+                type="text"
+                class="fluent-input"
+                [(ngModel)]="form().idPeriodo"
+                placeholder="Ej: ABR2026"
+              />
+              <span class="field-hint">Ingrese el código institucional del período.</span>
+            </div>
+          }
+        </div>
 
-            <div class="info-callout">
-              <div class="callout-icon-col">
+        <div class="info-callout">
+          <div class="callout-icon-col">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div class="callout-content">
+            <strong>Integración Automática SIGAFI</strong>
+            <p>
+              Al vincular el período <code>{{ form().idPeriodo || '...' }}</code
+              >, el sistema cruzará automáticamente las matrículas activas, egresados y
+              postulaciones correspondientes.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- PASO 2: DENOMINACIÓN DE LA CONVOCATORIA                     -->
+    <!-- ============================================================ -->
+    @if (pasoActual() === 2) {
+      <div class="step-content-pane">
+        <div class="step-pane-header">
+          <span class="step-pane-badge">Paso 2</span>
+          <h4 class="step-pane-title">Nombre y Detalle de la Convocatoria</h4>
+          <p class="step-pane-desc">
+            Defina el título visible que verán los postulantes y docentes en el portal y reportes
+            oficiales.
+          </p>
+        </div>
+
+        <div class="form-section-card">
+          <div class="label-with-counter">
+            <label for="detalle-input" class="fluent-field-label">
+              Título de la Convocatoria:
+            </label>
+            <span class="char-counter" [class.warning]="form().detalleConvocatoria.length > 40">
+              {{ form().detalleConvocatoria.length }} / 45 caracteres
+            </span>
+          </div>
+
+          <input
+            id="detalle-input"
+            type="text"
+            maxlength="45"
+            class="fluent-input fluent-input-lg"
+            [(ngModel)]="form().detalleConvocatoria"
+            placeholder="Ej: Convocatoria Ordinaria ABR2026"
+          />
+
+          <div class="suggestions-group">
+            <span class="suggestions-label">Sugerencias rápidas:</span>
+            <div class="suggestion-chips">
+              <button
+                type="button"
+                class="suggestion-chip"
+                (click)="aplicarSugerenciaDetalle('Ordinaria')"
+              >
+                Convocatoria Ordinaria {{ form().idPeriodo }}
+              </button>
+              <button
+                type="button"
+                class="suggestion-chip"
+                (click)="aplicarSugerenciaDetalle('Extraordinaria')"
+              >
+                Convocatoria Extraordinaria {{ form().idPeriodo }}
+              </button>
+              <button
+                type="button"
+                class="suggestion-chip"
+                (click)="aplicarSugerenciaDetalle('Especial')"
+              >
+                Cohorte Especial {{ form().idPeriodo }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview del Portal -->
+        <div class="portal-preview-card">
+          <div class="preview-header">
+            <span class="preview-tag">VISTA PREVIA DEL PORTAL ESTUDIANTIL</span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-banner">
+              <span class="preview-eyebrow">PROCESO DE TITULACIÓN {{ form().idPeriodo }}</span>
+              <h5 class="preview-title">
+                {{ form().detalleConvocatoria || 'Convocatoria de Titulación' }}
+              </h5>
+              <span class="preview-note">Estado: Postulaciones Abiertas próximamente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- PASO 3: CRONOGRAMA CON PESTAÑAS TIPO EXCEL Y CALENDARIO     -->
+    <!-- ============================================================ -->
+    @if (pasoActual() === 3) {
+      <div class="step-content-pane">
+        <div class="step-pane-header">
+          <span class="step-pane-badge">Paso 3</span>
+          <h4 class="step-pane-title">Cronograma y Plazos Académicos</h4>
+          <p class="step-pane-desc">
+            Navegue entre las fases de postulación, titulación y prórroga para consultar y ajustar
+            las fechas del proceso.
+          </p>
+        </div>
+
+        <!-- PESTAÑAS TIPO HOJAS DE EXCEL -->
+        <div class="excel-tabs-wrapper">
+          <div class="excel-tabs-bar" role="tablist">
+            <button
+              type="button"
+              class="excel-tab-btn tab-postulacion"
+              [class.active]="tabFaseActiva() === 'postulacion'"
+              (click)="seleccionarTabFase('postulacion')"
+              role="tab"
+              [attr.aria-selected]="tabFaseActiva() === 'postulacion'"
+            >
+              <span class="excel-tab-bullet"></span>
+              <span class="excel-tab-title">1. Postulación</span>
+              <span class="excel-tab-badge">{{ duracionConvocatoriaDias() }}d</span>
+            </button>
+
+            <button
+              type="button"
+              class="excel-tab-btn tab-titulacion"
+              [class.active]="tabFaseActiva() === 'titulacion'"
+              (click)="seleccionarTabFase('titulacion')"
+              role="tab"
+              [attr.aria-selected]="tabFaseActiva() === 'titulacion'"
+            >
+              <span class="excel-tab-bullet"></span>
+              <span class="excel-tab-title">2. Titulación</span>
+              <span class="excel-tab-badge">{{ form().diasPermitidos }}d</span>
+            </button>
+
+            <button
+              type="button"
+              class="excel-tab-btn tab-prorroga"
+              [class.active]="tabFaseActiva() === 'prorroga'"
+              (click)="seleccionarTabFase('prorroga')"
+              role="tab"
+              [attr.aria-selected]="tabFaseActiva() === 'prorroga'"
+            >
+              <span class="excel-tab-bullet"></span>
+              <span class="excel-tab-title">3. Prórroga</span>
+              <span class="excel-tab-badge">+{{ form().diasExtension }}d</span>
+            </button>
+          </div>
+
+          <!-- PANEL DE LA PESTAÑA ACTIVA -->
+          <div class="excel-tab-panel">
+            <!-- FASE 1: POSTULACIÓN -->
+            @if (tabFaseActiva() === 'postulacion') {
+              <div class="fase-pane">
+                <div class="fechas-compact-grid">
+                  <div
+                    class="fecha-compact-card"
+                    [class.active-target]="seleccionModo() === 'inicio'"
+                    (click)="setModoSeleccion('inicio')"
+                    tabindex="0"
+                    role="button"
+                  >
+                    <span class="compact-card-label">FECHA DE APERTURA (INICIO)</span>
+                    <strong class="compact-card-val">{{ form().fechaInicioStr }}</strong>
+                    @if (seleccionModo() === 'inicio') {
+                      <span class="compact-active-tag">Activo en calendario</span>
+                    }
+                  </div>
+
+                  <div
+                    class="fecha-compact-card"
+                    [class.active-target]="seleccionModo() === 'fin'"
+                    (click)="setModoSeleccion('fin')"
+                    tabindex="0"
+                    role="button"
+                  >
+                    <span class="compact-card-label">FECHA DE CIERRE (LÍMITE)</span>
+                    <strong class="compact-card-val">{{ form().fechaFinStr }}</strong>
+                    @if (seleccionModo() === 'fin') {
+                      <span class="compact-active-tag">Activo en calendario</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="fase-inputs-control">
+                  <div class="input-inline-group">
+                    <label for="dias-post-input" class="inline-field-label"
+                      >Días de Postulación:</label
+                    >
+                    <input
+                      id="dias-post-input"
+                      type="number"
+                      min="1"
+                      max="365"
+                      class="fluent-input fluent-input-sm"
+                      [ngModel]="duracionConvocatoriaDias()"
+                      (ngModelChange)="onDiasPostulacionChange($event)"
+                    />
+                  </div>
+                  <div class="presets-buttons">
+                    <button type="button" class="btn-preset" (click)="aplicarPresetDias(10)">
+                      10 días
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarPresetDias(15)">
+                      15 días
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarPresetDias(30)">
+                      30 días
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarPresetDias(45)">
+                      45 días
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- FASE 2: TITULACIÓN -->
+            @if (tabFaseActiva() === 'titulacion') {
+              <div class="fase-pane">
+                <div class="fechas-compact-grid">
+                  <div class="fecha-compact-card readonly-card">
+                    <span class="compact-card-label">INICIO DE TITULACIÓN</span>
+                    <strong class="compact-card-val">{{
+                      cronogramaFases().titulacion.inicioStr
+                    }}</strong>
+                    <span class="compact-sub-hint">Día posterior al cierre de postulación</span>
+                  </div>
+
+                  <div class="fecha-compact-card readonly-card">
+                    <span class="compact-card-label">FIN DE TITULACIÓN</span>
+                    <strong class="compact-card-val">{{
+                      cronogramaFases().titulacion.finStr
+                    }}</strong>
+                    <span class="compact-sub-hint">Plazo reglamentario cumplido</span>
+                  </div>
+                </div>
+
+                <div class="fase-inputs-control">
+                  <div class="input-inline-group">
+                    <label for="dias-tit-input" class="inline-field-label"
+                      >Días para Elaborar Titulación:</label
+                    >
+                    <input
+                      id="dias-tit-input"
+                      type="number"
+                      min="15"
+                      max="365"
+                      class="fluent-input fluent-input-sm"
+                      [(ngModel)]="form().diasPermitidos"
+                    />
+                  </div>
+                  <div class="presets-buttons">
+                    <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(60)">
+                      60 días
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(90)">
+                      90 días (Reglamentario)
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(120)">
+                      120 días
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(180)">
+                      180 días
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- FASE 3: PRÓRROGA -->
+            @if (tabFaseActiva() === 'prorroga') {
+              <div class="fase-pane">
+                <div class="fechas-compact-grid">
+                  <div class="fecha-compact-card readonly-card">
+                    <span class="compact-card-label">INICIO DE PRÓRROGA</span>
+                    <strong class="compact-card-val">{{
+                      cronogramaFases().prorroga.inicioStr
+                    }}</strong>
+                    <span class="compact-sub-hint">Día posterior al fin de titulación</span>
+                  </div>
+
+                  <div class="fecha-compact-card readonly-card">
+                    <span class="compact-card-label">FIN DE PRÓRROGA</span>
+                    <strong class="compact-card-val">{{
+                      cronogramaFases().prorroga.finStr
+                    }}</strong>
+                    <span class="compact-sub-hint">Fecha límite máxima de extensión</span>
+                  </div>
+                </div>
+
+                <div class="fase-inputs-control">
+                  <div class="input-inline-group">
+                    <label for="dias-pro-input" class="inline-field-label"
+                      >Días de Prórroga / Gracia:</label
+                    >
+                    <input
+                      id="dias-pro-input"
+                      type="number"
+                      min="0"
+                      max="180"
+                      class="fluent-input fluent-input-sm"
+                      [(ngModel)]="form().diasExtension"
+                    />
+                  </div>
+                  <div class="presets-buttons">
+                    <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(0)">
+                      Sin prórroga
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(15)">
+                      15 días
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(30)">
+                      30 días (Estándar)
+                    </button>
+                    <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(45)">
+                      45 días
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- MINI CALENDARIO CON LEYENDA SIMPLIFICADA -->
+        <div class="mini-calendar-container">
+          <div class="mini-cal-header">
+            <div class="cal-nav-group">
+              <button type="button" class="cal-nav-btn" (click)="prevMes()" title="Mes anterior">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
                 >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
-              </div>
-              <div class="callout-content">
-                <strong>Integración Automática SIGAFI</strong>
-                <p>
-                  Al vincular el período <code>{{ form().idPeriodo || '...' }}</code
-                  >, el sistema cruzará automáticamente las matrículas activas, egresados y
-                  postulaciones correspondientes.
-                </p>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- ============================================================ -->
-        <!-- PASO 2: DENOMINACIÓN DE LA CONVOCATORIA                     -->
-        <!-- ============================================================ -->
-        @if (pasoActual() === 2) {
-          <div class="step-content-pane">
-            <div class="step-pane-header">
-              <span class="step-pane-badge">Paso 2</span>
-              <h4 class="step-pane-title">Nombre y Detalle de la Convocatoria</h4>
-              <p class="step-pane-desc">
-                Defina el título visible que verán los postulantes y docentes en el portal y
-                reportes oficiales.
-              </p>
-            </div>
-
-            <div class="form-section-card">
-              <div class="label-with-counter">
-                <label for="detalle-input" class="fluent-field-label">
-                  Título de la Convocatoria:
-                </label>
-                <span class="char-counter" [class.warning]="form().detalleConvocatoria.length > 40">
-                  {{ form().detalleConvocatoria.length }} / 45 caracteres
-                </span>
-              </div>
-
-              <input
-                id="detalle-input"
-                type="text"
-                maxlength="45"
-                class="fluent-input fluent-input-lg"
-                [(ngModel)]="form().detalleConvocatoria"
-                placeholder="Ej: Convocatoria Ordinaria ABR2026"
-              />
-
-              <div class="suggestions-group">
-                <span class="suggestions-label">Sugerencias rápidas:</span>
-                <div class="suggestion-chips">
-                  <button
-                    type="button"
-                    class="suggestion-chip"
-                    (click)="aplicarSugerenciaDetalle('Ordinaria')"
-                  >
-                    Convocatoria Ordinaria {{ form().idPeriodo }}
-                  </button>
-                  <button
-                    type="button"
-                    class="suggestion-chip"
-                    (click)="aplicarSugerenciaDetalle('Extraordinaria')"
-                  >
-                    Convocatoria Extraordinaria {{ form().idPeriodo }}
-                  </button>
-                  <button
-                    type="button"
-                    class="suggestion-chip"
-                    (click)="aplicarSugerenciaDetalle('Especial')"
-                  >
-                    Cohorte Especial {{ form().idPeriodo }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Preview del Portal -->
-            <div class="portal-preview-card">
-              <div class="preview-header">
-                <span class="preview-tag">VISTA PREVIA DEL PORTAL ESTUDIANTIL</span>
-              </div>
-              <div class="preview-body">
-                <div class="preview-banner">
-                  <span class="preview-eyebrow">PROCESO DE TITULACIÓN {{ form().idPeriodo }}</span>
-                  <h5 class="preview-title">
-                    {{ form().detalleConvocatoria || 'Convocatoria de Titulación' }}
-                  </h5>
-                  <span class="preview-note">Estado: Postulaciones Abiertas próximamente</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- ============================================================ -->
-        <!-- PASO 3: CRONOGRAMA CON PESTAÑAS TIPO EXCEL Y CALENDARIO     -->
-        <!-- ============================================================ -->
-        @if (pasoActual() === 3) {
-          <div class="step-content-pane">
-            <div class="step-pane-header">
-              <span class="step-pane-badge">Paso 3</span>
-              <h4 class="step-pane-title">Cronograma y Plazos Académicos</h4>
-              <p class="step-pane-desc">
-                Navegue entre las fases de postulación, titulación y prórroga para consultar y
-                ajustar las fechas del proceso.
-              </p>
-            </div>
-
-            <!-- PESTAÑAS TIPO HOJAS DE EXCEL -->
-            <div class="excel-tabs-wrapper">
-              <div class="excel-tabs-bar" role="tablist">
-                <button
-                  type="button"
-                  class="excel-tab-btn tab-postulacion"
-                  [class.active]="tabFaseActiva() === 'postulacion'"
-                  (click)="seleccionarTabFase('postulacion')"
-                  role="tab"
-                  [attr.aria-selected]="tabFaseActiva() === 'postulacion'"
-                >
-                  <span class="excel-tab-bullet"></span>
-                  <span class="excel-tab-title">1. Postulación</span>
-                  <span class="excel-tab-badge">{{ duracionConvocatoriaDias() }}d</span>
-                </button>
-
-                <button
-                  type="button"
-                  class="excel-tab-btn tab-titulacion"
-                  [class.active]="tabFaseActiva() === 'titulacion'"
-                  (click)="seleccionarTabFase('titulacion')"
-                  role="tab"
-                  [attr.aria-selected]="tabFaseActiva() === 'titulacion'"
-                >
-                  <span class="excel-tab-bullet"></span>
-                  <span class="excel-tab-title">2. Titulación</span>
-                  <span class="excel-tab-badge">{{ form().diasPermitidos }}d</span>
-                </button>
-
-                <button
-                  type="button"
-                  class="excel-tab-btn tab-prorroga"
-                  [class.active]="tabFaseActiva() === 'prorroga'"
-                  (click)="seleccionarTabFase('prorroga')"
-                  role="tab"
-                  [attr.aria-selected]="tabFaseActiva() === 'prorroga'"
-                >
-                  <span class="excel-tab-bullet"></span>
-                  <span class="excel-tab-title">3. Prórroga</span>
-                  <span class="excel-tab-badge">+{{ form().diasExtension }}d</span>
-                </button>
-              </div>
-
-              <!-- PANEL DE LA PESTAÑA ACTIVA -->
-              <div class="excel-tab-panel">
-                <!-- FASE 1: POSTULACIÓN -->
-                @if (tabFaseActiva() === 'postulacion') {
-                  <div class="fase-pane">
-                    <div class="fechas-compact-grid">
-                      <div
-                        class="fecha-compact-card"
-                        [class.active-target]="seleccionModo() === 'inicio'"
-                        (click)="setModoSeleccion('inicio')"
-                        tabindex="0"
-                        role="button"
-                      >
-                        <span class="compact-card-label">FECHA DE APERTURA (INICIO)</span>
-                        <strong class="compact-card-val">{{ form().fechaInicioStr }}</strong>
-                        @if (seleccionModo() === 'inicio') {
-                          <span class="compact-active-tag">Activo en calendario</span>
-                        }
-                      </div>
-
-                      <div
-                        class="fecha-compact-card"
-                        [class.active-target]="seleccionModo() === 'fin'"
-                        (click)="setModoSeleccion('fin')"
-                        tabindex="0"
-                        role="button"
-                      >
-                        <span class="compact-card-label">FECHA DE CIERRE (LÍMITE)</span>
-                        <strong class="compact-card-val">{{ form().fechaFinStr }}</strong>
-                        @if (seleccionModo() === 'fin') {
-                          <span class="compact-active-tag">Activo en calendario</span>
-                        }
-                      </div>
-                    </div>
-
-                    <div class="fase-inputs-control">
-                      <div class="input-inline-group">
-                        <label for="dias-post-input" class="inline-field-label"
-                          >Días de Postulación:</label
-                        >
-                        <input
-                          id="dias-post-input"
-                          type="number"
-                          min="1"
-                          max="365"
-                          class="fluent-input fluent-input-sm"
-                          [ngModel]="duracionConvocatoriaDias()"
-                          (ngModelChange)="onDiasPostulacionChange($event)"
-                        />
-                      </div>
-                      <div class="presets-buttons">
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(10)">
-                          10 días
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(15)">
-                          15 días
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(30)">
-                          30 días
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarPresetDias(45)">
-                          45 días
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                }
-
-                <!-- FASE 2: TITULACIÓN -->
-                @if (tabFaseActiva() === 'titulacion') {
-                  <div class="fase-pane">
-                    <div class="fechas-compact-grid">
-                      <div class="fecha-compact-card readonly-card">
-                        <span class="compact-card-label">INICIO DE TITULACIÓN</span>
-                        <strong class="compact-card-val">{{
-                          cronogramaFases().titulacion.inicioStr
-                        }}</strong>
-                        <span class="compact-sub-hint">Día posterior al cierre de postulación</span>
-                      </div>
-
-                      <div class="fecha-compact-card readonly-card">
-                        <span class="compact-card-label">FIN DE TITULACIÓN</span>
-                        <strong class="compact-card-val">{{
-                          cronogramaFases().titulacion.finStr
-                        }}</strong>
-                        <span class="compact-sub-hint">Plazo reglamentario cumplido</span>
-                      </div>
-                    </div>
-
-                    <div class="fase-inputs-control">
-                      <div class="input-inline-group">
-                        <label for="dias-tit-input" class="inline-field-label"
-                          >Días para Elaborar Titulación:</label
-                        >
-                        <input
-                          id="dias-tit-input"
-                          type="number"
-                          min="15"
-                          max="365"
-                          class="fluent-input fluent-input-sm"
-                          [(ngModel)]="form().diasPermitidos"
-                        />
-                      </div>
-                      <div class="presets-buttons">
-                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(60)">
-                          60 días
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasTitPreset(90)">
-                          90 días (Reglamentario)
-                        </button>
-                        <button
-                          type="button"
-                          class="btn-preset"
-                          (click)="aplicarDiasTitPreset(120)"
-                        >
-                          120 días
-                        </button>
-                        <button
-                          type="button"
-                          class="btn-preset"
-                          (click)="aplicarDiasTitPreset(180)"
-                        >
-                          180 días
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                }
-
-                <!-- FASE 3: PRÓRROGA -->
-                @if (tabFaseActiva() === 'prorroga') {
-                  <div class="fase-pane">
-                    <div class="fechas-compact-grid">
-                      <div class="fecha-compact-card readonly-card">
-                        <span class="compact-card-label">INICIO DE PRÓRROGA</span>
-                        <strong class="compact-card-val">{{
-                          cronogramaFases().prorroga.inicioStr
-                        }}</strong>
-                        <span class="compact-sub-hint">Día posterior al fin de titulación</span>
-                      </div>
-
-                      <div class="fecha-compact-card readonly-card">
-                        <span class="compact-card-label">FIN DE PRÓRROGA</span>
-                        <strong class="compact-card-val">{{
-                          cronogramaFases().prorroga.finStr
-                        }}</strong>
-                        <span class="compact-sub-hint">Fecha límite máxima de extensión</span>
-                      </div>
-                    </div>
-
-                    <div class="fase-inputs-control">
-                      <div class="input-inline-group">
-                        <label for="dias-pro-input" class="inline-field-label"
-                          >Días de Prórroga / Gracia:</label
-                        >
-                        <input
-                          id="dias-pro-input"
-                          type="number"
-                          min="0"
-                          max="180"
-                          class="fluent-input fluent-input-sm"
-                          [(ngModel)]="form().diasExtension"
-                        />
-                      </div>
-                      <div class="presets-buttons">
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(0)">
-                          Sin prórroga
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(15)">
-                          15 días
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(30)">
-                          30 días (Estándar)
-                        </button>
-                        <button type="button" class="btn-preset" (click)="aplicarDiasExtPreset(45)">
-                          45 días
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- MINI CALENDARIO CON LEYENDA SIMPLIFICADA -->
-            <div class="mini-calendar-container">
-              <div class="mini-cal-header">
-                <div class="cal-nav-group">
-                  <button
-                    type="button"
-                    class="cal-nav-btn"
-                    (click)="prevMes()"
-                    title="Mes anterior"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                  </button>
-                  <span class="mini-cal-title">{{ nombreMesVisual() }}</span>
-                  <button
-                    type="button"
-                    class="cal-nav-btn"
-                    (click)="nextMes()"
-                    title="Mes siguiente"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                  </button>
-                  <button type="button" class="cal-today-btn" (click)="irMesActual()">Hoy</button>
-                </div>
-              </div>
-
-              <!-- Cabecera de días -->
-              <div class="mini-cal-weekdays">
-                @for (d of diasSemana; track d) {
-                  <span class="mini-weekday">{{ d }}</span>
-                }
-              </div>
-
-              <!-- Grilla mensual -->
-              <div class="mini-cal-grid">
-                @for (item of calendarDays(); track item.dateStr) {
-                  <button
-                    type="button"
-                    class="mini-day-cell"
-                    [class.not-current-month]="!item.isCurrentMonth"
-                    [class.is-today]="item.isToday"
-                    [class.fase-postulacion]="item.isPostulacion"
-                    [class.fase-postulacion-start]="item.isPostulacionStart"
-                    [class.fase-postulacion-end]="item.isPostulacionEnd"
-                    [class.fase-titulacion]="item.isTitulacion"
-                    [class.fase-titulacion-start]="item.isTitulacionStart"
-                    [class.fase-titulacion-end]="item.isTitulacionEnd"
-                    [class.fase-prorroga]="item.isProrroga"
-                    [class.fase-prorroga-start]="item.isProrrogaStart"
-                    [class.fase-prorroga-end]="item.isProrrogaEnd"
-                    (click)="onDayClick(item)"
-                    [title]="item.dateStr"
-                  >
-                    <span class="day-text">{{ item.dayNumber }}</span>
-                  </button>
-                }
-              </div>
-
-              <!-- LEYENDA SIMPLIFICADA (SOLO COLORES Y NOMBRES) -->
-              <div class="cronograma-legend-bar">
-                <button
-                  type="button"
-                  class="legend-item legend-postulacion"
-                  [class.active]="tabFaseActiva() === 'postulacion'"
-                  (click)="seleccionarTabFase('postulacion')"
-                >
-                  <span class="legend-indicator"></span>
-                  <strong>1. Postulación</strong>
-                </button>
-
-                <button
-                  type="button"
-                  class="legend-item legend-titulacion"
-                  [class.active]="tabFaseActiva() === 'titulacion'"
-                  (click)="seleccionarTabFase('titulacion')"
-                >
-                  <span class="legend-indicator"></span>
-                  <strong>2. Titulación</strong>
-                </button>
-
-                <button
-                  type="button"
-                  class="legend-item legend-prorroga"
-                  [class.active]="tabFaseActiva() === 'prorroga'"
-                  (click)="seleccionarTabFase('prorroga')"
-                >
-                  <span class="legend-indicator"></span>
-                  <strong>3. Prórroga</strong>
-                </button>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- ============================================================ -->
-        <!-- PASO 4: ALCANCE DE CARRERAS (SELECCIÓN PERSONALIZADA)        -->
-        <!-- ============================================================ -->
-        @if (pasoActual() === 4) {
-          <div class="step-content-pane">
-            <div class="step-pane-header">
-              <span class="step-pane-badge">Paso 4</span>
-              <h4 class="step-pane-title">Alcance de Carreras Habilitadas</h4>
-              <p class="step-pane-desc">
-                Determine si la convocatoria se abre para toda la oferta académica o seleccione de
-                forma personalizada las carreras participantes.
-              </p>
-            </div>
-
-            <!-- Segmented Switcher de Modo -->
-            <div class="segmented-mode-container">
-              <button
-                type="button"
-                class="segmented-mode-btn"
-                [class.active]="form().habilitarTodasLasCarreras"
-                (click)="toggleHabilitarTodasLasCarreras(true)"
-              >
-                <div class="mode-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                  </svg>
-                </div>
-                <div class="mode-text">
-                  <span class="mode-title">Habilitar Todas las Carreras</span>
-                  <span>Oferta completa institucional ({{ modalidadesCarreras().length }})</span>
-                </div>
               </button>
-
-              <button
-                type="button"
-                class="segmented-mode-btn"
-                [class.active]="!form().habilitarTodasLasCarreras"
-                (click)="toggleHabilitarTodasLasCarreras(false)"
-              >
-                <div class="mode-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <line x1="4" y1="21" x2="4" y2="14"></line>
-                    <line x1="4" y1="10" x2="4" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12" y2="3"></line>
-                    <line x1="20" y1="21" x2="20" y2="16"></line>
-                    <line x1="20" y1="12" x2="20" y2="3"></line>
-                    <line x1="1" y1="14" x2="7" y2="14"></line>
-                    <line x1="9" y1="8" x2="15" y2="8"></line>
-                    <line x1="17" y1="16" x2="23" y2="16"></line>
-                  </svg>
-                </div>
-                <div class="mode-text">
-                  <span class="mode-title">Selección Personalizada</span>
-                  <span
-                    >Filtrar por carrera y modalidad ({{
-                      carrerasSeleccionadas().size
-                    }}
-                    elegidas)</span
-                  >
-                </div>
+              <span class="mini-cal-title">{{ nombreMesVisual() }}</span>
+              <button type="button" class="cal-nav-btn" (click)="nextMes()" title="Mes siguiente">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </button>
+              <button type="button" class="cal-today-btn" (click)="irMesActual()">Hoy</button>
             </div>
+          </div>
 
-            <!-- Panel de Todas Habilitadas -->
-            @if (form().habilitarTodasLasCarreras) {
-              <div class="all-careers-banner">
-                <div class="all-banner-icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                  </svg>
-                </div>
-                <div class="all-banner-info">
-                  <span class="all-banner-title"
-                    >Todas las {{ modalidadesCarreras().length }} carreras están habilitadas</span
-                  >
-                  <p>
-                    Los estudiantes de cualquier carrera y modalidad registrada en ISTPET podrán
-                    postular a esta convocatoria durante el período de corte.
-                  </p>
-                </div>
-              </div>
-            }
-
-            <!-- Panel de Selección Personalizada -->
-            @if (!form().habilitarTodasLasCarreras) {
-              <div class="custom-selection-box">
-                <!-- Barra de búsqueda y Filtros por Modalidad de Estudio -->
-                <div class="custom-filter-toolbar">
-                  <div class="search-input-wrapper">
-                    <svg
-                      class="search-icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input
-                      type="text"
-                      class="fluent-search-input"
-                      [ngModel]="filtroTextoCarrera()"
-                      (ngModelChange)="filtroTextoCarrera.set($event)"
-                      placeholder="Buscar por nombre de carrera o modalidad..."
-                    />
-                    @if (filtroTextoCarrera()) {
-                      <button
-                        type="button"
-                        class="search-clear-btn"
-                        (click)="filtroTextoCarrera.set('')"
-                        title="Limpiar búsqueda"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </button>
-                    }
-                  </div>
-
-                  <div class="modality-chips-row">
-                    <button
-                      type="button"
-                      class="mod-filter-chip"
-                      [class.active]="filtroModalidadEstudio() === 'TODAS'"
-                      (click)="filtroModalidadEstudio.set('TODAS')"
-                    >
-                      Todas
-                    </button>
-                    @for (mod of modalidadesEstudioDisponibles(); track mod) {
-                      <button
-                        type="button"
-                        class="mod-filter-chip"
-                        [class.active]="filtroModalidadEstudio() === mod"
-                        (click)="filtroModalidadEstudio.set(mod)"
-                      >
-                        {{ mod }}
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <!-- Acciones Masivas y Métricas -->
-                <div class="custom-actions-bar">
-                  <div class="selection-metrics">
-                    <span class="metrics-badge">
-                      {{ metricasSeleccion().seleccionadas }} de
-                      {{ metricasSeleccion().total }} carreras habilitadas
-                    </span>
-                    <span class="metrics-sub">
-                      ({{ metricasSeleccion().porcentaje }}% de cobertura institucional)
-                    </span>
-                  </div>
-
-                  <div class="bulk-actions-buttons">
-                    <button type="button" class="btn-bulk" (click)="seleccionarTodasCarreras()">
-                      Marcar Todas
-                    </button>
-                    <button type="button" class="btn-bulk" (click)="deseleccionarTodasCarreras()">
-                      Deseleccionar
-                    </button>
-                    <button type="button" class="btn-bulk" (click)="invertirSeleccionCarreras()">
-                      Invertir
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Grid de Tarjetas de Carreras -->
-                <div class="career-cards-grid">
-                  @if (carrerasFiltradas().length === 0) {
-                    <div class="empty-filter-state">
-                      <p>No se encontraron carreras con los filtros aplicados.</p>
-                      <button
-                        type="button"
-                        class="btn-reset-filter"
-                        (click)="filtroTextoCarrera.set(''); filtroModalidadEstudio.set('TODAS')"
-                      >
-                        Limpiar filtros
-                      </button>
-                    </div>
-                  } @else {
-                    @for (c of carrerasFiltradas(); track c.idModalidadCarrera) {
-                      <div
-                        class="career-tile-card"
-                        [class.selected]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
-                        (click)="toggleCarrera(c.idModalidadCarrera)"
-                        (keydown.enter)="toggleCarrera(c.idModalidadCarrera)"
-                        tabindex="0"
-                        role="checkbox"
-                        [attr.aria-checked]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
-                      >
-                        <div class="career-tile-checkbox">
-                          @if (carrerasSeleccionadas().has(c.idModalidadCarrera)) {
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            >
-                              <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                          }
-                        </div>
-
-                        <div class="career-tile-info">
-                          <span class="career-tile-name">{{ c.nombreCarrera }}</span>
-                          <div class="career-tile-badges">
-                            <span class="modality-tag">
-                              {{ c.nombreModalidadEstudio }}
-                            </span>
-                            @if (c.aliasCarrera) {
-                              <span class="alias-tag">{{ c.aliasCarrera }}</span>
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  }
-                </div>
-              </div>
+          <!-- Cabecera de días -->
+          <div class="mini-cal-weekdays">
+            @for (d of diasSemana; track d) {
+              <span class="mini-weekday">{{ d }}</span>
             }
           </div>
-        }
 
-        <!-- ============================================================ -->
-        <!-- PASO 5: MODALIDADES DE TITULACIÓN Y CONFIRMACIÓN             -->
-        <!-- ============================================================ -->
-        @if (pasoActual() === 5) {
-          <div class="step-content-pane">
-            <div class="step-pane-header">
-              <span class="step-pane-badge">Paso 5</span>
-              <h4 class="step-pane-title">Modalidades de Grado y Resumen Final</h4>
-              <p class="step-pane-desc">
-                Verifique las modalidades de titulación maestras habilitadas y confirme la apertura
-                de la cohorte.
-              </p>
-            </div>
-
-            <!-- Modalidades Maestras Grid -->
-            <div class="form-section-card">
-              <div class="section-top-row">
-                <span class="fluent-field-label">Modalidades de Grado Autorizadas:</span>
-                <button
-                  type="button"
-                  class="btn-micro-link"
-                  (click)="seleccionarTodasModalidades()"
-                >
-                  Seleccionar Todas
-                </button>
-              </div>
-
-              <div class="modalidades-cards-grid">
-                @for (m of modalidades(); track m.idModalidadTitulacion) {
-                  <div
-                    class="modalidad-tile-card"
-                    [class.selected]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
-                    (click)="toggleModalidad(m.idModalidadTitulacion)"
-                    (keydown.enter)="toggleModalidad(m.idModalidadTitulacion)"
-                    tabindex="0"
-                    role="checkbox"
-                    [attr.aria-checked]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
-                  >
-                    <div class="mod-checkbox">
-                      @if (modalidadesSeleccionadas().has(m.idModalidadTitulacion)) {
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="3"
-                        >
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      }
-                    </div>
-                    <div class="mod-info">
-                      <span class="mod-title">{{ m.modalidadTitulacion }}</span>
-                      <span class="mod-stats">
-                        Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) ·
-                        {{ m.totalRequisitosAsociados }} requisitos
-                      </span>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Ficha Técnica Resumen -->
-            <div class="resumen-confirmacion-card">
-              <div class="resumen-header">
-                <span class="resumen-tag">FICHA TÉCNICA DE APERTURA</span>
-                <span class="resumen-status">Listo para Automatizar</span>
-              </div>
-
-              <div class="resumen-grid">
-                <div class="resumen-item">
-                  <span class="resumen-label">Período Académico:</span>
-                  <span class="resumen-val">{{ form().idPeriodo }}</span>
-                </div>
-
-                <div class="resumen-item">
-                  <span class="resumen-label">Nombre Convocatoria:</span>
-                  <span class="resumen-val">{{ form().detalleConvocatoria }}</span>
-                </div>
-
-                <div class="resumen-item">
-                  <span class="resumen-label">Ventana de Postulación:</span>
-                  <span class="resumen-val">
-                    {{ form().fechaInicioStr }} al {{ form().fechaFinStr }} ({{
-                      duracionConvocatoriaDias()
-                    }}
-                    días)
-                  </span>
-                </div>
-
-                <div class="resumen-item">
-                  <span class="resumen-label">Plazos del Proceso:</span>
-                  <span class="resumen-val">
-                    {{ form().diasPermitidos }} días desarrollo + {{ form().diasExtension }} días
-                    prórroga
-                  </span>
-                </div>
-
-                <div class="resumen-item">
-                  <span class="resumen-label">Alcance de Carreras:</span>
-                  <span class="resumen-val">
-                    @if (form().habilitarTodasLasCarreras) {
-                      Todas las carreras ({{ modalidadesCarreras().length }})
-                    } @else {
-                      {{ carrerasSeleccionadas().size }} de
-                      {{ modalidadesCarreras().length }} seleccionadas
-                    }
-                  </span>
-                </div>
-
-                <div class="resumen-item">
-                  <span class="resumen-label">Modalidades de Grado:</span>
-                  <span class="resumen-val">
-                    {{ modalidadesSeleccionadas().size }} modalidades habilitadas
-                  </span>
-                </div>
-              </div>
-            </div>
+          <!-- Grilla mensual -->
+          <div class="mini-cal-grid">
+            @for (item of calendarDays(); track item.dateStr) {
+              <button
+                type="button"
+                class="mini-day-cell"
+                [class.not-current-month]="!item.isCurrentMonth"
+                [class.is-today]="item.isToday"
+                [class.fase-postulacion]="item.isPostulacion"
+                [class.fase-postulacion-start]="item.isPostulacionStart"
+                [class.fase-postulacion-end]="item.isPostulacionEnd"
+                [class.fase-titulacion]="item.isTitulacion"
+                [class.fase-titulacion-start]="item.isTitulacionStart"
+                [class.fase-titulacion-end]="item.isTitulacionEnd"
+                [class.fase-prorroga]="item.isProrroga"
+                [class.fase-prorroga-start]="item.isProrrogaStart"
+                [class.fase-prorroga-end]="item.isProrrogaEnd"
+                (click)="onDayClick(item)"
+                [title]="item.dateStr"
+              >
+                <span class="day-text">{{ item.dayNumber }}</span>
+              </button>
+            }
           </div>
-        }
+
+          <!-- LEYENDA SIMPLIFICADA (SOLO COLORES Y NOMBRES) -->
+          <div class="cronograma-legend-bar">
+            <button
+              type="button"
+              class="legend-item legend-postulacion"
+              [class.active]="tabFaseActiva() === 'postulacion'"
+              (click)="seleccionarTabFase('postulacion')"
+            >
+              <span class="legend-indicator"></span>
+              <strong>1. Postulación</strong>
+            </button>
+
+            <button
+              type="button"
+              class="legend-item legend-titulacion"
+              [class.active]="tabFaseActiva() === 'titulacion'"
+              (click)="seleccionarTabFase('titulacion')"
+            >
+              <span class="legend-indicator"></span>
+              <strong>2. Titulación</strong>
+            </button>
+
+            <button
+              type="button"
+              class="legend-item legend-prorroga"
+              [class.active]="tabFaseActiva() === 'prorroga'"
+              (click)="seleccionarTabFase('prorroga')"
+            >
+              <span class="legend-indicator"></span>
+              <strong>3. Prórroga</strong>
+            </button>
+          </div>
+        </div>
       </div>
+    }
 
-      <footer class="dictamen-modal-actions" drawer-footer>
-        <div class="footer-left">
-          <button type="button" class="fluent-btn-ghost" (click)="onClose()">Cancelar</button>
+    <!-- ============================================================ -->
+    <!-- PASO 4: ALCANCE DE CARRERAS (SELECCIÓN PERSONALIZADA)        -->
+    <!-- ============================================================ -->
+    @if (pasoActual() === 4) {
+      <div class="step-content-pane">
+        <div class="step-pane-header">
+          <span class="step-pane-badge">Paso 4</span>
+          <h4 class="step-pane-title">Alcance de Carreras Habilitadas</h4>
+          <p class="step-pane-desc">
+            Determine si la convocatoria se abre para toda la oferta académica o seleccione de forma
+            personalizada las carreras participantes.
+          </p>
         </div>
 
-        <div class="footer-right">
-          @if (pasoActual() > 1) {
-            <button type="button" class="fluent-btn-secondary" (click)="anteriorPaso()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-              Anterior
-            </button>
-          }
-
-          @if (pasoActual() < totalPasos) {
-            <button
-              type="button"
-              class="fluent-btn-primary"
-              [disabled]="!esPasoValido(pasoActual())"
-              (click)="siguientePaso()"
-            >
-              Siguiente
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
-          } @else {
-            <button
-              type="button"
-              class="fluent-btn-primary btn-confirm-highlight"
-              [disabled]="!esPasoValido(5)"
-              (click)="onConfirm()"
-            >
+        <!-- Segmented Switcher de Modo -->
+        <div class="segmented-mode-container">
+          <button
+            type="button"
+            class="segmented-mode-btn"
+            [class.active]="form().habilitarTodasLasCarreras"
+            (click)="toggleHabilitarTodasLasCarreras(true)"
+          >
+            <div class="mode-icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -1027,9 +587,422 @@
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
-              Aperturar y Automatizar Convocatoria
-            </button>
-          }
+            </div>
+            <div class="mode-text">
+              <span class="mode-title">Habilitar Todas las Carreras</span>
+              <span>Oferta completa institucional ({{ modalidadesCarreras().length }})</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            class="segmented-mode-btn"
+            [class.active]="!form().habilitarTodasLasCarreras"
+            (click)="toggleHabilitarTodasLasCarreras(false)"
+          >
+            <div class="mode-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+              </svg>
+            </div>
+            <div class="mode-text">
+              <span class="mode-title">Selección Personalizada</span>
+              <span
+                >Filtrar por carrera y modalidad ({{ carrerasSeleccionadas().size }} elegidas)</span
+              >
+            </div>
+          </button>
         </div>
-      </footer>
+
+        <!-- Panel de Todas Habilitadas -->
+        @if (form().habilitarTodasLasCarreras) {
+          <div class="all-careers-banner">
+            <div class="all-banner-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+            </div>
+            <div class="all-banner-info">
+              <span class="all-banner-title"
+                >Todas las {{ modalidadesCarreras().length }} carreras están habilitadas</span
+              >
+              <p>
+                Los estudiantes de cualquier carrera y modalidad registrada en ISTPET podrán
+                postular a esta convocatoria durante el período de corte.
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- Panel de Selección Personalizada -->
+        @if (!form().habilitarTodasLasCarreras) {
+          <div class="custom-selection-box">
+            <!-- Barra de búsqueda y Filtros por Modalidad de Estudio -->
+            <div class="custom-filter-toolbar">
+              <div class="search-input-wrapper">
+                <svg
+                  class="search-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input
+                  type="text"
+                  class="fluent-search-input"
+                  [ngModel]="filtroTextoCarrera()"
+                  (ngModelChange)="filtroTextoCarrera.set($event)"
+                  placeholder="Buscar por nombre de carrera o modalidad..."
+                />
+                @if (filtroTextoCarrera()) {
+                  <button
+                    type="button"
+                    class="search-clear-btn"
+                    (click)="filtroTextoCarrera.set('')"
+                    title="Limpiar búsqueda"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                }
+              </div>
+
+              <div class="modality-chips-row">
+                <button
+                  type="button"
+                  class="mod-filter-chip"
+                  [class.active]="filtroModalidadEstudio() === 'TODAS'"
+                  (click)="filtroModalidadEstudio.set('TODAS')"
+                >
+                  Todas
+                </button>
+                @for (mod of modalidadesEstudioDisponibles(); track mod) {
+                  <button
+                    type="button"
+                    class="mod-filter-chip"
+                    [class.active]="filtroModalidadEstudio() === mod"
+                    (click)="filtroModalidadEstudio.set(mod)"
+                  >
+                    {{ mod }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Acciones Masivas y Métricas -->
+            <div class="custom-actions-bar">
+              <div class="selection-metrics">
+                <span class="metrics-badge">
+                  {{ metricasSeleccion().seleccionadas }} de
+                  {{ metricasSeleccion().total }} carreras habilitadas
+                </span>
+                <span class="metrics-sub">
+                  ({{ metricasSeleccion().porcentaje }}% de cobertura institucional)
+                </span>
+              </div>
+
+              <div class="bulk-actions-buttons">
+                <button type="button" class="btn-bulk" (click)="seleccionarTodasCarreras()">
+                  Marcar Todas
+                </button>
+                <button type="button" class="btn-bulk" (click)="deseleccionarTodasCarreras()">
+                  Deseleccionar
+                </button>
+                <button type="button" class="btn-bulk" (click)="invertirSeleccionCarreras()">
+                  Invertir
+                </button>
+              </div>
+            </div>
+
+            <!-- Grid de Tarjetas de Carreras -->
+            <div class="career-cards-grid">
+              @if (carrerasFiltradas().length === 0) {
+                <div class="empty-filter-state">
+                  <p>No se encontraron carreras con los filtros aplicados.</p>
+                  <button
+                    type="button"
+                    class="btn-reset-filter"
+                    (click)="filtroTextoCarrera.set(''); filtroModalidadEstudio.set('TODAS')"
+                  >
+                    Limpiar filtros
+                  </button>
+                </div>
+              } @else {
+                @for (c of carrerasFiltradas(); track c.idModalidadCarrera) {
+                  <div
+                    class="career-tile-card"
+                    [class.selected]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
+                    (click)="toggleCarrera(c.idModalidadCarrera)"
+                    (keydown.enter)="toggleCarrera(c.idModalidadCarrera)"
+                    tabindex="0"
+                    role="checkbox"
+                    [attr.aria-checked]="carrerasSeleccionadas().has(c.idModalidadCarrera)"
+                  >
+                    <div class="career-tile-checkbox">
+                      @if (carrerasSeleccionadas().has(c.idModalidadCarrera)) {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      }
+                    </div>
+
+                    <div class="career-tile-info">
+                      <span class="career-tile-name">{{ c.nombreCarrera }}</span>
+                      <div class="career-tile-badges">
+                        <span class="modality-tag">
+                          {{ c.nombreModalidadEstudio }}
+                        </span>
+                        @if (c.aliasCarrera) {
+                          <span class="alias-tag">{{ c.aliasCarrera }}</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ============================================================ -->
+    <!-- PASO 5: MODALIDADES DE TITULACIÓN Y CONFIRMACIÓN             -->
+    <!-- ============================================================ -->
+    @if (pasoActual() === 5) {
+      <div class="step-content-pane">
+        <div class="step-pane-header">
+          <span class="step-pane-badge">Paso 5</span>
+          <h4 class="step-pane-title">Modalidades de Grado y Resumen Final</h4>
+          <p class="step-pane-desc">
+            Verifique las modalidades de titulación maestras habilitadas y confirme la apertura de
+            la cohorte.
+          </p>
+        </div>
+
+        <!-- Modalidades Maestras Grid -->
+        <div class="form-section-card">
+          <div class="section-top-row">
+            <span class="fluent-field-label">Modalidades de Grado Autorizadas:</span>
+            <button type="button" class="btn-micro-link" (click)="seleccionarTodasModalidades()">
+              Seleccionar Todas
+            </button>
+          </div>
+
+          <div class="modalidades-cards-grid">
+            @for (m of modalidades(); track m.idModalidadTitulacion) {
+              <div
+                class="modalidad-tile-card"
+                [class.selected]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
+                (click)="toggleModalidad(m.idModalidadTitulacion)"
+                (keydown.enter)="toggleModalidad(m.idModalidadTitulacion)"
+                tabindex="0"
+                role="checkbox"
+                [attr.aria-checked]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
+              >
+                <div class="mod-checkbox">
+                  @if (modalidadesSeleccionadas().has(m.idModalidadTitulacion)) {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  }
+                </div>
+                <div class="mod-info">
+                  <span class="mod-title">{{ m.modalidadTitulacion }}</span>
+                  <span class="mod-stats">
+                    Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) ·
+                    {{ m.totalRequisitosAsociados }} requisitos
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Ficha Técnica Resumen -->
+        <div class="resumen-confirmacion-card">
+          <div class="resumen-header">
+            <span class="resumen-tag">FICHA TÉCNICA DE APERTURA</span>
+            <span class="resumen-status">Listo para Automatizar</span>
+          </div>
+
+          <div class="resumen-grid">
+            <div class="resumen-item">
+              <span class="resumen-label">Período Académico:</span>
+              <span class="resumen-val">{{ form().idPeriodo }}</span>
+            </div>
+
+            <div class="resumen-item">
+              <span class="resumen-label">Nombre Convocatoria:</span>
+              <span class="resumen-val">{{ form().detalleConvocatoria }}</span>
+            </div>
+
+            <div class="resumen-item">
+              <span class="resumen-label">Ventana de Postulación:</span>
+              <span class="resumen-val">
+                {{ form().fechaInicioStr }} al {{ form().fechaFinStr }} ({{
+                  duracionConvocatoriaDias()
+                }}
+                días)
+              </span>
+            </div>
+
+            <div class="resumen-item">
+              <span class="resumen-label">Plazos del Proceso:</span>
+              <span class="resumen-val">
+                {{ form().diasPermitidos }} días desarrollo + {{ form().diasExtension }} días
+                prórroga
+              </span>
+            </div>
+
+            <div class="resumen-item">
+              <span class="resumen-label">Alcance de Carreras:</span>
+              <span class="resumen-val">
+                @if (form().habilitarTodasLasCarreras) {
+                  Todas las carreras ({{ modalidadesCarreras().length }})
+                } @else {
+                  {{ carrerasSeleccionadas().size }} de
+                  {{ modalidadesCarreras().length }} seleccionadas
+                }
+              </span>
+            </div>
+
+            <div class="resumen-item">
+              <span class="resumen-label">Modalidades de Grado:</span>
+              <span class="resumen-val">
+                {{ modalidadesSeleccionadas().size }} modalidades habilitadas
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <footer class="dictamen-modal-actions" drawer-footer>
+    <div class="footer-left">
+      <button type="button" class="fluent-btn-ghost" (click)="onClose()">Cancelar</button>
+    </div>
+
+    <div class="footer-right">
+      @if (pasoActual() > 1) {
+        <button type="button" class="fluent-btn-secondary" (click)="anteriorPaso()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Anterior
+        </button>
+      }
+
+      @if (pasoActual() < totalPasos) {
+        <button
+          type="button"
+          class="fluent-btn-primary"
+          [disabled]="!esPasoValido(pasoActual())"
+          (click)="siguientePaso()"
+        >
+          Siguiente
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="fluent-btn-primary btn-confirm-highlight"
+          [disabled]="!esPasoValido(5)"
+          (click)="onConfirm()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          Aperturar y Automatizar Convocatoria
+        </button>
+      }
+    </div>
+  </footer>
 </app-drawer>

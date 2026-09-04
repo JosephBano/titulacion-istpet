@@ -2,11 +2,7 @@
   <!-- Contenedor general del Drawer -->
   <div class="drawer-host" role="dialog" aria-modal="true" [attr.aria-label]="title()">
     <!-- 1. Backdrop oscuro con efecto glassmorphism -->
-    <div
-      class="drawer-backdrop"
-      (click)="onBackdropClick()"
-      aria-hidden="true"
-    ></div>
+    <div class="drawer-backdrop" (click)="onBackdropClick()" aria-hidden="true"></div>
 
     <!-- 2. Panel Drawer que nace de la derecha -->
     <aside
@@ -69,11 +65,7 @@
 
     <!-- 3. Modal de Advertencia de Pérdida de Datos (si hasDirtyData es true) -->
     @if (showDiscardModal()) {
-      <div
-        class="discard-modal-backdrop"
-        (click)="cancelDiscard()"
-        aria-hidden="true"
-      >
+      <div class="discard-modal-backdrop" (click)="cancelDiscard()" aria-hidden="true">
         <div
           class="discard-modal-card"
           (click)="$event.stopPropagation()"
@@ -95,7 +87,9 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <path
+                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+              ></path>
               <line x1="12" y1="9" x2="12" y2="13"></line>
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
@@ -111,11 +105,7 @@
           </div>
 
           <div class="discard-modal-actions">
-            <button
-              type="button"
-              class="discard-btn discard-btn--cancel"
-              (click)="cancelDiscard()"
-            >
+            <button type="button" class="discard-btn discard-btn--cancel" (click)="cancelDiscard()">
               Continuar editando
             </button>
             <button

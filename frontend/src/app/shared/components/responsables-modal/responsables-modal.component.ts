@@ -1,8 +1,24 @@
-import { Component, input, output, signal, computed, effect, inject, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, Subscription, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  catchError,
+  finalize,
+} from 'rxjs/operators';
 import {
   RequisitoMaestro,
   ResponsableRequisito,
@@ -47,11 +63,9 @@ export class ResponsablesModalComponent implements OnDestroy {
    * Si ya están asignados, se excluyen automáticamente para que no vuelvan a aparecer.
    */
   candidatosDisponibles = computed(() => {
-    const asignadosIds = new Set(
-      this.responsables().map((r) => r.idProfesor.trim().toLowerCase())
-    );
+    const asignadosIds = new Set(this.responsables().map((r) => r.idProfesor.trim().toLowerCase()));
     return this.profesoresCandidatos().filter(
-      (p) => !asignadosIds.has(p.idProfesor.trim().toLowerCase())
+      (p) => !asignadosIds.has(p.idProfesor.trim().toLowerCase()),
     );
   });
 
@@ -124,15 +138,18 @@ export class ResponsablesModalComponent implements OnDestroy {
 
   cargarCandidatos(termino = ''): void {
     this.cargandoCandidatos.set(true);
-    this.titulacionService.getProfesoresCandidatos(termino).pipe(
-      catchError(() => of([])),
-      finalize(() => this.cargandoCandidatos.set(false)),
-    ).subscribe((data) => {
-      this.profesoresCandidatos.set(data);
-      if (termino.trim()) {
-        this.mostrarDropdown.set(true);
-      }
-    });
+    this.titulacionService
+      .getProfesoresCandidatos(termino)
+      .pipe(
+        catchError(() => of([])),
+        finalize(() => this.cargandoCandidatos.set(false)),
+      )
+      .subscribe((data) => {
+        this.profesoresCandidatos.set(data);
+        if (termino.trim()) {
+          this.mostrarDropdown.set(true);
+        }
+      });
   }
 
   onBusquedaInput(valor: string): void {
@@ -181,7 +198,9 @@ export class ResponsablesModalComponent implements OnDestroy {
         this.mostrarDropdown.set(false);
         this.busquedaProfesor.set('');
         this.profesoresCandidatos.set([]);
-        this.notificationService.success(`Docente ${profesor.nombresCompletos} asignado exitosamente.`);
+        this.notificationService.success(
+          `Docente ${profesor.nombresCompletos} asignado exitosamente.`,
+        );
         this.cargarResponsables(r.idRequisitos);
         this.cambioAsignaciones.emit();
       },
@@ -198,7 +217,9 @@ export class ResponsablesModalComponent implements OnDestroy {
 
     this.titulacionService.desasignarProfesorRequisito(idResponsableEvidencias).subscribe({
       next: () => {
-        this.notificationService.success('Asignación de docente removida. Vuelve a estar disponible.');
+        this.notificationService.success(
+          'Asignación de docente removida. Vuelve a estar disponible.',
+        );
         this.cargarResponsables(r.idRequisitos);
         this.cambioAsignaciones.emit();
       },

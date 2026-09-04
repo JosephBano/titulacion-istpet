@@ -1,10 +1,4 @@
-import {
-  Component,
-  HostListener,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, HostListener, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type DrawerSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -54,7 +48,7 @@ export class DrawerComponent {
 
   /** Mensaje explicativo en el modal de confirmación */
   discardModalMessage = input<string>(
-    'Tienes información o cambios pendientes en este formulario. Si cierras el panel ahora, todos los datos no guardados se perderán.'
+    'Tienes información o cambios pendientes en este formulario. Si cierras el panel ahora, todos los datos no guardados se perderán.',
   );
 
   /** Emite cuando el drawer se cierra formalmente */

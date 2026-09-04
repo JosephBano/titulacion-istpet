@@ -12,13 +12,11 @@
     <div class="add-section">
       <div class="section-title-row">
         <label class="form-label" for="buscarDocente">Buscar y Asignar Docente</label>
-        <span class="count-badge-disponibles">
-          {{ responsables().length }} asignado(s)
-        </span>
+        <span class="count-badge-disponibles"> {{ responsables().length }} asignado(s) </span>
       </div>
 
       <!-- Contenedor Autocomplete con Búsqueda y Resultados debajo -->
-      <div class="search-autocomplete-container" (click)="$event.stopPropagation()">
+      <div class="search-autocomplete-container">
         <div class="search-filter-box">
           <svg
             class="search-icon"
@@ -78,34 +76,37 @@
               </div>
               <ul class="dropdown-list">
                 @for (p of candidatosDisponibles(); track p.idProfesor) {
-                  <li
-                    class="dropdown-item"
-                    [class.item-assigning]="asignandoId() === p.idProfesor"
-                    (click)="seleccionarYAsignar(p)"
-                    title="Haga clic para asignar inmediatamente a este docente"
-                  >
-                    <div class="dropdown-item-avatar">
-                      {{ getIniciales(p.nombresCompletos) }}
-                    </div>
-                    <div class="dropdown-item-info">
-                      <div class="item-name">{{ p.nombresCompletos }}</div>
-                      <div class="item-meta">
-                        <span class="font-mono">CI: {{ p.idProfesor }}</span>
-                        @if (p.email) {
-                          <span class="meta-dot">·</span>
-                          <span class="meta-email">{{ p.email }}</span>
+                  <li class="dropdown-item-wrapper">
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      [class.item-assigning]="asignandoId() === p.idProfesor"
+                      (click)="seleccionarYAsignar(p)"
+                      title="Haga clic para asignar inmediatamente a este docente"
+                    >
+                      <div class="dropdown-item-avatar">
+                        {{ getIniciales(p.nombresCompletos) }}
+                      </div>
+                      <div class="dropdown-item-info">
+                        <div class="item-name">{{ p.nombresCompletos }}</div>
+                        <div class="item-meta">
+                          <span class="font-mono">CI: {{ p.idProfesor }}</span>
+                          @if (p.email) {
+                            <span class="meta-dot">·</span>
+                            <span class="meta-email">{{ p.email }}</span>
+                          }
+                        </div>
+                      </div>
+                      <div class="dropdown-item-action">
+                        @if (asignandoId() === p.idProfesor) {
+                          <span class="badge-assigning">
+                            <span class="spinner-tiny"></span> Asignando...
+                          </span>
+                        } @else {
+                          <span class="badge-select-action">+ Asignar</span>
                         }
                       </div>
-                    </div>
-                    <div class="dropdown-item-action">
-                      @if (asignandoId() === p.idProfesor) {
-                        <span class="badge-assigning">
-                          <span class="spinner-tiny"></span> Asignando...
-                        </span>
-                      } @else {
-                        <span class="badge-select-action">+ Asignar</span>
-                      }
-                    </div>
+                    </button>
                   </li>
                 }
               </ul>
@@ -158,7 +159,8 @@
           </svg>
           <p>Este requisito aún no tiene docentes responsables asignados.</p>
           <span class="empty-hint">
-            Asigne al menos un docente para que las postulaciones de este requisito puedan ser validadas en el portal del docente.
+            Asigne al menos un docente para que las postulaciones de este requisito puedan ser
+            validadas en el portal del docente.
           </span>
         </div>
       } @else if (responsablesFiltrados().length === 0) {
