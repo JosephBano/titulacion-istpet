@@ -33,10 +33,12 @@ export interface CalendarDayItem {
   readonly isProrrogaEnd: boolean;
 }
 
+import { DrawerComponent } from '../drawer/drawer.component';
+
 @Component({
   selector: 'app-apertura-periodo-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DrawerComponent],
   templateUrl: './apertura-periodo-modal.component.html',
   styleUrls: ['./apertura-periodo-modal.component.css'],
 })

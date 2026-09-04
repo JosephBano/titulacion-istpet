@@ -120,7 +120,6 @@
         <table class="fluent-table">
           <thead>
             <tr>
-              <th class="th-id">ID</th>
               <th>NOMBRE DEL REQUISITO</th>
               <th>TIPO DE VALIDACIÓN</th>
               <th>RESPONSABLE DE CARGA</th>
@@ -131,9 +130,6 @@
           <tbody>
             @for (r of requisitosPaginados(); track r.idRequisitos) {
               <tr>
-                <td class="td-id">
-                  <span class="code-badge">#{{ r.idRequisitos }}</span>
-                </td>
                 <td>
                   <span class="requisito-nombre">{{ r.requisito }}</span>
                 </td>

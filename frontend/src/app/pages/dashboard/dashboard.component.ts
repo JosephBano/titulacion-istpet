@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -51,6 +51,7 @@ import {
   GuardarEvaluacionEvento,
 } from './components/evaluacion-docente-tab/evaluacion-docente-tab.component';
 import { ResponsablesModalComponent } from '../../shared/components/responsables-modal/responsables-modal.component';
+import { DrawerComponent } from '../../shared/components/drawer/drawer.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -74,6 +75,7 @@ import { ResponsablesModalComponent } from '../../shared/components/responsables
     EstudianteProcesoComponent,
     EvaluacionDocenteTabComponent,
     ResponsablesModalComponent,
+    DrawerComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -131,7 +133,43 @@ export class DashboardComponent implements OnInit {
   requisitosMaestros = signal<RequisitoMaestro[]>([]);
   matrizRequisitos = signal<RequisitoModalidadMatriz[]>([]);
   modalidadSeleccionadaMatriz = signal<ModalidadMaestra | null>(null);
+  busquedaRequisitoMatriz = signal<string>('');
+  guardandoRequisitoMatrizId = signal<number | null>(null);
   configCargando = signal<boolean>(false);
+
+  // Requisitos maestros activos disponibles para asociar (con filtro de búsqueda)
+  requisitosDisponiblesParaMatriz = computed(() => {
+    const todos = this.requisitosMaestros();
+    const asignados = this.matrizRequisitos();
+    const busqueda = this.busquedaRequisitoMatriz().toLowerCase().trim();
+
+    const idsAsignados = new Set(
+      asignados.filter((mr) => mr.esActivo !== false).map((mr) => mr.idRequisitos),
+    );
+
+    return todos.filter((r) => {
+      if (!r.esActivo) return false;
+      if (idsAsignados.has(r.idRequisitos)) return false;
+      if (busqueda && !r.requisito.toLowerCase().includes(busqueda)) return false;
+      return true;
+    });
+  });
+
+  // Requisitos actualmente asociados y activos a la modalidad seleccionada
+  requisitosAsignadosMatriz = computed(() => {
+    return this.matrizRequisitos().filter((mr) => mr.esActivo !== false);
+  });
+
+  mostrarDropdownMatriz = signal<boolean>(false);
+  filtroAsignadosMatriz = signal<string>('');
+  asignandoRequisitoId = signal<number | null>(null);
+
+  requisitosAsignadosMatrizFiltrados = computed(() => {
+    const list = this.requisitosAsignadosMatriz();
+    const query = this.filtroAsignadosMatriz().toLowerCase().trim();
+    if (!query) return list;
+    return list.filter((r) => (r.nombreRequisito || '').toLowerCase().includes(query));
+  });
 
   // Modales
   aperturaModalVisible = signal<boolean>(false);
@@ -242,7 +280,7 @@ export class DashboardComponent implements OnInit {
       this.activeTab.set('resumen');
       this.cargarResumenGeneral();
       this.cargarConvocatoriaActiva();
-      this.cargarPostulaciones();
+      this.cargarTotalPostulaciones();
       this.cargarConfiguracionesMaestras();
       this.cargarEstadosPostulacion();
       if (this.isDocente()) {
@@ -255,7 +293,7 @@ export class DashboardComponent implements OnInit {
       this.activeTab.set('resumen');
       this.cargarResumenGeneral();
       this.cargarConvocatoriaActiva();
-      this.cargarPostulaciones();
+      this.cargarTotalPostulaciones();
       this.cargarConfiguracionesMaestras();
       this.cargarEstadosPostulacion();
     }
@@ -376,6 +414,15 @@ export class DashboardComponent implements OnInit {
   // ----------------------------------------------------
   // Flujo Gestor de Titulación (Postulaciones & KPIs)
   // ----------------------------------------------------
+  cargarTotalPostulaciones(): void {
+    this.titulacionService.getTotalPostulaciones().subscribe({
+      next: (data) => {
+        this.postulacionesTotal.set(data.totalPostulaciones ?? 0);
+      },
+      error: (err) => console.warn('Error al cargar total de postulaciones:', err),
+    });
+  }
+
   cargarPostulaciones(): void {
     this.postulacionesCargando.set(true);
     const idCarrera = this.filtroCarrera() || undefined;
@@ -550,6 +597,26 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  resetNuevoRequisitoForm(): void {
+    this.nuevoRequisitoForm.set({
+      requisito: '',
+      esAdjunto: true,
+      esBool: false,
+      subeAlumno: true,
+      subeColaborador: false,
+    });
+  }
+
+  resetNuevaModalidadForm(): void {
+    this.nuevaModalidadForm.set({
+      modalidadTitulacion: '',
+      esComplexivo: 'NO',
+      esArticuloCientifico: 'NO',
+      generaTesis: 'NO',
+      cantidadMinima: 1,
+    });
+  }
+
   crearModalidad(): void {
     const f = this.nuevaModalidadForm();
     if (!f.modalidadTitulacion.trim()) {
@@ -561,6 +628,7 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.mostrarMensaje('exito', 'Modalidad maestra creada exitosamente.');
         this.nuevaModalidadModalVisible.set(false);
+        this.resetNuevaModalidadForm();
         this.cargarConfiguracionesMaestras();
       },
       error: (err) =>
@@ -579,6 +647,7 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.mostrarMensaje('exito', 'Requisito maestro creado exitosamente.');
         this.nuevoRequisitoModalVisible.set(false);
+        this.resetNuevoRequisitoForm();
         this.cargarConfiguracionesMaestras();
       },
       error: (err) =>
@@ -588,11 +657,51 @@ export class DashboardComponent implements OnInit {
 
   abrirMatriz(m: ModalidadMaestra): void {
     this.modalidadSeleccionadaMatriz.set(m);
+    this.busquedaRequisitoMatriz.set('');
+    this.mostrarDropdownMatriz.set(false);
+    this.filtroAsignadosMatriz.set('');
+    this.asignandoRequisitoId.set(null);
     this.matrizModalVisible.set(true);
     this.titulacionService.getRequisitosPorModalidad(m.idModalidadTitulacion).subscribe({
       next: (data) => this.matrizRequisitos.set(data),
       error: () => this.matrizRequisitos.set([]),
     });
+  }
+
+  onFocusBusquedaMatriz(): void {
+    this.mostrarDropdownMatriz.set(true);
+  }
+
+  onBusquedaMatrizInput(val: string): void {
+    this.busquedaRequisitoMatriz.set(val);
+    this.mostrarDropdownMatriz.set(true);
+  }
+
+  limpiarBusquedaMatriz(): void {
+    this.busquedaRequisitoMatriz.set('');
+    this.mostrarDropdownMatriz.set(false);
+  }
+
+  seleccionarYAsignarRequisito(r: RequisitoMaestro): void {
+    const m = this.modalidadSeleccionadaMatriz();
+    if (!m || this.asignandoRequisitoId() !== null) return;
+
+    this.asignandoRequisitoId.set(r.idRequisitos);
+    this.titulacionService
+      .asignarRequisitoAModalidad(m.idModalidadTitulacion, r.idRequisitos)
+      .subscribe({
+        next: () => {
+          this.mostrarMensaje('exito', `Requisito "${r.requisito}" asociado exitosamente.`);
+          this.asignandoRequisitoId.set(null);
+          this.busquedaRequisitoMatriz.set('');
+          this.mostrarDropdownMatriz.set(false);
+          this.abrirMatriz(m);
+        },
+        error: (err) => {
+          this.asignandoRequisitoId.set(null);
+          this.mostrarMensaje('error', err.error?.message || 'Error al asociar requisito.');
+        },
+      });
   }
 
   asignarRequisito(idRequisito: number): void {
@@ -813,6 +922,9 @@ export class DashboardComponent implements OnInit {
 
   setActiveTab(tab: string): void {
     this.activeTab.set(tab);
+    if (typeof window !== 'undefined' && window.innerWidth < 900) {
+      this.isSidebarCollapsed.set(true);
+    }
     if (tab === 'resumen') {
       this.cargarResumenGeneral();
       this.cargarConvocatoriaActiva();

@@ -2,7 +2,7 @@
    TITÁN — Design Tokens — Microsoft Fluent Design 2 + ISTPET Brand
    ==========================================================================
    Referencia: Microsoft Fluent Design 2 / Microsoft 365 / Azure Portal
-   Paleta institucional: Azul Marino ISTPET #1b2a4a · Dorado #c59b27
+   Paleta institucional: Azul Marino ISTPET #0d1b4c · Dorado #c59b27
    ========================================================================== */
 
 /* Google Fonts — equivalente web a Segoe UI */
@@ -15,10 +15,10 @@
   font-family: 'Segoe UI', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
   /* Marca ISTPET */
-  --istpet-navy:         #1b2a4a;
-  --istpet-navy-hover:   #253d6b;
-  --istpet-navy-dark:    #121d34;
-  --istpet-navy-rail:    #12213a;   /* icon rail — más oscuro que el topbar */
+  --istpet-navy:         #0d1b4c;
+  --istpet-navy-hover:   #162a70;
+  --istpet-navy-dark:    #081133;
+  --istpet-navy-rail:    #091338;   /* icon rail — más oscuro que el topbar */
   --istpet-gold:         #c59b27;
   --istpet-gold-hover:   #d4af37;
   --istpet-gold-subtle:  rgba(197, 155, 39, 0.12);
@@ -74,7 +74,7 @@
   --bg-canvas:           #0d1117;
   --bg-surface:          #1f2937;
   --bg-surface-alt:      #111827;
-  --bg-shape-color:      rgba(27, 42, 74, 0.5);
+  --bg-shape-color:      rgba(13, 27, 76, 0.5);
 
   --text-primary:        #f9fafb;
   --text-secondary:      #e5e7eb;

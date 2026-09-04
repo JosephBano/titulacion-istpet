@@ -1,6 +1,6 @@
 /* ==========================================================================
    TITULACIÓN ISTPET — Sistema Global de Diseño (Fluent Design 2 + Apple HIG)
-   Colores Institucionales: Azul Marino (#1b2a4a) y Dorado Académico (#c59b27)
+   Colores Institucionales: Azul Marino (#0d1b4c) y Dorado Académico (#c59b27)
    ========================================================================== */
 
 @use '@angular/material' as mat;
@@ -10,11 +10,10 @@
 
 :root {
   /* Identidad Institucional ISTPET */
-  --istpet-navy: #1b2a4a;
-  --istpet-navy-hover: #253d6b;
-  --istpet-navy-dark: #121d34;
-  --istpet-navy-rail: #12213a;
-  --istpet-navy-subtle: rgba(27, 42, 74, 0.06);
+  --istpet-navy: #0d1b4c;
+  --istpet-navy-hover: #162a70;
+  --istpet-navy-dark: #081133;
+  --istpet-navy-subtle: rgba(13, 27, 76, 0.06);
 
   --istpet-gold: #c59b27;
   --istpet-gold-hover: #d4af37;

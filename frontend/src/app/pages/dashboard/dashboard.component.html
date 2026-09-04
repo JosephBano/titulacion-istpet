@@ -25,6 +25,9 @@
       aria-hidden="true"
     ></div>
 
+    <!-- Espaciador que mantiene el contenido completamente estable en desktop -->
+    <div class="sidebar-spacer" [class.pinned]="!isSidebarCollapsed()"></div>
+
     <!-- Navegación Unificada Lateral -->
     <aside
       id="istpet-sidebar-nav"
@@ -289,125 +292,111 @@
         [connectionType]="connectionType()"
       />
 
-      <!-- Banner Institucional Personalizado por Rol -->
-      <header class="fluent-banner-card">
-        @if (currentUser(); as user) {
-          <div class="banner-info">
-            <span class="banner-eyebrow">
-              {{
-                isEstudiante()
-                  ? 'PORTAL DEL POSTULANTE A TITULACIÓN'
-                  : isAdmin()
-                    ? 'PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL'
-                    : 'PANEL DOCENTE DE TUTORÍA Y EVALUACIÓN'
-              }}
+      <!-- 1. Banner Institucional de Bienvenida: Solo en Vista General (Resumen) -->
+      @if (activeTab() === 'resumen') {
+        <header class="fluent-banner-card">
+          @if (currentUser(); as user) {
+            <div class="banner-info">
+              <span class="banner-eyebrow">
+                {{
+                  isEstudiante()
+                    ? 'PORTAL DEL POSTULANTE A TITULACIÓN'
+                    : isAdmin()
+                      ? 'PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL'
+                      : 'PANEL DOCENTE DE TUTORÍA Y EVALUACIÓN'
+                }}
+              </span>
+              <h1 class="banner-title">Bienvenido(a), {{ user.nombre }}</h1>
+              <p class="banner-description">
+                {{
+                  isEstudiante()
+                    ? 'Gestione su postulación, consulte requisitos y siga en tiempo real su avance académico de graduación.'
+                    : isAdmin()
+                      ? 'Administración Global del Sistema de Titulación — Instituto Tecnológico Superior Traversari (ISTPET)'
+                      : 'Seguimiento de estudiantes a cargo, revisión de avances de integración curricular y exámenes complexivos.'
+                }}
+              </p>
+            </div>
+          }
+        </header>
+      } @else {
+        <!-- 2. Encabezado de Página Compacto para Vistas Operativas (Ahorro de ~180px verticales) -->
+        <header class="fluent-page-header">
+          <div class="page-header-left">
+            <span class="page-header-breadcrumb">
+              Titulación ISTPET &nbsp;/&nbsp;
+              @switch (activeTab()) {
+                @case ('postulaciones') {
+                  Gestión de Postulantes
+                }
+                @case ('cohortes') {
+                  Planificación de Convocatorias
+                }
+                @case ('requisitos') {
+                  Catálogos Maestros
+                }
+                @case ('modalidades') {
+                  Modalidades de Grado
+                }
+                @case ('evaluacion') {
+                  Validación y Dictamen
+                }
+                @case ('postulacion') {
+                  Portal del Postulante
+                }
+                @case ('guia') {
+                  Documentación Oficial
+                }
+                @case ('cronograma') {
+                  Cronograma Institucional
+                }
+                @default {
+                  Módulo Activo
+                }
+              }
             </span>
-            <h1 class="banner-title">Bienvenido(a), {{ user.nombre }}</h1>
-            <p class="banner-description">
-              {{
-                isEstudiante()
-                  ? 'Gestione su postulación, consulte requisitos y siga en tiempo real su avance académico de graduación.'
-                  : isAdmin()
-                    ? 'Administración Global del Sistema de Titulación — Instituto Tecnológico Superior Traversari (ISTPET)'
-                    : 'Seguimiento de estudiantes a cargo, revisión de avances de integración curricular y exámenes complexivos.'
-              }}
-            </p>
+            <h1 class="page-header-title">
+              @switch (activeTab()) {
+                @case ('postulaciones') {
+                  Bandeja de Postulaciones
+                  <span class="page-header-badge">{{ postulacionesTotal() }} registradas</span>
+                }
+                @case ('cohortes') {
+                  Convocatorias y Cortes
+                }
+                @case ('requisitos') {
+                  Requisitos Maestros
+                  <span class="page-header-badge"
+                    >{{ requisitosMaestros().length }} configurados</span
+                  >
+                }
+                @case ('modalidades') {
+                  Modalidades y Matriz
+                  <span class="page-header-badge">{{ modalidadesMaestras().length }} activas</span>
+                }
+                @case ('evaluacion') {
+                  Validación de Requisitos Asignados
+                  <span class="page-header-badge"
+                    >{{ requisitosDocentePendientes().length }} pendientes</span
+                  >
+                }
+                @case ('postulacion') {
+                  Mi Proceso de Titulación
+                }
+                @case ('guia') {
+                  Guía Oficial de Titulación
+                }
+                @case ('cronograma') {
+                  Calendario Académico {{ currentYear }}
+                }
+                @default {
+                  Titulación ISTPET
+                }
+              }
+            </h1>
           </div>
-        }
-      </header>
-
-      <!-- Tabs de Navegación según Rol -->
-      <nav class="fluent-tabs" role="tablist">
-        @if (isAdmin()) {
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'resumen'"
-            (click)="setActiveTab('resumen')"
-            role="tab"
-          >
-            Vista General
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'postulaciones'"
-            (click)="setActiveTab('postulaciones')"
-            role="tab"
-          >
-            Bandeja de Postulaciones ({{ postulacionesTotal() }})
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'cohortes'"
-            (click)="setActiveTab('cohortes')"
-            role="tab"
-          >
-            Convocatorias y Cortes
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'requisitos'"
-            (click)="setActiveTab('requisitos')"
-            role="tab"
-          >
-            Requisitos Maestros ({{ requisitosMaestros().length }})
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'modalidades'"
-            (click)="setActiveTab('modalidades')"
-            role="tab"
-          >
-            Modalidades y Matriz ({{ modalidadesMaestras().length }})
-          </button>
-        }
-
-        @if (isDocente()) {
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'evaluacion'"
-            (click)="setActiveTab('evaluacion')"
-            role="tab"
-          >
-            Validación de Requisitos Asignados ({{ requisitosDocentePendientes().length }})
-          </button>
-        }
-
-        @if (isEstudiante()) {
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'postulacion'"
-            (click)="setActiveTab('postulacion')"
-            role="tab"
-          >
-            Mi Proceso de Titulación
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'guia'"
-            (click)="setActiveTab('guia')"
-            role="tab"
-          >
-            Guía Paso a Paso
-          </button>
-          <button
-            type="button"
-            class="fluent-tab-item"
-            [class.active]="activeTab() === 'cronograma'"
-            (click)="setActiveTab('cronograma')"
-            role="tab"
-          >
-            Cronograma Institucional
-          </button>
-        }
-      </nav>
+        </header>
+      }
 
       <!-- ============================================================ -->
       <!-- VISTAS DEL ADMINISTRADOR                                     -->
@@ -732,321 +721,428 @@
     (confirm)="aperturarPeriodo($event)"
   />
 
-  <!-- 2. Modal de Nuevo Requisito Maestro -->
-  @if (nuevoRequisitoModalVisible()) {
-    <div
-      class="dictamen-modal-backdrop"
-      (click)="nuevoRequisitoModalVisible.set(false)"
-      (keydown.escape)="nuevoRequisitoModalVisible.set(false)"
-      tabindex="0"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="nuevo-req-title"
-    >
-      <div
-        class="dictamen-modal-card"
-        (click)="$event.stopPropagation()"
-        (keydown)="$event.stopPropagation()"
-        tabindex="0"
-      >
-        <header class="modal-card-header">
-          <div class="modal-title-group">
-            <span class="modal-card-eyebrow">CATÁLOGO INSTITUCIONAL</span>
-            <h3 id="nuevo-req-title" class="modal-card-title">Crear Requisito Maestro</h3>
-          </div>
-          <button
-            type="button"
-            class="modal-close-btn"
-            (click)="nuevoRequisitoModalVisible.set(false)"
-            aria-label="Cerrar modal"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+  <!-- 2. Drawer de Nuevo Requisito Maestro -->
+  <app-drawer
+    [isOpen]="nuevoRequisitoModalVisible()"
+    title="Crear Requisito Maestro"
+    subtitle="Configure el nuevo requisito institucional y sus condiciones"
+    eyebrow="CATÁLOGO INSTITUCIONAL"
+    size="sm"
+    [hasDirtyData]="nuevoRequisitoForm().requisito.trim().length > 0"
+    (closed)="nuevoRequisitoModalVisible.set(false)"
+    (discardConfirmed)="resetNuevoRequisitoForm()"
+  >
+    <div class="req-drawer-content">
+      <!-- Input Estilizado y Compacto -->
+      <div class="req-form-group">
+        <label class="req-form-label" for="inputNombreRequisito">
+          Nombre del Requisito
+          <span class="req-required-dot">*</span>
+        </label>
+        <input
+          id="inputNombreRequisito"
+          type="text"
+          class="fluent-input req-styled-input"
+          [(ngModel)]="nuevoRequisitoForm().requisito"
+          placeholder="Ej: Certificado de Suficiencia en Inglés B1"
+          maxlength="150"
+          autocomplete="off"
+        />
+        <span class="req-helper-text"
+          >Nombre oficial con el que se identificará este requisito en el catálogo.</span
+        >
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Configuración Fila por Fila (Una opción por línea con mensaje claro) -->
+      <div class="req-options-stack">
+        <span class="req-options-header">MODALIDAD DE ENTREGA</span>
+
+        <!-- Fila 1: Archivo Adjunto (PDF) -->
+        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esAdjunto">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [(ngModel)]="nuevoRequisitoForm().esAdjunto"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Requiere adjuntar documento (PDF)</span>
+            <span class="req-option-desc"
+              >El postulante o responsable debe subir un archivo digital para revisión.</span
             >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </header>
-
-        <div class="modal-card-body">
-          <mat-form-field appearance="outline" class="istpet-mat-field">
-            <mat-label>Nombre del Requisito</mat-label>
-            <input
-              matInput
-              [(ngModel)]="nuevoRequisitoForm().requisito"
-              placeholder="Ej: Certificado de Suficiencia en Inglés B1"
-            />
-          </mat-form-field>
-
-          <div class="modal-form-grid">
-            <div class="modal-form-col">
-              <span class="modal-field-title">Naturaleza del Requisito:</span>
-              <div class="modal-checkbox-group">
-                <mat-checkbox [(ngModel)]="nuevoRequisitoForm().esAdjunto"
-                  >Requiere Archivo Adjunto (PDF)</mat-checkbox
-                >
-                <mat-checkbox [(ngModel)]="nuevoRequisitoForm().esBool"
-                  >Validación Booleana (No adeudar)</mat-checkbox
-                >
-              </div>
-            </div>
-
-            <div class="modal-form-col">
-              <span class="modal-field-title">Responsable de Carga:</span>
-              <div class="modal-checkbox-group">
-                <mat-checkbox [(ngModel)]="nuevoRequisitoForm().subeAlumno"
-                  >Lo adjunta el Estudiante</mat-checkbox
-                >
-                <mat-checkbox [(ngModel)]="nuevoRequisitoForm().subeColaborador"
-                  >Lo valida Secretaría / Colaborador</mat-checkbox
-                >
-              </div>
-            </div>
           </div>
-        </div>
+        </label>
 
-        <footer class="dictamen-modal-actions">
-          <button
-            type="button"
-            class="fluent-btn-secondary"
-            (click)="nuevoRequisitoModalVisible.set(false)"
-          >
-            Cancelar
-          </button>
-          <button type="button" class="fluent-btn-primary" (click)="crearRequisito()">
-            Guardar Requisito
-          </button>
-        </footer>
+        <!-- Fila 2: Validación Directa Booleana -->
+        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esBool">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [(ngModel)]="nuevoRequisitoForm().esBool"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Validación directa (Cumple / No adeuda)</span>
+            <span class="req-option-desc"
+              >Sin archivo adjunto; se registra directamente como apto o exonerado.</span
+            >
+          </div>
+        </label>
+
+        <span class="req-options-header" style="margin-top: 6px">RESPONSABLE Y VISIBILIDAD</span>
+
+        <!-- Fila 3: Carga Estudiante -->
+        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeAlumno">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [(ngModel)]="nuevoRequisitoForm().subeAlumno"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Disponible para el estudiante</span>
+            <span class="req-option-desc"
+              >El postulante lo visualiza y lo entrega desde su portal estudiantil.</span
+            >
+          </div>
+        </label>
+
+        <!-- Fila 4: Valida Colaborador / Secretaría -->
+        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeColaborador">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [(ngModel)]="nuevoRequisitoForm().subeColaborador"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Validado por secretaría o docente</span>
+            <span class="req-option-desc"
+              >El personal administrativo o docente asignado evalúa y aprueba el requisito.</span
+            >
+          </div>
+        </label>
       </div>
     </div>
-  }
 
-  <!-- 3. Modal de Nueva Modalidad Maestra -->
-  @if (nuevaModalidadModalVisible()) {
-    <div
-      class="dictamen-modal-backdrop"
-      (click)="nuevaModalidadModalVisible.set(false)"
-      (keydown.escape)="nuevaModalidadModalVisible.set(false)"
-      tabindex="0"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="nueva-mod-title"
-    >
-      <div
-        class="dictamen-modal-card"
-        (click)="$event.stopPropagation()"
-        (keydown)="$event.stopPropagation()"
-        tabindex="0"
+    <div drawer-footer>
+      <button
+        type="button"
+        class="fluent-btn-secondary"
+        (click)="nuevoRequisitoModalVisible.set(false)"
       >
-        <header class="modal-card-header">
-          <div class="modal-title-group">
-            <span class="modal-card-eyebrow">CATÁLOGO INSTITUCIONAL</span>
-            <h3 id="nueva-mod-title" class="modal-card-title">Crear Modalidad Maestra</h3>
-          </div>
-          <button
-            type="button"
-            class="modal-close-btn"
-            (click)="nuevaModalidadModalVisible.set(false)"
-            aria-label="Cerrar modal"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="fluent-btn-primary"
+        [disabled]="!nuevoRequisitoForm().requisito.trim()"
+        (click)="crearRequisito()"
+      >
+        Guardar Requisito
+      </button>
+    </div>
+  </app-drawer>
+
+  <!-- 3. Drawer de Nueva Modalidad Maestra -->
+  <app-drawer
+    [isOpen]="nuevaModalidadModalVisible()"
+    title="Crear Modalidad Maestra"
+    subtitle="Configure una nueva opción de grado institucional y sus reglas"
+    eyebrow="CATÁLOGO INSTITUCIONAL"
+    size="sm"
+    [hasDirtyData]="nuevaModalidadForm().modalidadTitulacion.trim().length > 0"
+    (closed)="nuevaModalidadModalVisible.set(false)"
+    (discardConfirmed)="resetNuevaModalidadForm()"
+  >
+    <div class="req-drawer-content">
+      <!-- Input Nombre de Modalidad -->
+      <div class="req-form-group">
+        <label class="req-form-label" for="inputNombreModalidad">
+          Nombre de la Modalidad
+          <span class="req-required-dot">*</span>
+        </label>
+        <input
+          id="inputNombreModalidad"
+          type="text"
+          class="fluent-input req-styled-input"
+          [(ngModel)]="nuevaModalidadForm().modalidadTitulacion"
+          placeholder="Ej: Examen Complexivo Teórico-Práctico"
+          maxlength="45"
+          autocomplete="off"
+        />
+        <span class="req-helper-text"
+          >Nombre oficial de la opción de titulación (máx. 45 caracteres).</span
+        >
+      </div>
+
+      <!-- Input Cantidad Mínima de Estudiantes -->
+      <div class="req-form-group">
+        <label class="req-form-label" for="inputCantidadMinima">
+          Integrantes Mínimos por Postulación
+          <span class="req-required-dot">*</span>
+        </label>
+        <input
+          id="inputCantidadMinima"
+          type="number"
+          class="fluent-input req-styled-input"
+          min="1"
+          max="10"
+          [(ngModel)]="nuevaModalidadForm().cantidadMinima"
+          placeholder="1"
+        />
+        <span class="req-helper-text">Número mínimo de estudiantes por grupo (mínimo 1).</span>
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Características en Filas Individuales -->
+      <div class="req-options-stack">
+        <span class="req-options-header">CARACTERÍSTICAS ACADÉMICAS</span>
+
+        <!-- Fila 1: Complexivo -->
+        <label class="req-option-row" [class.checked]="nuevaModalidadForm().esComplexivo === 'SI'">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="nuevaModalidadForm().esComplexivo === 'SI'"
+            (change)="nuevaModalidadForm().esComplexivo = $any($event.target).checked ? 'SI' : 'NO'"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Examen Complexivo</span>
+            <span class="req-option-desc"
+              >Evalúa conocimientos mediante pruebas teóricas o prácticas de fin de carrera.</span
             >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </header>
-
-        <div class="modal-card-body">
-          <mat-form-field appearance="outline" class="istpet-mat-field">
-            <mat-label>Nombre de la Modalidad (máx. 45 caracteres)</mat-label>
-            <input
-              matInput
-              maxlength="45"
-              [(ngModel)]="nuevaModalidadForm().modalidadTitulacion"
-              placeholder="Ej: Examen Complexivo Teórico-Práctico"
-            />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="istpet-mat-field">
-            <mat-label>Cantidad Mínima de Estudiantes / Integrantes</mat-label>
-            <input
-              matInput
-              type="number"
-              min="1"
-              max="10"
-              [(ngModel)]="nuevaModalidadForm().cantidadMinima"
-              placeholder="1"
-            />
-          </mat-form-field>
-
-          <div class="modal-form-grid--3">
-            <mat-form-field appearance="outline" class="istpet-mat-field">
-              <mat-label>¿Es Complexivo?</mat-label>
-              <mat-select [(ngModel)]="nuevaModalidadForm().esComplexivo">
-                <mat-option value="NO">NO</mat-option>
-                <mat-option value="SI">SI</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="istpet-mat-field">
-              <mat-label>¿Artículo Científico?</mat-label>
-              <mat-select [(ngModel)]="nuevaModalidadForm().esArticuloCientifico">
-                <mat-option value="NO">NO</mat-option>
-                <mat-option value="SI">SI</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="istpet-mat-field">
-              <mat-label>¿Genera Tesis / TIC?</mat-label>
-              <mat-select [(ngModel)]="nuevaModalidadForm().generaTesis">
-                <mat-option value="NO">NO</mat-option>
-                <mat-option value="SI">SI</mat-option>
-              </mat-select>
-            </mat-form-field>
           </div>
-        </div>
+        </label>
 
-        <footer class="dictamen-modal-actions">
-          <button
-            type="button"
-            class="fluent-btn-secondary"
-            (click)="nuevaModalidadModalVisible.set(false)"
-          >
-            Cancelar
-          </button>
-          <button type="button" class="fluent-btn-primary" (click)="crearModalidad()">
-            Guardar Modalidad
-          </button>
-        </footer>
+        <!-- Fila 2: Artículo Científico -->
+        <label
+          class="req-option-row"
+          [class.checked]="nuevaModalidadForm().esArticuloCientifico === 'SI'"
+        >
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="nuevaModalidadForm().esArticuloCientifico === 'SI'"
+            (change)="
+              nuevaModalidadForm().esArticuloCientifico = $any($event.target).checked ? 'SI' : 'NO'
+            "
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Artículo o Publicación Científica</span>
+            <span class="req-option-desc"
+              >Requiere redacción, validación y publicación de artículo indexado.</span
+            >
+          </div>
+        </label>
+
+        <!-- Fila 3: Genera Tesis / TIC -->
+        <label class="req-option-row" [class.checked]="nuevaModalidadForm().generaTesis === 'SI'">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="nuevaModalidadForm().generaTesis === 'SI'"
+            (change)="nuevaModalidadForm().generaTesis = $any($event.target).checked ? 'SI' : 'NO'"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Genera Proyecto de Grado o Tesis</span>
+            <span class="req-option-desc"
+              >Requiere entrega de memoria técnica, informe escrito y defensa ante tribunal.</span
+            >
+          </div>
+        </label>
       </div>
     </div>
-  }
 
-  <!-- 4. Modal de Matriz Requisitos - Modalidad -->
-  @if (matrizModalVisible()) {
-    <div
-      class="dictamen-modal-backdrop"
-      (click)="matrizModalVisible.set(false)"
-      (keydown.escape)="matrizModalVisible.set(false)"
-      tabindex="0"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="matriz-modal-title"
-    >
-      <div
-        class="dictamen-modal-card dictamen-modal-card--wide"
-        (click)="$event.stopPropagation()"
-        (keydown)="$event.stopPropagation()"
-        tabindex="0"
+    <div drawer-footer>
+      <button
+        type="button"
+        class="fluent-btn-secondary"
+        (click)="nuevaModalidadModalVisible.set(false)"
       >
-        <header class="modal-card-header">
-          <div class="modal-title-group">
-            <span class="modal-card-eyebrow">ASOCIACIÓN DE REQUISITOS</span>
-            <h3 id="matriz-modal-title" class="modal-card-title">
-              Requisitos para: {{ modalidadSeleccionadaMatriz()?.modalidadTitulacion }}
-            </h3>
-          </div>
-          <button
-            type="button"
-            class="modal-close-btn"
-            (click)="matrizModalVisible.set(false)"
-            aria-label="Cerrar modal"
-          >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="fluent-btn-primary"
+        [disabled]="!nuevaModalidadForm().modalidadTitulacion.trim()"
+        (click)="crearModalidad()"
+      >
+        Guardar Modalidad
+      </button>
+    </div>
+  </app-drawer>
+
+  <!-- 4. Drawer de Matriz Requisitos - Modalidad -->
+  <app-drawer
+    [isOpen]="matrizModalVisible()"
+    title="Matriz de Requisitos"
+    [subtitle]="'Modalidad: ' + (modalidadSeleccionadaMatriz()?.modalidadTitulacion || '')"
+    eyebrow="ASOCIACIÓN DE REQUISITOS"
+    size="md"
+    [hasDirtyData]="false"
+    (closed)="matrizModalVisible.set(false)"
+  >
+    <div class="req-drawer-content">
+      <!-- Sección de Búsqueda y Autocompletado Instantáneo (Igual que en Docentes) -->
+      <div class="matriz-add-section">
+        <div class="section-title-row">
+          <label class="req-form-label" for="buscarReqMatriz">
+            Buscar y Asociar Requisito del Catálogo
+          </label>
+          <span class="count-badge-disponibles">
+            {{ requisitosDisponiblesParaMatriz().length }} disponible(s)
+          </span>
+        </div>
+
+        <div class="search-autocomplete-container">
+          <div class="search-filter-box">
             <svg
+              class="search-icon"
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="15"
+              height="15"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
             >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-          </button>
-        </header>
-
-        <div class="modal-card-body">
-          <!-- Asignar nuevo requisito -->
-          <div class="modal-inline-form">
-            <select #selectReq class="fluent-select flex-1">
-              <option value="">Seleccione un requisito del catálogo para asociar...</option>
-              @for (r of requisitosMaestros(); track r.idRequisitos) {
-                <option [value]="r.idRequisitos">{{ r.requisito }}</option>
-              }
-            </select>
-            <button
-              type="button"
-              class="fluent-btn-primary"
-              (click)="selectReq.value && asignarRequisito(+selectReq.value)"
-            >
-              Asociar Requisito
-            </button>
+            <input
+              id="buscarReqMatriz"
+              type="text"
+              class="fluent-input req-styled-input-search"
+              placeholder="Escriba o seleccione un requisito para asociar..."
+              [ngModel]="busquedaRequisitoMatriz()"
+              (ngModelChange)="onBusquedaMatrizInput($event)"
+              (focus)="onFocusBusquedaMatriz()"
+              autocomplete="off"
+            />
+            @if (busquedaRequisitoMatriz()) {
+              <button
+                type="button"
+                class="btn-clear-search"
+                (click)="limpiarBusquedaMatriz()"
+                title="Limpiar búsqueda"
+              >
+                &times;
+              </button>
+            }
           </div>
 
-          <!-- Lista de Requisitos Asignados -->
-          <div class="fluent-table-wrapper fluent-table-wrapper--scroll">
-            <table class="fluent-table">
-              <thead>
-                <tr>
-                  <th>REQUISITO ASIGNADO</th>
-                  <th>TIPO</th>
-                  <th class="text-right">ACCIÓN</th>
-                </tr>
-              </thead>
-              <tbody>
-                @if (matrizRequisitos().length === 0) {
-                  <tr>
-                    <td colspan="3" class="text-center-pad">
-                      Esta modalidad aún no tiene requisitos asociados.
-                    </td>
-                  </tr>
-                } @else {
-                  @for (mr of matrizRequisitos(); track mr.idRequisitoModalidad) {
-                    <tr>
-                      <td>
-                        <strong>{{ mr.nombreRequisito }}</strong>
-                      </td>
-                      <td>{{ mr.esAdjunto ? 'Archivo PDF' : 'Validación Booleana' }}</td>
-                      <td class="text-right">
-                        <button
-                          type="button"
-                          class="fluent-btn-action fluent-btn-action--danger"
-                          (click)="desasignarRequisito(mr.idRequisitoModalidad)"
-                        >
-                          Quitar
-                        </button>
-                      </td>
-                    </tr>
+          <!-- Dropdown desplegable con selección automática instantánea al hacer clic -->
+          @if (mostrarDropdownMatriz()) {
+            <div class="autocomplete-dropdown shadow-flyout">
+              @if (requisitosDisponiblesParaMatriz().length === 0) {
+                <div class="dropdown-status-item empty">
+                  @if (busquedaRequisitoMatriz()) {
+                    <span>No hay requisitos disponibles con "{{ busquedaRequisitoMatriz() }}"</span>
+                  } @else {
+                    <span>Todos los requisitos activos ya están asociados a esta modalidad.</span>
                   }
-                }
-              </tbody>
-            </table>
+                </div>
+              } @else {
+                <div class="dropdown-header">
+                  <span
+                    >{{ requisitosDisponiblesParaMatriz().length }} requisito(s) disponible(s) en
+                    catálogo</span
+                  >
+                </div>
+                <ul class="dropdown-list">
+                  @for (r of requisitosDisponiblesParaMatriz(); track r.idRequisitos) {
+                    <li class="dropdown-item-wrapper">
+                      <button
+                        type="button"
+                        class="dropdown-item"
+                        [class.item-assigning]="asignandoRequisitoId() === r.idRequisitos"
+                        (click)="seleccionarYAsignarRequisito(r)"
+                        title="Haga clic para asociar inmediatamente este requisito a la modalidad"
+                      >
+                        <div class="dropdown-item-info">
+                          <div class="item-name">{{ r.requisito }}</div>
+                          <div class="item-meta">
+                            <span>{{ r.esAdjunto ? 'Requiere PDF' : 'Validación directa' }}</span>
+                            <span class="meta-dot">·</span>
+                            <span>{{
+                              r.subeAlumno ? 'Carga: Estudiante' : 'Valida: Secretaría'
+                            }}</span>
+                          </div>
+                        </div>
+                        <div class="dropdown-item-action">
+                          @if (asignandoRequisitoId() === r.idRequisitos) {
+                            <span class="badge-assigning">
+                              <span class="spinner-tiny"></span> Asociando...
+                            </span>
+                          } @else {
+                            <span class="badge-select-action">+ Asociar</span>
+                          }
+                        </div>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Listado de Requisitos Asignados Actualmente -->
+      <div class="matriz-list-section">
+        <div class="section-title-row">
+          <div>
+            <span class="req-options-header">REQUISITOS ASOCIADOS A ESTA MODALIDAD</span>
           </div>
+          <span class="count-badge-disponibles">
+            {{ requisitosAsignadosMatriz().length }} asociado(s)
+          </span>
         </div>
 
-        <footer class="dictamen-modal-actions">
-          <button type="button" class="fluent-btn-primary" (click)="matrizModalVisible.set(false)">
-            Cerrar
-          </button>
-        </footer>
+        @if (requisitosAsignadosMatriz().length === 0) {
+          <div class="empty-state-card" style="padding: 24px 16px">
+            <p
+              style="margin: 0; font-size: 0.8125rem; color: var(--text-primary); font-weight: 600"
+            >
+              Esta modalidad aún no tiene requisitos obligatorios asociados.
+            </p>
+            <span style="font-size: 0.71875rem; color: var(--text-muted)">
+              Busque un requisito en la caja superior y haga clic para asociarlo automáticamente.
+            </span>
+          </div>
+        } @else {
+          <div class="req-assigned-stack">
+            @for (mr of requisitosAsignadosMatrizFiltrados(); track mr.idRequisitoModalidad) {
+              <div class="req-assigned-item">
+                <div class="req-assigned-info">
+                  <span class="req-assigned-title">{{ mr.nombreRequisito }}</span>
+                  <span class="req-assigned-desc">
+                    {{ mr.esAdjunto ? 'Archivo adjunto (PDF)' : 'Validación directa de estado' }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="btn-danger-text"
+                  title="Desvincular este requisito de la modalidad"
+                  (click)="desasignarRequisito(mr.idRequisitoModalidad)"
+                >
+                  Quitar
+                </button>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
-  }
+
+    <div drawer-footer>
+      <button type="button" class="fluent-btn-primary" (click)="matrizModalVisible.set(false)">
+        Listo
+      </button>
+    </div>
+  </app-drawer>
 
   <!-- 5. Modal de Dictamen del Gestor -->
   <app-dictamen-modal

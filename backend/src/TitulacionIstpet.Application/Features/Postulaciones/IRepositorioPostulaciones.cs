@@ -17,6 +17,7 @@ public interface IRepositorioPostulaciones
         int pagina,
         int tamanoPagina,
         CancellationToken ct = default);
+    Task<int> ContarTotalPostulacionesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<EstadoPostulacionDto>> ListarEstadosAsync(CancellationToken ct = default);
     Task<int> CrearPostulacionAsync(
         int idMatricula,

@@ -71,7 +71,7 @@
 .stepper-step.active .step-icon-circle {
   background: var(--istpet-gold, #c59b27);
   border-color: var(--istpet-gold, #c59b27);
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
 }
 
 .step-label {

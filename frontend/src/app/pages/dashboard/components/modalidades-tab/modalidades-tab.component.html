@@ -119,7 +119,6 @@
         <table class="fluent-table">
           <thead>
             <tr>
-              <th class="th-id">ID</th>
               <th>MODALIDAD DE TITULACIÓN</th>
               <th>INTEGRANTES</th>
               <th>CARACTERÍSTICAS</th>
@@ -131,9 +130,6 @@
           <tbody>
             @for (m of modalidadesPaginadas(); track m.idModalidadTitulacion) {
               <tr>
-                <td class="td-id">
-                  <span class="code-badge">#{{ m.idModalidadTitulacion }}</span>
-                </td>
                 <td>
                   <span class="modalidad-nombre">{{ m.modalidadTitulacion }}</span>
                 </td>

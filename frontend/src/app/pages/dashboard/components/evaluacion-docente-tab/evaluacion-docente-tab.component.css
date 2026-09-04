@@ -32,7 +32,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
 }
 
 :host-context([data-theme="dark"]) .evaluacion-title {
@@ -168,7 +168,7 @@
 
 .filter-pill-btn.active {
   background: var(--bg-surface, #ffffff);
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -289,7 +289,7 @@
 
 .req-title {
   font-weight: 600;
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
 }
 
 :host-context([data-theme="dark"]) .req-title {
@@ -422,8 +422,8 @@
 
 .obs-input-wrapper:focus-within {
   background: #ffffff;
-  border-color: var(--istpet-navy, #1b2a4a);
-  box-shadow: 0 0 0 2px rgba(27, 42, 74, 0.12);
+  border-color: var(--istpet-navy, #0d1b4c);
+  box-shadow: 0 0 0 2px rgba(13, 27, 76, 0.12);
 }
 
 :host-context([data-theme="dark"]) .obs-input-wrapper:focus-within {
@@ -451,7 +451,7 @@
 }
 
 .obs-input-wrapper:focus-within .obs-icon-badge {
-  color: var(--istpet-navy, #1b2a4a);
+  color: var(--istpet-navy, #0d1b4c);
 }
 
 :host-context([data-theme="dark"]) .obs-input-wrapper:focus-within .obs-icon-badge {
@@ -494,7 +494,7 @@
 .fluent-btn-primary {
   height: 32px;
   padding: 0 14px;
-  background: var(--istpet-navy, #1b2a4a);
+  background: var(--istpet-navy, #0d1b4c);
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -505,7 +505,7 @@
 }
 
 .fluent-btn-primary:hover:not(:disabled) {
-  background: var(--istpet-navy-hover, #253d6b);
+  background: var(--istpet-navy-hover, #162a70);
 }
 
 .fluent-btn-primary:disabled {
@@ -560,7 +560,7 @@
   width: 24px;
   height: 24px;
   border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top-color: var(--istpet-navy, #1b2a4a);
+  border-top-color: var(--istpet-navy, #0d1b4c);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -648,9 +648,9 @@
 }
 
 .num-btn.active {
-  background: var(--istpet-navy, #1b2a4a);
+  background: var(--istpet-navy, #0d1b4c);
   color: #ffffff;
-  border-color: var(--istpet-navy, #1b2a4a);
+  border-color: var(--istpet-navy, #0d1b4c);
   font-weight: 700;
 }
 

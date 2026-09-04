@@ -11,6 +11,7 @@ import { StepperComponent } from './stepper/stepper.component';
 import { KpiCardComponent } from './kpi-card/kpi-card.component';
 import { DictamenModalComponent } from './dictamen-modal/dictamen-modal.component';
 import { AperturaPeriodoModalComponent } from './apertura-periodo-modal/apertura-periodo-modal.component';
+import { DrawerComponent } from './drawer/drawer.component';
 import { TitulacionService } from '../../core/services/titulacion.service';
 import { API_BASE_URL } from '../../core/config/api.config';
 
@@ -97,6 +98,71 @@ describe('Shared UI Components Unit Tests', () => {
       const result = emittedValue as { idPeriodo: string; habilitarTodasLasCarreras: boolean };
       expect(result.idPeriodo).toBe('ABR2026');
       expect(result.habilitarTodasLasCarreras).toBe(true);
+    });
+  });
+
+  describe('DrawerComponent', () => {
+    it('debe instanciarse con valores por defecto', () => {
+      TestBed.runInInjectionContext(() => {
+        const comp = new DrawerComponent();
+        expect(comp.isOpen()).toBe(false);
+        expect(comp.size()).toBe('md');
+        expect(comp.hasDirtyData()).toBe(false);
+        expect(comp.showDiscardModal()).toBe(false);
+      });
+    });
+
+    it('debe cerrarse directamente al llamar requestClose() si hasDirtyData es false', () => {
+      TestBed.runInInjectionContext(() => {
+        const comp = new DrawerComponent();
+        let closedEmitted = false;
+        comp.closed.subscribe(() => (closedEmitted = true));
+
+        comp.requestClose();
+
+        expect(comp.showDiscardModal()).toBe(false);
+        expect(closedEmitted).toBe(true);
+      });
+    });
+
+    it('debe desplegar el modal de advertencia al llamar requestClose() si hasDirtyData es true', () => {
+      TestBed.runInInjectionContext(() => {
+        const comp = new DrawerComponent();
+        (comp as unknown as { hasDirtyData: () => boolean }).hasDirtyData = () => true;
+
+        let closedEmitted = false;
+        comp.closed.subscribe(() => (closedEmitted = true));
+
+        comp.requestClose();
+
+        expect(comp.showDiscardModal()).toBe(true);
+        expect(closedEmitted).toBe(false);
+
+        // Cancelar descarte
+        comp.cancelDiscard();
+        expect(comp.showDiscardModal()).toBe(false);
+        expect(closedEmitted).toBe(false);
+      });
+    });
+
+    it('debe emitir discardConfirmed y cerrar cuando el usuario confirma descartar datos', () => {
+      TestBed.runInInjectionContext(() => {
+        const comp = new DrawerComponent();
+        (comp as unknown as { hasDirtyData: () => boolean }).hasDirtyData = () => true;
+
+        let discardEmitted = false;
+        let closedEmitted = false;
+        comp.discardConfirmed.subscribe(() => (discardEmitted = true));
+        comp.closed.subscribe(() => (closedEmitted = true));
+
+        comp.requestClose();
+        expect(comp.showDiscardModal()).toBe(true);
+
+        comp.confirmDiscard();
+        expect(comp.showDiscardModal()).toBe(false);
+        expect(discardEmitted).toBe(true);
+        expect(closedEmitted).toBe(true);
+      });
     });
   });
 });
