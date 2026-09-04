@@ -57,8 +57,9 @@ Formato [Conventional Commits](https://www.conventionalcommits.org/):
 Tipos: `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`.
 Alcances habituales: `backend`, `frontend`, `ci`, `db`, `docs`.
 
-El check **PR Gate / titulo** valida el titulo del PR contra este patron, porque el
-titulo del PR es lo que termina en el historial de `develop` al hacer squash merge.
+El check **PR Gate / titulo** valida el titulo del PR contra este patron (se omite
+si el PR esta en borrador), porque el titulo del PR es lo que termina en el
+historial de `develop` al hacer squash merge.
 
 ## Que verifica el CI
 
