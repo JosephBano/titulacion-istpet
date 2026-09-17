@@ -1,13 +1,25 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RequisitoEvaluacionDocente } from '../../../../core/models/titulacion.models';
+import { environment } from '../../../../../environments/environment';
 
 export interface GuardarEvaluacionEvento {
   item: RequisitoEvaluacionDocente;
   aprobado: boolean;
   observaciones: string;
   archivo?: File;
+}
+
+export interface DocumentoVisorInfo {
+  nombre: string;
+  url: string;
+  safeUrl: SafeResourceUrl;
+  esPdf: boolean;
+  esImagen: boolean;
+  esLocal: boolean;
+  idRequisito: number;
 }
 
 @Component({
@@ -18,11 +30,16 @@ export interface GuardarEvaluacionEvento {
   styleUrls: ['./evaluacion-docente-tab.component.css'],
 })
 export class EvaluacionDocenteTabComponent {
+  private readonly sanitizer = inject(DomSanitizer);
+
   items = input<RequisitoEvaluacionDocente[]>([]);
   cargando = input<boolean>(false);
   guardandoId = input<number | null>(null);
 
   guardarEvaluacion = output<GuardarEvaluacionEvento>();
+
+  // Modos de Visualización: Tarjetas Amplias (Workspace) o Tabla Compacta
+  vistaActual = signal<'CARDS' | 'TABLE'>('CARDS');
 
   // Filtros de UI
   busqueda = signal<string>('');
@@ -30,12 +47,15 @@ export class EvaluacionDocenteTabComponent {
 
   // Paginación
   paginaActual = signal<number>(1);
-  tamanoPagina = signal<number>(10);
+  tamanoPagina = signal<number>(12);
 
-  // Estado local para edición de formulario por fila
+  // Estado local para edición de formulario por fila/caso
   archivosPorFila = signal<Record<number, File>>({});
   observacionesPorFila = signal<Record<number, string>>({});
   aprobadoPorFila = signal<Record<number, boolean>>({});
+
+  // Estado del Visor de Documentos
+  documentoVisor = signal<DocumentoVisorInfo | null>(null);
 
   // Conteo de items
   totalPendientes = computed(() => {
@@ -82,7 +102,7 @@ export class EvaluacionDocenteTabComponent {
 
   totalPaginas = computed(() => {
     const t = this.totalFiltrados();
-    const size = this.tamanoPagina() || 10;
+    const size = this.tamanoPagina() || 12;
     return Math.max(1, Math.ceil(t / size));
   });
 
@@ -124,6 +144,10 @@ export class EvaluacionDocenteTabComponent {
     this.paginaActual.set(1);
   }
 
+  setVista(vista: 'CARDS' | 'TABLE'): void {
+    this.vistaActual.set(vista);
+  }
+
   onSearchChange(val: string): void {
     this.busqueda.set(val);
     this.paginaActual.set(1);
@@ -137,7 +161,7 @@ export class EvaluacionDocenteTabComponent {
 
   onTamanoPaginaChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    this.tamanoPagina.set(+select.value || 10);
+    this.tamanoPagina.set(+select.value || 12);
     this.paginaActual.set(1);
   }
 
@@ -189,5 +213,70 @@ export class EvaluacionDocenteTabComponent {
       observaciones,
       archivo,
     });
+  }
+
+  // ----------------------------------------------------
+  // Visor y Previsualización de Documentos
+  // ----------------------------------------------------
+  getArchivoUrl(ruta?: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http://') || ruta.startsWith('https://') || ruta.startsWith('blob:')) {
+      return ruta;
+    }
+    const cleanPath = ruta.startsWith('/') ? ruta : '/' + ruta;
+    return `${environment.apiBaseUrl}${cleanPath}`;
+  }
+
+  previsualizarAdjuntoExistente(item: RequisitoEvaluacionDocente): void {
+    if (!item.rutaArchivoAdjunto) return;
+    const url = this.getArchivoUrl(item.rutaArchivoAdjunto);
+    const nombre = item.nombreArchivoAdjunto || 'Documento adjunto';
+    const lower = (nombre || item.rutaArchivoAdjunto).toLowerCase();
+    const esPdf = lower.endsWith('.pdf');
+    const esImagen = lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.webp');
+
+    this.documentoVisor.set({
+      nombre,
+      url,
+      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+      esPdf,
+      esImagen,
+      esLocal: false,
+      idRequisito: item.idPostulacionAlumnoRequisitoModalidad,
+    });
+  }
+
+  previsualizarArchivoNuevo(idRequisito: number, file: File): void {
+    const objectUrl = URL.createObjectURL(file);
+    const lower = file.name.toLowerCase();
+    const esPdf = file.type === 'application/pdf' || lower.endsWith('.pdf');
+    const esImagen = file.type.startsWith('image/') || lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg');
+
+    this.documentoVisor.set({
+      nombre: file.name,
+      url: objectUrl,
+      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+      esPdf,
+      esImagen,
+      esLocal: true,
+      idRequisito,
+    });
+  }
+
+  cerrarVisor(): void {
+    const actual = this.documentoVisor();
+    if (actual?.esLocal && actual.url.startsWith('blob:')) {
+      URL.revokeObjectURL(actual.url);
+    }
+    this.documentoVisor.set(null);
+  }
+
+  getIniciales(nombreCompleto: string): string {
+    if (!nombreCompleto) return 'AL';
+    const partes = nombreCompleto.trim().split(/\s+/);
+    if (partes.length >= 2) {
+      return `${partes[0].charAt(0)}${partes[1].charAt(0)}`.toUpperCase();
+    }
+    return partes[0].substring(0, 2).toUpperCase();
   }
 }
