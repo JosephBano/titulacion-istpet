@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RequisitoEvaluacionDocente } from '../../../../core/models/titulacion.models';
+import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { environment } from '../../../../../environments/environment';
 
 export interface GuardarEvaluacionEvento {
@@ -19,13 +20,12 @@ export interface DocumentoVisorInfo {
   esPdf: boolean;
   esImagen: boolean;
   esLocal: boolean;
-  idRequisito: number;
 }
 
 @Component({
   selector: 'app-evaluacion-docente-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DrawerComponent],
   templateUrl: './evaluacion-docente-tab.component.html',
   styleUrls: ['./evaluacion-docente-tab.component.css'],
 })
@@ -38,26 +38,33 @@ export class EvaluacionDocenteTabComponent {
 
   guardarEvaluacion = output<GuardarEvaluacionEvento>();
 
-  // Modos de Visualización: Tarjetas Amplias (Workspace) o Tabla Compacta
-  vistaActual = signal<'CARDS' | 'TABLE'>('CARDS');
-
   // Filtros de UI
   busqueda = signal<string>('');
   filtroCumplimiento = signal<'TODOS' | 'PENDIENTES' | 'APROBADOS'>('TODOS');
+  filtroCarrera = signal<string>('TODAS');
 
   // Paginación
   paginaActual = signal<number>(1);
-  tamanoPagina = signal<number>(12);
+  tamanoPagina = signal<number>(10);
 
-  // Estado local para edición de formulario por fila/caso
+  // Estado del Drawer de Revisión Enfocada
+  drawerAbierto = signal<boolean>(false);
+  casoSeleccionado = signal<RequisitoEvaluacionDocente | null>(null);
+
+  // Estado local de edición por ID de requisito
   archivosPorFila = signal<Record<number, File>>({});
   observacionesPorFila = signal<Record<number, string>>({});
   aprobadoPorFila = signal<Record<number, boolean>>({});
 
-  // Estado del Visor de Documentos
-  documentoVisor = signal<DocumentoVisorInfo | null>(null);
+  // Lista única de carreras para filtro
+  carrerasDisponibles = computed(() => {
+    const list = this.items()
+      .map((i) => i.carrera?.trim())
+      .filter((c): c is string => !!c);
+    return Array.from(new Set(list)).sort();
+  });
 
-  // Conteo de items
+  // Métricas rápidas
   totalPendientes = computed(() => {
     return this.items().filter((item) => !this.getAprobado(item)).length;
   });
@@ -66,17 +73,22 @@ export class EvaluacionDocenteTabComponent {
     return this.items().filter((item) => this.getAprobado(item)).length;
   });
 
-  // Items filtrados y ordenados (priorizando no aprobados)
+  // Items filtrados
   itemsFiltrados = computed(() => {
     const rawItems = this.items();
     const query = this.busqueda().toLowerCase().trim();
     const filtro = this.filtroCumplimiento();
+    const carreraSel = this.filtroCarrera();
 
     return rawItems
       .filter((item) => {
         const esAprob = this.getAprobado(item);
         if (filtro === 'PENDIENTES' && esAprob) return false;
         if (filtro === 'APROBADOS' && !esAprob) return false;
+
+        if (carreraSel !== 'TODAS' && item.carrera !== carreraSel) {
+          return false;
+        }
 
         if (query) {
           const matchAlumno = (item.nombreAlumno || '').toLowerCase().includes(query);
@@ -102,27 +114,13 @@ export class EvaluacionDocenteTabComponent {
 
   totalPaginas = computed(() => {
     const t = this.totalFiltrados();
-    const size = this.tamanoPagina() || 12;
+    const size = this.tamanoPagina() || 10;
     return Math.max(1, Math.ceil(t / size));
   });
 
-  paginasDisponibles = computed(() => {
-    const total = this.totalPaginas();
-    const actual = this.paginaActual();
-    const pages: number[] = [];
-    const maxVisible = 5;
-
-    let start = Math.max(1, actual - Math.floor(maxVisible / 2));
-    const end = Math.min(total, start + maxVisible - 1);
-
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
+  itemsPaginados = computed(() => {
+    const start = (this.paginaActual() - 1) * this.tamanoPagina();
+    return this.itemsFiltrados().slice(start, start + this.tamanoPagina());
   });
 
   rangoInicio = computed(() => {
@@ -134,18 +132,69 @@ export class EvaluacionDocenteTabComponent {
     return Math.min(this.paginaActual() * this.tamanoPagina(), this.totalFiltrados());
   });
 
-  itemsPaginados = computed(() => {
-    const start = (this.paginaActual() - 1) * this.tamanoPagina();
-    return this.itemsFiltrados().slice(start, start + this.tamanoPagina());
+  // Navegación dentro del Drawer
+  indiceActual = computed(() => {
+    const sel = this.casoSeleccionado();
+    if (!sel) return -1;
+    return this.itemsFiltrados().findIndex(
+      (i) => i.idPostulacionAlumnoRequisitoModalidad === sel.idPostulacionAlumnoRequisitoModalidad
+    );
   });
 
+  hayAnterior = computed(() => this.indiceActual() > 0);
+  haySiguiente = computed(() => {
+    const idx = this.indiceActual();
+    return idx >= 0 && idx < this.itemsFiltrados().length - 1;
+  });
+
+  // Visor del caso seleccionado
+  visorCasoActual = computed<DocumentoVisorInfo | null>(() => {
+    const caso = this.casoSeleccionado();
+    if (!caso) return null;
+
+    // Verificar si hay archivo recién subido
+    const localFile = this.archivosPorFila()[caso.idPostulacionAlumnoRequisitoModalidad];
+    if (localFile) {
+      const objectUrl = URL.createObjectURL(localFile);
+      const lower = localFile.name.toLowerCase();
+      const esPdf = localFile.type === 'application/pdf' || lower.endsWith('.pdf');
+      const esImagen = localFile.type.startsWith('image/') || lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg');
+      return {
+        nombre: localFile.name,
+        url: objectUrl,
+        safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+        esPdf,
+        esImagen,
+        esLocal: true,
+      };
+    }
+
+    if (!caso.rutaArchivoAdjunto) return null;
+    const url = this.getArchivoUrl(caso.rutaArchivoAdjunto);
+    const nombre = caso.nombreArchivoAdjunto || 'Documento adjunto';
+    const lower = (nombre || caso.rutaArchivoAdjunto).toLowerCase();
+    const esPdf = lower.endsWith('.pdf');
+    const esImagen = lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.webp');
+
+    return {
+      nombre,
+      url,
+      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+      esPdf,
+      esImagen,
+      esLocal: false,
+    };
+  });
+
+  // Acciones de UI
   setFiltro(tipo: 'PENDIENTES' | 'APROBADOS' | 'TODOS'): void {
     this.filtroCumplimiento.set(tipo);
     this.paginaActual.set(1);
   }
 
-  setVista(vista: 'CARDS' | 'TABLE'): void {
-    this.vistaActual.set(vista);
+  setFiltroCarrera(carrera: string): void {
+    this.filtroCarrera.set(carrera);
+    this.paginaActual.set(1);
   }
 
   onSearchChange(val: string): void {
@@ -159,23 +208,41 @@ export class EvaluacionDocenteTabComponent {
     }
   }
 
-  onTamanoPaginaChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.tamanoPagina.set(+select.value || 12);
-    this.paginaActual.set(1);
+  // Apertura y Navegación del Drawer
+  abrirRevision(item: RequisitoEvaluacionDocente): void {
+    this.casoSeleccionado.set(item);
+    // Si aún no tenía estado modificado, inicializarlo con el actual
+    if (this.aprobadoPorFila()[item.idPostulacionAlumnoRequisitoModalidad] === undefined) {
+      this.setAprobado(item, item.aprobado);
+    }
+    if (this.observacionesPorFila()[item.idPostulacionAlumnoRequisitoModalidad] === undefined) {
+      this.setObservaciones(item, item.observaciones || '');
+    }
+    this.drawerAbierto.set(true);
   }
 
-  onFileChange(idPostulacionAlumnoRequisitoModalidad: number, event: Event): void {
-    const inputEl = event.target as HTMLInputElement;
-    if (inputEl.files && inputEl.files.length > 0) {
-      const file = inputEl.files[0];
-      this.archivosPorFila.update((map) => ({
-        ...map,
-        [idPostulacionAlumnoRequisitoModalidad]: file,
-      }));
+  cerrarRevision(): void {
+    this.drawerAbierto.set(false);
+    this.casoSeleccionado.set(null);
+  }
+
+  irAnterior(): void {
+    const idx = this.indiceActual();
+    if (idx > 0) {
+      const prevItem = this.itemsFiltrados()[idx - 1];
+      this.abrirRevision(prevItem);
     }
   }
 
+  irSiguiente(): void {
+    const idx = this.indiceActual();
+    if (idx >= 0 && idx < this.itemsFiltrados().length - 1) {
+      const nextItem = this.itemsFiltrados()[idx + 1];
+      this.abrirRevision(nextItem);
+    }
+  }
+
+  // Getters y Setters de formulario
   getAprobado(item: RequisitoEvaluacionDocente): boolean {
     const custom = this.aprobadoPorFila()[item.idPostulacionAlumnoRequisitoModalidad];
     if (custom !== undefined) return custom;
@@ -202,6 +269,39 @@ export class EvaluacionDocenteTabComponent {
     }));
   }
 
+  onFileChange(idPostulacionAlumnoRequisitoModalidad: number, event: Event): void {
+    const inputEl = event.target as HTMLInputElement;
+    if (inputEl.files && inputEl.files.length > 0) {
+      const file = inputEl.files[0];
+      this.archivosPorFila.update((map) => ({
+        ...map,
+        [idPostulacionAlumnoRequisitoModalidad]: file,
+      }));
+    }
+  }
+
+  removerArchivoLocal(idPostulacionAlumnoRequisitoModalidad: number): void {
+    this.archivosPorFila.update((map) => {
+      const next = { ...map };
+      delete next[idPostulacionAlumnoRequisitoModalidad];
+      return next;
+    });
+  }
+
+  // Guardar evaluación desde el Drawer o directamente
+  guardarCasoActual(): void {
+    const caso = this.casoSeleccionado();
+    if (!caso) return;
+
+    this.enviarGuardado(caso);
+  }
+
+  aprobarDirecto(item: RequisitoEvaluacionDocente, event: MouseEvent): void {
+    event.stopPropagation();
+    this.setAprobado(item, true);
+    this.enviarGuardado(item);
+  }
+
   enviarGuardado(item: RequisitoEvaluacionDocente): void {
     const aprobado = this.getAprobado(item);
     const observaciones = this.getObservaciones(item);
@@ -215,9 +315,7 @@ export class EvaluacionDocenteTabComponent {
     });
   }
 
-  // ----------------------------------------------------
-  // Visor y Previsualización de Documentos
-  // ----------------------------------------------------
+  // URLs y Helpers
   getArchivoUrl(ruta?: string | null): string {
     if (!ruta) return '';
     if (ruta.startsWith('http://') || ruta.startsWith('https://') || ruta.startsWith('blob:')) {
@@ -225,50 +323,6 @@ export class EvaluacionDocenteTabComponent {
     }
     const cleanPath = ruta.startsWith('/') ? ruta : '/' + ruta;
     return `${environment.apiBaseUrl}${cleanPath}`;
-  }
-
-  previsualizarAdjuntoExistente(item: RequisitoEvaluacionDocente): void {
-    if (!item.rutaArchivoAdjunto) return;
-    const url = this.getArchivoUrl(item.rutaArchivoAdjunto);
-    const nombre = item.nombreArchivoAdjunto || 'Documento adjunto';
-    const lower = (nombre || item.rutaArchivoAdjunto).toLowerCase();
-    const esPdf = lower.endsWith('.pdf');
-    const esImagen = lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.webp');
-
-    this.documentoVisor.set({
-      nombre,
-      url,
-      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
-      esPdf,
-      esImagen,
-      esLocal: false,
-      idRequisito: item.idPostulacionAlumnoRequisitoModalidad,
-    });
-  }
-
-  previsualizarArchivoNuevo(idRequisito: number, file: File): void {
-    const objectUrl = URL.createObjectURL(file);
-    const lower = file.name.toLowerCase();
-    const esPdf = file.type === 'application/pdf' || lower.endsWith('.pdf');
-    const esImagen = file.type.startsWith('image/') || lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg');
-
-    this.documentoVisor.set({
-      nombre: file.name,
-      url: objectUrl,
-      safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
-      esPdf,
-      esImagen,
-      esLocal: true,
-      idRequisito,
-    });
-  }
-
-  cerrarVisor(): void {
-    const actual = this.documentoVisor();
-    if (actual?.esLocal && actual.url.startsWith('blob:')) {
-      URL.revokeObjectURL(actual.url);
-    }
-    this.documentoVisor.set(null);
   }
 
   getIniciales(nombreCompleto: string): string {

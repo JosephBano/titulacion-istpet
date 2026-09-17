@@ -1,636 +1,549 @@
 <section class="evaluacion-section">
-  <!-- Cabecera Institucional y Resumen de Carga -->
+  <!-- Cabecera Limpia y Métricas -->
   <div class="evaluacion-header">
     <div class="evaluacion-header-info">
-      <span class="evaluacion-eyebrow">PANEL DOCENTE EVALUADOR</span>
-      <h2 class="evaluacion-title">Validación y Aprobación de Requisitos</h2>
+      <div class="header-badge-row">
+        <span class="evaluacion-eyebrow">PANEL EVALUADOR</span>
+        <span class="header-count-tag">{{ items().length }} casos asignados</span>
+      </div>
+      <h2 class="evaluacion-title">Validación de Requisitos</h2>
       <p class="evaluacion-desc">
-        Espacio de revisión y calificación para los estudiantes y requisitos de titulación asignados a su cargo. Revise evidencias con previsualización en vivo y registre su dictamen.
+        Revise y apruebe las evidencias de titulación asignadas a su cargo. Seleccione un caso para abrir el visor y calificar.
       </p>
     </div>
 
-    <!-- Tarjetas Métricas de Resumen Docente -->
-    <div class="kpi-strip">
-      <div class="kpi-card" [class.kpi-active]="filtroCumplimiento() === 'TODOS'" (click)="setFiltro('TODOS')">
-        <span class="kpi-label">Total Asignados</span>
-        <strong class="kpi-val">{{ items().length }}</strong>
-      </div>
-      <div class="kpi-card kpi-warning" [class.kpi-active]="filtroCumplimiento() === 'PENDIENTES'" (click)="setFiltro('PENDIENTES')">
-        <span class="kpi-label">Por Validar</span>
-        <strong class="kpi-val">{{ totalPendientes() }}</strong>
-      </div>
-      <div class="kpi-card kpi-success" [class.kpi-active]="filtroCumplimiento() === 'APROBADOS'" (click)="setFiltro('APROBADOS')">
-        <span class="kpi-label">Aprobados</span>
-        <strong class="kpi-val">{{ totalAprobados() }}</strong>
-      </div>
+    <!-- Pestañas de Estado Rápidas -->
+    <div class="status-tab-group">
+      <button
+        type="button"
+        class="status-tab-btn"
+        [class.active]="filtroCumplimiento() === 'TODOS'"
+        (click)="setFiltro('TODOS')"
+      >
+        <span>Todos</span>
+        <span class="tab-badge">{{ items().length }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="status-tab-btn"
+        [class.active]="filtroCumplimiento() === 'PENDIENTES'"
+        (click)="setFiltro('PENDIENTES')"
+      >
+        <span class="status-dot dot-warning"></span>
+        <span>Pendientes</span>
+        <span class="tab-badge badge-warning">{{ totalPendientes() }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="status-tab-btn"
+        [class.active]="filtroCumplimiento() === 'APROBADOS'"
+        (click)="setFiltro('APROBADOS')"
+      >
+        <span class="status-dot dot-success"></span>
+        <span>Aprobados</span>
+        <span class="tab-badge badge-success">{{ totalAprobados() }}</span>
+      </button>
     </div>
   </div>
 
+  <!-- Contenedor Principal de la Lista -->
   <div class="evaluacion-box">
-    <!-- Barra de Herramientas: Buscador, Filtros y Selector de Vistas -->
-    <div class="evaluacion-box-header">
-      <div class="header-left-tools">
-        <!-- Buscador en tiempo real -->
-        <div class="eval-search-box">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Buscar estudiante, cédula, carrera o requisito..."
-            [ngModel]="busqueda()"
-            (ngModelChange)="onSearchChange($event)"
-          />
-          @if (busqueda()) {
-            <button type="button" class="search-clear-btn" (click)="onSearchChange('')" title="Limpiar búsqueda">&times;</button>
-          }
-        </div>
-
-        <!-- Filtros Rápidos de Estado -->
-        <div class="filter-pill-group">
-          <button
-            type="button"
-            class="filter-pill-btn"
-            [class.active]="filtroCumplimiento() === 'TODOS'"
-            (click)="setFiltro('TODOS')"
-          >
-            <span>Todos ({{ items().length }})</span>
-          </button>
-          <button
-            type="button"
-            class="filter-pill-btn"
-            [class.active]="filtroCumplimiento() === 'PENDIENTES'"
-            (click)="setFiltro('PENDIENTES')"
-          >
-            <span class="pill-dot dot-warning"></span>
-            <span>Pendientes ({{ totalPendientes() }})</span>
-          </button>
-          <button
-            type="button"
-            class="filter-pill-btn"
-            [class.active]="filtroCumplimiento() === 'APROBADOS'"
-            (click)="setFiltro('APROBADOS')"
-          >
-            <span class="pill-dot dot-success"></span>
-            <span>Aprobados ({{ totalAprobados() }})</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Selector de Modo de Vista (Tarjetas vs Tabla) -->
-      <div class="header-right-meta">
-        <div class="view-mode-toggle" title="Cambiar modo de visualización">
-          <button
-            type="button"
-            class="toggle-btn"
-            [class.active]="vistaActual() === 'CARDS'"
-            (click)="setVista('CARDS')"
-            title="Vista de Tarjetas Espaciosas"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="7" height="7"></rect>
-              <rect x="14" y="3" width="7" height="7"></rect>
-              <rect x="14" y="14" width="7" height="7"></rect>
-              <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
-            <span>Tarjetas</span>
-          </button>
-          <button
-            type="button"
-            class="toggle-btn"
-            [class.active]="vistaActual() === 'TABLE'"
-            (click)="setVista('TABLE')"
-            title="Vista de Tabla Detallada"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="8" y1="6" x2="21" y2="6"></line>
-              <line x1="8" y1="12" x2="21" y2="12"></line>
-              <line x1="8" y1="18" x2="21" y2="18"></line>
-              <line x1="3" y1="6" x2="3.01" y2="6"></line>
-              <line x1="3" y1="12" x2="3.01" y2="12"></line>
-              <line x1="3" y1="18" x2="3.01" y2="18"></line>
-            </svg>
-            <span>Tabla</span>
-          </button>
-        </div>
-        <span class="box-counter">{{ totalFiltrados() }} caso(s)</span>
-      </div>
-    </div>
-
-    <!-- Estados de Carga o Vacío -->
-    @if (cargando()) {
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <span>Cargando casos asignados para evaluación...</span>
-      </div>
-    } @else if (items().length === 0) {
-      <div class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <h3>No tiene requisitos asignados en este período</h3>
-        <p>Actualmente no registra estudiantes con requisitos por evaluar bajo su responsabilidad docente.</p>
-      </div>
-    } @else if (itemsFiltrados().length === 0) {
-      <div class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <!-- Barra de Filtros: Buscador + Filtro por Carrera -->
+    <div class="evaluacion-toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <h3>No se encontraron casos con el filtro actual</h3>
-        <p>Intente modificar el término de búsqueda o seleccione otro filtro de estado.</p>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar estudiante, cédula o requisito..."
+          [ngModel]="busqueda()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+        @if (busqueda()) {
+          <button type="button" class="search-clear-btn" (click)="onSearchChange('')" title="Limpiar búsqueda">&times;</button>
+        }
+      </div>
+
+      <!-- Filtro por Carrera (si hay más de 1 carrera) -->
+      @if (carrerasDisponibles().length > 1) {
+        <div class="carrera-filter-wrap">
+          <label class="filter-label" for="carreraSelect">Carrera:</label>
+          <select
+            id="carreraSelect"
+            class="carrera-select"
+            [ngModel]="filtroCarrera()"
+            (ngModelChange)="setFiltroCarrera($event)"
+          >
+            <option value="TODAS">Todas las carreras ({{ carrerasDisponibles().length }})</option>
+            @for (c of carrerasDisponibles(); track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="toolbar-meta">
+        <span class="counter-text">{{ totalFiltrados() }} caso(s) encontrado(s)</span>
+      </div>
+    </div>
+
+    <!-- Estados de Carga / Vacío -->
+    @if (cargando()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <span>Cargando lista de casos asignados...</span>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h3>No tiene requisitos asignados</h3>
+        <p>Actualmente no registra postulaciones pendientes bajo su responsabilidad de evaluación.</p>
+      </div>
+    } @else if (itemsFiltrados().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <h3>Sin coincidencias</h3>
+        <p>No se encontraron postulantes con el término de búsqueda o filtros seleccionados.</p>
       </div>
     } @else {
-
-      <!-- ==================================================================== -->
-      <!-- MODO 1: VISTA DE TARJETAS ESPACIOSAS (WORKSPACE DE CASOS) -->
-      <!-- ==================================================================== -->
-      @if (vistaActual() === 'CARDS') {
-        <div class="cards-workspace-grid">
-          @for (item of itemsPaginados(); track item.idPostulacionAlumnoRequisitoModalidad) {
-            <article
-              class="case-card"
-              [class.case-card--approved]="getAprobado(item)"
-              [class.case-card--pending]="!getAprobado(item)"
-            >
-              <!-- Encabezado de la Tarjeta del Estudiante -->
-              <header class="case-card-header">
-                <div class="student-avatar-group">
-                  <div class="student-avatar" [class.avatar-approved]="getAprobado(item)">
-                    {{ getIniciales(item.nombreAlumno) }}
-                  </div>
-                  <div class="student-identity">
-                    <h3 class="student-name">{{ item.nombreAlumno }}</h3>
-                    <div class="student-meta-row">
-                      <span class="meta-ci font-mono">C.I. {{ item.cedulaAlumno }}</span>
-                      <span class="meta-sep">&bull;</span>
-                      <span class="meta-career">{{ item.carrera }} ({{ item.modalidad }})</span>
+      <!-- TABLA ELEGANTE Y COMPACTA -->
+      <div class="table-responsive">
+        <table class="cases-table">
+          <thead>
+            <tr>
+              <th class="th-estudiante">Estudiante</th>
+              <th class="th-carrera">Carrera</th>
+              <th class="th-requisito">Requisito a Validar</th>
+              <th class="th-doc">Documento</th>
+              <th class="th-estado text-center">Estado</th>
+              <th class="th-acciones text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of itemsPaginados(); track item.idPostulacionAlumnoRequisitoModalidad) {
+              <tr
+                class="case-row"
+                [class.row-approved]="getAprobado(item)"
+                (click)="abrirRevision(item)"
+              >
+                <!-- 1. Estudiante -->
+                <td class="td-estudiante">
+                  <div class="student-cell">
+                    <div class="student-avatar" [class.avatar-approved]="getAprobado(item)">
+                      {{ getIniciales(item.nombreAlumno) }}
+                    </div>
+                    <div class="student-info">
+                      <strong class="student-name">{{ item.nombreAlumno }}</strong>
+                      <span class="student-id">CI: {{ item.cedulaAlumno }}</span>
                     </div>
                   </div>
-                </div>
+                </td>
 
-                <div class="case-header-badges">
-                  <span class="expediente-pill">Expediente #{{ item.idPostulacionAlumnos }}</span>
-                  @if (getAprobado(item)) {
-                    <span class="status-pill status-pill--approved">
-                      <span class="status-dot"></span> Requisito Aprobado
-                    </span>
-                  } @else {
-                    <span class="status-pill status-pill--pending">
-                      <span class="status-dot"></span> {{ getObservaciones(item).trim() ? 'Observado (No Cumple)' : 'Pendiente de Validación' }}
-                    </span>
-                  }
-                </div>
-              </header>
+                <!-- 2. Carrera -->
+                <td class="td-carrera">
+                  <span class="carrera-tag" [title]="item.carrera || 'Sin Carrera'">
+                    {{ item.carrera || 'No especificada' }}
+                  </span>
+                </td>
 
-              <!-- Banner de Requisito Asignado -->
-              <div class="requirement-banner">
-                <div class="req-banner-label">Requisito a Validar</div>
-                <div class="req-banner-title">{{ item.nombreRequisito }}</div>
-              </div>
-
-              <!-- Cuerpo Principal de Evaluación (2 Columnas) -->
-              <div class="case-card-body">
-                <!-- Columna Izquierda: Evidencia y Documento Adjunto -->
-                <div class="evidence-column">
-                  <span class="column-subtitle">Documento / Evidencia del Requisito</span>
-
-                  <!-- Archivo existente subido por el alumno -->
-                  @if (item.nombreArchivoAdjunto || item.rutaArchivoAdjunto) {
-                    <div class="document-preview-box">
-                      <div class="doc-icon-wrap">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                          <line x1="16" y1="13" x2="8" y2="13"></line>
-                          <line x1="16" y1="17" x2="8" y2="17"></line>
-                        </svg>
-                      </div>
-                      <div class="doc-info-text">
-                        <strong class="doc-filename" [title]="item.nombreArchivoAdjunto || 'Documento adjunto'">
-                          {{ item.nombreArchivoAdjunto || 'Documento de soporte' }}
-                        </strong>
-                        <span class="doc-tag">Evidencia presentada por el estudiante</span>
-                      </div>
-                      <div class="doc-actions-wrap">
-                        <button
-                          type="button"
-                          class="btn-preview-doc"
-                          (click)="previsualizarAdjuntoExistente(item)"
-                          title="Previsualizar documento en pantalla completa"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                          </svg>
-                          <span>Previsualizar</span>
-                        </button>
-                        <a
-                          [href]="getArchivoUrl(item.rutaArchivoAdjunto)"
-                          target="_blank"
-                          class="btn-download-doc"
-                          title="Descargar o abrir en pestaña nueva"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                          </svg>
-                        </a>
-                      </div>
-                    </div>
-                  } @else {
-                    <div class="no-doc-notice">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                      </svg>
-                      <span>El estudiante no ha adjuntado archivo digital para este requisito.</span>
-                    </div>
-                  }
-
-                  <!-- Opcional: Cargar certificado / soporte por parte del docente -->
-                  <div class="docente-upload-area">
-                    <label class="docente-file-input-label">
-                      <input
-                        type="file"
-                        class="hidden-file-input"
-                        (change)="onFileChange(item.idPostulacionAlumnoRequisitoModalidad, $event)"
-                        accept=".pdf,.png,.jpg,.jpeg"
-                      />
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                      </svg>
-                      <span>{{
-                        archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]
-                          ? 'Reemplazar certificado docente'
-                          : 'Adjuntar certificado / informe del docente'
-                      }}</span>
-                    </label>
-
-                    @if (archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]; as fileDocente) {
-                      <div class="selected-file-badge">
-                        <span class="file-name-text">{{ fileDocente.name }}</span>
-                        <button
-                          type="button"
-                          class="btn-preview-local"
-                          (click)="previsualizarArchivoNuevo(item.idPostulacionAlumnoRequisitoModalidad, fileDocente)"
-                          title="Previsualizar archivo seleccionado"
-                        >
-                          Ver
-                        </button>
-                      </div>
+                <!-- 3. Requisito -->
+                <td class="td-requisito">
+                  <div class="req-cell">
+                    <span class="req-title">{{ item.nombreRequisito }}</span>
+                    @if (item.observaciones) {
+                      <span class="req-obs-snippet" [title]="item.observaciones">
+                        Obs: {{ item.observaciones }}
+                      </span>
                     }
                   </div>
-                </div>
+                </td>
 
-                <!-- Columna Derecha: Decisión y Observaciones -->
-                <div class="decision-column">
-                  <span class="column-subtitle">Evaluación y Calificación</span>
-
-                  <!-- Selector de Cumplimiento Amplio (Segmented Control) -->
-                  <div class="compliance-selector">
+                <!-- 4. Documento Adjunto -->
+                <td class="td-doc" (click)="$event.stopPropagation()">
+                  @if (item.rutaArchivoAdjunto) {
                     <button
                       type="button"
-                      class="compliance-btn btn-cumple"
-                      [class.active]="getAprobado(item)"
-                      (click)="setAprobado(item, true)"
+                      class="doc-badge-btn"
+                      (click)="abrirRevision(item)"
+                      title="Ver documento adjunto"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                      </svg>
+                      <span>Ver PDF</span>
+                    </button>
+                  } @else {
+                    <span class="no-doc-tag">— Sin archivo —</span>
+                  }
+                </td>
+
+                <!-- 5. Estado de Cumplimiento -->
+                <td class="td-estado text-center">
+                  @if (getAprobado(item)) {
+                    <span class="badge-status status-cumple">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
-                      <span class="btn-text-main">Cumple / Aprobado</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      class="compliance-btn btn-observado"
-                      [class.active]="!getAprobado(item)"
-                      (click)="setAprobado(item, false)"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                      </svg>
-                      <span class="btn-text-main">Observar / No Cumple</span>
-                    </button>
-                  </div>
-
-                  <!-- Textarea de Observaciones Espacioso -->
-                  <div class="obs-group">
-                    <label [for]="'obs_' + item.idPostulacionAlumnoRequisitoModalidad" class="obs-label">
-                      Observaciones de Retroalimentación
-                      <span class="obs-hint">(Visible para el estudiante en su portal)</span>
-                    </label>
-                    <textarea
-                      [id]="'obs_' + item.idPostulacionAlumnoRequisitoModalidad"
-                      class="fluent-textarea-spacious"
-                      rows="3"
-                      placeholder="Ingrese comentarios, observaciones de corrección o detalles de la validación..."
-                      [value]="getObservaciones(item)"
-                      (input)="setObservaciones(item, $any($event.target).value)"
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pie de la Tarjeta con Botón de Guardado -->
-              <footer class="case-card-footer">
-                <div class="footer-meta-info">
-                  @if (getObservaciones(item).trim()) {
-                    <span class="saved-note-indicator">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      Con observación registrada
+                      <span>Aprobado</span>
+                    </span>
+                  } @else {
+                    <span class="badge-status status-pendiente">
+                      <span class="pulse-dot"></span>
+                      <span>Pendiente</span>
                     </span>
                   }
-                </div>
+                </td>
 
-                <button
-                  type="button"
-                  class="btn-save-case"
-                  [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
-                  (click)="enviarGuardado(item)"
-                >
-                  @if (guardandoId() === item.idPostulacionAlumnoRequisitoModalidad) {
-                    <span class="btn-spinner"></span>
-                    <span>Guardando...</span>
-                  } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                      <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                      <polyline points="7 3 7 8 15 8"></polyline>
-                    </svg>
-                    <span>Guardar Validación</span>
-                  }
-                </button>
-              </footer>
-            </article>
-          }
-        </div>
-      }
-
-      <!-- ==================================================================== -->
-      <!-- MODO 2: VISTA DE TABLA COMPACTA -->
-      <!-- ==================================================================== -->
-      @if (vistaActual() === 'TABLE') {
-        <div class="table-responsive">
-          <table class="fluent-table">
-            <thead>
-              <tr>
-                <th>ESTUDIANTE / CARRERA</th>
-                <th>REQUISITO A VALIDAR</th>
-                <th>ESTADO CUMPLIMIENTO</th>
-                <th>EVIDENCIA / CERTIFICADO</th>
-                <th>OBSERVACIONES (VISIBLES AL ALUMNO)</th>
-                <th class="text-right">ACCIONES</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (item of itemsPaginados(); track item.idPostulacionAlumnoRequisitoModalidad) {
-                <tr [class.row-approved]="getAprobado(item)" [class.row-pending]="!getAprobado(item)">
-                  <!-- Estudiante & Carrera -->
-                  <td class="td-student">
-                    <div class="student-info">
-                      <strong class="student-name-table">{{ item.nombreAlumno }}</strong>
-                      <span class="student-ci font-mono">C.I. {{ item.cedulaAlumno }}</span>
-                      <span class="student-career">{{ item.carrera }} &bull; {{ item.modalidad }}</span>
-                    </div>
-                  </td>
-
-                  <!-- Requisito -->
-                  <td class="td-req">
-                    <div class="req-badge-group">
-                      <span class="req-title">{{ item.nombreRequisito }}</span>
-                      <span class="expediente-ref">Expediente #{{ item.idPostulacionAlumnos }}</span>
-                    </div>
-                  </td>
-
-                  <!-- Checkbox de Cumplimiento -->
-                  <td class="td-check">
-                    <label class="custom-checkbox-label">
-                      <input
-                        #chk
-                        type="checkbox"
-                        [checked]="getAprobado(item)"
-                        (change)="setAprobado(item, chk.checked)"
-                      />
-                      <span class="checkbox-custom"></span>
-                      <span
-                        class="checkbox-text"
-                        [class.text-success]="getAprobado(item)"
-                        [class.text-warning]="!getAprobado(item)"
-                      >
-                        {{
-                          getAprobado(item)
-                            ? 'Aprobado'
-                            : getObservaciones(item)
-                              ? 'Observado'
-                              : 'Pendiente'
-                        }}
-                      </span>
-                    </label>
-                  </td>
-
-                  <!-- Adjuntos y Previsualización -->
-                  <td class="td-attachment">
-                    <div class="attachment-controls">
-                      @if (item.nombreArchivoAdjunto || item.rutaArchivoAdjunto) {
-                        <div class="existing-attachment">
-                          <button
-                            type="button"
-                            class="btn-table-preview"
-                            (click)="previsualizarAdjuntoExistente(item)"
-                            title="Previsualizar documento"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                              <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            <span>Ver Doc</span>
-                          </button>
-                          <a
-                            [href]="getArchivoUrl(item.rutaArchivoAdjunto)"
-                            target="_blank"
-                            class="attachment-link font-mono"
-                            [title]="item.nombreArchivoAdjunto"
-                          >
-                            {{ item.nombreArchivoAdjunto || 'Adjunto' }}
-                          </a>
-                        </div>
-                      }
-
-                      <label class="file-upload-btn" title="Cargar certificado o evidencia opcional">
-                        <input
-                          type="file"
-                          (change)="onFileChange(item.idPostulacionAlumnoRequisitoModalidad, $event)"
-                          accept=".pdf,.png,.jpg,.jpeg"
-                        />
-                        <span>{{
-                          archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]
-                            ? 'Archivo cargado'
-                            : 'Adjuntar'
-                        }}</span>
-                      </label>
-                      @if (archivosPorFila()[item.idPostulacionAlumnoRequisitoModalidad]; as f) {
-                        <span class="selected-filename">{{ f.name }}</span>
-                      }
-                    </div>
-                  </td>
-
-                  <!-- Observaciones -->
-                  <td class="td-obs">
-                    <textarea
-                      #txtObs
-                      class="fluent-obs-input"
-                      rows="2"
-                      placeholder="Observaciones de retroalimentación..."
-                      [value]="getObservaciones(item)"
-                      (input)="setObservaciones(item, txtObs.value)"
-                    ></textarea>
-                  </td>
-
-                  <!-- Acciones -->
-                  <td class="text-right td-action">
+                <!-- 6. Acciones -->
+                <td class="td-acciones text-end" (click)="$event.stopPropagation()">
+                  <div class="actions-group">
                     <button
                       type="button"
-                      class="fluent-btn-primary fluent-btn-sm"
-                      [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
-                      (click)="enviarGuardado(item)"
+                      class="btn-action-review"
+                      (click)="abrirRevision(item)"
+                      title="Revisar expediente y calificar"
                     >
-                      {{
-                        guardandoId() === item.idPostulacionAlumnoRequisitoModalidad
-                          ? 'Guardando...'
-                          : 'Guardar'
-                      }}
+                      <span>Revisar</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
                     </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
 
-      <!-- Paginador Integrado -->
-      <footer class="table-pagination">
-        <div class="pagination-left">
-          <span class="pagination-range-text">
-            Mostrando <strong>{{ rangoInicio() }}</strong>–<strong>{{ rangoFin() }}</strong> de
-            <strong>{{ totalFiltrados() }}</strong> casos
-          </span>
+                    <!-- Botón rápido de aprobación si está pendiente -->
+                    @if (!getAprobado(item)) {
+                      <button
+                        type="button"
+                        class="btn-quick-approve"
+                        (click)="aprobarDirecto(item, $event)"
+                        [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
+                        title="Aprobar directamente este requisito"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
 
-          <div class="page-size-selector">
-            <span class="size-label">Por pág:</span>
-            <select [ngModel]="tamanoPagina()" (change)="onTamanoPaginaChange($event)" class="size-select">
-              <option [value]="6">6</option>
-              <option [value]="12">12</option>
-              <option [value]="24">24</option>
-            </select>
-          </div>
-        </div>
+      <!-- Paginador Limpio -->
+      <div class="pagination-footer">
+        <span class="pagination-info">
+          Mostrando {{ rangoInicio() }}-{{ rangoFin() }} de {{ totalFiltrados() }} casos
+        </span>
 
-        <div class="pagination-right">
+        <div class="pagination-controls">
           <button
             type="button"
-            class="pg-btn pg-prev"
-            [disabled]="paginaActual() <= 1"
+            class="page-btn"
+            [disabled]="paginaActual() === 1"
             (click)="irAPagina(paginaActual() - 1)"
-            aria-label="Página anterior"
           >
             &larr; Anterior
           </button>
-
-          <div class="pg-numbers">
-            @for (p of paginasDisponibles(); track p) {
-              <button
-                type="button"
-                class="pg-num"
-                [class.active]="p === paginaActual()"
-                (click)="irAPagina(p)"
-              >
-                {{ p }}
-              </button>
-            }
-          </div>
-
+          <span class="current-page-tag">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
           <button
             type="button"
-            class="pg-btn pg-next"
-            [disabled]="paginaActual() >= totalPaginas()"
+            class="page-btn"
+            [disabled]="paginaActual() === totalPaginas()"
             (click)="irAPagina(paginaActual() + 1)"
-            aria-label="Página siguiente"
           >
             Siguiente &rarr;
           </button>
         </div>
-      </footer>
+      </div>
     }
   </div>
 </section>
 
-<!-- ==================================================================== -->
-<!-- VISOR / PREVISUALIZADOR MODAL DE DOCUMENTOS INTEGRADO -->
-<!-- ==================================================================== -->
-@if (documentoVisor(); as doc) {
-  <div class="doc-viewer-backdrop" (click)="cerrarVisor()">
-    <div class="doc-viewer-panel" (click)="$event.stopPropagation()">
-      <header class="doc-viewer-header">
-        <div class="viewer-title-group">
-          <span class="viewer-eyebrow">VISOR DE EVIDENCIA</span>
-          <h3 class="viewer-filename" [title]="doc.nombre">{{ doc.nombre }}</h3>
+<!-- ========================================================================= -->
+<!-- DRAWER LATERAL DE REVISIÓN ENFOCADA (UN SOLO CASO A LA VEZ) -->
+<!-- ========================================================================= -->
+<app-drawer
+  [isOpen]="drawerAbierto()"
+  [size]="'xl'"
+  [eyebrow]="'EXPEDIENTE DOCENTE'"
+  [title]="casoSeleccionado()?.nombreAlumno || 'Revisión de Caso'"
+  [subtitle]="(casoSeleccionado()?.carrera || '') + ' • ' + (casoSeleccionado()?.nombreRequisito || '')"
+  (closed)="cerrarRevision()"
+>
+  @if (casoSeleccionado(); as caso) {
+    <div class="review-drawer-container">
+      
+      <!-- Barra de Navegación entre Estudiantes (Arriba del Drawer) -->
+      <div class="drawer-nav-bar">
+        <div class="nav-case-counter">
+          <span class="case-seq">Caso {{ indiceActual() + 1 }} de {{ totalFiltrados() }}</span>
+          <span class="cedula-tag">CI: {{ caso.cedulaAlumno }}</span>
         </div>
-        <div class="viewer-header-actions">
-          <a
-            [href]="doc.url"
-            target="_blank"
-            class="btn-viewer-action"
-            title="Abrir en pestaña nueva o descargar"
+
+        <div class="nav-case-buttons">
+          <button
+            type="button"
+            class="nav-step-btn"
+            [disabled]="!hayAnterior()"
+            (click)="irAnterior()"
+            title="Ir al estudiante anterior"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
+              <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
-            <span>Abrir / Descargar</span>
-          </a>
-          <button type="button" class="btn-viewer-close" (click)="cerrarVisor()" title="Cerrar visor">&times;</button>
-        </div>
-      </header>
+            <span>Anterior</span>
+          </button>
 
-      <div class="doc-viewer-body">
-        @if (doc.esPdf) {
-          <iframe
-            [src]="doc.safeUrl"
-            class="viewer-iframe"
-            title="Previsualización de Documento PDF"
-          ></iframe>
-        } @else if (doc.esImagen) {
-          <div class="viewer-image-container">
-            <img [src]="doc.url" [alt]="doc.nombre" class="viewer-img" />
+          <button
+            type="button"
+            class="nav-step-btn"
+            [disabled]="!haySiguiente()"
+            (click)="irSiguiente()"
+            title="Ir al siguiente estudiante"
+          >
+            <span>Siguiente</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen del Requisito -->
+      <div class="req-hero-card">
+        <div class="req-hero-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </div>
+        <div class="req-hero-body">
+          <span class="req-hero-label">Requisito a Calificar</span>
+          <h3 class="req-hero-title">{{ caso.nombreRequisito }}</h3>
+          <p class="req-hero-meta">
+            Postulación N° {{ caso.idPostulacionAlumnos }} • {{ caso.carrera }}
+          </p>
+        </div>
+      </div>
+
+      <!-- VISOR DEL DOCUMENTO ADJUNTO -->
+      <div class="drawer-section preview-section">
+        <div class="section-title-row">
+          <h4 class="section-heading">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span>Documento / Evidencia Digital</span>
+          </h4>
+
+          @if (visorCasoActual(); as visor) {
+            <div class="preview-actions">
+              <a [href]="visor.url" target="_blank" rel="noopener noreferrer" class="preview-link-btn" title="Abrir en pestaña nueva">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                <span>Pestaña nueva</span>
+              </a>
+            </div>
+          }
+        </div>
+
+        @if (visorCasoActual(); as visor) {
+          <div class="embedded-preview-container">
+            @if (visor.esPdf) {
+              <iframe
+                [src]="visor.safeUrl"
+                class="embedded-pdf-frame"
+                title="Previsualización de Documento PDF"
+              ></iframe>
+            } @else if (visor.esImagen) {
+              <div class="embedded-image-wrap">
+                <img [src]="visor.url" [alt]="visor.nombre" class="embedded-image" />
+              </div>
+            } @else {
+              <div class="generic-file-view">
+                <p>Archivo adjunto: <strong>{{ visor.nombre }}</strong></p>
+                <a [href]="visor.url" target="_blank" class="download-fallback-btn">Descargar Archivo</a>
+              </div>
+            }
           </div>
         } @else {
-          <div class="viewer-unsupported">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
+          <div class="no-preview-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <h4>Archivo listo para su descarga</h4>
-            <p>Este formato no cuenta con visor embebido directo. Puede abrirlo externamente.</p>
-            <a [href]="doc.url" target="_blank" class="fluent-btn-primary">
-              Descargar Archivo
-            </a>
+            <p>El estudiante aún no ha cargado ningún archivo o PDF para este requisito.</p>
           </div>
         }
       </div>
+
+      <!-- SECCIÓN DE DICTAMEN / EVALUACIÓN -->
+      <div class="drawer-section decision-section">
+        <h4 class="section-heading">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Dictamen de Evaluación Docente</span>
+        </h4>
+
+        <!-- Selector Claro: Cumple vs No Cumple -->
+        <div class="decision-toggle-grid">
+          <button
+            type="button"
+            class="decision-toggle-btn btn-toggle-approve"
+            [class.active]="getAprobado(caso)"
+            (click)="setAprobado(caso, true)"
+          >
+            <div class="toggle-indicator">
+              @if (getAprobado(caso)) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              }
+            </div>
+            <div class="toggle-texts">
+              <strong>Cumple / Aprobado</strong>
+              <span>El documento es válido y cumple los criterios.</span>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            class="decision-toggle-btn btn-toggle-reject"
+            [class.active]="!getAprobado(caso)"
+            (click)="setAprobado(caso, false)"
+          >
+            <div class="toggle-indicator">
+              @if (!getAprobado(caso)) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              }
+            </div>
+            <div class="toggle-texts">
+              <strong>No Cumple / Con Observaciones</strong>
+              <span>Requiere corrección o documento incompleto.</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Campo de Observaciones / Motivo de Rechazo -->
+        <div class="form-group-obs">
+          <label class="form-label" for="drawerObs">
+            Observaciones o Indicaciones al Estudiante:
+            @if (!getAprobado(caso)) {
+              <span class="required-tag">(Requerido para corregir)</span>
+            }
+          </label>
+          <textarea
+            id="drawerObs"
+            class="form-textarea"
+            rows="3"
+            placeholder="Escriba aquí las observaciones o correcciones que el estudiante debe realizar..."
+            [ngModel]="getObservaciones(caso)"
+            (ngModelChange)="setObservaciones(caso, $event)"
+          ></textarea>
+        </div>
+
+        <!-- Adjunto de Rúbrica / Certificado del Docente (Opcional) -->
+        <div class="form-group-upload">
+          <label class="form-label">
+            Adjuntar Resolución / Rúbrica Docente (Opcional):
+          </label>
+          <div class="file-upload-bar">
+            @if (archivosPorFila()[caso.idPostulacionAlumnoRequisitoModalidad]; as file) {
+              <div class="file-ready-tag">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                  <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <span class="file-name">{{ file.name }}</span>
+                <button
+                  type="button"
+                  class="file-remove-btn"
+                  (click)="removerArchivoLocal(caso.idPostulacionAlumnoRequisitoModalidad)"
+                  title="Quitar archivo"
+                >
+                  &times;
+                </button>
+              </div>
+            } @else {
+              <label class="upload-btn-label">
+                <input
+                  type="file"
+                  class="hidden-file-input"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  (change)="onFileChange(caso.idPostulacionAlumnoRequisitoModalidad, $event)"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Subir archivo firmado / rúbrica</span>
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONERA INFERIOR DEL DRAWER -->
+      <div class="drawer-action-footer">
+        <button type="button" class="btn-drawer-cancel" (click)="cerrarRevision()">
+          Cerrar
+        </button>
+
+        <div class="drawer-save-group">
+          <button
+            type="button"
+            class="btn-drawer-save"
+            [disabled]="guardandoId() === caso.idPostulacionAlumnoRequisitoModalidad"
+            (click)="guardarCasoActual()"
+          >
+            @if (guardandoId() === caso.idPostulacionAlumnoRequisitoModalidad) {
+              <span class="btn-spinner"></span>
+              <span>Guardando...</span>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              <span>Guardar Dictamen</span>
+            }
+          </button>
+        </div>
+      </div>
+
     </div>
-  </div>
-}
+  }
+</app-drawer>
