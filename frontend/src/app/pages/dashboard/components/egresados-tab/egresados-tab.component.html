@@ -1,0 +1,452 @@
+<div class="egresados-tab-container">
+  <!-- Header de Sección -->
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Alumnos Pendientes de Egreso</h2>
+      <p class="section-subtitle">
+        Estudiantes que completaron los niveles y materias de su malla curricular pero aún no constan registrados como titulados.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="cargarEstudiantes()" [disabled]="cargando()">
+        <span class="btn-text">Actualizar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros Fluent -->
+  <div class="fluent-filters-card">
+    <div class="filters-grid">
+      <!-- Filtro Periodo -->
+      <div class="filter-group">
+        <label for="periodoSelect" class="filter-label">Periodo Académico</label>
+        <select
+          id="periodoSelect"
+          class="fluent-select"
+          [ngModel]="periodoSeleccionado()"
+          (ngModelChange)="onPeriodoChange($event)"
+        >
+          @for (p of periodos(); track p.idPeriodo) {
+            <option [value]="p.idPeriodo">
+              {{ p.nombre }} {{ p.activo ? '(Activo)' : '' }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Filtro Carrera -->
+      <div class="filter-group">
+        <label for="carreraSelect" class="filter-label">Carrera</label>
+        <select
+          id="carreraSelect"
+          class="fluent-select"
+          [ngModel]="carreraSeleccionada()"
+          (ngModelChange)="onCarreraChange($event)"
+        >
+          <option [ngValue]="null">Todas las Carreras</option>
+          @for (c of carreras(); track c.idCarrera) {
+            <option [ngValue]="c.idCarrera">{{ c.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Buscador Cédula / Nombre -->
+      <div class="filter-group search-group">
+        <label for="busquedaInput" class="filter-label">Buscar por Cédula o Apellidos</label>
+        <div class="search-input-wrapper">
+          <input
+            id="busquedaInput"
+            type="text"
+            class="fluent-input"
+            placeholder="Ingrese cédula o apellidos..."
+            [ngModel]="busquedaCedula()"
+            (ngModelChange)="busquedaCedula.set($event)"
+            (keyup.enter)="onBusquedaSubmit()"
+          />
+          <button type="button" class="btn btn-primary btn-search" (click)="onBusquedaSubmit()">
+            Buscar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (carreraSeleccionada() || busquedaCedula()) {
+      <div class="active-filters-row">
+        <span class="filter-info-label">Filtros aplicados</span>
+        <button type="button" class="btn-link-reset" (click)="limpiarFiltros()">
+          Restablecer filtros
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Estado de Carga / Error -->
+  @if (cargando()) {
+    <div class="state-container">
+      <div class="spinner"></div>
+      <p class="state-text">Analizando expediente académico y avance de niveles...</p>
+    </div>
+  } @else if (error()) {
+    <div class="state-container error-state">
+      <p class="state-text">{{ error() }}</p>
+      <button type="button" class="btn btn-secondary" (click)="cargarEstudiantes()">Reintentar</button>
+    </div>
+  } @else if (estudiantes().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">No se encontraron alumnos pendientes</h3>
+      <p class="empty-desc">
+        No hay registros que cumplan con la condición de malla completa sin titulación para los filtros seleccionados.
+      </p>
+    </div>
+  } @else {
+    <!-- Tabla de Estudiantes -->
+    <div class="fluent-table-wrapper">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Estudiante</th>
+            <th>Carrera y Malla</th>
+            <th>Niveles</th>
+            <th>Asignaturas</th>
+            <th>Promedio</th>
+            <th>Estado Titulación</th>
+            <th class="text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (est of estudiantes(); track (est.idAlumno + '-' + est.idCarrera)) {
+            <tr>
+              <td class="cell-id">
+                <span class="font-mono">{{ est.idAlumno }}</span>
+              </td>
+              <td>
+                <div class="student-name">{{ est.nombreCompleto }}</div>
+                <div class="student-contact">{{ est.email || est.celular || 'Sin contacto' }}</div>
+              </td>
+              <td>
+                <div class="carrera-name">{{ est.carrera }}</div>
+                <div class="malla-desc">{{ est.malla }} &bull; {{ est.modalidad }}</div>
+              </td>
+              <td>
+                <div class="progress-badge">
+                  <span class="progress-val">{{ est.nivelesAprobados }} / {{ est.totalNivelesMalla }}</span>
+                  <span class="progress-label">niveles</span>
+                </div>
+              </td>
+              <td>
+                <div class="progress-badge">
+                  <span class="progress-val">{{ est.materiasAprobadas }} / {{ est.totalMateriasMalla }}</span>
+                  <span class="progress-label">materias</span>
+                </div>
+              </td>
+              <td>
+                <span class="grade-score">{{ est.promedioGeneral | number: '1.2-2' }}</span>
+              </td>
+              <td>
+                <div class="titulacion-status-cell">
+                  @if (est.esEgresadoTitulado) {
+                    <span class="status-badge egresado">Egresado</span>
+                  } @else {
+                    <span class="status-badge sin-egresar">Sin Egresar</span>
+                  }
+                  @if (est.tienePostulacionTitulacion) {
+                    <div class="postulacion-subtext">{{ est.estadoPostulacion || 'En Trámite' }}</div>
+                  }
+                </div>
+              </td>
+              <td class="text-right">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="verExpediente(est)"
+                  title="Ver expediente académico completo"
+                >
+                  Expediente
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginador Fluent -->
+    <div class="fluent-pagination">
+      <div class="pagination-info">
+        Mostrando {{ (paginaActual() - 1) * tamanoPagina() + 1 }} a
+        {{
+          paginaActual() * tamanoPagina() > totalRegistros()
+            ? totalRegistros()
+            : paginaActual() * tamanoPagina()
+        }}
+        de {{ totalRegistros() }} alumnos
+      </div>
+
+      <div class="pagination-controls">
+        <div class="page-size-selector">
+          <label for="pageSizeSelect">Por página:</label>
+          <select
+            id="pageSizeSelect"
+            [ngModel]="tamanoPagina()"
+            (ngModelChange)="cambiarTamanoPagina($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === 1"
+          (click)="irAPagina(paginaActual() - 1)"
+        >
+          Anterior
+        </button>
+
+        @for (p of paginasDisponibles(); track p) {
+          <button
+            type="button"
+            class="page-btn"
+            [class.active]="p === paginaActual()"
+            (click)="irAPagina(p)"
+          >
+            {{ p }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === totalPaginas()"
+          (click)="irAPagina(paginaActual() + 1)"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- DRAWER EXPEDIENTE ACADÉMICO -->
+@if (mostrarExpedienteModal()) {
+  <div class="drawer-backdrop" (click)="cerrarExpedienteModal()">
+    <div class="drawer-panel" (click)="$event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <h3 class="drawer-title">Expediente Académico</h3>
+          <p class="drawer-subtitle">Historial de matrículas, calificaciones y avance curricular</p>
+        </div>
+        <button type="button" class="btn-close" (click)="cerrarExpedienteModal()" title="Cerrar panel">&times;</button>
+      </div>
+
+      <div class="drawer-body">
+        @if (cargandoExpediente()) {
+          <div class="state-container">
+            <div class="spinner"></div>
+            <p class="state-text">Cargando expediente académico...</p>
+          </div>
+        } @else if (expedienteSeleccionado()) {
+          @let exp = expedienteSeleccionado()!;
+
+          <!-- Tarjeta de Contacto Rápido -->
+          <div class="contact-card">
+            <div class="contact-card-header">
+              <h4 class="contact-card-title">Datos de Contacto</h4>
+              <span class="contact-badge">Comunicación</span>
+            </div>
+            <div class="contact-grid">
+              <div class="contact-item">
+                <span class="contact-label">Correo Personal</span>
+                @if (exp.email) {
+                  <a [href]="'mailto:' + exp.email" class="contact-link email-link">
+                    {{ exp.email }}
+                  </a>
+                } @else {
+                  <span class="contact-muted">No registrado</span>
+                }
+              </div>
+
+              <div class="contact-item">
+                <span class="contact-label">Correo Institucional</span>
+                @if (exp.emailInstitucional) {
+                  <a [href]="'mailto:' + exp.emailInstitucional" class="contact-link email-link">
+                    {{ exp.emailInstitucional }}
+                  </a>
+                } @else {
+                  <span class="contact-muted">No registrado</span>
+                }
+              </div>
+
+              <div class="contact-item">
+                <span class="contact-label">Celular / WhatsApp</span>
+                @if (exp.celular) {
+                  <div class="contact-phone-group">
+                    <a [href]="'tel:' + exp.celular" class="contact-link phone-link">
+                      {{ exp.celular }}
+                    </a>
+                    <a
+                      [href]="'https://wa.me/' + (exp.celular.startsWith('0') ? '593' + exp.celular.substring(1) : exp.celular)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn-whatsapp"
+                      title="Enviar mensaje de WhatsApp"
+                    >
+                      WhatsApp
+                    </a>
+                  </div>
+                } @else {
+                  <span class="contact-muted">No registrado</span>
+                }
+              </div>
+
+              <div class="contact-item">
+                <span class="contact-label">Teléfono Convencional</span>
+                @if (exp.telefono) {
+                  <a [href]="'tel:' + exp.telefono" class="contact-link phone-link">
+                    {{ exp.telefono }}
+                  </a>
+                } @else {
+                  <span class="contact-muted">No registrado</span>
+                }
+              </div>
+
+              <div class="contact-item full-width">
+                <span class="contact-label">Dirección Domiciliaria</span>
+                <span class="contact-text">
+                  {{ exp.direccion ? (exp.direccion + (exp.ciudadResidencia ? ' (' + exp.ciudadResidencia + ')' : '')) : (exp.ciudadResidencia || 'No registrada') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Encabezado del Alumno y Avance -->
+          <div class="expediente-info-grid">
+            <div class="info-block">
+              <span class="info-label">Identificación:</span>
+              <span class="info-value font-mono">{{ exp.idAlumno }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Nombre Completo:</span>
+              <span class="info-value">{{ exp.nombreCompleto }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Carrera:</span>
+              <span class="info-value">{{ exp.carrera }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Malla Curricular:</span>
+              <span class="info-value">{{ exp.malla }} ({{ exp.modalidad }})</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Avance Niveles:</span>
+              <span class="info-value text-success font-bold">
+                {{ exp.nivelesAprobados }} de {{ exp.totalNivelesMalla }} niveles
+              </span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Avance Materias:</span>
+              <span class="info-value text-success font-bold">
+                {{ exp.materiasAprobadas }} de {{ exp.totalMateriasMalla }} materias
+              </span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Promedio General:</span>
+              <span class="info-value font-bold">{{ exp.promedioGeneral | number: '1.2-2' }}</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Estado de Titulación:</span>
+              <span class="info-value">
+                @if (exp.esEgresadoTitulado) {
+                  <span class="status-badge egresado">
+                    Egresado {{ exp.numeroActaGrado ? '(Acta: ' + exp.numeroActaGrado + ')' : '' }}
+                  </span>
+                } @else {
+                  <span class="status-badge sin-egresar">Sin Egresar</span>
+                }
+              </span>
+            </div>
+          </div>
+
+          <!-- Tabla de Matrículas / Periodos -->
+          <div class="subtable-section">
+            <h4 class="subtable-title">Periodos Académicos Cursados</h4>
+            <div class="subtable-wrapper">
+              <table class="fluent-subtable">
+                <thead>
+                  <tr>
+                    <th>Periodo</th>
+                    <th>Detalle</th>
+                    <th>Nivel</th>
+                    <th>Paralelo</th>
+                    <th>Fecha Matrícula</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (m of exp.periodosCursados; track (m.idPeriodo + '-' + m.idNivel + '-' + $index)) {
+                    <tr>
+                      <td class="font-mono">{{ m.idPeriodo }}</td>
+                      <td>{{ m.nombrePeriodo }}</td>
+                      <td>{{ m.nombreNivel || ('Nivel ' + m.idNivel) }}</td>
+                      <td>{{ m.paralelo || '-' }}</td>
+                      <td>{{ m.fechaMatricula ? (m.fechaMatricula | date: 'dd/MM/yyyy') : '-' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tabla de Asignaturas y Calificaciones -->
+          <div class="subtable-section">
+            <h4 class="subtable-title">Historial de Asignaturas y Calificaciones</h4>
+            <div class="subtable-wrapper">
+              <table class="fluent-subtable">
+                <thead>
+                  <tr>
+                    <th>Nivel</th>
+                    <th>Asignatura</th>
+                    <th>Periodo</th>
+                    <th>P1</th>
+                    <th>P2</th>
+                    <th>Examen</th>
+                    <th>Nota Final</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of exp.asignaturas; track (a.idAsignatura + '-' + (a.idPeriodo || '') + '-' + $index)) {
+                    <tr [class.row-reprobado]="!a.aprobado">
+                      <td>{{ a.nombreNivel || (a.nivel ? ('Nivel ' + a.nivel) : '-') }}</td>
+                      <td>{{ a.nombreAsignatura }}</td>
+                      <td class="font-mono">{{ a.idPeriodo || '-' }}</td>
+                      <td>{{ a.nota1 != null ? (a.nota1 | number: '1.2-2') : '-' }}</td>
+                      <td>{{ a.nota2 != null ? (a.nota2 | number: '1.2-2') : '-' }}</td>
+                      <td>{{ a.examen != null ? (a.examen | number: '1.2-2') : '-' }}</td>
+                      <td class="font-bold">{{ a.notaFinal != null ? (a.notaFinal | number: '1.2-2') : (a.promedioFinal != null ? (a.promedioFinal | number: '1.2-2') : '-') }}</td>
+                      <td>
+                        @if (a.aprobado) {
+                          <span class="badge-aprobado">Aprobado</span>
+                        } @else {
+                          <span class="badge-reprobado">No Aprobado</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="drawer-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarExpedienteModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -52,6 +52,7 @@ import {
 } from './components/evaluacion-docente-tab/evaluacion-docente-tab.component';
 import { ResponsablesModalComponent } from '../../shared/components/responsables-modal/responsables-modal.component';
 import { DrawerComponent } from '../../shared/components/drawer/drawer.component';
+import { EgresadosTabComponent } from './components/egresados-tab/egresados-tab.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -76,6 +77,7 @@ import { DrawerComponent } from '../../shared/components/drawer/drawer.component
     EvaluacionDocenteTabComponent,
     ResponsablesModalComponent,
     DrawerComponent,
+    EgresadosTabComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
