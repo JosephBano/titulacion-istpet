@@ -111,6 +111,7 @@
             <th>Asignaturas</th>
             <th>Promedio</th>
             <th>Estado Titulación</th>
+            <th>Matrículas / Deuda</th>
             <th class="text-right">Acción</th>
           </tr>
         </thead>
@@ -154,6 +155,31 @@
                     <div class="postulacion-subtext">{{ est.estadoPostulacion || 'En Trámite' }}</div>
                   }
                 </div>
+              </td>
+              <td>
+                @if (est.noAdeuda === true) {
+                  <span class="status-badge financas-al-dia" title="No registra deudas de matrículas ni restricciones en SIGAFI">
+                    <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Al Día
+                  </span>
+                } @else if (est.noAdeuda === false) {
+                  <span class="status-badge financas-deuda" [title]="'Saldo pendiente: $' + (est.saldoPendiente | number: '1.2-2') + (est.tieneRestricciones ? ' (con restricciones activas)' : '')">
+                    <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    @if (est.saldoPendiente && est.saldoPendiente > 0) {
+                      Adeuda ${{ est.saldoPendiente | number: '1.2-2' }}
+                    } @else {
+                      Restricción
+                    }
+                  </span>
+                } @else {
+                  <span class="status-badge financas-pendiente">Pendiente</span>
+                }
               </td>
               <td class="text-right">
                 <button
@@ -322,123 +348,342 @@
             </div>
           </div>
 
-          <!-- Encabezado del Alumno y Avance -->
-          <div class="expediente-info-grid">
-            <div class="info-block">
-              <span class="info-label">Identificación:</span>
-              <span class="info-value font-mono">{{ exp.idAlumno }}</span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Nombre Completo:</span>
-              <span class="info-value">{{ exp.nombreCompleto }}</span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Carrera:</span>
-              <span class="info-value">{{ exp.carrera }}</span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Malla Curricular:</span>
-              <span class="info-value">{{ exp.malla }} ({{ exp.modalidad }})</span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Avance Niveles:</span>
-              <span class="info-value text-success font-bold">
-                {{ exp.nivelesAprobados }} de {{ exp.totalNivelesMalla }} niveles
-              </span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Avance Materias:</span>
-              <span class="info-value text-success font-bold">
-                {{ exp.materiasAprobadas }} de {{ exp.totalMateriasMalla }} materias
-              </span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Promedio General:</span>
-              <span class="info-value font-bold">{{ exp.promedioGeneral | number: '1.2-2' }}</span>
-            </div>
-            <div class="info-block">
-              <span class="info-label">Estado de Titulación:</span>
-              <span class="info-value">
-                @if (exp.esEgresadoTitulado) {
-                  <span class="status-badge egresado">
-                    Egresado {{ exp.numeroActaGrado ? '(Acta: ' + exp.numeroActaGrado + ')' : '' }}
-                  </span>
+          <!-- Navegación de Pestañas del Expediente -->
+          <div class="expediente-nav-tabs">
+            <button
+              type="button"
+              class="expediente-tab-btn"
+              [class.active]="seccionExpediente() === 'academico'"
+              (click)="cambiarSeccionExpediente('academico')"
+            >
+              <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              Avance Académico y Calificaciones
+            </button>
+            <button
+              type="button"
+              class="expediente-tab-btn"
+              [class.active]="seccionExpediente() === 'pagos'"
+              (click)="cambiarSeccionExpediente('pagos')"
+            >
+              <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              Estado Financiero y Pagos
+              @if (exp.financiero) {
+                @if (exp.financiero.estaAlDia) {
+                  <span class="tab-badge al-dia">Al Día</span>
                 } @else {
-                  <span class="status-badge sin-egresar">Sin Egresar</span>
+                  <span class="tab-badge deuda">Adeuda ${{ exp.financiero.saldoTotalPendiente | number: '1.2-2' }}</span>
                 }
-              </span>
-            </div>
+              }
+            </button>
           </div>
 
-          <!-- Tabla de Matrículas / Periodos -->
-          <div class="subtable-section">
-            <h4 class="subtable-title">Periodos Académicos Cursados</h4>
-            <div class="subtable-wrapper">
-              <table class="fluent-subtable">
-                <thead>
-                  <tr>
-                    <th>Periodo</th>
-                    <th>Detalle</th>
-                    <th>Nivel</th>
-                    <th>Paralelo</th>
-                    <th>Fecha Matrícula</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (m of exp.periodosCursados; track (m.idPeriodo + '-' + m.idNivel + '-' + $index)) {
+          <!-- SECCIÓN 1: AVANCE ACADÉMICO -->
+          @if (seccionExpediente() === 'academico') {
+            <!-- Encabezado del Alumno y Avance -->
+            <div class="expediente-info-grid">
+              <div class="info-block">
+                <span class="info-label">Identificación:</span>
+                <span class="info-value font-mono">{{ exp.idAlumno }}</span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Nombre Completo:</span>
+                <span class="info-value">{{ exp.nombreCompleto }}</span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Carrera:</span>
+                <span class="info-value">{{ exp.carrera }}</span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Malla Curricular:</span>
+                <span class="info-value">{{ exp.malla }} ({{ exp.modalidad }})</span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Avance Niveles:</span>
+                <span class="info-value text-success font-bold">
+                  {{ exp.nivelesAprobados }} de {{ exp.totalNivelesMalla }} niveles
+                </span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Avance Materias:</span>
+                <span class="info-value text-success font-bold">
+                  {{ exp.materiasAprobadas }} de {{ exp.totalMateriasMalla }} materias
+                </span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Promedio General:</span>
+                <span class="info-value font-bold">{{ exp.promedioGeneral | number: '1.2-2' }}</span>
+              </div>
+              <div class="info-block">
+                <span class="info-label">Estado de Titulación:</span>
+                <span class="info-value">
+                  @if (exp.esEgresadoTitulado) {
+                    <span class="status-badge egresado">
+                      Egresado {{ exp.numeroActaGrado ? '(Acta: ' + exp.numeroActaGrado + ')' : '' }}
+                    </span>
+                  } @else {
+                    <span class="status-badge sin-egresar">Sin Egresar</span>
+                  }
+                </span>
+              </div>
+            </div>
+
+            <!-- Tabla de Matrículas / Periodos -->
+            <div class="subtable-section">
+              <h4 class="subtable-title">Periodos Académicos Cursados</h4>
+              <div class="subtable-wrapper">
+                <table class="fluent-subtable">
+                  <thead>
                     <tr>
-                      <td class="font-mono">{{ m.idPeriodo }}</td>
-                      <td>{{ m.nombrePeriodo }}</td>
-                      <td>{{ m.nombreNivel || ('Nivel ' + m.idNivel) }}</td>
-                      <td>{{ m.paralelo || '-' }}</td>
-                      <td>{{ m.fechaMatricula ? (m.fechaMatricula | date: 'dd/MM/yyyy') : '-' }}</td>
+                      <th>Periodo</th>
+                      <th>Detalle</th>
+                      <th>Nivel</th>
+                      <th>Paralelo</th>
+                      <th>Fecha Matrícula</th>
                     </tr>
-                  }
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    @for (m of exp.periodosCursados; track (m.idPeriodo + '-' + m.idNivel + '-' + $index)) {
+                      <tr>
+                        <td class="font-mono">{{ m.idPeriodo }}</td>
+                        <td>{{ m.nombrePeriodo }}</td>
+                        <td>{{ m.nombreNivel || ('Nivel ' + m.idNivel) }}</td>
+                        <td>{{ m.paralelo || '-' }}</td>
+                        <td>{{ m.fechaMatricula ? (m.fechaMatricula | date: 'dd/MM/yyyy') : '-' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          <!-- Tabla de Asignaturas y Calificaciones -->
-          <div class="subtable-section">
-            <h4 class="subtable-title">Historial de Asignaturas y Calificaciones</h4>
-            <div class="subtable-wrapper">
-              <table class="fluent-subtable">
-                <thead>
-                  <tr>
-                    <th>Nivel</th>
-                    <th>Asignatura</th>
-                    <th>Periodo</th>
-                    <th>P1</th>
-                    <th>P2</th>
-                    <th>Examen</th>
-                    <th>Nota Final</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (a of exp.asignaturas; track (a.idAsignatura + '-' + (a.idPeriodo || '') + '-' + $index)) {
-                    <tr [class.row-reprobado]="!a.aprobado">
-                      <td>{{ a.nombreNivel || (a.nivel ? ('Nivel ' + a.nivel) : '-') }}</td>
-                      <td>{{ a.nombreAsignatura }}</td>
-                      <td class="font-mono">{{ a.idPeriodo || '-' }}</td>
-                      <td>{{ a.nota1 != null ? (a.nota1 | number: '1.2-2') : '-' }}</td>
-                      <td>{{ a.nota2 != null ? (a.nota2 | number: '1.2-2') : '-' }}</td>
-                      <td>{{ a.examen != null ? (a.examen | number: '1.2-2') : '-' }}</td>
-                      <td class="font-bold">{{ a.notaFinal != null ? (a.notaFinal | number: '1.2-2') : (a.promedioFinal != null ? (a.promedioFinal | number: '1.2-2') : '-') }}</td>
-                      <td>
-                        @if (a.aprobado) {
-                          <span class="badge-aprobado">Aprobado</span>
-                        } @else {
-                          <span class="badge-reprobado">No Aprobado</span>
-                        }
-                      </td>
+            <!-- Tabla de Asignaturas y Calificaciones -->
+            <div class="subtable-section">
+              <h4 class="subtable-title">Historial de Asignaturas y Calificaciones</h4>
+              <div class="subtable-wrapper">
+                <table class="fluent-subtable">
+                  <thead>
+                    <tr>
+                      <th>Nivel</th>
+                      <th>Asignatura</th>
+                      <th>Periodo</th>
+                      <th>P1</th>
+                      <th>P2</th>
+                      <th>Examen</th>
+                      <th>Nota Final</th>
+                      <th>Estado</th>
                     </tr>
-                  }
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    @for (a of exp.asignaturas; track (a.idAsignatura + '-' + (a.idPeriodo || '') + '-' + $index)) {
+                      <tr [class.row-reprobado]="!a.aprobado && a.idPeriodo" [class.row-pendiente]="!a.aprobado && !a.idPeriodo">
+                        <td>{{ a.nombreNivel || (a.nivel ? ('Nivel ' + a.nivel) : '-') }}</td>
+                        <td>{{ a.nombreAsignatura }}</td>
+                        <td class="font-mono">{{ a.idPeriodo || '-' }}</td>
+                        <td>{{ a.nota1 != null ? (a.nota1 | number: '1.2-2') : '-' }}</td>
+                        <td>{{ a.nota2 != null ? (a.nota2 | number: '1.2-2') : '-' }}</td>
+                        <td>{{ a.examen != null ? (a.examen | number: '1.2-2') : '-' }}</td>
+                        <td class="font-bold">{{ a.notaFinal != null ? (a.notaFinal | number: '1.2-2') : (a.promedioFinal != null ? (a.promedioFinal | number: '1.2-2') : '-') }}</td>
+                        <td>
+                          @if (a.aprobado) {
+                            <span class="badge-aprobado">Aprobado</span>
+                          } @else if (a.idPeriodo) {
+                            <span class="badge-reprobado">No Aprobado</span>
+                          } @else {
+                            <span class="badge-pendiente">Pendiente</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          }
+
+          <!-- SECCIÓN 2: ESTADO FINANCIERO Y PAGOS -->
+          @if (seccionExpediente() === 'pagos') {
+            @if (exp.financiero) {
+              @let fin = exp.financiero;
+
+              <!-- Tarjetas Resumen Financiero -->
+              <div class="finance-summary-cards">
+                <div class="finance-card" [class.al-dia]="fin.estaAlDia" [class.con-deuda]="!fin.estaAlDia">
+                  <span class="finance-card-label">Estado Global Carrera</span>
+                  <div class="finance-card-value">
+                    @if (fin.estaAlDia) {
+                      <span class="status-badge financas-al-dia lg">
+                        <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Al Día en Pagos
+                      </span>
+                    } @else {
+                      <span class="status-badge financas-deuda lg">
+                        Adeuda ${{ fin.saldoTotalPendiente | number: '1.2-2' }}
+                      </span>
+                    }
+                  </div>
+                  <span class="finance-card-hint">
+                    {{ fin.estaAlDia ? 'No registra deudas pendientes en esta carrera' : 'Saldo pendiente por liquidar en colecturía' }}
+                  </span>
+                </div>
+
+                <div class="finance-card">
+                  <span class="finance-card-label">Total Cargado (Crédito Inicial)</span>
+                  <span class="finance-card-amount font-mono">${{ fin.totalCreditoCargado | number: '1.2-2' }}</span>
+                  <span class="finance-card-hint">Valor total de aranceles y colegiaturas</span>
+                </div>
+
+                <div class="finance-card">
+                  <span class="finance-card-label">Total Abonado / Pagado</span>
+                  <span class="finance-card-amount font-mono text-success">${{ fin.totalAbonado | number: '1.2-2' }}</span>
+                  <span class="finance-card-hint">Recibos y pagos aplicados en caja</span>
+                </div>
+
+                <div class="finance-card">
+                  <span class="finance-card-label">Saldo Pendiente Real</span>
+                  <span class="finance-card-amount font-mono" [class.text-danger]="!fin.estaAlDia" [class.text-success]="fin.estaAlDia">
+                    ${{ fin.saldoTotalPendiente | number: '1.2-2' }}
+                  </span>
+                  <span class="finance-card-hint">Con tope de seguridad contable</span>
+                </div>
+              </div>
+
+              <!-- Desglose por Semestre -->
+              <div class="subtable-section">
+                <div class="section-title-row">
+                  <h4 class="subtable-title">Historial de Pagos por Semestre y Periodo</h4>
+                  <span class="semestres-count">{{ fin.semestres.length }} Semestres registrados</span>
+                </div>
+
+                <div class="semestres-container">
+                  @for (sem of fin.semestres; track sem.idMatricula) {
+                    <div class="semestre-card" [class.semestre-al-dia]="sem.saldoPendiente <= 0" [class.semestre-con-deuda]="sem.saldoPendiente > 0">
+                      <!-- Cabecera del Semestre -->
+                      <div class="semestre-header" (click)="toggleSemestre(sem.idMatricula)">
+                        <div class="semestre-header-left">
+                          <span class="semestre-badge-periodo font-mono">{{ sem.idPeriodo }}</span>
+                          <div class="semestre-title-group">
+                            <span class="semestre-nivel-name">{{ sem.nombreNivel }}</span>
+                            <span class="semestre-periodo-name">{{ sem.nombrePeriodo }}</span>
+                          </div>
+                          @if (sem.fechaMatricula) {
+                            <span class="semestre-fecha">Matrícula: {{ sem.fechaMatricula | date: 'dd/MM/yyyy' }}</span>
+                          }
+                        </div>
+
+                        <div class="semestre-header-right">
+                          <div class="semestre-amounts">
+                            <span class="amount-item">
+                              <small>Costo Semestre:</small>
+                              <b class="font-mono">${{ sem.totalSemestre | number: '1.2-2' }}</b>
+                            </span>
+                            <span class="amount-item">
+                              <small>Pagado:</small>
+                              <b class="font-mono text-success">${{ sem.totalAbonado | number: '1.2-2' }}</b>
+                            </span>
+                            <span class="amount-item">
+                              <small>Saldo:</small>
+                              <b class="font-mono" [class.text-danger]="sem.saldoPendiente > 0" [class.text-success]="sem.saldoPendiente <= 0">
+                                ${{ sem.saldoPendiente | number: '1.2-2' }}
+                              </b>
+                            </span>
+                          </div>
+
+                          @if (sem.saldoPendiente <= 0) {
+                            <span class="status-badge financas-al-dia">Al Día</span>
+                          } @else if (sem.totalAbonado > 0) {
+                            <span class="status-badge financas-abono">Abonó ${{ sem.totalAbonado | number: '1.2-2' }} (Faltan ${{ sem.saldoPendiente | number: '1.2-2' }})</span>
+                          } @else {
+                            <span class="status-badge financas-deuda">Falta pagar ${{ sem.saldoPendiente | number: '1.2-2' }}</span>
+                          }
+
+                          <span class="accordion-arrow" [class.expanded]="semestreExpandido() === sem.idMatricula">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Detalle de Rubros y Recibos del Semestre -->
+                      <div class="semestre-details" [class.show]="semestreExpandido() === null || semestreExpandido() === sem.idMatricula">
+                        <table class="fluent-subtable nested-table">
+                          <thead>
+                            <tr>
+                              <th>Rubro / Concepto</th>
+                              <th>Valor Asignado</th>
+                              <th>Total Abonado</th>
+                              <th>Saldo Pendiente</th>
+                              <th>Estado</th>
+                              <th>Comprobantes / Recibos de Pago</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (rub of sem.rubros; track rub.idCredito) {
+                              <tr>
+                                <td>
+                                  <div class="rubro-name-group">
+                                    <span class="rubro-title">{{ rub.rubro }}</span>
+                                    @if (rub.codigoReferencia) {
+                                      <span class="rubro-ref font-mono">Ref: {{ rub.codigoReferencia }}</span>
+                                    }
+                                  </div>
+                                </td>
+                                <td class="font-mono font-bold">${{ rub.valorInicial | number: '1.2-2' }}</td>
+                                <td class="font-mono text-success">${{ rub.totalAbonado | number: '1.2-2' }}</td>
+                                <td class="font-mono" [class.text-danger]="rub.saldoPendiente > 0" [class.text-success]="rub.saldoPendiente <= 0">
+                                  ${{ rub.saldoPendiente | number: '1.2-2' }}
+                                </td>
+                                <td>
+                                  @if (rub.estado === 'PAGADO') {
+                                    <span class="badge-aprobado">Pagado Total</span>
+                                  } @else if (rub.estado === 'ABONO PARCIAL') {
+                                    <span class="badge-abono">Abono Parcial</span>
+                                  } @else {
+                                    <span class="badge-reprobado">Sin Pagos</span>
+                                  }
+                                </td>
+                                <td>
+                                  @if (rub.pagos.length > 0) {
+                                    <div class="recibos-list">
+                                      @for (p of rub.pagos; track p.idPago) {
+                                        <div class="recibo-chip" title="Recibo registrado en caja">
+                                          <span class="recibo-fecha">{{ p.fechaPago ? (p.fechaPago | date: 'dd/MM/yyyy') : 'Fecha N/A' }}</span>
+                                          @if (p.numeroFactura) {
+                                            <span class="recibo-factura font-mono">Fac: {{ p.numeroFactura }}</span>
+                                          } @else if (p.numeroDeposito) {
+                                            <span class="recibo-factura font-mono">Dep: {{ p.numeroDeposito }}</span>
+                                          }
+                                          <span class="recibo-monto font-mono">+${{ p.valorPagado | number: '1.2-2' }}</span>
+                                        </div>
+                                      }
+                                    </div>
+                                  } @else {
+                                    <span class="text-muted text-xs">Sin recibos registrados en caja</span>
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="state-container">
+                <p class="state-text">No se encontró historial financiero registrado para esta carrera.</p>
+              </div>
+            }
+          }
         }
       </div>
 

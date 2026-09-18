@@ -44,6 +44,8 @@ export class EgresadosTabComponent implements OnInit {
   expedienteSeleccionado = signal<ExpedienteAcademico | null>(null);
   cargandoExpediente = signal<boolean>(false);
   mostrarExpedienteModal = signal<boolean>(false);
+  seccionExpediente = signal<'academico' | 'pagos'>('academico');
+  semestreExpandido = signal<number | null>(null);
 
   // Paginación computada
   totalPaginas = computed(() => {
@@ -179,6 +181,8 @@ export class EgresadosTabComponent implements OnInit {
     this.cargandoExpediente.set(true);
     this.mostrarExpedienteModal.set(true);
     this.expedienteSeleccionado.set(null);
+    this.seccionExpediente.set('academico');
+    this.semestreExpandido.set(null);
 
     this.egresadosService
       .getExpedienteAcademico(estudiante.idAlumno, estudiante.idCarrera)
@@ -196,5 +200,15 @@ export class EgresadosTabComponent implements OnInit {
   cerrarExpedienteModal(): void {
     this.mostrarExpedienteModal.set(false);
     this.expedienteSeleccionado.set(null);
+    this.seccionExpediente.set('academico');
+    this.semestreExpandido.set(null);
+  }
+
+  cambiarSeccionExpediente(seccion: 'academico' | 'pagos'): void {
+    this.seccionExpediente.set(seccion);
+  }
+
+  toggleSemestre(idMatricula: number): void {
+    this.semestreExpandido.update((curr) => (curr === idMatricula ? null : idMatricula));
   }
 }

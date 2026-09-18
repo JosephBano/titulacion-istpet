@@ -42,6 +42,9 @@ export interface EstudiantePendienteEgreso {
   esEgresadoTitulado: boolean;
   tienePostulacionTitulacion: boolean;
   estadoPostulacion?: string;
+  noAdeuda?: boolean;
+  saldoPendiente?: number;
+  tieneRestricciones?: boolean;
 }
 
 export interface FiltroPendientesEgreso {
@@ -92,6 +95,49 @@ export interface ExpedienteAsignatura {
   observacion?: string;
 }
 
+export interface ExpedientePagoRealizado {
+  idPago: number;
+  fechaPago?: string;
+  numeroFactura?: string;
+  numeroDeposito?: string;
+  valorPagado: number;
+  descuento?: number;
+}
+
+export interface ExpedienteRubroFinanciero {
+  idCredito: number;
+  idEspecie: number;
+  rubro: string;
+  codigoReferencia?: string;
+  valorInicial: number;
+  totalAbonado: number;
+  saldoPendiente: number;
+  estado: string;
+  pagos: ExpedientePagoRealizado[];
+}
+
+export interface ExpedienteSemestreFinanciero {
+  idMatricula: number;
+  idPeriodo: string;
+  nombrePeriodo: string;
+  idNivel: number;
+  nombreNivel?: string;
+  fechaMatricula?: string;
+  totalSemestre: number;
+  totalAbonado: number;
+  saldoPendiente: number;
+  estadoSemestre: string;
+  rubros: ExpedienteRubroFinanciero[];
+}
+
+export interface ExpedienteFinanciero {
+  saldoTotalPendiente: number;
+  totalCreditoCargado: number;
+  totalAbonado: number;
+  estaAlDia: boolean;
+  semestres: ExpedienteSemestreFinanciero[];
+}
+
 export interface ExpedienteAcademico {
   idAlumno: string;
   nombres: string;
@@ -119,4 +165,6 @@ export interface ExpedienteAcademico {
   fechaActaGrado?: string;
   periodosCursados: ExpedientePeriodoCursado[];
   asignaturas: ExpedienteAsignatura[];
+  financiero?: ExpedienteFinanciero;
 }
+

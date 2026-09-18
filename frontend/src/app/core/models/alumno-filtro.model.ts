@@ -27,3 +27,24 @@ export interface FiltroAlumnosParams {
   idModalidad?: number;
   busqueda?: string;
 }
+
+export interface DetalleDeuda {
+  idMatricula: number;
+  periodo: string;
+  especie: string;
+  creditoInicial: number;
+  saldo: number;
+  saldoBeca: number;
+}
+
+export interface EstadoFinancieroAlumno {
+  idAlumno: string;
+  nombreAlumno: string;
+  noAdeuda: boolean;
+  saldoPendienteTotal: number;
+  tieneRestricciones: boolean;
+  restriccionesActivas: string[];
+  deudasPendientes: DetalleDeuda[];
+  mensaje: string;
+}
+

@@ -112,6 +112,32 @@
               </span>
               <span class="nav-label">Pendientes de Egreso</span>
             </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'reportes'"
+              (click)="setActiveTab('reportes')"
+              title="Reportes Institucionales"
+            >
+              <span class="nav-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </span>
+              <span class="nav-label">Reportes Institucionales</span>
+            </button>
           </nav>
         </div>
 
@@ -354,6 +380,12 @@
                 @case ('postulaciones') {
                   Gestión de Postulantes
                 }
+                @case ('egresados') {
+                  Pendientes de Egreso
+                }
+                @case ('reportes') {
+                  Reportes Oficiales
+                }
                 @case ('cohortes') {
                   Planificación de Convocatorias
                 }
@@ -385,6 +417,12 @@
                 @case ('postulaciones') {
                   Bandeja de Postulaciones
                   <span class="page-header-badge">{{ postulacionesTotal() }} registradas</span>
+                }
+                @case ('egresados') {
+                  Estudiantes Pendientes de Egreso
+                }
+                @case ('reportes') {
+                  Centro de Reportes y Documentos Oficiales
                 }
                 @case ('cohortes') {
                   Convocatorias y Cortes
@@ -528,6 +566,18 @@
                 >
               </div>
             </button>
+
+            <button type="button" class="fluent-module-card" (click)="setActiveTab('reportes')">
+              <div class="card-header">
+                <h3 class="card-title">Reportes Institucionales</h3>
+              </div>
+              <p class="card-text">
+                Generación y descarga de nóminas de posibles postulantes y reportes oficiales en PDF.
+              </p>
+              <div class="card-footer">
+                <span class="fluent-badge fluent-badge--neutral">Formatos PDF</span>
+              </div>
+            </button>
           </div>
         </section>
       }
@@ -558,6 +608,11 @@
       <!-- PESTAÑA: ALUMNOS PENDIENTES DE EGRESO -->
       @if (isAdmin() && activeTab() === 'egresados') {
         <app-egresados-tab />
+      }
+
+      <!-- PESTAÑA: REPORTES INSTITUCIONALES -->
+      @if (isAdmin() && activeTab() === 'reportes') {
+        <app-reportes-tab [currentUser]="currentUser()" />
       }
 
       <!-- 3. PESTAÑA: CONVOCATORIAS Y CORTES -->
@@ -602,9 +657,11 @@
             [portal]="portalEstudiante()"
             [modalidadSeleccionada]="modalidadSeleccionada()"
             [postulando]="postulando()"
+            [subiendoRequisitoId]="subiendoRequisitoEstudianteId()"
             [periodoNombreAmigable]="periodoNombreAmigable()"
             (modalidadSelect)="modalidadSeleccionada.set($event)"
             (enviarPostulacion)="enviarPostulacion()"
+            (subirDocumento)="onSubirDocumentoEstudiante($event)"
           />
         }
 
@@ -785,71 +842,118 @@
 
       <div class="req-section-divider"></div>
 
-      <!-- Configuración Fila por Fila (Una opción por línea con mensaje claro) -->
+      <!-- Configuración Fila por Fila (Opciones Mutuamente Excluyentes) -->
       <div class="req-options-stack">
-        <span class="req-options-header">MODALIDAD DE ENTREGA</span>
+        <span class="req-options-header">RESPONSABLE Y ORIGEN DEL REQUISITO</span>
 
-        <!-- Fila 1: Archivo Adjunto (PDF) -->
-        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esAdjunto">
+        <!-- Fila 1: Carga el Estudiante (Excluyente) -->
+        <label
+          class="req-option-row"
+          [class.checked]="nuevoRequisitoForm().subeAlumno"
+          (click)="setResponsableRequisito('estudiante')"
+        >
           <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().esAdjunto"
+            type="radio"
+            name="responsableRequisito"
+            class="req-option-radio"
+            [checked]="nuevoRequisitoForm().subeAlumno"
+            (change)="setResponsableRequisito('estudiante')"
           />
           <div class="req-option-info">
-            <span class="req-option-title">Requiere adjuntar documento (PDF)</span>
-            <span class="req-option-desc"
-              >El postulante o responsable debe subir un archivo digital para revisión.</span
-            >
+            <span class="req-option-title">Carga el Estudiante (Postulante)</span>
+            <span class="req-option-desc">
+              El postulante visualiza el requisito en su portal y debe adjuntar obligatoriamente su
+              documento digital (PDF) para revisión del encargado de titulación.
+            </span>
           </div>
         </label>
 
-        <!-- Fila 2: Validación Directa Booleana -->
-        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esBool">
+        <!-- Fila 2: Valida Secretaría o Docente (Excluyente) -->
+        <label
+          class="req-option-row"
+          [class.checked]="nuevoRequisitoForm().subeColaborador"
+          (click)="setResponsableRequisito('colaborador')"
+        >
           <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().esBool"
+            type="radio"
+            name="responsableRequisito"
+            class="req-option-radio"
+            [checked]="nuevoRequisitoForm().subeColaborador"
+            (change)="setResponsableRequisito('colaborador')"
           />
           <div class="req-option-info">
-            <span class="req-option-title">Validación directa (Cumple / No adeuda)</span>
-            <span class="req-option-desc"
-              >Sin archivo adjunto; se registra directamente como apto o exonerado.</span
-            >
+            <span class="req-option-title">Validado por Secretaría Académica o Docente</span>
+            <span class="req-option-desc">
+              El estudiante NO sube archivo; el personal administrativo o los docentes evaluadores
+              asignados certifican el cumplimiento en su panel institucional.
+            </span>
           </div>
         </label>
 
-        <span class="req-options-header" style="margin-top: 6px">RESPONSABLE Y VISIBILIDAD</span>
+        <span class="req-options-header" style="margin-top: 8px">MODALIDAD DE ENTREGA Y VALIDACIÓN</span>
 
-        <!-- Fila 3: Carga Estudiante -->
-        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeAlumno">
-          <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().subeAlumno"
-          />
-          <div class="req-option-info">
-            <span class="req-option-title">Disponible para el estudiante</span>
-            <span class="req-option-desc"
-              >El postulante lo visualiza y lo entrega desde su portal estudiantil.</span
-            >
+        @if (nuevoRequisitoForm().subeAlumno) {
+          <!-- Cuando carga el estudiante: siempre es PDF -->
+          <div class="req-option-row checked" style="cursor: default">
+            <input
+              type="radio"
+              name="modalidadEntrega"
+              class="req-option-radio"
+              [checked]="true"
+              disabled
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Archivo Digital Adjunto (PDF)</span>
+              <span class="req-option-desc">
+                Requerido automáticamente porque la entrega la realiza el alumno desde su portal.
+              </span>
+            </div>
           </div>
-        </label>
+        } @else {
+          <!-- Cuando valida secretaría o docente: puede ser PDF o Validación Booleana -->
+          <!-- Opción A: Archivo Adjunto -->
+          <label
+            class="req-option-row"
+            [class.checked]="nuevoRequisitoForm().esAdjunto"
+            (click)="setModalidadEntregaRequisito('adjunto')"
+          >
+            <input
+              type="radio"
+              name="modalidadEntrega"
+              class="req-option-radio"
+              [checked]="nuevoRequisitoForm().esAdjunto"
+              (change)="setModalidadEntregaRequisito('adjunto')"
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Requiere adjuntar documento o acta (PDF)</span>
+              <span class="req-option-desc">
+                El docente o secretaría adjunta un archivo o acta digital al emitir la validación.
+              </span>
+            </div>
+          </label>
 
-        <!-- Fila 4: Valida Colaborador / Secretaría -->
-        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeColaborador">
-          <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().subeColaborador"
-          />
-          <div class="req-option-info">
-            <span class="req-option-title">Validado por secretaría o docente</span>
-            <span class="req-option-desc"
-              >El personal administrativo o docente asignado evalúa y aprueba el requisito.</span
-            >
-          </div>
-        </label>
+          <!-- Opción B: Validación Directa Booleana -->
+          <label
+            class="req-option-row"
+            [class.checked]="nuevoRequisitoForm().esBool"
+            (click)="setModalidadEntregaRequisito('bool')"
+          >
+            <input
+              type="radio"
+              name="modalidadEntrega"
+              class="req-option-radio"
+              [checked]="nuevoRequisitoForm().esBool"
+              (change)="setModalidadEntregaRequisito('bool')"
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Validación directa de estado (Cumple / No adeuda)</span>
+              <span class="req-option-desc">
+                Sin archivo; el docente o secretaría registra directamente si el postulante está Apto,
+                Exonerado o Pendiente.
+              </span>
+            </div>
+          </label>
+        }
       </div>
     </div>
 
@@ -1131,6 +1235,41 @@
           </span>
         </div>
 
+        @if (requisitosAsignadosMatriz().length > 3) {
+          <div class="search-filter-box" style="margin-top: 4px; margin-bottom: 6px;">
+            <svg
+              class="search-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              class="fluent-input req-styled-input-search"
+              placeholder="Filtrar requisitos asociados..."
+              [ngModel]="filtroAsignadosMatriz()"
+              (ngModelChange)="filtroAsignadosMatriz.set($event)"
+            />
+            @if (filtroAsignadosMatriz()) {
+              <button
+                type="button"
+                class="btn-clear-search"
+                (click)="filtroAsignadosMatriz.set('')"
+                title="Limpiar filtro"
+              >
+                &times;
+              </button>
+            }
+          </div>
+        }
+
         @if (requisitosAsignadosMatriz().length === 0) {
           <div class="empty-state-card" style="padding: 24px 16px">
             <p
@@ -1141,6 +1280,12 @@
             <span style="font-size: 0.71875rem; color: var(--text-muted)">
               Busque un requisito en la caja superior y haga clic para asociarlo automáticamente.
             </span>
+          </div>
+        } @else if (requisitosAsignadosMatrizFiltrados().length === 0 && filtroAsignadosMatriz()) {
+          <div class="empty-state-card" style="padding: 16px">
+            <p style="margin: 0; font-size: 0.8125rem; color: var(--text-muted)">
+              No hay requisitos asignados que coincidan con "{{ filtroAsignadosMatriz() }}"
+            </p>
           </div>
         } @else {
           <div class="req-assigned-stack">

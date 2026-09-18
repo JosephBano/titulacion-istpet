@@ -27,9 +27,15 @@ public static class WebApiServiceCollectionExtensions
                 tags: ["db", "ready"]);
 
         // 1. Configuración de Autenticación JWT Bearer
-        var secretKey = configuration["JwtSettings:SecretKey"] ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
-        var issuer = configuration["JwtSettings:Issuer"] ?? "TitulacionIstpetApi";
-        var audience = configuration["JwtSettings:Audience"] ?? "TitulacionIstpetApp";
+        var secretKey = configuration["JwtSettings:SecretKey"]
+            ?? configuration["Jwt:ClaveFirma"]
+            ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
+        var issuer = configuration["JwtSettings:Issuer"]
+            ?? configuration["Jwt:Issuer"]
+            ?? "TitulacionIstpetApi";
+        var audience = configuration["JwtSettings:Audience"]
+            ?? configuration["Jwt:Audience"]
+            ?? "TitulacionIstpetApp";
 
         services.AddAuthentication(options =>
         {

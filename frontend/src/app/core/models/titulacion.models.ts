@@ -88,6 +88,9 @@ export interface PostulacionDetalle {
   esCambioModalidad: boolean | null;
   requisitos: PostulacionRequisitoDetalle[];
   observacionDictamen?: string | null;
+  noAdeuda?: boolean;
+  saldoPendiente?: number;
+  tieneRestricciones?: boolean;
 }
 
 export interface PostulacionRequisitoDetalle {
@@ -183,6 +186,9 @@ export interface PostulacionResumen {
   esCambioModalidad: boolean | null;
   totalRequisitos: number;
   totalRequisitosCompletados: number;
+  noAdeuda?: boolean;
+  saldoPendiente?: number;
+  tieneRestricciones?: boolean;
 }
 
 export interface PaginaPostulaciones {

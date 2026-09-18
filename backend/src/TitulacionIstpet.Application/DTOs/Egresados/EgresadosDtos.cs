@@ -21,7 +21,10 @@ public sealed record EstudiantePendienteEgresoDto(
     decimal PromedioGeneral,
     bool EsEgresadoTitulado,
     bool TienePostulacionTitulacion,
-    string? EstadoPostulacion
+    string? EstadoPostulacion,
+    bool? NoAdeuda = null,
+    decimal? SaldoPendiente = null,
+    bool? TieneRestricciones = null
 );
 
 public sealed record FiltroPendientesEgresoRequestDto(
@@ -72,6 +75,49 @@ public sealed record ExpedienteAsignaturaDto(
     string? Observacion
 );
 
+public sealed record ExpedientePagoRealizadoDto(
+    int IdPago,
+    DateTime? FechaPago,
+    string? NumeroFactura,
+    string? NumeroDeposito,
+    decimal ValorPagado,
+    decimal? Descuento
+);
+
+public sealed record ExpedienteRubroFinancieroDto(
+    int IdCredito,
+    int IdEspecie,
+    string Rubro,
+    string? CodigoReferencia,
+    decimal ValorInicial,
+    decimal TotalAbonado,
+    decimal SaldoPendiente,
+    string Estado,
+    IReadOnlyList<ExpedientePagoRealizadoDto> Pagos
+);
+
+public sealed record ExpedienteSemestreFinancieroDto(
+    int IdMatricula,
+    string IdPeriodo,
+    string NombrePeriodo,
+    int IdNivel,
+    string? NombreNivel,
+    DateTime? FechaMatricula,
+    decimal TotalSemestre,
+    decimal TotalAbonado,
+    decimal SaldoPendiente,
+    string EstadoSemestre,
+    IReadOnlyList<ExpedienteRubroFinancieroDto> Rubros
+);
+
+public sealed record ExpedienteFinancieroDto(
+    decimal SaldoTotalPendiente,
+    decimal TotalCreditoCargado,
+    decimal TotalAbonado,
+    bool EstaAlDia,
+    IReadOnlyList<ExpedienteSemestreFinancieroDto> Semestres
+);
+
 public sealed record ExpedienteAcademicoDto(
     string IdAlumno,
     string Nombres,
@@ -98,5 +144,7 @@ public sealed record ExpedienteAcademicoDto(
     string? NumeroActaGrado,
     DateOnly? FechaActaGrado,
     IReadOnlyList<ExpedientePeriodoCursadoDto> PeriodosCursados,
-    IReadOnlyList<ExpedienteAsignaturaDto> Asignaturas
+    IReadOnlyList<ExpedienteAsignaturaDto> Asignaturas,
+    ExpedienteFinancieroDto? Financiero = null
 );
+

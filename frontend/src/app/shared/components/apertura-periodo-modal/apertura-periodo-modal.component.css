@@ -743,12 +743,94 @@ input[type="number"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--modal-surface-alt, var(--bg-surface-alt, #faf9f8));
   border-bottom: 1px solid var(--modal-border-subtle, rgba(0, 0, 0, 0.06));
 }
 
-.metrics-badge { font-size: 0.75rem; font-weight: 500; color: var(--modal-text, var(--text-primary, #1a1a1a)); }
+:host-context([data-theme="dark"]) .custom-actions-bar {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.selection-metrics {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.metrics-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--modal-text, var(--text-primary, #1a1a1a));
+}
+
+.metrics-sub {
+  font-size: 0.6875rem;
+  color: var(--modal-text-muted, var(--text-muted, #605e5c));
+}
+
+.bulk-actions-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-bulk {
+  height: 26px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--modal-card-bg, var(--bg-surface, #ffffff));
+  border: 1px solid var(--modal-border, var(--border-default, #cbd5e1));
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--modal-text, var(--text-secondary, #323130));
+  cursor: pointer;
+  transition: all 83ms ease;
+  white-space: nowrap;
+}
+
+.btn-bulk svg {
+  color: var(--modal-accent, var(--istpet-navy, #0d1b4c));
+  flex-shrink: 0;
+}
+
+.btn-bulk:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: var(--modal-accent, var(--istpet-navy, #0d1b4c));
+  color: var(--modal-accent, var(--istpet-navy, #0d1b4c));
+}
+
+.btn-bulk:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+:host-context([data-theme="dark"]) .btn-bulk {
+  background: #111827;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e5e7eb;
+}
+
+:host-context([data-theme="dark"]) .btn-bulk svg {
+  color: var(--istpet-gold, #c59b27);
+}
+
+:host-context([data-theme="dark"]) .btn-bulk:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--istpet-gold, #c59b27);
+  color: var(--istpet-gold, #c59b27);
+}
+
+:host-context([data-theme="dark"]) .btn-bulk:active {
+  background: rgba(255, 255, 255, 0.1);
+}
 .career-cards-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 12px; max-height: 240px; overflow-y: auto; gap: 8px; }
 .career-tile-card { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--modal-surface-alt, var(--bg-surface-alt, #faf9f8)); }
 

@@ -364,6 +364,55 @@
   color: #a80000;
 }
 
+.status-badge.financas-al-dia {
+  background: #dff6dd;
+  color: #107c10;
+  border: 1px solid #107c10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-badge.financas-deuda {
+  background: #fde7e9;
+  color: #a80000;
+  border: 1px solid #a80000;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-badge.financas-pendiente {
+  background: #f3f2f1;
+  color: #605e5c;
+  border: 1px solid #c8c6c4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:host-context([data-theme="dark"]) .status-badge.financas-al-dia {
+  background: rgba(16, 124, 16, 0.2);
+  color: #6bb76b;
+  border-color: #6bb76b;
+}
+
+:host-context([data-theme="dark"]) .status-badge.financas-deuda {
+  background: rgba(168, 0, 0, 0.2);
+  color: #f87171;
+  border-color: #f87171;
+}
+
+:host-context([data-theme="dark"]) .status-badge.financas-pendiente {
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.badge-icon {
+  flex-shrink: 0;
+}
+
 .postulacion-subtext {
   font-size: 0.6875rem;
   color: var(--text-muted, #605e5c);
@@ -918,6 +967,10 @@
   background: rgba(168, 0, 0, 0.03);
 }
 
+.row-pendiente {
+  background: rgba(216, 59, 1, 0.02);
+}
+
 .badge-aprobado {
   color: #0e700e;
   font-weight: 700;
@@ -927,3 +980,382 @@
   color: #a80000;
   font-weight: 700;
 }
+
+.badge-pendiente {
+  color: #c25e00;
+  font-weight: 700;
+}
+
+.badge-abono {
+  color: #d83b01;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Expediente Navigation Tabs
+   ========================================================================== */
+.expediente-nav-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border-color, #e1dfdd);
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+}
+
+.expediente-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted, #605e5c);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  top: 6px;
+  border-radius: 4px 4px 0 0;
+}
+
+.expediente-tab-btn:hover {
+  color: var(--istpet-navy, #0d1b4c);
+  background: rgba(13, 27, 76, 0.04);
+}
+
+.expediente-tab-btn.active {
+  color: var(--istpet-navy, #0d1b4c);
+  border-bottom-color: var(--primary, #0078d4);
+  background: rgba(0, 120, 212, 0.06);
+}
+
+:host-context([data-theme="dark"]) .expediente-tab-btn {
+  color: #9ca3af;
+}
+
+:host-context([data-theme="dark"]) .expediente-tab-btn:hover,
+:host-context([data-theme="dark"]) .expediente-tab-btn.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom-color: #38bdf8;
+}
+
+.tab-icon {
+  flex-shrink: 0;
+}
+
+.tab-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.tab-badge.al-dia {
+  background: #dff6dd;
+  color: #107c41;
+}
+
+.tab-badge.deuda {
+  background: #fde7e9;
+  color: #a80000;
+}
+
+/* ==========================================================================
+   Financial Summary Cards
+   ========================================================================== */
+.finance-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.finance-card {
+  background: var(--surface-bg, #ffffff);
+  border: 1px solid var(--border-color, #e1dfdd);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+:host-context([data-theme="dark"]) .finance-card {
+  background: #1f2430;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.finance-card-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #605e5c);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.finance-card-amount {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary, #323130);
+}
+
+:host-context([data-theme="dark"]) .finance-card-amount {
+  color: #ffffff;
+}
+
+.finance-card-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted, #8a8886);
+}
+
+.status-badge.lg {
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+}
+
+.financas-abono {
+  background: #fff4ce;
+  color: #797673;
+  border: 1px solid #fed9cc;
+}
+
+/* ==========================================================================
+   Semestres Accordion / Container
+   ========================================================================== */
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.semestres-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #605e5c);
+}
+
+.semestres-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.semestre-card {
+  background: var(--surface-bg, #ffffff);
+  border: 1px solid var(--border-color, #e1dfdd);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1.2px 3px rgba(0, 0, 0, 0.03);
+}
+
+:host-context([data-theme="dark"]) .semestre-card {
+  background: #1f2430;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.semestre-card.semestre-con-deuda {
+  border-left: 4px solid #a80000;
+}
+
+.semestre-card.semestre-al-dia {
+  border-left: 4px solid #107c41;
+}
+
+.semestre-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.015);
+  cursor: pointer;
+  user-select: none;
+  flex-wrap: wrap;
+  gap: 12px;
+  transition: background 0.15s ease;
+}
+
+:host-context([data-theme="dark"]) .semestre-header {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.semestre-header:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:host-context([data-theme="dark"]) .semestre-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.semestre-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.semestre-badge-periodo {
+  background: var(--istpet-navy, #0d1b4c);
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.semestre-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.semestre-nivel-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary, #323130);
+}
+
+:host-context([data-theme="dark"]) .semestre-nivel-name {
+  color: #ffffff;
+}
+
+.semestre-periodo-name {
+  font-size: 0.75rem;
+  color: var(--text-muted, #605e5c);
+}
+
+.semestre-fecha {
+  font-size: 0.75rem;
+  color: var(--text-muted, #8a8886);
+}
+
+.semestre-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.semestre-amounts {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.amount-item {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  color: var(--text-muted, #605e5c);
+}
+
+.amount-item b {
+  font-size: 0.85rem;
+  color: var(--text-primary, #323130);
+}
+
+:host-context([data-theme="dark"]) .amount-item b {
+  color: #ffffff;
+}
+
+.accordion-arrow {
+  color: var(--text-muted, #8a8886);
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.accordion-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+.semestre-details {
+  border-top: 1px solid var(--border-color, #e1dfdd);
+  padding: 0;
+  background: var(--surface-bg, #ffffff);
+}
+
+:host-context([data-theme="dark"]) .semestre-details {
+  background: #1a1e28;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.nested-table th {
+  background: rgba(0, 0, 0, 0.02);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+}
+
+:host-context([data-theme="dark"]) .nested-table th {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nested-table td {
+  padding: 10px 12px;
+  font-size: 0.8rem;
+}
+
+.rubro-name-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.rubro-title {
+  font-weight: 600;
+  color: var(--text-primary, #323130);
+}
+
+:host-context([data-theme="dark"]) .rubro-title {
+  color: #ffffff;
+}
+
+.rubro-ref {
+  font-size: 0.7rem;
+  color: var(--text-muted, #8a8886);
+}
+
+.recibos-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recibo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef4fc;
+  border: 1px solid #c7e0f4;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  color: #004578;
+}
+
+:host-context([data-theme="dark"]) .recibo-chip {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+}
+
+.recibo-fecha {
+  font-weight: 600;
+}
+
+.recibo-factura {
+  opacity: 0.85;
+}
+
+.recibo-monto {
+  font-weight: 700;
+  color: #107c41;
+}
+
+:host-context([data-theme="dark"]) .recibo-monto {
+  color: #4ade80;
+}
+

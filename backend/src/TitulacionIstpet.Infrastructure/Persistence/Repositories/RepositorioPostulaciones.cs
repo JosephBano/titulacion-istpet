@@ -264,7 +264,18 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             return null;
         }
 
-        return MapearDetalle(postulacion);
+        var detalle = MapearDetalle(postulacion);
+        if (!string.IsNullOrEmpty(detalle.IdAlumno))
+        {
+            var (noAdeuda, saldo, tieneRestricciones) = await ConsultarFinanzasAlumnoAsync(detalle.IdAlumno, detalle.IdCarrera > 0 ? detalle.IdCarrera : null, ct);
+            detalle = detalle with
+            {
+                NoAdeuda = noAdeuda,
+                SaldoPendiente = saldo,
+                TieneRestricciones = tieneRestricciones
+            };
+        }
+        return detalle;
     }
 
     public async Task<PostulacionDetalleDto?> ObtenerPorIdAsync(
@@ -301,7 +312,122 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             return null;
         }
 
-        return MapearDetalle(postulacion);
+        var detallePorId = MapearDetalle(postulacion);
+        if (!string.IsNullOrEmpty(detallePorId.IdAlumno))
+        {
+            var (noAdeuda, saldo, tieneRestricciones) = await ConsultarFinanzasAlumnoAsync(detallePorId.IdAlumno, detallePorId.IdCarrera > 0 ? detallePorId.IdCarrera : null, ct);
+            detallePorId = detallePorId with
+            {
+                NoAdeuda = noAdeuda,
+                SaldoPendiente = saldo,
+                TieneRestricciones = tieneRestricciones
+            };
+        }
+        return detallePorId;
+    }
+
+    private async Task<(bool noAdeuda, decimal saldoPendiente, bool tieneRestricciones)> ConsultarFinanzasAlumnoAsync(string idAlumno, int? idCarrera, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(idAlumno)) return (true, 0, false);
+
+        var queryMatriculas = _context.Matriculas
+            .AsNoTracking()
+            .Where(m => m.IdAlumno == idAlumno);
+
+        if (idCarrera.HasValue && idCarrera.Value > 0)
+        {
+            queryMatriculas = queryMatriculas.Where(m => m.IdNivelNavigation != null && m.IdNivelNavigation.IdCarrera == idCarrera.Value);
+        }
+
+        var matriculaIds = await queryMatriculas
+            .Select(m => m.IdMatricula)
+            .ToListAsync(ct);
+
+        decimal saldo = 0;
+        if (matriculaIds.Count > 0)
+        {
+            var creditos = await _context.CreditoAlumno
+                .AsNoTracking()
+                .Where(c => matriculaIds.Contains(c.IdMatricula) && c.Saldo > 0)
+                .Select(c => new { c.IdCredito, c.IdMatricula, c.IdEspecie, c.Saldo, c.CreditoInicial })
+                .ToListAsync(ct);
+
+            if (creditos.Count > 0)
+            {
+                var creditosIds = creditos.Select(c => c.IdCredito).ToList();
+
+                var pagosCaja = await (
+                    from dp in _context.DetallePagos.AsNoTracking()
+                    join p in _context.Pagos.AsNoTracking() on dp.IdPago equals p.IdPago
+                    where (p.Anulado == null || p.Anulado == false) &&
+                          ((dp.IdCredito != null && creditosIds.Contains(dp.IdCredito.Value)) ||
+                           (p.IdMatricula != null && matriculaIds.Contains(p.IdMatricula.Value)))
+                    select new
+                    {
+                        dp.IdCredito,
+                        p.IdMatricula,
+                        dp.IdEspecie,
+                        dp.Valor
+                    }
+                ).ToListAsync(ct);
+
+                var pagosDict = pagosCaja
+                    .GroupBy(p => p.IdCredito.HasValue ? $"C_{p.IdCredito.Value}" : $"M_{p.IdMatricula}_{p.IdEspecie}")
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Valor ?? 0));
+
+                var especiesIds = creditos.Select(c => c.IdEspecie).Distinct().ToList();
+                var especiesDict = await _context.Especies
+                    .AsNoTracking()
+                    .Where(e => especiesIds.Contains(e.IdEspecie))
+                    .ToDictionaryAsync(e => e.IdEspecie, ct);
+
+                var matriculasGrupo = creditos.GroupBy(c => c.IdMatricula);
+                saldo = matriculasGrupo.Sum(matGrupo =>
+                {
+                    var rubrosPorCategoria = matGrupo
+                        .GroupBy(x =>
+                        {
+                            especiesDict.TryGetValue(x.IdEspecie, out var esp);
+                            if (esp != null && !string.IsNullOrWhiteSpace(esp.CodigoReferencia))
+                                return esp.CodigoReferencia.Trim().ToUpper();
+                            if (esp != null && !string.IsNullOrWhiteSpace(esp.Especie))
+                                return esp.Especie.Trim().ToUpper();
+                            return x.IdEspecie.ToString();
+                        })
+                        .Select(catGroup =>
+                        {
+                            var primerItem = catGroup
+                                .OrderByDescending(x => pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0))
+                                .ThenBy(x => x.IdCredito)
+                                .First();
+
+                            decimal costoUnico = primerItem.CreditoInicial.HasValue && primerItem.CreditoInicial.Value > 0 ? primerItem.CreditoInicial.Value : 0;
+                            decimal saldoRegUnico = costoUnico > 0 ? Math.Min(primerItem.Saldo ?? 0, costoUnico) : (primerItem.Saldo ?? 0);
+
+                            decimal pagadoCat = catGroup.Sum(x =>
+                            {
+                                decimal pag = pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0);
+                                if (pag == 0) pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
+                                return pag;
+                            });
+
+                            return new { Costo = costoUnico, SaldoReg = saldoRegUnico, Pagado = pagadoCat };
+                        })
+                        .ToList();
+
+                    decimal costoSemestre = rubrosPorCategoria.Sum(x => x.Costo);
+                    decimal saldoRegistradoSemestre = rubrosPorCategoria.Sum(x => x.SaldoReg);
+                    decimal pagadoSemestre = rubrosPorCategoria.Sum(x => x.Pagado);
+
+                    return pagadoSemestre > 0
+                        ? Math.Min(saldoRegistradoSemestre, Math.Max(0, costoSemestre - pagadoSemestre))
+                        : saldoRegistradoSemestre;
+                });
+            }
+        }
+
+        bool noAdeuda = saldo <= 0;
+        return (noAdeuda, saldo, false);
     }
 
     private async Task SincronizarRequisitosModalidadAsync(int idPostulacionAlumnos, CancellationToken ct = default)
@@ -331,7 +457,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
 
         // Requisitos activos de la modalidad
         var requisitosModalidadActivos = await _context.TitulRequisitoModalidad
-            .Where(rm => rm.IdModalidadTitulacion == idModalidad && rm.EsActivo == true)
+            .Where(rm => rm.IdModalidadTitulacion == idModalidad && rm.EsActivo == true && rm.IdRequisitosNavigation.EsActivo == true)
             .Select(rm => rm.IdRequisitoModalidad)
             .ToListAsync(ct);
 
@@ -441,10 +567,62 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                 p.IdPostulacionEstadoNavigation.Nombre ?? string.Empty,
                 p.EsActivo,
                 p.EsCambioModalidad,
-                p.TitulPostulacionAlumnosRequisitosModalidad.Count,
-                p.TitulPostulacionAlumnosRequisitosModalidad.Count(r => r.IdAdjuntosImagenes != null || r.ValorBool == true)
+                p.TitulPostulacionAlumnosRequisitosModalidad.Count(r => r.IdRequisitoModalidadNavigation.EsActivo == true && (r.IdRequisitoModalidadNavigation.IdRequisitosNavigation == null || r.IdRequisitoModalidadNavigation.IdRequisitosNavigation.EsActivo == true)),
+                p.TitulPostulacionAlumnosRequisitosModalidad.Count(r => (r.IdAdjuntosImagenes != null || r.ValorBool == true) && r.IdRequisitoModalidadNavigation.EsActivo == true && (r.IdRequisitoModalidadNavigation.IdRequisitosNavigation == null || r.IdRequisitoModalidadNavigation.IdRequisitosNavigation.EsActivo == true)),
+                null,
+                null,
+                null
             ))
             .ToListAsync(ct);
+
+        if (items.Count > 0)
+        {
+            var studentCarreraPairs = items
+                .Select(p => new { p.IdAlumno, p.IdCarrera })
+                .Where(x => !string.IsNullOrEmpty(x.IdAlumno))
+                .Distinct()
+                .ToList();
+
+            var studentIds = studentCarreraPairs.Select(x => x.IdAlumno).Distinct().ToList();
+
+            var matriculasEstudiantes = await _context.Matriculas
+                .AsNoTracking()
+                .Where(m => studentIds.Contains(m.IdAlumno))
+                .Select(m => new { m.IdAlumno, m.IdMatricula, IdCarrera = m.IdNivelNavigation != null ? m.IdNivelNavigation.IdCarrera : 0 })
+                .ToListAsync(ct);
+
+            var validMatriculas = matriculasEstudiantes
+                .Where(m => studentCarreraPairs.Any(sc => sc.IdAlumno == m.IdAlumno && (sc.IdCarrera == 0 || sc.IdCarrera == m.IdCarrera)))
+                .ToList();
+
+            var matriculaIdToAlumnoKey = validMatriculas.ToDictionary(m => m.IdMatricula, m => $"{m.IdAlumno}_{m.IdCarrera}");
+            var allMatriculaIds = validMatriculas.Select(m => m.IdMatricula).ToList();
+
+            var saldosPendientes = await _context.CreditoAlumno
+                .AsNoTracking()
+                .Where(c => allMatriculaIds.Contains(c.IdMatricula) && c.Saldo > 0)
+                .Select(c => new { c.IdMatricula, c.Saldo, c.CreditoInicial })
+                .ToListAsync(ct);
+
+            var deudasPorAlumnoCarrera = saldosPendientes
+                .GroupBy(s => matriculaIdToAlumnoKey[s.IdMatricula])
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.CreditoInicial.HasValue && x.CreditoInicial.Value > 0
+                    ? Math.Min(x.Saldo ?? 0, x.CreditoInicial.Value)
+                    : (x.Saldo ?? 0)));
+
+            items = items.Select(p =>
+            {
+                var key = $"{p.IdAlumno}_{p.IdCarrera}";
+                var saldo = deudasPorAlumnoCarrera.GetValueOrDefault(key, 0);
+                var noAdeuda = saldo <= 0;
+                return p with
+                {
+                    NoAdeuda = noAdeuda,
+                    SaldoPendiente = saldo,
+                    TieneRestricciones = false
+                };
+            }).ToList();
+        }
 
         return new PaginaPostulacionesDto(items, pagina, tamanoPagina, total);
     }
@@ -576,6 +754,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
     {
         var postulacion = await _context.TitulPostulacionAlumnos
             .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.TitulResponsableEvidencia)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct)
             ?? throw new NoEncontradoException("Postulación", idPostulacionAlumnos);
 
@@ -593,8 +772,19 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                 if (idAdjunto.HasValue)
                 {
                     existente.IdAdjuntosImagenes = idAdjunto.Value;
+                    // Al subir documento, no auto-aprobar; debe quedar pendiente de evaluación docente
+                    existente.ValorBool = reqInput.ValorBool;
+
+                    if (existente.TitulResponsableEvidencia != null && existente.TitulResponsableEvidencia.Count > 0)
+                    {
+                        foreach (var ev in existente.TitulResponsableEvidencia.Where(e => e.Estado != "APROBADO"))
+                        {
+                            ev.Estado = "PENDIENTE";
+                            ev.Actualizado = DateTime.UtcNow;
+                        }
+                    }
                 }
-                if (reqInput.ValorBool.HasValue)
+                else if (reqInput.ValorBool.HasValue)
                 {
                     existente.ValorBool = reqInput.ValorBool.Value;
                 }
@@ -803,7 +993,14 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         if (comando.Decision.Equals("RECHAZAR", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(comando.Observaciones))
         {
             var obsTexto = comando.Observaciones.Trim();
-            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
+            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.AsEnumerable();
+
+            if (comando.IdsRequisitosObservados != null && comando.IdsRequisitosObservados.Count > 0)
+            {
+                var setIds = comando.IdsRequisitosObservados.ToHashSet();
+                reqs = reqs.Where(r => setIds.Contains(r.IdPostulacionAlumnoRequisitoModalidad) || setIds.Contains(r.IdRequisitoModalidad));
+            }
+
             foreach (var req in reqs)
             {
                 var ultEvidencia = req.TitulResponsableEvidencia?
@@ -884,6 +1081,9 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         var nombreCompleto = $"{alumno?.PrimerNombre} {alumno?.SegundoNombre} {alumno?.ApellidoPaterno} {alumno?.ApellidoMaterno}".Replace("  ", " ").Trim();
 
         var requisitos = p.TitulPostulacionAlumnosRequisitosModalidad
+            .Where(r => r.IdRequisitoModalidadNavigation == null ||
+                        (r.IdRequisitoModalidadNavigation.EsActivo == true &&
+                         (r.IdRequisitoModalidadNavigation.IdRequisitosNavigation == null || r.IdRequisitoModalidadNavigation.IdRequisitosNavigation.EsActivo == true)))
             .Select(r =>
             {
                 var ultEvidencia = r.TitulResponsableEvidencia?

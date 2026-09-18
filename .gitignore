@@ -139,3 +139,6 @@ desktop.ini
 # no configuracion del proyecto.
 AGENTS.md
 CLAUDE.md
+
+# Graphify knowledge graph outputs
+graphify-out/

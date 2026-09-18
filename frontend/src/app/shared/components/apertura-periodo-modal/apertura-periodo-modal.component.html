@@ -743,14 +743,65 @@
               </div>
 
               <div class="bulk-actions-buttons">
-                <button type="button" class="btn-bulk" (click)="seleccionarTodasCarreras()">
-                  Marcar Todas
+                <button
+                  type="button"
+                  class="btn-bulk"
+                  (click)="seleccionarTodasCarreras()"
+                  title="Marcar todas las carreras"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Marcar Todas</span>
                 </button>
-                <button type="button" class="btn-bulk" (click)="deseleccionarTodasCarreras()">
-                  Deseleccionar
+                <button
+                  type="button"
+                  class="btn-bulk"
+                  (click)="deseleccionarTodasCarreras()"
+                  title="Deseleccionar todas las carreras"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  </svg>
+                  <span>Deseleccionar</span>
                 </button>
-                <button type="button" class="btn-bulk" (click)="invertirSeleccionCarreras()">
-                  Invertir
+                <button
+                  type="button"
+                  class="btn-bulk"
+                  (click)="invertirSeleccionCarreras()"
+                  title="Invertir selección de carreras"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 19 7 15"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                  </svg>
+                  <span>Invertir</span>
                 </button>
               </div>
             </div>
@@ -835,8 +886,19 @@
         <div class="form-section-card">
           <div class="section-top-row">
             <span class="fluent-field-label">Modalidades de Grado Autorizadas:</span>
-            <button type="button" class="btn-micro-link" (click)="seleccionarTodasModalidades()">
-              Seleccionar Todas
+            <button type="button" class="btn-bulk" (click)="seleccionarTodasModalidades()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Seleccionar Todas</span>
             </button>
           </div>
 

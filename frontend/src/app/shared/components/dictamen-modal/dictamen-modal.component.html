@@ -66,6 +66,32 @@
                 >
               </div>
               <div class="student-meta-item">
+                <span class="meta-label">Estado Financiero (SIGAFI)</span>
+                @if (det.noAdeuda === true) {
+                  <span class="status-badge financas-al-dia" title="No registra deudas ni restricciones activas en SIGAFI">
+                    <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Al Día / No Adeuda
+                  </span>
+                } @else if (det.noAdeuda === false) {
+                  <span class="status-badge financas-deuda" [title]="'Saldo pendiente: $' + (det.saldoPendiente | number: '1.2-2') + (det.tieneRestricciones ? ' (con restricciones activas)' : '')">
+                    <svg class="badge-icon" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    @if (det.saldoPendiente && det.saldoPendiente > 0) {
+                      Adeuda ${{ det.saldoPendiente | number: '1.2-2' }}
+                    } @else {
+                      Con Restricción
+                    }
+                  </span>
+                } @else {
+                  <span class="status-badge financas-pendiente">Pendiente</span>
+                }
+              </div>
+              <div class="student-meta-item">
                 <span class="meta-label">Resolución a emitir</span>
                 <span
                   class="decision-badge"
@@ -84,6 +110,30 @@
                 </span>
               </div>
             </div>
+
+            <!-- Alerta Financiera SIGAFI cuando el estudiante adeuda -->
+            @if (det.noAdeuda === false) {
+              <div class="financial-alert-banner">
+                <div class="financial-alert-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                </div>
+                <div class="financial-alert-content">
+                  <strong class="financial-alert-title">Advertencia de Obligaciones Financieras (SIGAFI)</strong>
+                  <p class="financial-alert-desc">
+                    @if (det.saldoPendiente && det.saldoPendiente > 0) {
+                      El estudiante registra una deuda pendiente de <strong>${{ det.saldoPendiente | number: '1.2-2' }}</strong> en el historial de matrículas.
+                    }
+                    @if (det.tieneRestricciones) {
+                      <span> Registra restricciones administrativas o financieras activas en el sistema institucional.</span>
+                    }
+                  </p>
+                </div>
+              </div>
+            }
 
             <!-- Panel de Motivo de Rechazo para el Administrador -->
             @if (modal.decision === 'RECHAZAR') {

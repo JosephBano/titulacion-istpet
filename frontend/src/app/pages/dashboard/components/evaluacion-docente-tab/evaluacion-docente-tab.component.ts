@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RequisitoEvaluacionDocente } from '../../../../core/models/titulacion.models';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { environment } from '../../../../../environments/environment';
 
@@ -269,10 +270,32 @@ export class EvaluacionDocenteTabComponent {
     }));
   }
 
+  private readonly notification = inject(NotificationService);
+  readonly MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
+
   onFileChange(idPostulacionAlumnoRequisitoModalidad: number, event: Event): void {
     const inputEl = event.target as HTMLInputElement;
     if (inputEl.files && inputEl.files.length > 0) {
       const file = inputEl.files[0];
+
+      const esPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      if (!esPdf) {
+        this.notification.error(
+          `Formato inválido: El archivo "${file.name}" debe ser obligatoriamente un PDF (.pdf).`,
+        );
+        inputEl.value = '';
+        return;
+      }
+
+      if (file.size > this.MAX_FILE_SIZE_BYTES) {
+        const tamanoMb = (file.size / (1024 * 1024)).toFixed(2);
+        this.notification.error(
+          `El archivo supera el límite: "${file.name}" pesa ${tamanoMb} MB (máximo permitido: 2 MB).`,
+        );
+        inputEl.value = '';
+        return;
+      }
+
       this.archivosPorFila.update((map) => ({
         ...map,
         [idPostulacionAlumnoRequisitoModalidad]: file,

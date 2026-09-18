@@ -113,4 +113,18 @@ public class ActoresController : ControllerBase
         var graduados = await _actoresService.GetAlumnosGraduadosAsync(idCarrera, q, cancellationToken);
         return Ok(graduados);
     }
+
+    /// <summary>
+    /// Evalúa en tiempo real si el estudiante no adeuda valores económicos ni registra bloqueos institucionales en SIGAFI
+    /// </summary>
+    [HttpGet("alumnos/{idAlumno}/no-adeuda")]
+    [ProducesResponseType(typeof(EstadoFinancieroAlumnoDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<EstadoFinancieroAlumnoDto>> ValidarNoAdeudar(
+        string idAlumno,
+        [FromQuery] int? idCarrera,
+        CancellationToken cancellationToken)
+    {
+        var resultado = await _actoresService.ValidarNoAdeudarAsync(idAlumno, idCarrera, cancellationToken);
+        return Ok(resultado);
+    }
 }
