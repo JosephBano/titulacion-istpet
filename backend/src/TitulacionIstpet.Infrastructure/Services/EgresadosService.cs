@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using TitulacionIstpet.Application.DTOs.Egresados;
 using TitulacionIstpet.Application.Interfaces;
 using TitulacionIstpet.Domain.Entities;
@@ -11,9 +12,10 @@ using TitulacionIstpet.Infrastructure.Persistence;
 
 namespace TitulacionIstpet.Infrastructure.Services;
 
-public sealed class EgresadosService(SigafiDbContext context) : IEgresadosService
+public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache) : IEgresadosService
 {
     private readonly SigafiDbContext _context = context;
+    private readonly IMemoryCache _cache = cache;
 
     public async Task<PagedResultDto<EstudiantePendienteEgresoDto>> GetPendientesEgresoAsync(
         FiltroPendientesEgresoRequestDto filtro,
@@ -21,422 +23,371 @@ public sealed class EgresadosService(SigafiDbContext context) : IEgresadosServic
     {
         bool esBusquedaPuntual = !string.IsNullOrWhiteSpace(filtro.CedulaOrNombre);
 
-        // 1. Obtener periodo objetivo (si no es búsqueda puntual y no se envía periodo, usar periodo activo del instituto)
+        // 1. Periodo activo (solo si no hay filtro explícito y no es búsqueda puntual, con caché)
         string? periodoFiltro = filtro.IdPeriodo?.Trim();
         if (!esBusquedaPuntual && string.IsNullOrWhiteSpace(periodoFiltro))
         {
-            var periodoActivo = await _context.Periodos
+            periodoFiltro = await _cache.GetOrCreateAsync("periodo_activo_instituto", async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                return await _context.Periodos
+                    .AsNoTracking()
+                    .Where(p => (p.Periodoactivoinstituto == true || p.Activo == true)
+                             && (p.EsConduccion == null || p.EsConduccion == false))
+                    .OrderByDescending(p => p.Periodoactivoinstituto == true)
+                    .ThenByDescending(p => p.FechaInicial)
+                    .Select(p => p.IdPeriodo)
+                    .FirstOrDefaultAsync(cancellationToken);
+            });
+        }
+
+        string cacheKey = $"pendientes_egreso_{periodoFiltro}_{filtro.IdCarrera}_{filtro.IdModalidad}_{filtro.CedulaOrNombre?.Trim().ToUpper()}";
+
+        var resultados = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+
+            // 2. Query base acotado — pre-filtra niveles tempranos (< 3) en listados masivos
+            var queryMatriculas = _context.Matriculas
                 .AsNoTracking()
-                .Where(p => (p.Periodoactivoinstituto == true || p.Activo == true) && (p.EsConduccion == null || p.EsConduccion == false))
-                .OrderByDescending(p => p.Periodoactivoinstituto == true)
-                .ThenByDescending(p => p.FechaInicial)
-                .Select(p => p.IdPeriodo)
-                .FirstOrDefaultAsync(cancellationToken);
+                .Where(m => m.Retirado == null || m.Retirado == false);
 
-            periodoFiltro = periodoActivo;
-        }
+            if (!esBusquedaPuntual && !string.IsNullOrWhiteSpace(periodoFiltro))
+                queryMatriculas = queryMatriculas.Where(m => m.IdPeriodo == periodoFiltro);
 
-        // 2. Query base de matrículas conectado directamente a Cursos y Carreras (filtrando estrictamente carreras de Instituto)
-        var queryMatriculas = _context.Matriculas
-            .AsNoTracking()
-            .Where(m => m.Retirado == null || m.Retirado == false);
+            if (filtro.IdModalidad.HasValue)
+                queryMatriculas = queryMatriculas.Where(m => m.IdModalidad == filtro.IdModalidad.Value);
 
-        // Si NO es búsqueda puntual, filtrar estrictamente por el periodo seleccionado
-        if (!esBusquedaPuntual && !string.IsNullOrWhiteSpace(periodoFiltro))
-        {
-            queryMatriculas = queryMatriculas.Where(m => m.IdPeriodo == periodoFiltro);
-        }
+            var alumnosBaseQuery = from mat in queryMatriculas
+                                   join a in _context.Alumnos on mat.IdAlumno equals a.IdAlumno
+                                   join cur in _context.Cursos on mat.IdNivel equals cur.IdNivel
+                                   join c in _context.Carreras on cur.IdCarrera equals c.IdCarrera
+                                   join p in _context.Periodos on mat.IdPeriodo equals p.IdPeriodo into pGroup
+                                   from p in pGroup.DefaultIfEmpty()
+                                   where (c.EsInstituto == null || c.EsInstituto == true)
+                                      && (p == null || p.EsConduccion == null || p.EsConduccion == false)
+                                      && (esBusquedaPuntual || cur.Orden >= 3)
+                                   select new
+                                   {
+                                       mat.IdMatricula,
+                                       mat.IdAlumno,
+                                       mat.IdPeriodo,
+                                       mat.IdModalidad,
+                                       mat.FechaMatricula,
+                                       mat.IdNivel,
+                                       NivelNombre = cur.Nivel,
+                                       cur.Orden,
+                                       a.PrimerNombre,
+                                       a.SegundoNombre,
+                                       a.ApellidoPaterno,
+                                       a.ApellidoMaterno,
+                                       a.Email,
+                                       a.Celular,
+                                       c.IdCarrera,
+                                       c.Carrera
+                                   };
 
-        if (filtro.IdModalidad.HasValue)
-        {
-            queryMatriculas = queryMatriculas.Where(m => m.IdModalidad == filtro.IdModalidad.Value);
-        }
+            if (filtro.IdCarrera.HasValue)
+                alumnosBaseQuery = alumnosBaseQuery.Where(x => x.IdCarrera == filtro.IdCarrera.Value);
 
-        var alumnosBaseQuery = from mat in queryMatriculas
-                               join a in _context.Alumnos on mat.IdAlumno equals a.IdAlumno
-                               join cur in _context.Cursos on mat.IdNivel equals cur.IdNivel
-                               join c in _context.Carreras on cur.IdCarrera equals c.IdCarrera
-                               join p in _context.Periodos on mat.IdPeriodo equals p.IdPeriodo into pGroup
-                               from p in pGroup.DefaultIfEmpty()
-                               where (c.EsInstituto == null || c.EsInstituto == true)
-                                  && (p == null || p.EsConduccion == null || p.EsConduccion == false)
-                               select new
-                               {
-                                   mat.IdMatricula,
-                                   mat.IdAlumno,
-                                   mat.IdPeriodo,
-                                   mat.IdModalidad,
-                                   mat.FechaMatricula,
-                                   mat.IdNivel,
-                                   NivelNombre = cur.Nivel,
-                                   cur.Orden,
-                                   a.PrimerNombre,
-                                   a.SegundoNombre,
-                                   a.ApellidoPaterno,
-                                   a.ApellidoMaterno,
-                                   a.Email,
-                                   a.Celular,
-                                   c.IdCarrera,
-                                   c.Carrera
-                               };
-
-        if (filtro.IdCarrera.HasValue)
-        {
-            alumnosBaseQuery = alumnosBaseQuery.Where(x => x.IdCarrera == filtro.IdCarrera.Value);
-        }
-
-        if (esBusquedaPuntual)
-        {
-            string busqueda = filtro.CedulaOrNombre!.Trim();
-            alumnosBaseQuery = alumnosBaseQuery.Where(x =>
-                EF.Functions.Like(x.IdAlumno, $"%{busqueda}%") ||
-                (x.ApellidoPaterno != null && EF.Functions.Like(x.ApellidoPaterno, $"%{busqueda}%")) ||
-                (x.PrimerNombre != null && EF.Functions.Like(x.PrimerNombre, $"%{busqueda}%")));
-        }
-
-        // Traer registros a memoria para evitar problemas de traducción de window functions en MySQL 5.7
-        var rawAlumnos = await alumnosBaseQuery.ToListAsync(cancellationToken);
-
-        // Agrupar por alumno y carrera tomando la matrícula más reciente
-        var listaEstudiantes = rawAlumnos
-            .OrderByDescending(x => x.FechaMatricula)
-            .GroupBy(x => new { x.IdAlumno, x.IdCarrera })
-            .Select(g => g.First())
-            .ToList();
-
-        if (listaEstudiantes.Count == 0)
-        {
-            return new PagedResultDto<EstudiantePendienteEgresoDto>(
-                Array.Empty<EstudiantePendienteEgresoDto>(), 0, filtro.Pagina, filtro.TamanoPagina, 0);
-        }
-
-        var idsAlumnos = listaEstudiantes.Select(x => x.IdAlumno).Distinct().ToList();
-        var idsCarreras = listaEstudiantes.Select(x => x.IdCarrera).Distinct().ToList();
-
-        // 3. Obtener mallas y asignaturas de las carreras involucradas
-        var mallasCarreras = await _context.Mallas
-            .AsNoTracking()
-            .Where(m => idsCarreras.Contains(m.IdCarrera))
-            .Select(m => new
+            if (esBusquedaPuntual)
             {
-                m.IdMalla,
-                m.IdCarrera,
-                Descripcion = m.Descripcion ?? $"Malla {m.IdMalla}",
-                m.Activa
-            })
-            .ToListAsync(cancellationToken);
-
-        var idsMallas = mallasCarreras.Select(m => m.IdMalla).Distinct().ToList();
-
-        var rawDetalleMallas = await _context.Detallemallas
-            .AsNoTracking()
-            .Where(dm => idsMallas.Contains(dm.IdMalla) && (dm.Anulada == null || dm.Anulada == false))
-            .Select(dm => new { dm.IdMalla, dm.IdNivel, dm.IdAsignatura })
-            .ToListAsync(cancellationToken);
-
-        var infoMallas = mallasCarreras.Select(m =>
-        {
-            var dms = rawDetalleMallas.Where(d => d.IdMalla == m.IdMalla).ToList();
-            return new
-            {
-                m.IdMalla,
-                m.IdCarrera,
-                m.Descripcion,
-                m.Activa,
-                TotalNiveles = dms.Select(d => d.IdNivel).Distinct().Count(),
-                TotalMaterias = dms.Select(d => d.IdAsignatura).Distinct().Count(),
-                AsignaturasIds = dms.Select(d => d.IdAsignatura).Distinct().ToHashSet(),
-                NivelesIds = dms.Select(d => d.IdNivel).Distinct().ToHashSet()
-            };
-        }).ToList();
-
-        // 4. Egresados formales en alumnos_titulos
-        var egresadosTitulosList = await _context.AlumnosTitulos
-            .AsNoTracking()
-            .Where(at => idsAlumnos.Contains(at.IdAlumno))
-            .Select(at => at.IdAlumno)
-            .Distinct()
-            .ToListAsync(cancellationToken);
-        var egresadosTitulos = egresadosTitulosList.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        // 5. Postulaciones en el módulo de titulación
-        var postulacionesList = await _context.TitulPostulacionAlumnos
-            .AsNoTracking()
-            .Include(p => p.IdPostulacionEstadoNavigation)
-            .Include(p => p.IdMatriculaNavigation)
-            .Where(p => idsAlumnos.Contains(p.IdMatriculaNavigation.IdAlumno))
-            .Select(p => new
-            {
-                p.IdMatriculaNavigation.IdAlumno,
-                Estado = p.IdPostulacionEstadoNavigation.Nombre
-            })
-            .ToListAsync(cancellationToken);
-
-        var postulacionesMap = postulacionesList
-            .GroupBy(x => x.IdAlumno)
-            .ToDictionary(g => g.Key, g => g.First().Estado, StringComparer.OrdinalIgnoreCase);
-
-        // 6. Calificaciones históricas de los estudiantes
-        var calificacionesEstudiantes = await (
-            from cal in _context.Calificaciones.AsNoTracking()
-            join m in _context.Matriculas.AsNoTracking() on cal.IdMatricula equals m.IdMatricula
-            join p in _context.Periodos.AsNoTracking() on m.IdPeriodo equals p.IdPeriodo into pGroup
-            from p in pGroup.DefaultIfEmpty()
-            where idsAlumnos.Contains(m.IdAlumno)
-            select new
-            {
-                m.IdAlumno,
-                cal.IdMatricula,
-                cal.IdAsignatura,
-                cal.IdNivel,
-                cal.NotaFinal,
-                cal.PromedioFinal,
-                Aprobado = cal.Aprobado == true,
-                m.FechaMatricula,
-                FechaInicialPeriodo = p != null ? p.FechaInicial : null,
-                FechaFinalPeriodo = p != null ? p.FechaFinal : null
-            }
-        ).ToListAsync(cancellationToken);
-
-        // 7. Agrupar progreso por alumno y verificar condición de egreso
-        var resultados = new List<EstudiantePendienteEgresoDto>();
-
-        foreach (var est in listaEstudiantes)
-        {
-            var mallasDeCarrera = infoMallas.Where(m => m.IdCarrera == est.IdCarrera).ToList();
-            var califsAlumno = calificacionesEstudiantes
-                .Where(c => string.Equals(c.IdAlumno, est.IdAlumno, StringComparison.OrdinalIgnoreCase))
-                .GroupBy(c => c.IdAsignatura)
-                .Select(g => g
-                    .OrderByDescending(c => c.FechaInicialPeriodo)
-                    .ThenByDescending(c => c.FechaFinalPeriodo)
-                    .ThenByDescending(c => c.FechaMatricula)
-                    .ThenByDescending(c => c.IdMatricula)
-                    .First())
-                .ToList();
-
-            // Identificar la malla real del estudiante en su carrera (la de mayor coincidencia de materias aprobadas o cursadas)
-            var mejorMalla = mallasDeCarrera
-                .OrderByDescending(m => califsAlumno.Count(c => c.Aprobado && m.AsignaturasIds.Contains(c.IdAsignatura)))
-                .ThenByDescending(m => califsAlumno.Count(c => m.AsignaturasIds.Contains(c.IdAsignatura)))
-                .ThenByDescending(m => m.Activa == true)
-                .FirstOrDefault();
-
-            if (mejorMalla == null)
-            {
-                continue;
+                string busqueda = filtro.CedulaOrNombre!.Trim();
+                alumnosBaseQuery = alumnosBaseQuery.Where(x =>
+                    EF.Functions.Like(x.IdAlumno, $"%{busqueda}%") ||
+                    (x.ApellidoPaterno != null && EF.Functions.Like(x.ApellidoPaterno, $"%{busqueda}%")) ||
+                    (x.PrimerNombre != null && EF.Functions.Like(x.PrimerNombre, $"%{busqueda}%")));
             }
 
-            var califsEnMalla = califsAlumno
-                .Where(c => mejorMalla.AsignaturasIds.Contains(c.IdAsignatura))
+            // Traer a memoria — se evita window functions de MySQL 5.7
+            var rawAlumnos = await alumnosBaseQuery.ToListAsync(cancellationToken);
+
+            // Una fila por (alumno, carrera) — matrícula más reciente
+            var listaEstudiantes = rawAlumnos
+                .OrderByDescending(x => x.FechaMatricula)
+                .GroupBy(x => new { x.IdAlumno, x.IdCarrera })
+                .Select(g => g.First())
                 .ToList();
 
-            var materiasAprobadas = califsEnMalla
-                .Where(c => c.Aprobado)
-                .Select(c => c.IdAsignatura)
-                .Distinct()
-                .Count();
+            if (listaEstudiantes.Count == 0)
+                return new List<EstudiantePendienteEgresoDto>();
 
-            var nivelesAprobados = califsEnMalla
-                .Where(c => c.Aprobado && c.IdNivel.HasValue && mejorMalla.NivelesIds.Contains(c.IdNivel.Value))
-                .Select(c => c.IdNivel!.Value)
-                .Distinct()
-                .Count();
+            var idsAlumnos = listaEstudiantes.Select(x => x.IdAlumno).Distinct().ToList();
+            var idsCarreras = listaEstudiantes.Select(x => x.IdCarrera).Distinct().ToList();
 
-            // Cálculo preciso de promedio considerando NotaFinal o PromedioFinal
-            var notasValidas = califsEnMalla
-                .Select(c => c.NotaFinal.HasValue && c.NotaFinal.Value > 0
-                    ? c.NotaFinal.Value
-                    : (c.PromedioFinal.HasValue && c.PromedioFinal.Value > 0 ? c.PromedioFinal.Value : (decimal?)null))
-                .Where(n => n.HasValue)
-                .Select(n => n!.Value)
-                .ToList();
-
-            decimal promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : 0;
-
-            bool esTitulado = egresadosTitulos.Contains(est.IdAlumno);
-            bool tienePostulacion = postulacionesMap.TryGetValue(est.IdAlumno, out var estadoPostulacion);
-
-            // Regla de Negocio:
-            // Si es búsqueda puntual por cédula/nombre -> Mostrar al estudiante con todos sus datos académicos
-            // Si es listado general por periodo -> Mostrar solo alumnos que completaron todos los niveles/materias y no están titulados
-            bool cumplioMalla = materiasAprobadas >= mejorMalla.TotalMaterias ||
-                                (mejorMalla.TotalNiveles > 0 && nivelesAprobados >= mejorMalla.TotalNiveles);
-
-            bool debeMostrar = esBusquedaPuntual || (cumplioMalla && !esTitulado);
-
-            if (debeMostrar)
+            // 3. Mallas — cacheadas por carreras consultadas
+            string mallasCacheKey = $"mallas_carreras_{string.Join("_", idsCarreras.OrderBy(x => x))}";
+            var mallasCarreras = await _cache.GetOrCreateAsync(mallasCacheKey, async mEntry =>
             {
-                string nombreCompleto = $"{est.ApellidoPaterno} {est.ApellidoMaterno} {est.PrimerNombre} {est.SegundoNombre}".Trim();
+                mEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2);
+                return await _context.Mallas
+                    .AsNoTracking()
+                    .Where(m => idsCarreras.Contains(m.IdCarrera))
+                    .Select(m => new { m.IdMalla, m.IdCarrera, Descripcion = m.Descripcion ?? $"Malla {m.IdMalla}", m.Activa })
+                    .ToListAsync(cancellationToken);
+            });
 
-                resultados.Add(new EstudiantePendienteEgresoDto(
+            var idsMallas = mallasCarreras!.Select(m => m.IdMalla).Distinct().ToList();
+
+            string detalleMallasCacheKey = $"detalle_mallas_{string.Join("_", idsMallas.OrderBy(x => x))}";
+            var rawDetalleMallas = await _cache.GetOrCreateAsync(detalleMallasCacheKey, async dmEntry =>
+            {
+                dmEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2);
+                return await _context.Detallemallas
+                    .AsNoTracking()
+                    .Where(dm => idsMallas.Contains(dm.IdMalla) && (dm.Anulada == null || dm.Anulada == false))
+                    .Select(dm => new { dm.IdMalla, dm.IdNivel, dm.IdAsignatura })
+                    .ToListAsync(cancellationToken);
+            });
+
+            var infoMallas = mallasCarreras!.Select(m =>
+            {
+                var dms = rawDetalleMallas!.Where(d => d.IdMalla == m.IdMalla).ToList();
+                return new
+                {
+                    m.IdMalla, m.IdCarrera, m.Descripcion, m.Activa,
+                    TotalNiveles = dms.Select(d => d.IdNivel).Distinct().Count(),
+                    TotalMaterias = dms.Select(d => d.IdAsignatura).Distinct().Count(),
+                    AsignaturasIds = dms.Select(d => d.IdAsignatura).Distinct().ToHashSet(),
+                    NivelesIds = dms.Select(d => d.IdNivel).Distinct().ToHashSet()
+                };
+            }).ToList();
+
+            // 4. Egresados formales y postulaciones — acotados a los candidatos del filtro
+            var egresadosTitulos = (await _context.AlumnosTitulos
+                .AsNoTracking()
+                .Where(at => idsAlumnos.Contains(at.IdAlumno))
+                .Select(at => at.IdAlumno)
+                .Distinct()
+                .ToListAsync(cancellationToken))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var postulacionesMap = (await _context.TitulPostulacionAlumnos
+                .AsNoTracking()
+                .Include(p => p.IdPostulacionEstadoNavigation)
+                .Include(p => p.IdMatriculaNavigation)
+                .Where(p => idsAlumnos.Contains(p.IdMatriculaNavigation.IdAlumno))
+                .Select(p => new { p.IdMatriculaNavigation.IdAlumno, Estado = p.IdPostulacionEstadoNavigation.Nombre })
+                .ToListAsync(cancellationToken))
+                .GroupBy(x => x.IdAlumno)
+                .ToDictionary(g => g.Key, g => g.First().Estado, StringComparer.OrdinalIgnoreCase);
+
+            // 5. Calificaciones — acotadas a los alumnos candidatos
+            var calificacionesEstudiantes = await (
+                from cal in _context.Calificaciones.AsNoTracking()
+                join m in _context.Matriculas.AsNoTracking() on cal.IdMatricula equals m.IdMatricula
+                join p in _context.Periodos.AsNoTracking() on m.IdPeriodo equals p.IdPeriodo into pGroup
+                from p in pGroup.DefaultIfEmpty()
+                where idsAlumnos.Contains(m.IdAlumno)
+                select new
+                {
+                    m.IdAlumno, cal.IdMatricula, cal.IdAsignatura, cal.IdNivel,
+                    cal.NotaFinal, cal.PromedioFinal,
+                    Aprobado = cal.Aprobado == true,
+                    m.FechaMatricula,
+                    FechaInicialPeriodo = p != null ? p.FechaInicial : null,
+                    FechaFinalPeriodo   = p != null ? p.FechaFinal   : null
+                }
+            ).ToListAsync(cancellationToken);
+
+            var califsPorAlumno = calificacionesEstudiantes
+                .GroupBy(c => c.IdAlumno, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // 6. Calcular avance por alumno y aplicar regla de egreso
+            var listRes = new List<EstudiantePendienteEgresoDto>();
+
+            foreach (var est in listaEstudiantes)
+            {
+                var mallasDeCarrera = infoMallas.Where(m => m.IdCarrera == est.IdCarrera).ToList();
+                califsPorAlumno.TryGetValue(est.IdAlumno, out var alumnoCalifs);
+                alumnoCalifs ??= new();
+
+                var califsAlumno = alumnoCalifs
+                    .GroupBy(c => c.IdAsignatura)
+                    .Select(g => g
+                        .OrderByDescending(c => c.FechaInicialPeriodo)
+                        .ThenByDescending(c => c.FechaFinalPeriodo)
+                        .ThenByDescending(c => c.FechaMatricula)
+                        .ThenByDescending(c => c.IdMatricula)
+                        .First())
+                    .ToList();
+
+                var mejorMalla = mallasDeCarrera
+                    .OrderByDescending(m => califsAlumno.Count(c => c.Aprobado && m.AsignaturasIds.Contains(c.IdAsignatura)))
+                    .ThenByDescending(m => califsAlumno.Count(c => m.AsignaturasIds.Contains(c.IdAsignatura)))
+                    .ThenByDescending(m => m.Activa == true)
+                    .FirstOrDefault();
+
+                if (mejorMalla == null) continue;
+
+                var califsEnMalla = califsAlumno.Where(c => mejorMalla.AsignaturasIds.Contains(c.IdAsignatura)).ToList();
+
+                int materiasAprobadas = califsEnMalla.Where(c => c.Aprobado).Select(c => c.IdAsignatura).Distinct().Count();
+                int nivelesAprobados  = califsEnMalla
+                    .Where(c => c.Aprobado && c.IdNivel.HasValue && mejorMalla.NivelesIds.Contains(c.IdNivel.Value))
+                    .Select(c => c.IdNivel!.Value).Distinct().Count();
+
+                var notasValidas = califsEnMalla
+                    .Select(c => c.NotaFinal is > 0 ? c.NotaFinal.Value
+                               : c.PromedioFinal is > 0 ? c.PromedioFinal.Value
+                               : (decimal?)null)
+                    .Where(n => n.HasValue).Select(n => n!.Value).ToList();
+
+                decimal promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : 0;
+
+                bool esTitulado       = egresadosTitulos.Contains(est.IdAlumno);
+                bool tienePostulacion = postulacionesMap.TryGetValue(est.IdAlumno, out var estadoPostulacion);
+
+                bool cumplioMalla = materiasAprobadas >= mejorMalla.TotalMaterias ||
+                                    (mejorMalla.TotalNiveles > 0 && nivelesAprobados >= mejorMalla.TotalNiveles);
+                bool debeMostrar  = esBusquedaPuntual || (cumplioMalla && !esTitulado);
+
+                if (!debeMostrar) continue;
+
+                listRes.Add(new EstudiantePendienteEgresoDto(
                     est.IdAlumno,
                     $"{est.PrimerNombre} {est.SegundoNombre}".Trim(),
                     $"{est.ApellidoPaterno} {est.ApellidoMaterno}".Trim(),
-                    nombreCompleto,
-                    est.Email,
-                    est.Celular,
-                    est.IdCarrera,
-                    est.Carrera ?? "SIN CARRERA",
-                    mejorMalla.IdMalla,
-                    mejorMalla.Descripcion,
-                    est.IdModalidad,
-                    est.IdModalidad != 0 ? $"Modalidad {est.IdModalidad}" : "Presencial",
+                    $"{est.ApellidoPaterno} {est.ApellidoMaterno} {est.PrimerNombre} {est.SegundoNombre}".Trim(),
+                    est.Email, est.Celular,
+                    est.IdCarrera, est.Carrera ?? "SIN CARRERA",
+                    mejorMalla.IdMalla, mejorMalla.Descripcion,
+                    est.IdModalidad, est.IdModalidad != 0 ? $"Modalidad {est.IdModalidad}" : "Presencial",
                     est.IdPeriodo ?? periodoFiltro ?? "N/A",
-                    nivelesAprobados,
-                    mejorMalla.TotalNiveles,
-                    materiasAprobadas,
-                    mejorMalla.TotalMaterias,
-                    promedio,
-                    esTitulado,
-                    tienePostulacion,
-                    estadoPostulacion
+                    nivelesAprobados, mejorMalla.TotalNiveles,
+                    materiasAprobadas, mejorMalla.TotalMaterias,
+                    promedio, esTitulado, tienePostulacion, estadoPostulacion
                 ));
             }
-        }
 
-        // 8. Paginación en memoria
-        int totalRegistros = resultados.Count;
-        int pagina = Math.Max(1, filtro.Pagina);
-        int tamanoPagina = Math.Clamp(filtro.TamanoPagina, 1, 100);
-        int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)tamanoPagina);
+            return listRes;
+        });
 
-        var itemsPaginados = resultados
+        // 7. Paginación sobre resultados filtrados
+        int totalRegistros = resultados?.Count ?? 0;
+        int pagina         = Math.Max(1, filtro.Pagina);
+        int tamanoPagina   = Math.Clamp(filtro.TamanoPagina, 1, 100);
+        int totalPaginas   = (int)Math.Ceiling(totalRegistros / (double)tamanoPagina);
+
+        var itemsPaginados = (resultados ?? new List<EstudiantePendienteEgresoDto>())
             .Skip((pagina - 1) * tamanoPagina)
             .Take(tamanoPagina)
             .ToList();
 
-        // 9. Enriquecimiento financiero por lote para la página actual
+        // 8. Enriquecimiento financiero — SOLO para los registros de la página actual con caché por alumno
         if (itemsPaginados.Count > 0)
         {
             var studentCarreraPairs = itemsPaginados
-                .Select(r => new { r.IdAlumno, r.IdCarrera })
-                .Distinct()
+                .Select(r => new { r.IdAlumno, r.IdCarrera }).Distinct().ToList();
+
+            var uncachedPairs = studentCarreraPairs
+                .Where(sc => !_cache.TryGetValue($"finanzas_{sc.IdAlumno}_{sc.IdCarrera}", out decimal _))
                 .ToList();
 
-            var studentIds = studentCarreraPairs.Select(r => r.IdAlumno).Distinct().ToList();
+            if (uncachedPairs.Count > 0)
+            {
+                var studentIds = uncachedPairs.Select(r => r.IdAlumno).Distinct().ToList();
 
-            var matriculasEstudiantes = await _context.Matriculas
-                .AsNoTracking()
-                .Where(m => studentIds.Contains(m.IdAlumno))
-                .Select(m => new { m.IdAlumno, m.IdMatricula, IdCarrera = m.IdNivelNavigation != null ? m.IdNivelNavigation.IdCarrera : 0 })
-                .ToListAsync(cancellationToken);
+                var matriculasEstudiantes = await _context.Matriculas
+                    .AsNoTracking()
+                    .Where(m => studentIds.Contains(m.IdAlumno))
+                    .Select(m => new { m.IdAlumno, m.IdMatricula, IdCarrera = m.IdNivelNavigation != null ? m.IdNivelNavigation.IdCarrera : 0 })
+                    .ToListAsync(cancellationToken);
 
-            var validMatriculas = matriculasEstudiantes
-                .Where(m => studentCarreraPairs.Any(sc => sc.IdAlumno == m.IdAlumno && (sc.IdCarrera == 0 || sc.IdCarrera == m.IdCarrera)))
-                .ToList();
+                var validMatriculas = matriculasEstudiantes
+                    .Where(m => uncachedPairs.Any(sc => sc.IdAlumno == m.IdAlumno && (sc.IdCarrera == 0 || sc.IdCarrera == m.IdCarrera)))
+                    .ToList();
 
-            var matriculaIdToAlumnoKey = validMatriculas.ToDictionary(m => m.IdMatricula, m => $"{m.IdAlumno}_{m.IdCarrera}");
-            var allMatriculaIds = validMatriculas.Select(m => m.IdMatricula).ToList();
+                var matriculaIdToAlumnoKey = validMatriculas.ToDictionary(m => m.IdMatricula, m => $"{m.IdAlumno}_{m.IdCarrera}");
+                var allMatriculaIds        = validMatriculas.Select(m => m.IdMatricula).ToList();
 
-            var creditosAlumno = await _context.CreditoAlumno
-                .AsNoTracking()
-                .Where(c => allMatriculaIds.Contains(c.IdMatricula) && c.Saldo > 0)
-                .Select(c => new { c.IdCredito, c.IdMatricula, c.IdEspecie, c.Saldo, c.CreditoInicial })
-                .ToListAsync(cancellationToken);
+                var creditosAlumno = await _context.CreditoAlumno
+                    .AsNoTracking()
+                    .Where(c => allMatriculaIds.Contains(c.IdMatricula) && c.Saldo > 0)
+                    .Select(c => new { c.IdCredito, c.IdMatricula, c.IdEspecie, c.Saldo, c.CreditoInicial })
+                    .ToListAsync(cancellationToken);
 
-            var creditosIdsBatch = creditosAlumno.Select(c => c.IdCredito).ToList();
-            var especiesIdsBatch = creditosAlumno.Select(c => c.IdEspecie).Distinct().ToList();
-            var especiesDictBatch = await _context.Especies
-                .AsNoTracking()
-                .Where(e => especiesIdsBatch.Contains(e.IdEspecie))
-                .ToDictionaryAsync(e => e.IdEspecie, cancellationToken);
+                var creditosIdsBatch  = creditosAlumno.Select(c => c.IdCredito).ToList();
+                var especiesIdsBatch  = creditosAlumno.Select(c => c.IdEspecie).Distinct().ToList();
+                var especiesDictBatch = await _context.Especies
+                    .AsNoTracking()
+                    .Where(e => especiesIdsBatch.Contains(e.IdEspecie))
+                    .ToDictionaryAsync(e => e.IdEspecie, cancellationToken);
 
-            var pagosCajaBatch = await (
-                from dp in _context.DetallePagos.AsNoTracking()
-                join p in _context.Pagos.AsNoTracking() on dp.IdPago equals p.IdPago
-                where (p.Anulado == null || p.Anulado == false) &&
-                      ((dp.IdCredito != null && creditosIdsBatch.Contains(dp.IdCredito.Value)) ||
-                       (p.IdMatricula != null && allMatriculaIds.Contains(p.IdMatricula.Value)))
-                select new
-                {
-                    dp.IdCredito,
-                    p.IdMatricula,
-                    dp.IdEspecie,
-                    dp.Valor
-                }
-            ).ToListAsync(cancellationToken);
+                var pagosCajaBatch = creditosIdsBatch.Count > 0 || allMatriculaIds.Count > 0 ? await (
+                    from dp in _context.DetallePagos.AsNoTracking()
+                    join p in _context.Pagos.AsNoTracking() on dp.IdPago equals p.IdPago
+                    where (p.Anulado == null || p.Anulado == false) &&
+                          ((dp.IdCredito != null && creditosIdsBatch.Contains(dp.IdCredito.Value)) ||
+                           (p.IdMatricula != null && allMatriculaIds.Contains(p.IdMatricula.Value)))
+                    select new { dp.IdCredito, p.IdMatricula, dp.IdEspecie, dp.Valor }
+                ).ToListAsync(cancellationToken) : new();
 
-            var pagosDict = pagosCajaBatch
-                .GroupBy(p => p.IdCredito.HasValue ? $"C_{p.IdCredito.Value}" : $"M_{p.IdMatricula}_{p.IdEspecie}")
-                .ToDictionary(g => g.Key, g => g.Sum(x => x.Valor ?? 0));
+                var pagosDict = pagosCajaBatch
+                    .GroupBy(p => p.IdCredito.HasValue ? $"C_{p.IdCredito.Value}" : $"M_{p.IdMatricula}_{p.IdEspecie}")
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Valor ?? 0));
 
-            var deudasPorAlumnoCarrera = creditosAlumno
-                .GroupBy(s => matriculaIdToAlumnoKey[s.IdMatricula])
-                .ToDictionary(g => g.Key, g =>
-                {
-                    // Agrupar a nivel de matrícula (semestre) para permitir compensación de pagos y deduplicación de cobros repetidos
-                    var matriculasGrupo = g.GroupBy(x => x.IdMatricula);
-                    decimal totalDeudaCarrera = 0;
-
-                    foreach (var matGrupo in matriculasGrupo)
+                var deudasCalculadas = creditosAlumno
+                    .GroupBy(s => matriculaIdToAlumnoKey[s.IdMatricula])
+                    .ToDictionary(g => g.Key, g =>
                     {
-                        var rubrosPorCategoria = matGrupo
-                            .GroupBy(x =>
-                            {
-                                especiesDictBatch.TryGetValue(x.IdEspecie, out var esp);
-                                if (esp != null && !string.IsNullOrWhiteSpace(esp.CodigoReferencia))
-                                    return esp.CodigoReferencia.Trim().ToUpper();
-                                if (esp != null && !string.IsNullOrWhiteSpace(esp.Especie))
-                                    return esp.Especie.Trim().ToUpper();
-                                return x.IdEspecie.ToString();
-                            })
-                            .Select(catGroup =>
-                            {
-                                var primerItem = catGroup
-                                    .OrderByDescending(x => pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0))
-                                    .ThenBy(x => x.IdCredito)
-                                    .First();
-
-                                decimal costoUnico = primerItem.CreditoInicial.HasValue && primerItem.CreditoInicial.Value > 0 ? primerItem.CreditoInicial.Value : 0;
-                                decimal saldoRegUnico = costoUnico > 0 ? Math.Min(primerItem.Saldo ?? 0, costoUnico) : (primerItem.Saldo ?? 0);
-
-                                decimal pagadoCat = catGroup.Sum(x =>
+                        decimal totalDeudaCarrera = 0;
+                        foreach (var matGrupo in g.GroupBy(x => x.IdMatricula))
+                        {
+                            var rubrosPorCategoria = matGrupo
+                                .GroupBy(x =>
                                 {
-                                    decimal pag = pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0);
-                                    if (pag == 0) pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
-                                    return pag;
-                                });
+                                    especiesDictBatch.TryGetValue(x.IdEspecie, out var esp);
+                                    if (esp != null && !string.IsNullOrWhiteSpace(esp.CodigoReferencia))
+                                        return esp.CodigoReferencia.Trim().ToUpper();
+                                    if (esp != null && !string.IsNullOrWhiteSpace(esp.Especie))
+                                        return esp.Especie.Trim().ToUpper();
+                                    return x.IdEspecie.ToString();
+                                })
+                                .Select(catGroup =>
+                                {
+                                    var primerItem = catGroup
+                                        .OrderByDescending(x => pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0))
+                                        .ThenBy(x => x.IdCredito).First();
+                                    decimal costoUnico    = primerItem.CreditoInicial is > 0 ? primerItem.CreditoInicial.Value : 0;
+                                    decimal saldoRegUnico = costoUnico > 0 ? Math.Min(primerItem.Saldo ?? 0, costoUnico) : (primerItem.Saldo ?? 0);
+                                    decimal pagadoCat = catGroup.Sum(x =>
+                                    {
+                                        decimal pag = pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0);
+                                        if (pag == 0) pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
+                                        return pag;
+                                    });
+                                    return new { Costo = costoUnico, SaldoReg = saldoRegUnico, Pagado = pagadoCat };
+                                }).ToList();
 
-                                return new { Costo = costoUnico, SaldoReg = saldoRegUnico, Pagado = pagadoCat };
-                            })
-                            .ToList();
+                            decimal costoSemestre           = rubrosPorCategoria.Sum(x => x.Costo);
+                            decimal saldoRegistradoSemestre = rubrosPorCategoria.Sum(x => x.SaldoReg);
+                            decimal pagadoSemestre          = rubrosPorCategoria.Sum(x => x.Pagado);
+                            decimal saldoSemestre = pagadoSemestre > 0
+                                ? Math.Min(saldoRegistradoSemestre, Math.Max(0, costoSemestre - pagadoSemestre))
+                                : saldoRegistradoSemestre;
+                            totalDeudaCarrera += saldoSemestre;
+                        }
+                        return totalDeudaCarrera;
+                    });
 
-                        decimal costoSemestre = rubrosPorCategoria.Sum(x => x.Costo);
-                        decimal saldoRegistradoSemestre = rubrosPorCategoria.Sum(x => x.SaldoReg);
-                        decimal pagadoSemestre = rubrosPorCategoria.Sum(x => x.Pagado);
-
-                        decimal saldoSemestre = pagadoSemestre > 0
-                            ? Math.Min(saldoRegistradoSemestre, Math.Max(0, costoSemestre - pagadoSemestre))
-                            : saldoRegistradoSemestre;
-
-                        totalDeudaCarrera += saldoSemestre;
-                    }
-
-                    return totalDeudaCarrera;
-                });
+                foreach (var pair in uncachedPairs)
+                {
+                    decimal saldo = deudasCalculadas.GetValueOrDefault($"{pair.IdAlumno}_{pair.IdCarrera}", 0);
+                    _cache.Set($"finanzas_{pair.IdAlumno}_{pair.IdCarrera}", saldo, TimeSpan.FromMinutes(5));
+                }
+            }
 
             itemsPaginados = itemsPaginados.Select(est =>
             {
-                var key = $"{est.IdAlumno}_{est.IdCarrera}";
-                var saldo = deudasPorAlumnoCarrera.GetValueOrDefault(key, 0);
-                var noAdeuda = saldo <= 0;
-                return est with
-                {
-                    NoAdeuda = noAdeuda,
-                    SaldoPendiente = saldo,
-                    TieneRestricciones = false
-                };
+                decimal saldo = _cache.TryGetValue($"finanzas_{est.IdAlumno}_{est.IdCarrera}", out decimal s) ? s : 0;
+                return est with { NoAdeuda = saldo <= 0, SaldoPendiente = saldo, TieneRestricciones = false };
             }).ToList();
         }
 
         return new PagedResultDto<EstudiantePendienteEgresoDto>(
-            itemsPaginados,
-            totalRegistros,
-            pagina,
-            tamanoPagina,
-            totalPaginas
-        );
+            itemsPaginados, totalRegistros, pagina, tamanoPagina, totalPaginas);
     }
 
     public async Task<ExpedienteAcademicoDto?> GetExpedienteAcademicoAsync(
