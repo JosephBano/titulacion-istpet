@@ -142,6 +142,8 @@ public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) :
             .Include(parm => parm.IdAdjuntosImagenesNavigation)
             .Include(parm => parm.TitulResponsableEvidencia)
             .Where(parm => parm.IdPostulacionAlumnosNavigation.EsActivo == true &&
+                           parm.IdRequisitoModalidadNavigation.EsActivo == true &&
+                           (parm.IdRequisitoModalidadNavigation.IdRequisitosNavigation == null || parm.IdRequisitoModalidadNavigation.IdRequisitosNavigation.EsActivo == true) &&
                            idsRequisitos.Contains(parm.IdRequisitoModalidadNavigation.IdRequisitos))
             .OrderByDescending(parm => parm.IdPostulacionAlumnos)
             .ToListAsync(ct);
@@ -202,7 +204,7 @@ public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) :
             ?? throw new NoEncontradoException("Responsable de requisito", comando.IdResponsableEvidencias);
 
         var now = DateTime.UtcNow;
-        var estado = comando.Aprobado ? "APROBADO" : "OBSERVADO";
+        var estado = comando.Aprobado ? "APROBADO" : "RECHAZADO";
 
         var evidencia = itemRequisito.TitulResponsableEvidencia
             .FirstOrDefault(e => e.IdResponsableEvidencias == comando.IdResponsableEvidencias);

@@ -13,7 +13,7 @@ public partial class TitulRequisitoModalidad
 
     public int IdModalidadTitulacion { get; set; }
 
-    public bool? EsRequistoFinal { get; set; }
+    public bool? EsRequisitoFinal { get; set; }
 
     public DateTime? FechaRegistro { get; set; }
 

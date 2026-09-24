@@ -82,7 +82,7 @@
         >
           <option value="">Todas las Carreras</option>
           @for (c of carreras(); track c.idCarrera) {
-            <option [value]="c.idCarrera">{{ c.aliasCarrera || c.nombreCarrera }}</option>
+            <option [value]="c.idCarrera">{{ c.nombreCarrera }}</option>
           }
         </select>
       </div>
@@ -218,6 +218,62 @@
             <div class="detail-item">
               <span class="detail-key">Modalidad:</span>
               <span class="detail-val font-semibold">{{ p.modalidadTitulacion }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">Finanzas:</span>
+              <span class="detail-val">
+                @if (p.noAdeuda === true) {
+                  <span
+                    class="status-badge financas-al-dia"
+                    title="Sin deudas de matrícula ni restricciones en SIGAFI"
+                  >
+                    <svg
+                      class="badge-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Al Día (No Adeuda)
+                  </span>
+                } @else if (p.noAdeuda === false) {
+                  <span
+                    class="status-badge financas-deuda"
+                    [title]="
+                      'Saldo pendiente: $' +
+                      (p.saldoPendiente | number: '1.2-2') +
+                      (p.tieneRestricciones ? ' (con restricciones activas)' : '')
+                    "
+                  >
+                    <svg
+                      class="badge-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    @if (p.saldoPendiente && p.saldoPendiente > 0) {
+                      Adeuda ${{ p.saldoPendiente | number: '1.2-2' }}
+                    } @else {
+                      Con Restricción
+                    }
+                  </span>
+                } @else {
+                  <span class="status-badge financas-pendiente">Pendiente</span>
+                }
+              </span>
             </div>
           </div>
 

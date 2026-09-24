@@ -20,10 +20,19 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
     public (string accessToken, DateTime expiresAt) GenerateAccessToken(Usuarios usuario, IEnumerable<string> roles, IEnumerable<string> permisos)
     {
-        var secretKey = _configuration["JwtSettings:SecretKey"] ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
-        var issuer = _configuration["JwtSettings:Issuer"] ?? "TitulacionIstpetApi";
-        var audience = _configuration["JwtSettings:Audience"] ?? "TitulacionIstpetApp";
-        var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationMinutes"] ?? "60");
+        var secretKey = _configuration["Jwt:ClaveFirma"]
+            ?? _configuration["JwtSettings:SecretKey"]
+            ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
+        var issuer = _configuration["Jwt:Issuer"]
+            ?? _configuration["JwtSettings:Issuer"]
+            ?? "https://localhost:7077";
+        var audience = _configuration["Jwt:Audience"]
+            ?? _configuration["JwtSettings:Audience"]
+            ?? "titulacion-istpet-frontend";
+        var expirationMinutes = int.Parse(
+            _configuration["Jwt:MinutosExpiracion"]
+            ?? _configuration["JwtSettings:ExpirationMinutes"]
+            ?? "60");
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

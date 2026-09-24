@@ -264,4 +264,172 @@ public class ActoresService : IActoresService
 
         return result;
     }
+
+    public async Task<EstadoFinancieroAlumnoDto> ValidarNoAdeudarAsync(string idAlumno, int? idCarrera = null, CancellationToken cancellationToken = default)
+    {
+        var alumno = await _context.Alumnos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.IdAlumno == idAlumno, cancellationToken);
+
+        if (alumno == null)
+        {
+            return new EstadoFinancieroAlumnoDto(
+                idAlumno,
+                "No Encontrado",
+                false,
+                0,
+                false,
+                Array.Empty<string>(),
+                Array.Empty<DetalleDeudaDto>(),
+                "El estudiante no se encuentra registrado en el sistema institucional."
+            );
+        }
+
+        var nombreCompleto = $"{alumno.PrimerNombre} {alumno.SegundoNombre} {alumno.ApellidoPaterno} {alumno.ApellidoMaterno}".Replace("  ", " ").Trim();
+
+        if (!idCarrera.HasValue || idCarrera.Value <= 0)
+        {
+            // Determinar la carrera de la matrícula más reciente del estudiante
+            var ultimaMatricula = await _context.Matriculas
+                .AsNoTracking()
+                .Where(m => m.IdAlumno == idAlumno && m.IdNivelNavigation != null && m.IdNivelNavigation.IdCarrera > 0)
+                .OrderByDescending(m => m.IdMatricula)
+                .Select(m => new { m.IdNivelNavigation.IdCarrera })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (ultimaMatricula != null && ultimaMatricula.IdCarrera > 0)
+            {
+                idCarrera = ultimaMatricula.IdCarrera;
+            }
+        }
+
+        // 1. Obtener las matrículas del estudiante para la carrera correspondiente
+        var queryMatriculas = _context.Matriculas
+            .AsNoTracking()
+            .Where(m => m.IdAlumno == idAlumno);
+
+        if (idCarrera.HasValue && idCarrera.Value > 0)
+        {
+            queryMatriculas = queryMatriculas.Where(m => m.IdNivelNavigation != null && m.IdNivelNavigation.IdCarrera == idCarrera.Value);
+        }
+
+        var matriculas = await queryMatriculas
+            .Select(m => new { m.IdMatricula, m.IdPeriodo })
+            .ToListAsync(cancellationToken);
+
+        var idMatriculas = matriculas.Select(m => m.IdMatricula).ToList();
+
+        // 2. Consultar saldos y créditos pendientes en credito_alumno
+        var creditos = await _context.CreditoAlumno
+            .AsNoTracking()
+            .Where(c => idMatriculas.Contains(c.IdMatricula) && c.Saldo > 0)
+            .ToListAsync(cancellationToken);
+
+        // Obtener nombres de especies para las deudas pendientes
+        var idEspecies = creditos.Select(c => c.IdEspecie).Distinct().ToList();
+        var especiesDict = await _context.Especies
+            .AsNoTracking()
+            .Where(e => idEspecies.Contains(e.IdEspecie))
+            .ToDictionaryAsync(e => e.IdEspecie, e => e.Especie, cancellationToken);
+
+        var matriculaPeriodoDict = matriculas.ToDictionary(m => m.IdMatricula, m => m.IdPeriodo ?? "N/A");
+
+        var creditosIds = creditos.Select(c => c.IdCredito).ToList();
+
+        var pagosCaja = await (
+            from dp in _context.DetallePagos.AsNoTracking()
+            join p in _context.Pagos.AsNoTracking() on dp.IdPago equals p.IdPago
+            where (p.Anulado == null || p.Anulado == false) &&
+                  ((dp.IdCredito != null && creditosIds.Contains(dp.IdCredito.Value)) ||
+                   (p.IdMatricula != null && idMatriculas.Contains(p.IdMatricula.Value)))
+            select new
+            {
+                dp.IdCredito,
+                p.IdMatricula,
+                dp.IdEspecie,
+                dp.Valor
+            }
+        ).ToListAsync(cancellationToken);
+
+        var pagosDict = pagosCaja
+            .GroupBy(p => p.IdCredito.HasValue ? $"C_{p.IdCredito.Value}" : $"M_{p.IdMatricula}_{p.IdEspecie}")
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Valor ?? 0));
+
+        var deudasList = new List<DetalleDeudaDto>();
+        var matriculasGrupo = creditos.GroupBy(c => c.IdMatricula);
+
+        foreach (var matGrupo in matriculasGrupo)
+        {
+            var tempItems = matGrupo.Select(c =>
+            {
+                especiesDict.TryGetValue(c.IdEspecie, out var espNom);
+                decimal valorInicial = c.CreditoInicial.HasValue && c.CreditoInicial.Value > 0 ? c.CreditoInicial.Value : 0;
+                decimal saldoRegistrado = valorInicial > 0 ? Math.Min(c.Saldo ?? 0, valorInicial) : (c.Saldo ?? 0);
+
+                decimal pagadoCaja = pagosDict.GetValueOrDefault($"C_{c.IdCredito}", 0);
+                if (pagadoCaja == 0)
+                {
+                    pagadoCaja = pagosDict.GetValueOrDefault($"M_{c.IdMatricula}_{c.IdEspecie}", 0);
+                }
+
+                return new { Credito = c, Especie = espNom ?? $"Especie #{c.IdEspecie}", ValorInicial = valorInicial, SaldoRegistrado = saldoRegistrado, PagadoCaja = pagadoCaja };
+            }).ToList();
+
+            decimal excedente = tempItems.Where(t => t.PagadoCaja > t.ValorInicial).Sum(t => t.PagadoCaja - t.ValorInicial);
+
+            var itemsPorCategoria = tempItems
+                .GroupBy(t => t.Especie.Trim().ToUpper())
+                .ToList();
+
+            foreach (var catGroup in itemsPorCategoria)
+            {
+                var itemsEnCat = catGroup.OrderByDescending(t => t.PagadoCaja).ThenBy(t => t.Credito.IdCredito).ToList();
+                var principal = itemsEnCat[0];
+                decimal totalPagadoEnCat = itemsEnCat.Sum(t => t.PagadoCaja);
+
+                decimal abonoEfectivo = totalPagadoEnCat;
+                if (abonoEfectivo < principal.ValorInicial && excedente > 0)
+                {
+                    decimal falta = principal.ValorInicial - abonoEfectivo;
+                    decimal aplicar = Math.Min(falta, excedente);
+                    abonoEfectivo += aplicar;
+                    excedente -= aplicar;
+                }
+
+                decimal saldoAjustado = abonoEfectivo > 0
+                    ? Math.Min(principal.SaldoRegistrado, Math.Max(0, principal.ValorInicial - abonoEfectivo))
+                    : principal.SaldoRegistrado;
+
+                if (saldoAjustado > 0)
+                {
+                    deudasList.Add(new DetalleDeudaDto(
+                        principal.Credito.IdMatricula,
+                        matriculaPeriodoDict.GetValueOrDefault(principal.Credito.IdMatricula, "N/A"),
+                        principal.Especie,
+                        principal.ValorInicial,
+                        saldoAjustado,
+                        principal.Credito.SaldoBeca ?? 0
+                    ));
+                }
+            }
+        }
+
+        decimal saldoTotal = deudasList.Sum(d => d.Saldo);
+        bool noAdeuda = saldoTotal <= 0;
+
+        string mensaje = noAdeuda
+            ? "El estudiante se encuentra al día con la institución. Cumple con el requisito de No Adeudar."
+            : $"El estudiante registra un saldo pendiente de ${saldoTotal:F2} por concepto de aranceles/especies.";
+
+        return new EstadoFinancieroAlumnoDto(
+            idAlumno,
+            nombreCompleto,
+            noAdeuda,
+            saldoTotal,
+            false,
+            new List<string>(),
+            deudasList,
+            mensaje
+        );
+    }
 }

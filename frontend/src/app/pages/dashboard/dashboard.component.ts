@@ -26,6 +26,7 @@ import {
   DictamenPostulacionRequest,
   AperturarPeriodoRequest,
   PostulacionResumen,
+  PostulacionRequisitoDetalle,
   EstadoPostulacion,
   ResumenGeneralSistema,
   RequisitoEvaluacionDocente,
@@ -52,6 +53,8 @@ import {
 } from './components/evaluacion-docente-tab/evaluacion-docente-tab.component';
 import { ResponsablesModalComponent } from '../../shared/components/responsables-modal/responsables-modal.component';
 import { DrawerComponent } from '../../shared/components/drawer/drawer.component';
+import { EgresadosTabComponent } from './components/egresados-tab/egresados-tab.component';
+import { ReportesTabComponent } from './components/reportes-tab/reportes-tab.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -76,6 +79,8 @@ import { DrawerComponent } from '../../shared/components/drawer/drawer.component
     EvaluacionDocenteTabComponent,
     ResponsablesModalComponent,
     DrawerComponent,
+    EgresadosTabComponent,
+    ReportesTabComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -109,6 +114,7 @@ export class DashboardComponent implements OnInit {
   portalCargando = signal<boolean>(false);
   modalidadSeleccionada = signal<number | null>(null);
   postulando = signal<boolean>(false);
+  subiendoRequisitoEstudianteId = signal<number | null>(null);
 
   // Estado del Gestor de Titulación (Convocatorias & Configuración)
   convocatoriaActiva = signal<ConvocatoriaDetalle | null>(null);
@@ -411,6 +417,63 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  onSubirDocumentoEstudiante(evento: { req: PostulacionRequisitoDetalle; file: File }): void {
+    const file = evento.file;
+    const esPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!esPdf) {
+      this.mostrarMensaje(
+        'error',
+        'El documento seleccionado debe ser estrictamente un archivo PDF (.pdf).',
+      );
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      this.mostrarMensaje('error', 'El archivo no puede exceder el límite máximo de 2 MB.');
+      return;
+    }
+
+    this.subiendoRequisitoEstudianteId.set(evento.req.idPostulacionAlumnoRequisitoModalidad);
+
+    this.titulacionService.subirAdjunto(evento.file).subscribe({
+      next: (adjuntoRes) => {
+        const idPostulacion = evento.req.idPostulacionAlumnos;
+        this.titulacionService
+          .actualizarRequisitosPostulacion(idPostulacion, [
+            {
+              idRequisitoModalidad: evento.req.idRequisitoModalidad,
+              idAdjuntosImagenes: adjuntoRes.idAdjuntosImagenes,
+              valorBool: null,
+            },
+          ])
+          .subscribe({
+            next: () => {
+              this.subiendoRequisitoEstudianteId.set(null);
+              this.mostrarMensaje(
+                'exito',
+                `Documento "${adjuntoRes.nombreArchivos}" cargado correctamente. Queda en validación pendiente de revisión docente.`,
+              );
+              this.cargarPortalEstudiante();
+            },
+            error: (err) => {
+              this.subiendoRequisitoEstudianteId.set(null);
+              this.mostrarMensaje(
+                'error',
+                this.extraerMensajeError(err, 'Error al asociar el documento al requisito.'),
+              );
+            },
+          });
+      },
+      error: (err) => {
+        this.subiendoRequisitoEstudianteId.set(null);
+        this.mostrarMensaje(
+          'error',
+          this.extraerMensajeError(err, 'Error al subir el archivo del requisito.'),
+        );
+      },
+    });
+  }
+
   // ----------------------------------------------------
   // Flujo Gestor de Titulación (Postulaciones & KPIs)
   // ----------------------------------------------------
@@ -595,6 +658,40 @@ export class DashboardComponent implements OnInit {
       error: (err) =>
         this.mostrarMensaje('error', err.error?.message || 'Error al actualizar estado.'),
     });
+  }
+
+  setResponsableRequisito(tipo: 'estudiante' | 'colaborador'): void {
+    if (tipo === 'estudiante') {
+      this.nuevoRequisitoForm.update((f) => ({
+        ...f,
+        subeAlumno: true,
+        subeColaborador: false,
+        esAdjunto: true,
+        esBool: false,
+      }));
+    } else {
+      this.nuevoRequisitoForm.update((f) => ({
+        ...f,
+        subeAlumno: false,
+        subeColaborador: true,
+      }));
+    }
+  }
+
+  setModalidadEntregaRequisito(tipo: 'adjunto' | 'bool'): void {
+    if (tipo === 'adjunto') {
+      this.nuevoRequisitoForm.update((f) => ({
+        ...f,
+        esAdjunto: true,
+        esBool: false,
+      }));
+    } else {
+      this.nuevoRequisitoForm.update((f) => ({
+        ...f,
+        esAdjunto: false,
+        esBool: true,
+      }));
+    }
   }
 
   resetNuevoRequisitoForm(): void {

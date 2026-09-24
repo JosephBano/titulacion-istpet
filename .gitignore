@@ -24,6 +24,7 @@ secrets.json
 
 # --- Frontend: environments con endpoints/valores reales ---
 frontend/src/environments/environment.prod.ts
+frontend/src/environments/environment.production.ts
 frontend/src/environments/environment.*.local.ts
 !frontend/src/environments/environment.ts
 !frontend/src/environments/environment.example.ts
@@ -70,6 +71,8 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 salida-publish/
+publish/
+[Pp]ublish/
 BenchmarkDotNet.Artifacts/
 *.nupkg
 *.snupkg
@@ -139,3 +142,6 @@ desktop.ini
 # no configuracion del proyecto.
 AGENTS.md
 CLAUDE.md
+
+# Graphify knowledge graph outputs
+graphify-out/
