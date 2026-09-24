@@ -215,7 +215,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
                 rm.IdRequisitosNavigation.EsBool ?? false,
                 rm.IdRequisitosNavigation.SubeAlumno ?? false,
                 rm.IdRequisitosNavigation.SubeColaborador ?? false,
-                rm.EsRequistoFinal ?? false,
+                rm.EsRequisitoFinal ?? false,
                 rm.EsActivo
             ))
             .ToListAsync(ct);
@@ -229,7 +229,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         if (existente != null)
         {
             existente.EsActivo = true;
-            existente.EsRequistoFinal = dto.EsRequisitoFinal;
+            existente.EsRequisitoFinal = dto.EsRequisitoFinal;
             existente.FechaRegistro = DateTime.UtcNow;
             await _context.SaveChangesAsync(ct);
             return existente.IdRequisitoModalidad;
@@ -239,7 +239,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         {
             IdModalidadTitulacion = dto.IdModalidadTitulacion,
             IdRequisitos = dto.IdRequisitos,
-            EsRequistoFinal = dto.EsRequisitoFinal,
+            EsRequisitoFinal = dto.EsRequisitoFinal,
             FechaRegistro = DateTime.UtcNow,
             EsActivo = true
         };
@@ -284,7 +284,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
 
         string? periodoCodigo = cohorte?.IdPeriodo;
         string? periodoNombreHumano = cohorte?.IdPeriodoNavigation?.Detalle;
-        string? convocatoriaDetalle = cohorte?.Detelle;
+        string? convocatoriaDetalle = cohorte?.Detalle;
         DateTime? fechaInicio = cohorte?.FechaInicio;
         DateTime? fechaFin = cohorte?.FechaFin;
         bool estaVigente = cohorte != null && cohorte.EsActivo == true &&
