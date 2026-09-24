@@ -11,7 +11,7 @@ public partial class TitulCohortes
 
     public string IdPeriodo { get; set; }
 
-    public string Detelle { get; set; }
+    public string Detalle { get; set; }
 
     public DateTime? FechaInicio { get; set; }
 
