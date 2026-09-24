@@ -258,8 +258,8 @@
 
 <!-- DRAWER EXPEDIENTE ACADÉMICO -->
 @if (mostrarExpedienteModal()) {
-  <div class="drawer-backdrop" (click)="cerrarExpedienteModal()">
-    <div class="drawer-panel" (click)="$event.stopPropagation()">
+  <div class="drawer-backdrop" role="presentation" (click)="cerrarExpedienteModal()" (keydown.escape)="cerrarExpedienteModal()">
+    <div class="drawer-panel" role="dialog" aria-modal="true" tabindex="0" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
       <div class="drawer-header">
         <div>
           <h3 class="drawer-title">Expediente Académico</h3>
@@ -485,10 +485,10 @@
                         <td>{{ a.nombreNivel || (a.nivel ? ('Nivel ' + a.nivel) : '-') }}</td>
                         <td>{{ a.nombreAsignatura }}</td>
                         <td class="font-mono">{{ a.idPeriodo || '-' }}</td>
-                        <td>{{ a.nota1 != null ? (a.nota1 | number: '1.2-2') : '-' }}</td>
-                        <td>{{ a.nota2 != null ? (a.nota2 | number: '1.2-2') : '-' }}</td>
-                        <td>{{ a.examen != null ? (a.examen | number: '1.2-2') : '-' }}</td>
-                        <td class="font-bold">{{ a.notaFinal != null ? (a.notaFinal | number: '1.2-2') : (a.promedioFinal != null ? (a.promedioFinal | number: '1.2-2') : '-') }}</td>
+                        <td>{{ a.nota1 !== null && a.nota1 !== undefined ? (a.nota1 | number: '1.2-2') : '-' }}</td>
+                        <td>{{ a.nota2 !== null && a.nota2 !== undefined ? (a.nota2 | number: '1.2-2') : '-' }}</td>
+                        <td>{{ a.examen !== null && a.examen !== undefined ? (a.examen | number: '1.2-2') : '-' }}</td>
+                        <td class="font-bold">{{ a.notaFinal !== null && a.notaFinal !== undefined ? (a.notaFinal | number: '1.2-2') : (a.promedioFinal !== null && a.promedioFinal !== undefined ? (a.promedioFinal | number: '1.2-2') : '-') }}</td>
                         <td>
                           @if (a.aprobado) {
                             <span class="badge-aprobado">Aprobado</span>
@@ -566,7 +566,7 @@
                   @for (sem of fin.semestres; track sem.idMatricula) {
                     <div class="semestre-card" [class.semestre-al-dia]="sem.saldoPendiente <= 0" [class.semestre-con-deuda]="sem.saldoPendiente > 0">
                       <!-- Cabecera del Semestre -->
-                      <div class="semestre-header" (click)="toggleSemestre(sem.idMatricula)">
+                      <div class="semestre-header" role="button" tabindex="0" (click)="toggleSemestre(sem.idMatricula)" (keydown.enter)="toggleSemestre(sem.idMatricula)" (keydown.space)="toggleSemestre(sem.idMatricula)">
                         <div class="semestre-header-left">
                           <span class="semestre-badge-periodo font-mono">{{ sem.idPeriodo }}</span>
                           <div class="semestre-title-group">

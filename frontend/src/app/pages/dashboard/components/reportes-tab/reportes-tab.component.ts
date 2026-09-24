@@ -118,7 +118,7 @@ export class ReportesTabComponent implements OnInit {
 
     this.egresadosService.getCarreras().subscribe({
       next: (data) => this.carreras.set(data || []),
-      error: () => {},
+      error: () => this.carreras.set([]),
     });
   }
 
