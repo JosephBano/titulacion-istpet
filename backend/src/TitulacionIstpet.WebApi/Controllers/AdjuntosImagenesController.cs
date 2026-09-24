@@ -55,6 +55,55 @@ public sealed class AdjuntosImagenesController(
         return CreatedAtAction(nameof(Obtener), new { id }, dto);
     }
 
+    [HttpPost("subir")]
+    [HttpPost("upload")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<AdjuntosImageneDto>> Subir(
+        IFormFile archivo,
+        [FromServices] IWebHostEnvironment env,
+        CancellationToken ct)
+    {
+        if (archivo == null || archivo.Length == 0)
+        {
+            return BadRequest(new { message = "No se ha proporcionado un archivo válido." });
+        }
+
+        var webRoot = string.IsNullOrWhiteSpace(env.WebRootPath)
+            ? Path.Combine(env.ContentRootPath, "wwwroot")
+            : env.WebRootPath;
+        var evidenciasDir = Path.Combine(webRoot, "evidencias");
+        if (!Directory.Exists(evidenciasDir))
+        {
+            Directory.CreateDirectory(evidenciasDir);
+        }
+
+        var originalFileName = Path.GetFileName(archivo.FileName);
+        var extension = Path.GetExtension(originalFileName).TrimStart('.').ToLowerInvariant();
+        var uniqueFileName = $"{Guid.NewGuid():N}_{originalFileName}";
+        var physicalPath = Path.Combine(evidenciasDir, uniqueFileName);
+
+        await using (var stream = new FileStream(physicalPath, FileMode.Create, FileAccess.Write, FileShare.None))
+        {
+            await archivo.CopyToAsync(stream, ct);
+        }
+
+        var rutaRelativa = $"/evidencias/{uniqueFileName}";
+        var nombreCorto = originalFileName.Length > 85 ? originalFileName[..85] : originalFileName;
+
+        var comando = new CrearAdjuntoComando(
+            NombreArchivos: nombreCorto,
+            Extension: extension.Length > 20 ? extension[..20] : extension,
+            MimeTypes: string.IsNullOrWhiteSpace(archivo.ContentType) ? "application/octet-stream" : (archivo.ContentType.Length > 85 ? archivo.ContentType[..85] : archivo.ContentType),
+            TamanioBytes: (int)Math.Min(archivo.Length, int.MaxValue),
+            Ruta: rutaRelativa
+        );
+
+        int id = await _crear.EjecutarAsync(comando, ct);
+        var dto = await _obtener.EjecutarAsync(new ObtenerAdjuntoPorIdConsulta(id), ct);
+
+        return Ok(dto);
+    }
+
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Actualizar(
         int id, [FromBody] ActualizarAdjuntoComando comando, CancellationToken ct)
