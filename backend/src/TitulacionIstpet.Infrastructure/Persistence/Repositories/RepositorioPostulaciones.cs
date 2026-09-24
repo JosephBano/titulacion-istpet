@@ -177,7 +177,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             IdCarrera: idCarrera,
             NombreCarrera: nombreCarrera,
             IdCohorte: cohorteCarrera?.IdCohorte,
-            DetalleCohorte: cohorteCarrera?.IdCohorteNavigation?.Detelle,
+            DetalleCohorte: cohorteCarrera?.IdCohorteNavigation?.Detalle,
             TienePostulacionActiva: tienePostulacion,
             IdPostulacionActiva: idPostulacion,
             EstadoPostulacionActiva: estadoPostulacion,
@@ -213,7 +213,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                     EsBool: rm.IdRequisitosNavigation?.EsBool == true,
                     SubeAlumno: rm.IdRequisitosNavigation?.SubeAlumno == true,
                     SubeColaborador: rm.IdRequisitosNavigation?.SubeColaborador == true,
-                    EsRequisitoFinal: rm.EsRequistoFinal == true
+                    EsRequisitoFinal: rm.EsRequisitoFinal == true
                 ))
                 .ToList() ?? new List<RequisitoModalidadOfertadaDto>()
         )).ToList();
@@ -560,7 +560,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                 p.IdMatriculaNavigation.IdNivelNavigation.IdCarrera,
                 p.IdMatriculaNavigation.IdNivelNavigation.IdCarreraNavigation.Carrera ?? string.Empty,
                 p.IdModalidadTitulacionCarreraNavigation.IdCohorteCarreraNavigation.IdCohorte,
-                p.IdModalidadTitulacionCarreraNavigation.IdCohorteCarreraNavigation.IdCohorteNavigation.Detelle ?? string.Empty,
+                p.IdModalidadTitulacionCarreraNavigation.IdCohorteCarreraNavigation.IdCohorteNavigation.Detalle ?? string.Empty,
                 p.IdModalidadTitulacionCarrera,
                 p.IdModalidadTitulacionCarreraNavigation.IdModalidadTitulacionNavigation.ModalidadTitulacion ?? string.Empty,
                 p.IdPostulacionEstado,
@@ -828,7 +828,11 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
             if (reqs.Count > 0)
             {
-                var pendientes = reqs.Where(r =>
+                // Solo se exige la aprobación inmediata de los requisitos habilitantes iniciales.
+                // Los requisitos marcados como 'EsRequistoFinal' (ej. Suficiencia de Inglés) se pueden cumplir y entregar durante el proceso de titulación.
+                var reqsHabilitantes = reqs.Where(r => r.IdRequisitoModalidadNavigation?.EsRequisitoFinal != true).ToList();
+
+                var pendientes = reqsHabilitantes.Where(r =>
                 {
                     var ultEvidencia = r.TitulResponsableEvidencia?
                         .OrderByDescending(e => e.Actualizado ?? e.Creado)
@@ -841,7 +845,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                 if (pendientes.Count > 0)
                 {
                     var nombresPendientes = string.Join(", ", pendientes.Select(p => p.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito"));
-                    throw new DominioException($"No se puede aprobar la postulación: faltan requisitos por ser aprobados por los docentes responsables ({nombresPendientes}).");
+                    throw new DominioException($"No se puede aprobar la postulación: faltan requisitos habilitantes iniciales por ser aprobados por los docentes responsables ({nombresPendientes}).");
                 }
             }
         }
@@ -895,7 +899,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             : null;
 
         string mensajeConvocatoria = estaAbierta
-            ? $"Convocatoria '{cohorte?.Detelle}' abierta hasta el {cohorte?.FechaFin:dd/MM/yyyy}. ({diasRestantes} días restantes)."
+            ? $"Convocatoria '{cohorte?.Detalle}' abierta hasta el {cohorte?.FechaFin:dd/MM/yyyy}. ({diasRestantes} días restantes)."
             : (cohorte == null
                 ? "No existe una convocatoria de titulación activa actualmente."
                 : (cohorte.FechaInicio.HasValue && cohorte.FechaInicio.Value > now
@@ -905,7 +909,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         var convocatoriaDto = new ConvocatoriaPortalDto(
             EstaAbierta: estaAbierta,
             Periodo: cohorte?.IdPeriodo,
-            Detalle: cohorte?.Detelle,
+            Detalle: cohorte?.Detalle,
             FechaInicio: cohorte?.FechaInicio,
             FechaCierre: cohorte?.FechaFin,
             DiasRestantes: diasRestantes,
@@ -973,7 +977,11 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                 throw new DominioException("La postulación no cuenta con requisitos configurados para ser evaluados.");
             }
 
-            var pendientes = reqs.Where(r =>
+            // Solo se exige la aprobación inmediata de los requisitos habilitantes iniciales.
+            // Los requisitos marcados como 'EsRequistoFinal' (ej. Suficiencia de Inglés) se pueden cumplir y entregar durante el proceso de titulación.
+            var reqsHabilitantes = reqs.Where(r => r.IdRequisitoModalidadNavigation?.EsRequisitoFinal != true).ToList();
+
+            var pendientes = reqsHabilitantes.Where(r =>
             {
                 var ultEvidencia = r.TitulResponsableEvidencia?
                     .OrderByDescending(e => e.Actualizado ?? e.Creado)
@@ -986,7 +994,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             if (pendientes.Count > 0)
             {
                 var nombresPendientes = string.Join(", ", pendientes.Select(p => p.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito"));
-                throw new DominioException($"No se puede aprobar la postulación: faltan requisitos por ser aprobados por los docentes responsables ({nombresPendientes}).");
+                throw new DominioException($"No se puede aprobar la postulación: faltan requisitos habilitantes iniciales por ser aprobados por los docentes responsables ({nombresPendientes}).");
             }
         }
 
@@ -1117,7 +1125,8 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                     Observaciones: observaciones,
                     NombreEvaluador: nombreEvaluador,
                     CedulaEvaluador: cedulaEvaluador,
-                    FechaEvaluacion: fechaEvaluacion
+                    FechaEvaluacion: fechaEvaluacion,
+                    EsRequisitoFinal: r.IdRequisitoModalidadNavigation?.EsRequisitoFinal == true
                 );
             })
             .ToList();
@@ -1140,7 +1149,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             IdCarrera: p.IdMatriculaNavigation?.IdNivelNavigation?.IdCarrera ?? 0,
             NombreCarrera: carrera?.Carrera ?? string.Empty,
             IdCohorte: cohorte?.IdCohorte ?? 0,
-            DetalleCohorte: cohorte?.Detelle ?? string.Empty,
+            DetalleCohorte: cohorte?.Detalle ?? string.Empty,
             IdModalidadTitulacionCarrera: p.IdModalidadTitulacionCarrera,
             ModalidadTitulacion: modalidad?.ModalidadTitulacion ?? string.Empty,
             IdPostulacionEstado: p.IdPostulacionEstado,

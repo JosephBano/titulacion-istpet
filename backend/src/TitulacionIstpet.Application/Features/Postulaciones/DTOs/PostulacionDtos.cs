@@ -102,7 +102,8 @@ public sealed record PostulacionRequisitoDetalleDto(
     string? Observaciones = null,
     string? NombreEvaluador = null,
     string? CedulaEvaluador = null,
-    DateTime? FechaEvaluacion = null
+    DateTime? FechaEvaluacion = null,
+    bool EsRequisitoFinal = false
 );
 
 public sealed record EstadoPostulacionDto(

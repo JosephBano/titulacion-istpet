@@ -93,7 +93,22 @@ public static class WebApiServiceCollectionExtensions
             ?? ["http://localhost:4200", "https://localhost:4200"];
 
         services.AddCors(options => options.AddPolicy(PoliticaCorsFrontend, policy =>
-            policy.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+        {
+            if (origenes.Contains("*") || origenes.Length == 0)
+            {
+                policy.SetIsOriginAllowed(_ => true)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            }
+            else
+            {
+                policy.WithOrigins(origenes)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            }
+        }));
 
         return services;
     }
