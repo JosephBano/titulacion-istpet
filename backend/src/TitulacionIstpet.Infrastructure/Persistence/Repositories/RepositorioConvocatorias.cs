@@ -27,7 +27,7 @@ public sealed class RepositorioConvocatorias(SigafiDbContext context) : IReposit
         var cohorte = new TitulCohortes
         {
             IdPeriodo = comando.IdPeriodo.Trim(),
-            Detelle = comando.DetalleConvocatoria.Trim().Length > 45
+            Detalle = comando.DetalleConvocatoria.Trim().Length > 45
                 ? comando.DetalleConvocatoria.Trim()[..45]
                 : comando.DetalleConvocatoria.Trim(),
             FechaInicio = comando.FechaInicioCorte,
@@ -166,7 +166,7 @@ public sealed class RepositorioConvocatorias(SigafiDbContext context) : IReposit
             return new ConvocatoriaResumenDto(
                 c.IdCohorte,
                 c.IdPeriodo ?? string.Empty,
-                c.Detelle ?? string.Empty,
+                c.Detalle ?? string.Empty,
                 c.FechaInicio,
                 c.FechaFin,
                 c.DiasPermitidos,
@@ -258,7 +258,7 @@ public sealed class RepositorioConvocatorias(SigafiDbContext context) : IReposit
         return new ConvocatoriaDetalleDto(
             cohorte.IdCohorte,
             cohorte.IdPeriodo ?? string.Empty,
-            cohorte.Detelle ?? string.Empty,
+            cohorte.Detalle ?? string.Empty,
             cohorte.FechaInicio,
             cohorte.FechaFin,
             cohorte.DiasPermitidos,

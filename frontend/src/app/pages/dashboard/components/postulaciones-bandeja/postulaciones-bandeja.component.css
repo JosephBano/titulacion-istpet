@@ -110,6 +110,7 @@
   gap: 10px;
   width: 100%;
   box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .search-box-compact {
@@ -118,18 +119,28 @@
   align-items: center;
   flex: 1 1 240px;
   min-width: 200px;
-  max-width: 320px;
   background: var(--bg-surface, #ffffff);
   border: 1px solid var(--border-default, #cbd5e1);
   border-radius: 4px;
   padding: 0 10px;
   height: 34px;
   box-sizing: border-box;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.search-box-compact:focus-within {
+  border-color: var(--istpet-navy, #0d1b4c);
+  box-shadow: 0 0 0 1px var(--istpet-navy, #0d1b4c);
 }
 
 :host-context([data-theme="dark"]) .search-box-compact {
   background: #0f172a;
   border-color: rgba(255, 255, 255, 0.15);
+}
+
+:host-context([data-theme="dark"]) .search-box-compact:focus-within {
+  border-color: var(--istpet-gold, #c59b27);
+  box-shadow: 0 0 0 1px var(--istpet-gold, #c59b27);
 }
 
 .search-icon {
@@ -736,3 +747,58 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* 6. Badges de Estado Financiero (SIGAFI) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.status-badge.financas-al-dia {
+  background: #dff6dd;
+  color: #107c10;
+  border: 1px solid #107c10;
+}
+
+.status-badge.financas-deuda {
+  background: #fde7e9;
+  color: #a80000;
+  border: 1px solid #a80000;
+}
+
+.status-badge.financas-pendiente {
+  background: #f3f2f1;
+  color: #605e5c;
+  border: 1px solid #c8c6c4;
+}
+
+:host-context([data-theme="dark"]) .status-badge.financas-al-dia {
+  background: rgba(16, 124, 16, 0.2);
+  color: #6bb76b;
+  border-color: #6bb76b;
+}
+
+:host-context([data-theme="dark"]) .status-badge.financas-deuda {
+  background: rgba(168, 0, 0, 0.2);
+  color: #f87171;
+  border-color: #f87171;
+}
+
+:host-context([data-theme="dark"]) .status-badge.financas-pendiente {
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.badge-icon {
+  flex-shrink: 0;
+}
+

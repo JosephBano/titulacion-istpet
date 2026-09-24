@@ -12,4 +12,5 @@ public interface IActoresService
     Task<AptitudTitulacionResponseDto> ValidarAptitudTitulacionAsync(string idAlumno, int idCarrera, CancellationToken cancellationToken = default);
     Task<IEnumerable<AlumnoAptoDto>> GetAlumnosAptosTitulacionAsync(int? idCarrera, int? idModalidad, string? busqueda, CancellationToken cancellationToken = default);
     Task<IEnumerable<GraduadoHistoricoDto>> GetAlumnosGraduadosAsync(int? idCarrera, string? busqueda, CancellationToken cancellationToken = default);
+    Task<EstadoFinancieroAlumnoDto> ValidarNoAdeudarAsync(string idAlumno, int? idCarrera = null, CancellationToken cancellationToken = default);
 }
