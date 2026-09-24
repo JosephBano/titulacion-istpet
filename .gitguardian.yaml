@@ -20,6 +20,8 @@ secret:
   ignored-matches:
     - name: Placeholder de la plantilla de appsettings
       match: CAMBIAME
+    - name: Placeholder JWT legacy en appsettings.example
+      match: CAMBIAME_POR_CLAVE_SECRETA_JWT_MINIMO_32_CARACTERES
 
 instance: https://dashboard.gitguardian.com
 
