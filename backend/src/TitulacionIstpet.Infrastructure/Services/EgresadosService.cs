@@ -53,10 +53,14 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 .Where(m => m.Retirado == null || m.Retirado == false);
 
             if (!esBusquedaPuntual && !string.IsNullOrWhiteSpace(periodoFiltro))
+            {
                 queryMatriculas = queryMatriculas.Where(m => m.IdPeriodo == periodoFiltro);
+            }
 
             if (filtro.IdModalidad.HasValue)
+            {
                 queryMatriculas = queryMatriculas.Where(m => m.IdModalidad == filtro.IdModalidad.Value);
+            }
 
             var alumnosBaseQuery = from mat in queryMatriculas
                                    join a in _context.Alumnos on mat.IdAlumno equals a.IdAlumno
@@ -88,7 +92,9 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                                    };
 
             if (filtro.IdCarrera.HasValue)
+            {
                 alumnosBaseQuery = alumnosBaseQuery.Where(x => x.IdCarrera == filtro.IdCarrera.Value);
+            }
 
             if (esBusquedaPuntual)
             {
@@ -110,7 +116,9 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 .ToList();
 
             if (listaEstudiantes.Count == 0)
+            {
                 return new List<EstudiantePendienteEgresoDto>();
+            }
 
             var idsAlumnos = listaEstudiantes.Select(x => x.IdAlumno).Distinct().ToList();
             var idsCarreras = listaEstudiantes.Select(x => x.IdCarrera).Distinct().ToList();
@@ -145,7 +153,10 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 var dms = rawDetalleMallas!.Where(d => d.IdMalla == m.IdMalla).ToList();
                 return new
                 {
-                    m.IdMalla, m.IdCarrera, m.Descripcion, m.Activa,
+                    m.IdMalla,
+                    m.IdCarrera,
+                    m.Descripcion,
+                    m.Activa,
                     TotalNiveles = dms.Select(d => d.IdNivel).Distinct().Count(),
                     TotalMaterias = dms.Select(d => d.IdAsignatura).Distinct().Count(),
                     AsignaturasIds = dms.Select(d => d.IdAsignatura).Distinct().ToHashSet(),
@@ -181,12 +192,16 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 where idsAlumnos.Contains(m.IdAlumno)
                 select new
                 {
-                    m.IdAlumno, cal.IdMatricula, cal.IdAsignatura, cal.IdNivel,
-                    cal.NotaFinal, cal.PromedioFinal,
+                    m.IdAlumno,
+                    cal.IdMatricula,
+                    cal.IdAsignatura,
+                    cal.IdNivel,
+                    cal.NotaFinal,
+                    cal.PromedioFinal,
                     Aprobado = cal.Aprobado == true,
                     m.FechaMatricula,
                     FechaInicialPeriodo = p != null ? p.FechaInicial : null,
-                    FechaFinalPeriodo   = p != null ? p.FechaFinal   : null
+                    FechaFinalPeriodo = p != null ? p.FechaFinal : null
                 }
             ).ToListAsync(cancellationToken);
 
@@ -219,12 +234,15 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                     .ThenByDescending(m => m.Activa == true)
                     .FirstOrDefault();
 
-                if (mejorMalla == null) continue;
+                if (mejorMalla == null)
+                {
+                    continue;
+                }
 
                 var califsEnMalla = califsAlumno.Where(c => mejorMalla.AsignaturasIds.Contains(c.IdAsignatura)).ToList();
 
                 int materiasAprobadas = califsEnMalla.Where(c => c.Aprobado).Select(c => c.IdAsignatura).Distinct().Count();
-                int nivelesAprobados  = califsEnMalla
+                int nivelesAprobados = califsEnMalla
                     .Where(c => c.Aprobado && c.IdNivel.HasValue && mejorMalla.NivelesIds.Contains(c.IdNivel.Value))
                     .Select(c => c.IdNivel!.Value).Distinct().Count();
 
@@ -236,14 +254,17 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
 
                 decimal promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : 0;
 
-                bool esTitulado       = egresadosTitulos.Contains(est.IdAlumno);
+                bool esTitulado = egresadosTitulos.Contains(est.IdAlumno);
                 bool tienePostulacion = postulacionesMap.TryGetValue(est.IdAlumno, out var estadoPostulacion);
 
                 bool cumplioMalla = materiasAprobadas >= mejorMalla.TotalMaterias ||
                                     (mejorMalla.TotalNiveles > 0 && nivelesAprobados >= mejorMalla.TotalNiveles);
-                bool debeMostrar  = esBusquedaPuntual || (cumplioMalla && !esTitulado);
+                bool debeMostrar = esBusquedaPuntual || (cumplioMalla && !esTitulado);
 
-                if (!debeMostrar) continue;
+                if (!debeMostrar)
+                {
+                    continue;
+                }
 
                 listRes.Add(new EstudiantePendienteEgresoDto(
                     est.IdAlumno,
@@ -266,9 +287,9 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
 
         // 7. Paginación sobre resultados filtrados
         int totalRegistros = resultados?.Count ?? 0;
-        int pagina         = Math.Max(1, filtro.Pagina);
-        int tamanoPagina   = Math.Clamp(filtro.TamanoPagina, 1, 100);
-        int totalPaginas   = (int)Math.Ceiling(totalRegistros / (double)tamanoPagina);
+        int pagina = Math.Max(1, filtro.Pagina);
+        int tamanoPagina = Math.Clamp(filtro.TamanoPagina, 1, 100);
+        int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)tamanoPagina);
 
         var itemsPaginados = (resultados ?? new List<EstudiantePendienteEgresoDto>())
             .Skip((pagina - 1) * tamanoPagina)
@@ -300,7 +321,7 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                     .ToList();
 
                 var matriculaIdToAlumnoKey = validMatriculas.ToDictionary(m => m.IdMatricula, m => $"{m.IdAlumno}_{m.IdCarrera}");
-                var allMatriculaIds        = validMatriculas.Select(m => m.IdMatricula).ToList();
+                var allMatriculaIds = validMatriculas.Select(m => m.IdMatricula).ToList();
 
                 var creditosAlumno = await _context.CreditoAlumno
                     .AsNoTracking()
@@ -308,8 +329,8 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                     .Select(c => new { c.IdCredito, c.IdMatricula, c.IdEspecie, c.Saldo, c.CreditoInicial })
                     .ToListAsync(cancellationToken);
 
-                var creditosIdsBatch  = creditosAlumno.Select(c => c.IdCredito).ToList();
-                var especiesIdsBatch  = creditosAlumno.Select(c => c.IdEspecie).Distinct().ToList();
+                var creditosIdsBatch = creditosAlumno.Select(c => c.IdCredito).ToList();
+                var especiesIdsBatch = creditosAlumno.Select(c => c.IdEspecie).Distinct().ToList();
                 var especiesDictBatch = await _context.Especies
                     .AsNoTracking()
                     .Where(e => especiesIdsBatch.Contains(e.IdEspecie))
@@ -340,9 +361,15 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                                 {
                                     especiesDictBatch.TryGetValue(x.IdEspecie, out var esp);
                                     if (esp != null && !string.IsNullOrWhiteSpace(esp.CodigoReferencia))
+                                    {
                                         return esp.CodigoReferencia.Trim().ToUpper();
+                                    }
+
                                     if (esp != null && !string.IsNullOrWhiteSpace(esp.Especie))
+                                    {
                                         return esp.Especie.Trim().ToUpper();
+                                    }
+
                                     return x.IdEspecie.ToString();
                                 })
                                 .Select(catGroup =>
@@ -350,20 +377,24 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                                     var primerItem = catGroup
                                         .OrderByDescending(x => pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0))
                                         .ThenBy(x => x.IdCredito).First();
-                                    decimal costoUnico    = primerItem.CreditoInicial is > 0 ? primerItem.CreditoInicial.Value : 0;
+                                    decimal costoUnico = primerItem.CreditoInicial is > 0 ? primerItem.CreditoInicial.Value : 0;
                                     decimal saldoRegUnico = costoUnico > 0 ? Math.Min(primerItem.Saldo ?? 0, costoUnico) : (primerItem.Saldo ?? 0);
                                     decimal pagadoCat = catGroup.Sum(x =>
                                     {
                                         decimal pag = pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0);
-                                        if (pag == 0) pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
+                                        if (pag == 0)
+                                        {
+                                            pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
+                                        }
+
                                         return pag;
                                     });
                                     return new { Costo = costoUnico, SaldoReg = saldoRegUnico, Pagado = pagadoCat };
                                 }).ToList();
 
-                            decimal costoSemestre           = rubrosPorCategoria.Sum(x => x.Costo);
+                            decimal costoSemestre = rubrosPorCategoria.Sum(x => x.Costo);
                             decimal saldoRegistradoSemestre = rubrosPorCategoria.Sum(x => x.SaldoReg);
-                            decimal pagadoSemestre          = rubrosPorCategoria.Sum(x => x.Pagado);
+                            decimal pagadoSemestre = rubrosPorCategoria.Sum(x => x.Pagado);
                             decimal saldoSemestre = pagadoSemestre > 0
                                 ? Math.Min(saldoRegistradoSemestre, Math.Max(0, costoSemestre - pagadoSemestre))
                                 : saldoRegistradoSemestre;
@@ -770,19 +801,19 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
             foreach (var mat in matriculasCarrera.OrderBy(m => m.Orden).ThenBy(m => m.FechaMatricula))
             {
                 var creditosMat = creditosAlumno.Where(c => c.IdMatricula == mat.IdMatricula).ToList();
-                
+
                 var tempRubros = new List<(CreditoAlumno cred, Especies? esp, decimal valorInicial, decimal saldoRegistrado, List<ExpedientePagoRealizadoDto> pagosRubro, decimal totalPagadoCaja)>();
 
                 foreach (var cred in creditosMat)
                 {
                     especiesDict.TryGetValue(cred.IdEspecie, out var esp);
                     decimal valorOficial = esp?.Valor ?? 0;
-                    decimal valorInicial = cred.CreditoInicial.HasValue && cred.CreditoInicial.Value > 0 
-                        ? cred.CreditoInicial.Value 
+                    decimal valorInicial = cred.CreditoInicial.HasValue && cred.CreditoInicial.Value > 0
+                        ? cred.CreditoInicial.Value
                         : valorOficial;
 
                     var pagosRubro = pagosValidos
-                        .Where(dp => (dp.IdCredito != null && dp.IdCredito.Value == cred.IdCredito) 
+                        .Where(dp => (dp.IdCredito != null && dp.IdCredito.Value == cred.IdCredito)
                                   || (dp.IdMatricula != null && dp.IdMatricula.Value == mat.IdMatricula && dp.IdEspecie == cred.IdEspecie))
                         .Select(p => new ExpedientePagoRealizadoDto(
                             p.IdPago,
@@ -815,9 +846,15 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                     .GroupBy(t =>
                     {
                         if (t.esp != null && !string.IsNullOrWhiteSpace(t.esp.CodigoReferencia))
+                        {
                             return t.esp.CodigoReferencia.Trim().ToUpper();
+                        }
+
                         if (t.esp != null && !string.IsNullOrWhiteSpace(t.esp.Especie))
+                        {
                             return t.esp.Especie.Trim().ToUpper();
+                        }
+
                         return t.cred.IdEspecie.ToString();
                     })
                     .ToList();
@@ -851,8 +888,8 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
 
                     decimal totalAbonado = Math.Min(principal.valorInicial, Math.Max(abonoEfectivo, principal.valorInicial - saldoPendiente));
 
-                    string estadoRubro = saldoPendiente <= 0 
-                        ? "PAGADO" 
+                    string estadoRubro = saldoPendiente <= 0
+                        ? "PAGADO"
                         : (totalAbonado > 0 ? "ABONO PARCIAL" : "PENDIENTE");
 
                     rubrosList.Add(new ExpedienteRubroFinancieroDto(
@@ -871,8 +908,8 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 decimal totalSemestre = rubrosList.Sum(r => r.ValorInicial);
                 decimal totalAbonadoSemestre = rubrosList.Sum(r => r.TotalAbonado);
                 decimal saldoPendienteSemestre = rubrosList.Sum(r => r.SaldoPendiente);
-                string estadoSemestre = saldoPendienteSemestre <= 0 
-                    ? "AL DIA" 
+                string estadoSemestre = saldoPendienteSemestre <= 0
+                    ? "AL DIA"
                     : (totalAbonadoSemestre > 0 ? "ABONO PARCIAL" : "PENDIENTE");
 
                 semestresList.Add(new ExpedienteSemestreFinancieroDto(

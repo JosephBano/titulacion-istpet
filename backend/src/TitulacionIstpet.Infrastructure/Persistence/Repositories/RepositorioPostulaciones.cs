@@ -328,7 +328,10 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
 
     private async Task<(bool noAdeuda, decimal saldoPendiente, bool tieneRestricciones)> ConsultarFinanzasAlumnoAsync(string idAlumno, int? idCarrera, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(idAlumno)) return (true, 0, false);
+        if (string.IsNullOrWhiteSpace(idAlumno))
+        {
+            return (true, 0, false);
+        }
 
         var queryMatriculas = _context.Matriculas
             .AsNoTracking()
@@ -389,9 +392,15 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                         {
                             especiesDict.TryGetValue(x.IdEspecie, out var esp);
                             if (esp != null && !string.IsNullOrWhiteSpace(esp.CodigoReferencia))
+                            {
                                 return esp.CodigoReferencia.Trim().ToUpper();
+                            }
+
                             if (esp != null && !string.IsNullOrWhiteSpace(esp.Especie))
+                            {
                                 return esp.Especie.Trim().ToUpper();
+                            }
+
                             return x.IdEspecie.ToString();
                         })
                         .Select(catGroup =>
@@ -407,7 +416,11 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
                             decimal pagadoCat = catGroup.Sum(x =>
                             {
                                 decimal pag = pagosDict.GetValueOrDefault($"C_{x.IdCredito}", 0);
-                                if (pag == 0) pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
+                                if (pag == 0)
+                                {
+                                    pag = pagosDict.GetValueOrDefault($"M_{x.IdMatricula}_{x.IdEspecie}", 0);
+                                }
+
                                 return pag;
                             });
 
