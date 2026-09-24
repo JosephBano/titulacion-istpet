@@ -1,6 +1,9 @@
 <section class="fluent-stepper-card" [class.fluent-stepper-card--rejected]="esRechazado()">
   <div class="stepper-header">
-    <h2 class="stepper-title">Etapas de Mi Proceso de Titulación</h2>
+    <div class="stepper-title-wrap">
+      <h2 class="stepper-title">Etapas del Proceso de Titulación</h2>
+      <span class="stepper-subtitle">Haga clic en cualquier etapa para consultar detalles y requisitos</span>
+    </div>
     <span
       class="fluent-badge"
       [class.fluent-badge--danger]="esRechazado()"
@@ -11,23 +14,23 @@
     </span>
   </div>
 
+  <!-- Barra de progreso visual de 5 pasos -->
   <div class="stepper-grid">
     <!-- Paso 1 -->
     <div
       class="stepper-step"
-      [class.completed]="etapaActual() >= 1"
+      tabindex="0"
+      role="button"
+      [class.completed]="etapaActual() > 1"
       [class.active]="etapaActual() === 1"
+      [class.selected-view]="pasoActivoVisual() === 1"
+      (click)="seleccionarPaso(1)"
+      (keydown.enter)="seleccionarPaso(1)"
+      title="Ver información de Paso 1: Postulación"
     >
       <div class="step-icon-circle">
         @if (etapaActual() > 1) {
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         } @else {
@@ -41,32 +44,24 @@
     <!-- Paso 2 -->
     <div
       class="stepper-step"
-      [class.completed]="!esRechazado() && etapaActual() >= 2"
+      tabindex="0"
+      role="button"
+      [class.completed]="!esRechazado() && etapaActual() > 2"
       [class.active]="!esRechazado() && etapaActual() === 2"
+      [class.selected-view]="pasoActivoVisual() === 2"
       [class.rejected]="esRechazado()"
+      (click)="seleccionarPaso(2)"
+      (keydown.enter)="seleccionarPaso(2)"
+      title="Ver información de Paso 2: Requisitos"
     >
       <div class="step-icon-circle" [class.circle-danger]="esRechazado()">
         @if (esRechazado()) {
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         } @else if (etapaActual() > 2) {
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         } @else {
@@ -74,25 +69,26 @@
         }
       </div>
       <span class="step-label">2. Requisitos</span>
-      <span class="step-status" [class.text-danger]="esRechazado()">{{ estadoNombre() }}</span>
+      <span class="step-status" [class.text-danger]="esRechazado()">
+        {{ esRechazado() ? 'Rechazado' : aprobadosRequisitos() + '/' + totalRequisitos() + ' Validados' }}
+      </span>
     </div>
 
     <!-- Paso 3 -->
     <div
       class="stepper-step"
-      [class.completed]="etapaActual() >= 3"
+      tabindex="0"
+      role="button"
+      [class.completed]="etapaActual() > 3"
       [class.active]="etapaActual() === 3"
+      [class.selected-view]="pasoActivoVisual() === 3"
+      (click)="seleccionarPaso(3)"
+      (keydown.enter)="seleccionarPaso(3)"
+      title="Ver información de Paso 3: Modalidad"
     >
       <div class="step-icon-circle">
         @if (etapaActual() > 3) {
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         } @else {
@@ -106,19 +102,18 @@
     <!-- Paso 4 -->
     <div
       class="stepper-step"
-      [class.completed]="etapaActual() >= 4"
+      tabindex="0"
+      role="button"
+      [class.completed]="etapaActual() > 4"
       [class.active]="etapaActual() === 4"
+      [class.selected-view]="pasoActivoVisual() === 4"
+      (click)="seleccionarPaso(4)"
+      (keydown.enter)="seleccionarPaso(4)"
+      title="Ver información de Paso 4: Evaluación"
     >
       <div class="step-icon-circle">
         @if (etapaActual() > 4) {
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-          >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         } @else {
@@ -132,12 +127,69 @@
     <!-- Paso 5 -->
     <div
       class="stepper-step"
+      tabindex="0"
+      role="button"
       [class.completed]="etapaActual() >= 5"
       [class.active]="etapaActual() === 5"
+      [class.selected-view]="pasoActivoVisual() === 5"
+      (click)="seleccionarPaso(5)"
+      (keydown.enter)="seleccionarPaso(5)"
+      title="Ver información de Paso 5: Titulación"
     >
-      <div class="step-icon-circle">5</div>
+      <div class="step-icon-circle">
+        @if (etapaActual() >= 5) {
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        } @else {
+          5
+        }
+      </div>
       <span class="step-label">5. Titulación</span>
       <span class="step-status">Acta de Grado</span>
     </div>
   </div>
+
+  <!-- Panel de Información Dinámica del Paso Activo / Consultado -->
+  @if (infoPasoActivo(); as info) {
+    <div class="step-detail-box" [class.step-detail-box--rejected]="esRechazado() && info.numero === 2">
+      <div class="detail-header">
+        <div class="detail-title-group">
+          <span class="detail-badge-step">Paso {{ info.numero }} de 5</span>
+          <h3 class="detail-heading">{{ info.nombre }}</h3>
+        </div>
+        <span
+          class="status-pill-subtle"
+          [class.pill-success]="info.badgeTipo === 'success'"
+          [class.pill-warning]="info.badgeTipo === 'warning'"
+          [class.pill-info]="info.badgeTipo === 'info'"
+          [class.pill-danger]="info.badgeTipo === 'danger'"
+        >
+          {{ info.estadoBadge }}
+        </span>
+      </div>
+
+      <p class="detail-description">{{ info.descripcion }}</p>
+
+      <div class="detail-cards-row">
+        <!-- Estado Actual en esta Etapa -->
+        <div class="detail-card-mini">
+          <span class="mini-label">¿Qué significa esta etapa para usted?</span>
+          <p class="mini-text">{{ info.queSignifica }}</p>
+        </div>
+
+        <!-- Acción que debe realizar el estudiante -->
+        <div class="detail-card-mini detail-card-mini--action">
+          <span class="mini-label">Acción requerida:</span>
+          <p class="mini-text">{{ info.accionEstudiante }}</p>
+        </div>
+
+        <!-- Próximo Paso -->
+        <div class="detail-card-mini">
+          <span class="mini-label">Próximo hito:</span>
+          <p class="mini-text">{{ info.proximoPaso }}</p>
+        </div>
+      </div>
+    </div>
+  }
 </section>

@@ -182,13 +182,62 @@
 
     <!-- CASO B: EXPEDIENTE ACTIVO -->
     @if (p.postulacionActiva !== null) {
-      <!-- Stepper Dinámico -->
+      <!-- Stepper Dinámico con Información de Cada Fase -->
       <app-stepper
         [etapaActual]="obtenerEtapaStepper(p.postulacionActiva.nombreEstado)"
         [estadoNombre]="p.postulacionActiva.nombreEstado"
         [modalidadNombre]="p.postulacionActiva.modalidadTitulacion"
         [tienePostulacion]="true"
+        [totalRequisitos]="p.postulacionActiva.requisitos.length"
+        [aprobadosRequisitos]="totalAprobados(p.postulacionActiva.requisitos)"
+        [pendientesRequisitos]="requisitosFaltantes(p.postulacionActiva.requisitos).length"
+        [tieneRequisitosFinalesPendientes]="tieneRequisitosFinalesPendientes(p.postulacionActiva.requisitos)"
       />
+
+      <!-- Banner Informativo Dinámico: Documentos Pendientes y Continuidad del Proceso -->
+      @if (requisitosFaltantes(p.postulacionActiva.requisitos); as faltantes) {
+        @if (faltantes.length > 0 && !esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
+          <div class="pending-docs-alert-box" role="region" aria-label="Aviso de requisitos pendientes">
+            <div class="alert-icon-col">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="alert-content-col">
+              <div class="alert-header-row">
+                <h4 class="alert-main-title">Aviso de Requisitos Pendientes en su Expediente</h4>
+                <span class="alert-badge-notice">Continuidad Académica</span>
+              </div>
+              <p class="alert-main-text">
+                Tiene <strong>{{ faltantes.length }} {{ faltantes.length === 1 ? 'requisito pendiente' : 'requisitos pendientes' }}</strong> de validación.
+                @if (tieneRequisitosFinalesPendientes(p.postulacionActiva.requisitos)) {
+                  <span>
+                    Su proceso de titulación <strong>puede continuar en desarrollo con normalidad</strong> dentro de su cohorte; sin embargo, <strong>no podrá culminar su titulación ni se emitirá su acta de grado</strong> hasta que entregue y sean aprobados todos los requisitos antes de la defensa final o fecha de cierre.
+                  </span>
+                } @else {
+                  <span>
+                    Por favor suba los archivos requeridos para que los docentes responsables validen su expediente formalmente.
+                  </span>
+                }
+              </p>
+              <div class="pending-tags-container">
+                @for (req of faltantes; track req.idPostulacionAlumnoRequisitoModalidad) {
+                  <div class="pending-tag-chip" [class.pending-tag-chip--final]="req.esRequisitoFinal">
+                    <span class="chip-dot">●</span>
+                    <strong class="chip-name">{{ req.nombreRequisito }}</strong>
+                    <span class="chip-type">
+                      {{ req.esRequisitoFinal ? 'Requisito Final (Subsanable en Proceso)' : 'Requisito Inicial' }}
+                    </span>
+                    <span class="chip-status">[{{ req.estadoValidacion || 'Pendiente' }}]</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
 
       <!-- Banner de Alerta Prominente cuando la Solicitud es Rechazada -->
       @if (esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
@@ -436,6 +485,16 @@
                       : 'Valida: Secretaría Académica'
                   }}
                 </span>
+
+                @if (req.esRequisitoFinal) {
+                  <span class="req-nature-badge req-nature-badge--final" title="Requisito de Salida: Su proceso puede continuar en la cohorte, pero debe entregarlo y aprobarlo antes de la graduación final">
+                    🎓 Requisito Final de Graduación (Subsanable en Proceso)
+                  </span>
+                } @else {
+                  <span class="req-nature-badge req-nature-badge--initial" title="Requisito Habilitante Inicial: Necesario para la admisión a la titulación">
+                    📋 Requisito Inicial Habilitante
+                  </span>
+                }
               </div>
 
               <!-- Observaciones del Docente Evaluador -->

@@ -99,6 +99,16 @@ export class EstudianteProcesoComponent {
     return est.includes('RECHAZ') || est.includes('NEGAD');
   }
 
+  requisitosFaltantes(requisitos?: PostulacionRequisitoDetalle[]): PostulacionRequisitoDetalle[] {
+    if (!requisitos) return [];
+    return requisitos.filter((r) => !this.esRequisitoAprobado(r));
+  }
+
+  tieneRequisitosFinalesPendientes(requisitos?: PostulacionRequisitoDetalle[]): boolean {
+    if (!requisitos) return false;
+    return requisitos.some((r) => r.esRequisitoFinal && !this.esRequisitoAprobado(r));
+  }
+
   obtenerObservacionPostulacion(postulacion: PostulacionDetalle | null): string | null {
     if (!postulacion) return null;
     if (

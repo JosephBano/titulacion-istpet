@@ -111,6 +111,7 @@ export interface PostulacionRequisitoDetalle {
   nombreEvaluador?: string | null;
   cedulaEvaluador?: string | null;
   fechaEvaluacion?: string | Date | null;
+  esRequisitoFinal?: boolean;
 }
 
 export interface ResponsableRequisito {
