@@ -6,6 +6,7 @@
     "start": "ng serve",
     "postinstall": "node -e \"const fs=require('fs');const p='node_modules/@angular/cli/src/utilities/node-version.js';if(fs.existsSync(p)){let c=fs.readFileSync(p,'utf8');c=c.replace(/\\^22\\.22\\.3 \\|\\| \\^24\\.15\\.0 \\|\\| >=26\\.0\\.0/g,'^22.0.0 || ^24.0.0 || >=26.0.0');fs.writeFileSync(p,c,'utf8');}\"",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
@@ -22,6 +23,8 @@
     "@angular/material": "^22.1.4",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

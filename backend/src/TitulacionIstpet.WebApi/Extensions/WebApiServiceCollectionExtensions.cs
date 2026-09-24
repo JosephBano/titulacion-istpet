@@ -27,9 +27,15 @@ public static class WebApiServiceCollectionExtensions
                 tags: ["db", "ready"]);
 
         // 1. Configuración de Autenticación JWT Bearer
-        var secretKey = configuration["JwtSettings:SecretKey"] ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
-        var issuer = configuration["JwtSettings:Issuer"] ?? "TitulacionIstpetApi";
-        var audience = configuration["JwtSettings:Audience"] ?? "TitulacionIstpetApp";
+        var secretKey = configuration["JwtSettings:SecretKey"]
+            ?? configuration["Jwt:ClaveFirma"]
+            ?? "TitulacionIstpetSystemSecretKeyForJwtAuthenticationSuperSecure2026!";
+        var issuer = configuration["JwtSettings:Issuer"]
+            ?? configuration["Jwt:Issuer"]
+            ?? "TitulacionIstpetApi";
+        var audience = configuration["JwtSettings:Audience"]
+            ?? configuration["Jwt:Audience"]
+            ?? "TitulacionIstpetApp";
 
         services.AddAuthentication(options =>
         {
@@ -87,7 +93,22 @@ public static class WebApiServiceCollectionExtensions
             ?? ["http://localhost:4200", "https://localhost:4200"];
 
         services.AddCors(options => options.AddPolicy(PoliticaCorsFrontend, policy =>
-            policy.WithOrigins(origenes).AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
+        {
+            if (origenes.Contains("*") || origenes.Length == 0)
+            {
+                policy.SetIsOriginAllowed(_ => true)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            }
+            else
+            {
+                policy.WithOrigins(origenes)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            }
+        }));
 
         return services;
     }
