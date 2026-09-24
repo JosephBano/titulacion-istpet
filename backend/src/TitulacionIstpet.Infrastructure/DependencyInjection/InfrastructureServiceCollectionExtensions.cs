@@ -33,6 +33,8 @@ public static class InfrastructureServiceCollectionExtensions
         // La version se fija explicitamente para evitar autodetect en CI sin MySQL levantado
         var version = new MySqlServerVersion(new Version(5, 7, 44));
 
+        services.AddMemoryCache();
+
         services.AddDbContext<SigafiDbContext>(options =>
             options.UseMySql(cadena, version, mysql =>
             {
@@ -63,6 +65,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IModalidadesService, ModalidadesService>();
         services.AddScoped<IActoresService, ActoresService>();
         services.AddScoped<IAcademicoService, AcademicoService>();
+        services.AddScoped<IEgresadosService, EgresadosService>();
 
         return services;
     }
