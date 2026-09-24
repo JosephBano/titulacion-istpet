@@ -73,6 +73,20 @@ export class TitulacionService {
     return this.http.post<PostulacionDetalle>(`${this.API_URL}/postulaciones`, request);
   }
 
+  public actualizarRequisitosPostulacion(
+    idPostulacion: number,
+    requisitos: {
+      idRequisitoModalidad: number;
+      idAdjuntosImagenes?: number | null;
+      valorBool?: boolean | null;
+    }[],
+  ): Observable<void> {
+    return this.http.put<void>(`${this.API_URL}/postulaciones/${idPostulacion}/requisitos`, {
+      idPostulacionAlumnos: idPostulacion,
+      requisitos,
+    });
+  }
+
   public getPostulaciones(
     pagina = 1,
     tamanoPagina = 20,
@@ -313,17 +327,12 @@ export class TitulacionService {
 
   public subirAdjunto(
     archivo: File,
-  ): Observable<{ idAdjuntosImagenes: number; nombreArchivos: string }> {
-    const comando = {
-      nombreArchivos: archivo.name.substring(0, 85),
-      extension: archivo.name.split('.').pop() || '',
-      mimeTypes: archivo.type || 'application/octet-stream',
-      tamanioBytes: archivo.size,
-      ruta: `/evidencias/${archivo.name}`,
-    };
-    return this.http.post<{ idAdjuntosImagenes: number; nombreArchivos: string }>(
-      `${this.apiBaseUrl}/api/adjuntos-imagenes`,
-      comando,
+  ): Observable<{ idAdjuntosImagenes: number; nombreArchivos: string; ruta?: string }> {
+    const formData = new FormData();
+    formData.append('archivo', archivo, archivo.name);
+    return this.http.post<{ idAdjuntosImagenes: number; nombreArchivos: string; ruta?: string }>(
+      `${this.apiBaseUrl}/api/adjuntos-imagenes/subir`,
+      formData,
     );
   }
 }

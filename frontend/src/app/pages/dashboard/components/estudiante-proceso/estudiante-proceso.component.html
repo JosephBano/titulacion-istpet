@@ -182,13 +182,96 @@
 
     <!-- CASO B: EXPEDIENTE ACTIVO -->
     @if (p.postulacionActiva !== null) {
-      <!-- Stepper Dinámico -->
+      <!-- Stepper Dinámico con Información de Cada Fase -->
       <app-stepper
         [etapaActual]="obtenerEtapaStepper(p.postulacionActiva.nombreEstado)"
         [estadoNombre]="p.postulacionActiva.nombreEstado"
         [modalidadNombre]="p.postulacionActiva.modalidadTitulacion"
         [tienePostulacion]="true"
+        [totalRequisitos]="p.postulacionActiva.requisitos.length"
+        [aprobadosRequisitos]="totalAprobados(p.postulacionActiva.requisitos)"
+        [pendientesRequisitos]="requisitosFaltantes(p.postulacionActiva.requisitos).length"
+        [tieneRequisitosFinalesPendientes]="
+          tieneRequisitosFinalesPendientes(p.postulacionActiva.requisitos)
+        "
       />
+
+      <!-- Banner Informativo Dinámico: Documentos Pendientes y Continuidad del Proceso -->
+      @if (requisitosFaltantes(p.postulacionActiva.requisitos); as faltantes) {
+        @if (faltantes.length > 0 && !esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
+          <div
+            class="pending-docs-alert-box"
+            role="region"
+            aria-label="Aviso de requisitos pendientes"
+          >
+            <div class="alert-icon-col">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="alert-content-col">
+              <div class="alert-header-row">
+                <h4 class="alert-main-title">Aviso de Requisitos Pendientes en su Expediente</h4>
+                <span class="alert-badge-notice">Continuidad Académica</span>
+              </div>
+              <p class="alert-main-text">
+                Tiene
+                <strong
+                  >{{ faltantes.length }}
+                  {{
+                    faltantes.length === 1 ? 'requisito pendiente' : 'requisitos pendientes'
+                  }}</strong
+                >
+                de validación.
+                @if (tieneRequisitosFinalesPendientes(p.postulacionActiva.requisitos)) {
+                  <span>
+                    Su proceso de titulación
+                    <strong>puede continuar en desarrollo con normalidad</strong> dentro de su
+                    cohorte; sin embargo,
+                    <strong>no podrá culminar su titulación ni se emitirá su acta de grado</strong>
+                    hasta que entregue y sean aprobados todos los requisitos antes de la defensa
+                    final o fecha de cierre.
+                  </span>
+                } @else {
+                  <span>
+                    Por favor suba los archivos requeridos para que los docentes responsables
+                    validen su expediente formalmente.
+                  </span>
+                }
+              </p>
+              <div class="pending-tags-container">
+                @for (req of faltantes; track req.idPostulacionAlumnoRequisitoModalidad) {
+                  <div
+                    class="pending-tag-chip"
+                    [class.pending-tag-chip--final]="req.esRequisitoFinal"
+                  >
+                    <span class="chip-dot">●</span>
+                    <strong class="chip-name">{{ req.nombreRequisito }}</strong>
+                    <span class="chip-type">
+                      {{
+                        req.esRequisitoFinal
+                          ? 'Requisito Final (Subsanable en Proceso)'
+                          : 'Requisito Inicial'
+                      }}
+                    </span>
+                    <span class="chip-status">[{{ req.estadoValidacion || 'Pendiente' }}]</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
 
       <!-- Banner de Alerta Prominente cuando la Solicitud es Rechazada -->
       @if (esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
@@ -359,12 +442,13 @@
               class="req-status-card"
               [class.approved]="esRequisitoAprobado(req)"
               [class.rejected]="
-                esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                !esRequisitoAprobado(req)
+                esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
+                esRequisitoRechazado(req)
               "
               [class.pending]="
                 !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                !esRequisitoAprobado(req)
+                !esRequisitoAprobado(req) &&
+                !esRequisitoRechazado(req)
               "
             >
               <div class="req-card-top">
@@ -373,8 +457,8 @@
                     class="status-indicator-dot"
                     [class.dot-success]="esRequisitoAprobado(req)"
                     [class.dot-danger]="
-                      esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                      !esRequisitoAprobado(req)
+                      esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
+                      esRequisitoRechazado(req)
                     "
                   ></span>
                   <strong class="req-card-name">{{ req.nombreRequisito }}</strong>
@@ -383,28 +467,86 @@
                   class="status-pill"
                   [class.status-pill--success]="esRequisitoAprobado(req)"
                   [class.status-pill--danger]="
-                    esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                    !esRequisitoAprobado(req)
+                    esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
+                    esRequisitoRechazado(req)
                   "
                   [class.status-pill--warning]="
                     !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                    !esRequisitoAprobado(req)
+                    !esRequisitoAprobado(req) &&
+                    !esRequisitoRechazado(req)
                   "
                 >
                   {{
                     esRequisitoAprobado(req)
                       ? 'Aprobado'
-                      : esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                        ? req.estadoValidacion || 'No Admitido'
+                      : esRequisitoRechazado(req) ||
+                          esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                        ? 'Rechazado'
                         : req.estadoValidacion || 'En Validación'
                   }}
                 </span>
               </div>
 
+              <!-- Responsable de Carga Badge -->
+              <div class="req-responsable-row">
+                <span
+                  class="responsable-badge"
+                  [class.responsable-badge--student]="req.subeAlumno"
+                  [class.responsable-badge--dept]="!req.subeAlumno"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    @if (req.subeAlumno) {
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    } @else {
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    }
+                  </svg>
+                  {{
+                    req.subeAlumno
+                      ? 'Responsable: Estudiante (Debe subir documento)'
+                      : 'Valida: Secretaría Académica'
+                  }}
+                </span>
+
+                @if (req.esRequisitoFinal) {
+                  <span
+                    class="req-nature-badge req-nature-badge--final"
+                    title="Requisito de Salida: Su proceso puede continuar en la cohorte, pero debe entregarlo y aprobarlo antes de la graduación final"
+                  >
+                    🎓 Requisito Final de Graduación (Subsanable en Proceso)
+                  </span>
+                } @else {
+                  <span
+                    class="req-nature-badge req-nature-badge--initial"
+                    title="Requisito Habilitante Inicial: Necesario para la admisión a la titulación"
+                  >
+                    📋 Requisito Inicial Habilitante
+                  </span>
+                }
+              </div>
+
               <!-- Observaciones del Docente Evaluador -->
               @if (req.observaciones) {
                 <div class="req-feedback-box">
-                  <span class="feedback-label">Observación del Evaluador:</span>
+                  <span class="feedback-label">
+                    {{
+                      esRequisitoRechazado(req)
+                        ? 'Motivo del Rechazo / Observación:'
+                        : 'Observación del Evaluador:'
+                    }}
+                  </span>
                   <p class="feedback-text">{{ req.observaciones }}</p>
                 </div>
               } @else {
@@ -413,38 +555,130 @@
                     {{
                       esRequisitoAprobado(req)
                         ? 'Requisito verificado y validado por secretaría/docente.'
-                        : esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                          ? 'Trámite cerrado con dictamen de rechazo.'
-                          : 'Pendiente de revisión por el docente asignado.'
+                        : esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
+                            esRequisitoRechazado(req)
+                          ? 'Requisito no aprobado / rechazado. Por favor revise las correcciones y vuelva a subir el documento.'
+                          : req.subeAlumno
+                            ? 'Suba su documento digital para que el docente asignado proceda con la validación.'
+                            : 'Pendiente de verificación por la secretaría / docente asignado.'
                     }}
                   </span>
                 </div>
               }
 
-              <!-- Documento de Soporte / Adjunto si existe -->
-              @if (req.nombreArchivoAdjunto) {
-                <div class="req-attachment-info">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
-                  <a
-                    [href]="req.rutaArchivoAdjunto"
-                    target="_blank"
-                    class="attachment-download-link"
-                  >
-                    {{ req.nombreArchivoAdjunto }}
-                  </a>
-                </div>
-              }
+              <!-- Documento de Soporte / Zona de Carga para el Estudiante -->
+              <div class="req-file-zone">
+                @if (req.nombreArchivoAdjunto) {
+                  <div class="req-attachment-card">
+                    <div class="attachment-details">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                      </svg>
+                      <a
+                        [href]="req.rutaArchivoAdjunto"
+                        target="_blank"
+                        class="attachment-download-link"
+                        title="Ver o descargar documento cargado"
+                      >
+                        {{ req.nombreArchivoAdjunto }}
+                      </a>
+                    </div>
+
+                    @if (
+                      req.subeAlumno &&
+                      !esRequisitoAprobado(req) &&
+                      !esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                    ) {
+                      <input
+                        #fileInputReplace
+                        type="file"
+                        (change)="onFileChange(req, $event)"
+                        accept="application/pdf,.pdf"
+                        style="display: none"
+                      />
+                      <button
+                        type="button"
+                        class="btn-replace-doc"
+                        (click)="fileInputReplace.click()"
+                        [disabled]="
+                          subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
+                        "
+                      >
+                        @if (subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad) {
+                          <span class="spinner-small"></span> Actualizando...
+                        } @else {
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                          </svg>
+                          Reemplazar PDF
+                        }
+                      </button>
+                    }
+                  </div>
+                } @else if (
+                  req.subeAlumno &&
+                  !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                  !esRequisitoAprobado(req)
+                ) {
+                  <div class="req-upload-cta">
+                    <input
+                      #fileInputUpload
+                      type="file"
+                      (change)="onFileChange(req, $event)"
+                      accept="application/pdf,.pdf"
+                      style="display: none"
+                    />
+                    <button
+                      type="button"
+                      class="btn-upload-doc"
+                      (click)="fileInputUpload.click()"
+                      [disabled]="
+                        subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
+                      "
+                    >
+                      @if (subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad) {
+                        <span class="spinner-small"></span> Subiendo PDF...
+                      } @else {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                          <polyline points="17 8 12 3 7 8"></polyline>
+                          <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Subir Documento (PDF)
+                      }
+                    </button>
+                    <span class="upload-hint">
+                      <strong>Formato obligatorio:</strong> PDF (máx. 2 MB) &nbsp;·&nbsp;
+                      <em>¿Está en Word? En Word elija Guardar como > PDF</em>
+                    </span>
+                  </div>
+                }
+              </div>
             </div>
           }
         </div>
