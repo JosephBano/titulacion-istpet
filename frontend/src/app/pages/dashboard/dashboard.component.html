@@ -465,120 +465,482 @@
       <!-- VISTAS DEL ADMINISTRADOR                                     -->
       <!-- ============================================================ -->
 
-      <!-- 1. PESTAÑA: VISTA GENERAL (RESUMEN & KPIS EN VIVO) -->
+      <!-- 1. PESTAÑA: VISTA GENERAL (PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL) -->
       @if (isAdmin() && activeTab() === 'resumen') {
-        <section class="fluent-kpi-grid">
-          <app-kpi-card
-            eyebrow="TOTAL POSTULACIONES"
-            [value]="postulacionesTotal()"
-            [subtext]="'Período: ' + periodoNombreAmigable()"
-          />
-          <app-kpi-card
-            eyebrow="POSTULACIONES APROBADAS"
-            [value]="totalAprobadas()"
-            subtext="Habilitados para proceso final"
-          />
-          <app-kpi-card
-            eyebrow="EN REVISIÓN / OBSERVADAS"
-            [value]="totalEnRevision()"
-            subtext="Pendientes de dictamen"
-          />
-          <app-kpi-card
-            eyebrow="ESTADO DE CONVOCATORIA"
-            [value]="
-              convocatoriaActiva()?.estaVigenteCorte
-                ? 'Corte Abierto (Vigente)'
-                : convocatoriaActiva()
-                  ? 'Corte Cerrado'
-                  : 'Sin Convocatoria'
-            "
-            [subtext]="convocatoriaActiva()?.detalle || 'Configure un período'"
-            valueFontSize="1.1rem"
-          />
+        <!-- HERO / BANNER DE ESTADO DEL CICLO ACADÉMICO -->
+        <section class="overview-hero-card">
+          <div class="overview-hero-content">
+            <div class="overview-hero-main">
+              <div class="overview-hero-status">
+                <span
+                  class="status-indicator-dot"
+                  [class.dot-success]="convocatoriaActiva()?.estaVigenteCorte"
+                  [class.dot-warning]="convocatoriaActiva() && !convocatoriaActiva()?.estaVigenteCorte"
+                  [class.dot-neutral]="!convocatoriaActiva()"
+                ></span>
+                <span class="overview-hero-badge">
+                  {{
+                    convocatoriaActiva()?.estaVigenteCorte
+                      ? 'CONVOCATORIA VIGENTE'
+                      : convocatoriaActiva()
+                        ? 'CORTE CERRADO'
+                        : 'SIN CONVOCATORIA ACTIVA'
+                  }}
+                </span>
+                @if (convocatoriaActiva()?.idPeriodo) {
+                  <span class="overview-hero-period-tag">{{ convocatoriaActiva()?.idPeriodo }}</span>
+                }
+              </div>
+
+              <h2 class="overview-hero-title">
+                {{ periodoNombreAmigable() }}
+              </h2>
+              <p class="overview-hero-subtitle">
+                {{ convocatoriaActiva()?.detalle || 'No existe una convocatoria activa configurada actualmente para el instituto.' }}
+              </p>
+
+              <!-- Métricas del Ciclo Activo -->
+              <div class="overview-hero-meta-grid">
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Fecha Apertura</span>
+                  <span class="hero-meta-value">{{ formatearFechaHumana(convocatoriaActiva()?.fechaInicio || resumenGeneral()?.fechaInicioCorte) }}</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Fecha Límite Corte</span>
+                  <span class="hero-meta-value">{{ formatearFechaHumana(convocatoriaActiva()?.fechaFin || resumenGeneral()?.fechaFinCorte) }}</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Tiempo Restante</span>
+                  <span class="hero-meta-value">
+                    @if (convocatoriaActiva()?.estaVigenteCorte && (resumenGeneral()?.diasRestantesCorte ?? 0) > 0) {
+                      {{ resumenGeneral()?.diasRestantesCorte }} días de corte
+                    } @else if (convocatoriaActiva()?.estaVigenteCorte) {
+                      Último día de vigencia
+                    } @else {
+                      Convocatoria finalizada
+                    }
+                  </span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Carreras Habilitadas</span>
+                  <span class="hero-meta-value">
+                    {{ resumenGeneral()?.totalCarrerasHabilitadas ?? carrerasDisponibles().length }} carreras
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="overview-hero-actions">
+              <button
+                type="button"
+                class="fluent-btn-primary hero-btn"
+                (click)="abrirAperturaModal()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Aperturar Período</span>
+              </button>
+              <button
+                type="button"
+                class="fluent-btn-secondary hero-btn-sec"
+                (click)="setActiveTab('cohortes')"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Gestionar Cohortes</span>
+              </button>
+            </div>
+          </div>
         </section>
 
-        <!-- GRIDS DE ACCESO DIRECTO -->
-        <section class="fluent-section">
-          <div class="section-header">
-            <span class="section-eyebrow">MÓDULOS DE ADMINISTRACIÓN</span>
-            <h2 class="section-title">Servicios del Proceso de Titulación</h2>
+        <!-- KPI GRID EJECUTIVO (5 Métricas) -->
+        <section class="overview-kpi-grid">
+          <div class="overview-kpi-card" (click)="irAPostulacionesConFiltro()" role="button" tabindex="0">
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">TOTAL POSTULACIONES</span>
+              <span class="kpi-icon-pill">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </span>
+            </div>
+            <span class="kpi-value">{{ resumenGeneral()?.totalPostulaciones ?? postulacionesTotal() }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Registradas en el ciclo lectivo</span>
+            </div>
           </div>
 
-          <div class="fluent-modules-grid">
-            <button
-              type="button"
-              class="fluent-module-card"
-              (click)="setActiveTab('postulaciones')"
-            >
-              <div class="card-header">
-                <h3 class="card-title">Bandeja de Postulaciones</h3>
-              </div>
-              <p class="card-text">
-                Revisión formal, verificación de requisitos cargados y emisión de dictámenes
-                académicos.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--info"
-                  >{{ postulacionesTotal() }} Registradas</span
-                >
-              </div>
-            </button>
+          <div class="overview-kpi-card kpi-card--success" (click)="irAPostulacionesConFiltro('APROB')" role="button" tabindex="0">
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">DICTAMINADAS APROBADAS</span>
+              <span class="kpi-badge-pct kpi-badge-pct--success">{{ tasaAprobacion() }}%</span>
+            </div>
+            <span class="kpi-value">{{ resumenGeneral()?.totalAprobadas ?? totalAprobadas() }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Habilitadas para titulación</span>
+            </div>
+          </div>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('cohortes')">
-              <div class="card-header">
-                <h3 class="card-title">Convocatorias y Cortes</h3>
-              </div>
-              <p class="card-text">
-                Apertura automatizada de períodos lectivos, definición de fechas de corte y
-                habilitación de carreras.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral">{{
-                  convocatoriaActiva()?.idPeriodo || 'Configurar'
-                }}</span>
-              </div>
-            </button>
+          <div class="overview-kpi-card kpi-card--warning" (click)="irAPostulacionesConFiltro('REVIS')" role="button" tabindex="0">
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">EN REVISIÓN / PENDIENTES</span>
+              <span class="kpi-badge-pct kpi-badge-pct--warning">{{ tasaEnRevision() }}%</span>
+            </div>
+            <span class="kpi-value">{{ resumenGeneral()?.totalEnRevision ?? totalEnRevision() }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Pendientes de dictamen docente/admin</span>
+            </div>
+          </div>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('requisitos')">
-              <div class="card-header">
-                <h3 class="card-title">Requisitos Maestros</h3>
-              </div>
-              <p class="card-text">
-                Catálogo general de documentos requeridos (Cédula, Inglés, Vinculación, Prácticas).
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral"
-                  >{{ requisitosMaestros().length }} Configurados</span
-                >
-              </div>
-            </button>
+          <div class="overview-kpi-card kpi-card--error" (click)="irAPostulacionesConFiltro('OBSERV')" role="button" tabindex="0">
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">OBSERVADAS & RECHAZADAS</span>
+              <span class="kpi-badge-pct kpi-badge-pct--error">{{ tasaObservadas() + tasaRechazadas() }}%</span>
+            </div>
+            <span class="kpi-value">{{ totalObservadasYRechazadas() }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">{{ resumenGeneral()?.totalObservadas ?? 0 }} observadas · {{ resumenGeneral()?.totalRechazadas ?? 0 }} rechazadas</span>
+            </div>
+          </div>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('modalidades')">
-              <div class="card-header">
-                <h3 class="card-title">Modalidades y Matriz</h3>
-              </div>
-              <p class="card-text">
-                Modalidades reconocidas institucionalmente y asociación de requisitos por modalidad.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral"
-                  >{{ modalidadesMaestras().length }} Modalidades</span
-                >
-              </div>
-            </button>
+          <div class="overview-kpi-card kpi-card--info" (click)="setActiveTab('requisitos')" role="button" tabindex="0">
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">CATÁLOGOS INSTITUCIONALES</span>
+              <span class="kpi-icon-pill">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+              </span>
+            </div>
+            <span class="kpi-value">{{ (resumenGeneral()?.totalRequisitosActivos ?? requisitosMaestros().length) }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Requisitos · {{ (resumenGeneral()?.totalModalidadesActivas ?? modalidadesMaestras().length) }} modalidades</span>
+            </div>
+          </div>
+        </section>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('reportes')">
-              <div class="card-header">
-                <h3 class="card-title">Reportes Institucionales</h3>
+        <!-- SPLIT GRID: ANÁLISIS OPERATIVO + ACTIVIDAD RECIENTE -->
+        <section class="overview-analytics-grid">
+          <!-- PANEL IZQUIERDO: DISTRIBUCIÓN DEL PROCESO -->
+          <div class="overview-panel distribution-panel">
+            <div class="panel-header">
+              <div class="panel-header-info">
+                <span class="panel-eyebrow">ESTADO DE POSTULACIONES</span>
+                <h3 class="panel-title">Distribución y Rendimiento del Proceso</h3>
               </div>
-              <p class="card-text">
-                Generación y descarga de nóminas de posibles postulantes y reportes oficiales en
-                PDF.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral">Formatos PDF</span>
+              <button
+                type="button"
+                class="panel-action-link"
+                (click)="setActiveTab('postulaciones')"
+              >
+                Ver Bandeja Completa
+              </button>
+            </div>
+
+            <div class="distribution-bars-wrapper">
+              <!-- Barra Aprobadas -->
+              <div class="distribution-bar-row">
+                <div class="bar-meta">
+                  <span class="bar-label">
+                    <span class="status-dot dot-success"></span>
+                    Aprobadas
+                  </span>
+                  <span class="bar-values">
+                    <strong>{{ resumenGeneral()?.totalAprobadas ?? totalAprobadas() }}</strong>
+                    <span class="bar-pct">({{ tasaAprobacion() }}%)</span>
+                  </span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill bar-fill--success" [style.width.%]="tasaAprobacion()"></div>
+                </div>
               </div>
-            </button>
+
+              <!-- Barra En Revisión / Registradas -->
+              <div class="distribution-bar-row">
+                <div class="bar-meta">
+                  <span class="bar-label">
+                    <span class="status-dot dot-info"></span>
+                    En Revisión / Registradas
+                  </span>
+                  <span class="bar-values">
+                    <strong>{{ resumenGeneral()?.totalEnRevision ?? totalEnRevision() }}</strong>
+                    <span class="bar-pct">({{ tasaEnRevision() }}%)</span>
+                  </span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill bar-fill--info" [style.width.%]="tasaEnRevision()"></div>
+                </div>
+              </div>
+
+              <!-- Barra Observadas -->
+              <div class="distribution-bar-row">
+                <div class="bar-meta">
+                  <span class="bar-label">
+                    <span class="status-dot dot-warning"></span>
+                    Observadas (En Subsanación)
+                  </span>
+                  <span class="bar-values">
+                    <strong>{{ resumenGeneral()?.totalObservadas ?? 0 }}</strong>
+                    <span class="bar-pct">({{ tasaObservadas() }}%)</span>
+                  </span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill bar-fill--warning" [style.width.%]="tasaObservadas()"></div>
+                </div>
+              </div>
+
+              <!-- Barra Rechazadas -->
+              <div class="distribution-bar-row">
+                <div class="bar-meta">
+                  <span class="bar-label">
+                    <span class="status-dot dot-error"></span>
+                    Rechazadas / No Habilitadas
+                  </span>
+                  <span class="bar-values">
+                    <strong>{{ resumenGeneral()?.totalRechazadas ?? 0 }}</strong>
+                    <span class="bar-pct">({{ tasaRechazadas() }}%)</span>
+                  </span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill bar-fill--error" [style.width.%]="tasaRechazadas()"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen de eficiencia al pie -->
+            <div class="distribution-summary-footer">
+              <div class="summary-metric">
+                <span class="metric-num">{{ tasaAprobacion() }}%</span>
+                <span class="metric-desc">Efectividad Aprobación</span>
+              </div>
+              <div class="summary-divider"></div>
+              <div class="summary-metric">
+                <span class="metric-num">{{ (resumenGeneral()?.totalPostulaciones ?? postulacionesTotal()) - (resumenGeneral()?.totalEnRevision ?? totalEnRevision()) }}</span>
+                <span class="metric-desc">Dictámenes Emitidos</span>
+              </div>
+              <div class="summary-divider"></div>
+              <div class="summary-metric">
+                <span class="metric-num">{{ resumenGeneral()?.totalEnRevision ?? totalEnRevision() }}</span>
+                <span class="metric-desc">Pendientes de Dictamen</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL DERECHO: ÚLTIMAS POSTULACIONES REGISTRADAS -->
+          <div class="overview-panel recent-panel">
+            <div class="panel-header">
+              <div class="panel-header-info">
+                <span class="panel-eyebrow">ACTIVIDAD OPERATIVA</span>
+                <h3 class="panel-title">Últimas Solicitudes Registradas</h3>
+              </div>
+              <button
+                type="button"
+                class="panel-action-link"
+                (click)="setActiveTab('postulaciones')"
+              >
+                Ver todas ({{ postulacionesTotal() }})
+              </button>
+            </div>
+
+            <div class="recent-list-wrapper">
+              @if (postulacionesRecientes().length === 0) {
+                <div class="overview-empty-state">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  <p class="empty-state-text">No hay postulaciones registradas en el período actual.</p>
+                </div>
+              } @else {
+                <div class="recent-items-list">
+                  @for (post of postulacionesRecientes(); track post.idPostulacionAlumnos) {
+                    <div class="recent-item-card" (click)="setActiveTab('postulaciones')">
+                      <div class="recent-item-main">
+                        <div class="recent-item-student">
+                          <span class="student-name">{{ post.nombreAlumno }}</span>
+                          <span class="student-id">C.I. {{ post.cedulaAlumno }} · EXP-{{ post.idPostulacionAlumnos }}</span>
+                        </div>
+                        <div class="recent-item-academic">
+                          <span class="academic-carrera" [title]="post.nombreCarrera">{{ post.nombreCarrera }}</span>
+                          <span class="academic-modalidad">{{ post.modalidadTitulacion }}</span>
+                        </div>
+                      </div>
+                      <div class="recent-item-meta">
+                        <span class="fluent-badge" [ngClass]="getEstadoBadgeClass(post.nombreEstado)">
+                          <span class="status-dot" [ngClass]="getEstadoDotClass(post.nombreEstado)"></span>
+                          {{ post.nombreEstado }}
+                        </span>
+                        <span class="recent-item-date">{{ post.detalleCohorte }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ACCESOS DIRECTOS Y MÓDULOS DEL SISTEMA -->
+        <section class="overview-modules-section">
+          <div class="section-header">
+            <span class="section-eyebrow">CENTRO DE CONTROL</span>
+            <h3 class="section-title">Módulos de Gestión Institucional</h3>
+          </div>
+
+          <div class="overview-modules-grid">
+            <!-- 1. Bandeja de Postulaciones -->
+            <div class="overview-module-card" (click)="setActiveTab('postulaciones')">
+              <div class="module-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div class="module-card-body">
+                <div class="module-card-top">
+                  <h4 class="module-title">Bandeja de Postulaciones</h4>
+                  <span class="fluent-badge fluent-badge--info">{{ postulacionesTotal() }} registradas</span>
+                </div>
+                <p class="module-desc">
+                  Revisión documental, validación de evidencias y emisión de dictámenes académicos formales.
+                </p>
+                <div class="module-card-action">
+                  <span>Revisar expedientes →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Convocatorias y Cortes -->
+            <div class="overview-module-card" (click)="setActiveTab('cohortes')">
+              <div class="module-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <div class="module-card-body">
+                <div class="module-card-top">
+                  <h4 class="module-title">Convocatorias y Cortes</h4>
+                  <span class="fluent-badge" [class.fluent-badge--success]="convocatoriaActiva()?.estaVigenteCorte" [class.fluent-badge--neutral]="!convocatoriaActiva()?.estaVigenteCorte">
+                    {{ convocatoriaActiva()?.estaVigenteCorte ? 'Vigente' : 'Inactivo' }}
+                  </span>
+                </div>
+                <p class="module-desc">
+                  Planificación de cronogramas lectivos, parametrización de fechas de corte y habilitación de carreras.
+                </p>
+                <div class="module-card-action">
+                  <span>Gestionar períodos →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Requisitos Maestros -->
+            <div class="overview-module-card" (click)="setActiveTab('requisitos')">
+              <div class="module-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 11l3 3L22 4"></path>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+              </div>
+              <div class="module-card-body">
+                <div class="module-card-top">
+                  <h4 class="module-title">Requisitos Maestros</h4>
+                  <span class="fluent-badge fluent-badge--neutral">{{ requisitosMaestros().length }} activos</span>
+                </div>
+                <p class="module-desc">
+                  Catálogo institucional de documentos obligatorios: Cédula, Suficiencia de Inglés, Vinculación y Prácticas.
+                </p>
+                <div class="module-card-action">
+                  <span>Administrar catálogo →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Modalidades y Matriz -->
+            <div class="overview-module-card" (click)="setActiveTab('modalidades')">
+              <div class="module-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+              </div>
+              <div class="module-card-body">
+                <div class="module-card-top">
+                  <h4 class="module-title">Modalidades y Matriz</h4>
+                  <span class="fluent-badge fluent-badge--neutral">{{ modalidadesMaestras().length }} modalidades</span>
+                </div>
+                <p class="module-desc">
+                  Configuración de modalidades aprobadas y matriz de correspondencia de requisitos exigibles por modalidad.
+                </p>
+                <div class="module-card-action">
+                  <span>Configurar matriz →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Pendientes de Egreso -->
+            <div class="overview-module-card" (click)="setActiveTab('egresados')">
+              <div class="module-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div class="module-card-body">
+                <div class="module-card-top">
+                  <h4 class="module-title">Pendientes de Egreso</h4>
+                  <span class="fluent-badge fluent-badge--neutral">Nómina SIGAFI</span>
+                </div>
+                <p class="module-desc">
+                  Sincronización y consulta de alumnos con malla académica aprobada listos para postular a titulación.
+                </p>
+                <div class="module-card-action">
+                  <span>Consultar egresados →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Reportes Institucionales -->
+            <div class="overview-module-card" (click)="setActiveTab('reportes')">
+              <div class="module-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div class="module-card-body">
+                <div class="module-card-top">
+                  <h4 class="module-title">Reportes Institucionales</h4>
+                  <span class="fluent-badge fluent-badge--neutral">PDF / Oficial</span>
+                </div>
+                <p class="module-desc">
+                  Generación y exportación de nóminas de posibles postulantes, actas de grado y estadísticas consolidadas.
+                </p>
+                <div class="module-card-action">
+                  <span>Emitir reportes →</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       }
@@ -667,77 +1029,181 @@
         }
 
         @if (activeTab() === 'guia') {
-          <section class="fluent-section">
+          <section class="fluent-section guia-section-official">
             <div class="section-header">
-              <span class="section-eyebrow">REGLAMENTO Y NORMATIVA</span>
+              <span class="section-eyebrow">REGLAMENTO Y NORMATIVA ACADÉMICA</span>
               <h2 class="section-title">Guía Oficial de Titulación ISTPET</h2>
+              <p class="section-subtitle">
+                El Instituto Superior Tecnológico Pelileo contempla las siguientes modalidades oficiales para la culminación de sus estudios:
+              </p>
             </div>
-            <div class="guide-content-box">
-              <h3>1. Examen Complexivo</h3>
-              <p>
-                Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
-                conocimiento de la carrera) y una prueba práctica de resolución de caso o desarrollo
-                técnico.
-              </p>
 
-              <h3>2. Trabajo de Integración Curricular (TIC / Tesis)</h3>
-              <p>
-                Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante el
-                período académico, finalizando con la defensa oral ante tribunal.
-              </p>
+            <div class="guide-modalities-grid">
+              <!-- Modalidad 1: Examen Complexivo -->
+              <div class="guide-modality-card">
+                <div class="guide-modality-header">
+                  <div class="guide-modality-number">1</div>
+                  <div class="guide-modality-info">
+                    <span class="guide-modality-type">Evaluación Teórico-Práctica</span>
+                    <h3 class="guide-modality-title">Examen Complexivo</h3>
+                  </div>
+                </div>
+                <div class="guide-modality-body">
+                  <p class="guide-modality-desc">
+                    Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
+                    conocimiento de la carrera) y una prueba práctica de resolución de caso o desarrollo
+                    técnico.
+                  </p>
+                </div>
+              </div>
 
-              <h3>3. Artículo Científico</h3>
-              <p>
-                Redacción de un artículo de investigación científica original bajo formato
-                institucional con carta de aceptación o envío a revista indexada.
-              </p>
+              <!-- Modalidad 2: TIC / Tesis -->
+              <div class="guide-modality-card">
+                <div class="guide-modality-header">
+                  <div class="guide-modality-number">2</div>
+                  <div class="guide-modality-info">
+                    <span class="guide-modality-type">Proyecto de Titulación</span>
+                    <h3 class="guide-modality-title">Trabajo de Integración Curricular (TIC / Tesis)</h3>
+                  </div>
+                </div>
+                <div class="guide-modality-body">
+                  <p class="guide-modality-desc">
+                    Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante el
+                    período académico, finalizando con la defensa oral ante tribunal.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Modalidad 3: Artículo Científico -->
+              <div class="guide-modality-card">
+                <div class="guide-modality-header">
+                  <div class="guide-modality-number">3</div>
+                  <div class="guide-modality-info">
+                    <span class="guide-modality-type">Investigación y Publicación</span>
+                    <h3 class="guide-modality-title">Artículo Científico</h3>
+                  </div>
+                </div>
+                <div class="guide-modality-body">
+                  <p class="guide-modality-desc">
+                    Redacción de un artículo de investigación científica original bajo formato
+                    institucional con carta de aceptación o envío a revista indexada.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
         }
 
         @if (activeTab() === 'cronograma') {
-          <section class="fluent-section">
-            <div class="section-header">
-              <span class="section-eyebrow">CALENDARIO ACADÉMICO</span>
-              <h2 class="section-title">Fechas Clave de Titulación {{ currentYear }}</h2>
+          @let crono = cronogramaEstudiante();
+          <section class="fluent-section cronograma-section-student">
+            <!-- Header con información de la cohorte -->
+            <div class="cronograma-hero-header">
+              <div class="cronograma-hero-titles">
+                <span class="section-eyebrow">CALENDARIO ACADÉMICO OFICIAL ISTPET</span>
+                <h2 class="section-title">Cronograma de Titulación y Fechas Clave</h2>
+                <p class="section-subtitle">
+                  {{ crono.detalleConvocatoria }} — Consulte los plazos oficiales de postulación, validación documental, ejecución académica y sustentaciones.
+                </p>
+              </div>
+              <div class="cronograma-hero-badge-wrap">
+                <span class="cronograma-cohort-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ periodoNombreAmigable() }}
+                </span>
+              </div>
             </div>
-            <div class="fluent-table-wrapper">
-              <table class="fluent-table">
-                <thead>
-                  <tr>
-                    <th>FASE</th>
-                    <th>ACTIVIDAD</th>
-                    <th>FECHA ESTIMADA</th>
-                    <th>ESTADO</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Fase 1</td>
-                    <td>Postulación en línea y recepción de expedientes</td>
-                    <td>01 al 30 de Septiembre</td>
-                    <td><span class="fluent-badge fluent-badge--success">En Curso</span></td>
-                  </tr>
-                  <tr>
-                    <td>Fase 2</td>
-                    <td>Validación documental por Secretaría</td>
-                    <td>01 al 10 de Octubre</td>
-                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                  </tr>
-                  <tr>
-                    <td>Fase 3</td>
-                    <td>Desarrollo de Examen Complexivo y Tutorías</td>
-                    <td>15 de Octubre al 30 de Noviembre</td>
-                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                  </tr>
-                  <tr>
-                    <td>Fase 4</td>
-                    <td>Defensas de Grado y Asentamiento de Actas</td>
-                    <td>Diciembre {{ currentYear }}</td>
-                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <!-- Stepper / Grid de Fases Dinámicas del Cronograma -->
+            <div class="cronograma-timeline-grid">
+              @for (f of crono.fases; track f.fase) {
+                <div class="timeline-phase-card" [class.phase-card--active]="f.esActiva">
+                  <div class="phase-card-top">
+                    <div class="phase-number-badge">{{ f.fase }}</div>
+                    <span class="phase-status-pill" [ngClass]="f.estadoClase">
+                      @if (f.esActiva) {
+                        <span class="pulse-dot"></span>
+                      }
+                      {{ f.estado }}
+                    </span>
+                  </div>
+                  <div class="phase-card-content">
+                    <span class="phase-stage-tag">{{ f.etiqueta }}</span>
+                    <h3 class="phase-title">{{ f.titulo }}</h3>
+                    <div class="phase-date-box">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      @if (f.fechaInicio && f.fechaFin) {
+                        <span>{{ f.fechaInicio | date:'dd MMM yyyy' }} — {{ f.fechaFin | date:'dd MMM yyyy' }} ({{ f.duracionDias }} días)</span>
+                      } @else {
+                        <span>{{ f.rangoTexto }}</span>
+                      }
+                    </div>
+                    <p class="phase-desc">{{ f.descripcion }}</p>
+                  </div>
+                  <div class="phase-card-footer">
+                    <span class="phase-milestone-label">Hito clave:</span>
+                    <span class="phase-milestone-text">{{ f.hito }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Prórroga Extraordinaria (si aplica según convocatoria) -->
+            @if (crono.prorroga) {
+              <div class="cronograma-prorroga-banner">
+                <div class="prorroga-badge-wrap">
+                  <span class="phase-stage-tag">PERÍODO EXTRAORDINARIO</span>
+                  <strong class="prorroga-title">Plazo de Gracia / Prórroga Reglamentaria</strong>
+                </div>
+                <div class="prorroga-body">
+                  <div class="phase-date-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>{{ crono.prorroga.fechaInicio | date:'dd MMM yyyy' }} — {{ crono.prorroga.fechaFin | date:'dd MMM yyyy' }} ({{ crono.prorroga.diasExtension }} días de extensión)</span>
+                  </div>
+                  <p class="phase-desc">
+                    Período adicional habilitado para culminación de trabajos con previa aprobación de la Comisión de Titulación conforme al RRA.
+                  </p>
+                </div>
+              </div>
+            }
+
+            <!-- Panel de Notificaciones y Recomendaciones Académicas -->
+            <div class="cronograma-guidelines-box">
+              <div class="guidelines-icon-col">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="guidelines-content-col">
+                <h4 class="guidelines-title">Recomendaciones Importantes del Cronograma</h4>
+                <div class="guidelines-items-grid">
+                  <div class="guideline-item">
+                    <strong>Puntualidad en Entregas:</strong>
+                    <span>El sistema cerrará automáticamente las postulaciones al vencer la fecha límite ordinaria de la cohorte.</span>
+                  </div>
+                  <div class="guideline-item">
+                    <strong>Requisitos Finales:</strong>
+                    <span>Los documentos como suficiencia de idioma y vinculación deben estar validados antes del inicio de las Defensas de Grado.</span>
+                  </div>
+                  <div class="guideline-item">
+                    <strong>Prórroga Reglamentaria:</strong>
+                    <span>En caso de requerir prórroga académica, esta debe solicitarse formalmente ante la Comisión conforme al RRA.</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         }
@@ -807,6 +1273,7 @@
     [visible]="aperturaModalVisible()"
     (modalClose)="aperturaModalVisible.set(false)"
     (confirm)="aperturarPeriodo($event)"
+    (nuevaModalidad)="nuevaModalidadModalVisible.set(true)"
   />
 
   <!-- 2. Drawer de Nuevo Requisito Maestro -->
@@ -969,10 +1436,10 @@
   <app-drawer
     [isOpen]="nuevaModalidadModalVisible()"
     title="Crear Modalidad Maestra"
-    subtitle="Configure una nueva opción de grado institucional y sus reglas"
+    subtitle="Configure una nueva opción de grado institucional y sus requisitos iniciales"
     eyebrow="CATÁLOGO INSTITUCIONAL"
-    size="sm"
-    [hasDirtyData]="nuevaModalidadForm().modalidadTitulacion.trim().length > 0"
+    size="md"
+    [hasDirtyData]="nuevaModalidadForm().modalidadTitulacion.trim().length > 0 || nuevaModalidadForm().idsRequisitos.length > 0"
     (closed)="nuevaModalidadModalVisible.set(false)"
     (discardConfirmed)="resetNuevaModalidadForm()"
   >
@@ -1073,6 +1540,159 @@
             >
           </div>
         </label>
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- SECCIÓN DE ASIGNACIÓN INMEDIATA DE REQUISITOS -->
+      <div class="req-modalidad-requirements-section">
+        <div class="req-section-title-row">
+          <div>
+            <span class="req-options-header">REQUISITOS ASOCIADOS A ESTA MODALIDAD</span>
+            <p class="req-section-subtitle">
+              Seleccione los requisitos obligatorios para esta modalidad o cree uno nuevo en caso de ser necesario.
+            </p>
+          </div>
+          <span class="req-selection-badge">
+            {{ nuevaModalidadForm().idsRequisitos.length }} seleccionado(s)
+          </span>
+        </div>
+
+        <!-- Barra de herramientas: Búsqueda y Botón para Crear Requisito al Vuelo -->
+        <div class="req-tools-bar">
+          <div class="search-box-compact">
+            <input
+              type="text"
+              class="fluent-input"
+              placeholder="Buscar requisitos existentes..."
+              [ngModel]="filtroBusquedaRequisitosModalidad()"
+              (ngModelChange)="filtroBusquedaRequisitosModalidad.set($event)"
+            />
+          </div>
+          <div class="req-tools-actions">
+            <button
+              type="button"
+              class="btn-tool-action"
+              (click)="seleccionarTodosRequisitosNuevaModalidad()"
+              title="Marcar todos los requisitos disponibles"
+            >
+              Marcar Todos
+            </button>
+            <button
+              type="button"
+              class="btn-tool-action"
+              (click)="deseleccionarTodosRequisitosNuevaModalidad()"
+              title="Limpiar selección"
+            >
+              Limpiar
+            </button>
+            <button
+              type="button"
+              class="btn-create-inline-toggle"
+              [class.active]="mostrandoCrearRequisitoInline()"
+              (click)="mostrandoCrearRequisitoInline.set(!mostrandoCrearRequisitoInline())"
+            >
+              {{ mostrandoCrearRequisitoInline() ? 'Cerrar Formulario' : '+ Crear Nuevo Requisito' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- FORMULARIO INLINE PARA CREAR NUEVO REQUISITO AL VUELO -->
+        @if (mostrandoCrearRequisitoInline()) {
+          <div class="inline-create-req-panel">
+            <div class="inline-panel-header">
+              <span class="inline-panel-title">Nuevo Requisito Institucional</span>
+              <span class="inline-panel-tag">Se registrará en el catálogo y se asociará a esta modalidad</span>
+            </div>
+
+            <div class="req-form-group" style="margin-bottom: 10px">
+              <label class="req-form-label" for="inputInlineReqNombre">
+                Nombre del Requisito
+                <span class="req-required-dot">*</span>
+              </label>
+              <input
+                id="inputInlineReqNombre"
+                type="text"
+                class="fluent-input"
+                [(ngModel)]="nuevoRequisitoInlineForm().requisito"
+                placeholder="Ej: Certificado de Prácticas Preprofesionales"
+                maxlength="150"
+              />
+            </div>
+
+            <div class="inline-options-grid">
+              <label class="inline-option-chip" [class.selected]="nuevoRequisitoInlineForm().subeAlumno">
+                <input
+                  type="radio"
+                  name="inlineResp"
+                  [checked]="nuevoRequisitoInlineForm().subeAlumno"
+                  (change)="nuevoRequisitoInlineForm().subeAlumno = true; nuevoRequisitoInlineForm().subeColaborador = false; nuevoRequisitoInlineForm().esAdjunto = true; nuevoRequisitoInlineForm().esBool = false"
+                />
+                <span>Carga Alumno (PDF)</span>
+              </label>
+              <label class="inline-option-chip" [class.selected]="nuevoRequisitoInlineForm().subeColaborador">
+                <input
+                  type="radio"
+                  name="inlineResp"
+                  [checked]="nuevoRequisitoInlineForm().subeColaborador"
+                  (change)="nuevoRequisitoInlineForm().subeAlumno = false; nuevoRequisitoInlineForm().subeColaborador = true"
+                />
+                <span>Valida Secretaría / Docente</span>
+              </label>
+            </div>
+
+            <div class="inline-panel-footer">
+              <button
+                type="button"
+                class="btn-inline-cancel"
+                (click)="mostrandoCrearRequisitoInline.set(false)"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="btn-inline-save"
+                [disabled]="!nuevoRequisitoInlineForm().requisito.trim() || creandoRequisitoInline()"
+                (click)="crearRequisitoInline()"
+              >
+                {{ creandoRequisitoInline() ? 'Creando...' : 'Crear y Añadir a la Modalidad' }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- LISTA DE REQUISITOS DISPONIBLES CON CHECKBOX -->
+        <div class="req-catalog-checklist">
+          @if (requisitosDisponiblesParaNuevaModalidad().length === 0) {
+            <div class="empty-state-card" style="padding: 14px">
+              <p style="margin: 0; font-size: 0.8125rem; color: var(--text-muted)">
+                No hay requisitos disponibles que coincidan con la búsqueda.
+              </p>
+            </div>
+          } @else {
+            @for (r of requisitosDisponiblesParaNuevaModalidad(); track r.idRequisitos) {
+              <label
+                class="req-check-item"
+                [class.checked]="nuevaModalidadForm().idsRequisitos.includes(r.idRequisitos)"
+              >
+                <input
+                  type="checkbox"
+                  class="req-check-input"
+                  [checked]="nuevaModalidadForm().idsRequisitos.includes(r.idRequisitos)"
+                  (change)="toggleRequisitoEnNuevaModalidad(r.idRequisitos)"
+                />
+                <div class="req-check-details">
+                  <span class="req-check-title">{{ r.requisito }}</span>
+                  <div class="req-check-meta">
+                    <span class="meta-tag">{{ r.esAdjunto ? 'Requiere PDF' : 'Validación directa' }}</span>
+                    <span class="meta-dot">·</span>
+                    <span class="meta-resp">{{ r.subeAlumno ? 'Carga Alumno' : 'Valida Secretaría/Docente' }}</span>
+                  </div>
+                </div>
+              </label>
+            }
+          }
+        </div>
       </div>
     </div>
 

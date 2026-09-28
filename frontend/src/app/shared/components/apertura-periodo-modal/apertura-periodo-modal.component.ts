@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,6 +7,7 @@ import {
   ModalidadCarreraDto,
 } from '../../../core/models/titulacion.models';
 import { TitulacionService } from '../../../core/services/titulacion.service';
+import { DrawerComponent } from '../drawer/drawer.component';
 
 export interface StepperStep {
   readonly id: number;
@@ -33,7 +34,22 @@ export interface CalendarDayItem {
   readonly isProrrogaEnd: boolean;
 }
 
-import { DrawerComponent } from '../drawer/drawer.component';
+interface ConvocatoriaDraft {
+  pasoActual: number;
+  form: {
+    idPeriodo: string;
+    detalleConvocatoria: string;
+    fechaInicioStr: string;
+    fechaFinStr: string;
+    diasPermitidos: number;
+    diasExtension: number;
+    habilitarTodasLasCarreras: boolean;
+  };
+  carrerasSeleccionadas: number[];
+  modalidadesSeleccionadas: number[];
+}
+
+const DRAFT_STORAGE_KEY = 'istpet_convocatoria_apertura_draft';
 
 @Component({
   selector: 'app-apertura-periodo-modal',
@@ -49,6 +65,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
   visible = input<boolean>(false);
   modalClose = output<void>();
   confirm = output<AperturarPeriodoRequest>();
+  nuevaModalidad = output<void>();
 
   // Navegación Stepper (5 pasos)
   pasoActual = signal<number>(1);
@@ -66,6 +83,10 @@ export class AperturaPeriodoModalComponent implements OnInit {
   modalidadesCarreras = signal<ModalidadCarreraDto[]>([]);
   modalidades = signal<ModalidadMaestra[]>([]);
 
+  // Estados de recarga reactiva
+  cargandoModalidades = signal<boolean>(false);
+  cargandoCarreras = signal<boolean>(false);
+
   // Estado del Formulario
   form = signal({
     idPeriodo: 'ABR2026',
@@ -76,6 +97,14 @@ export class AperturaPeriodoModalComponent implements OnInit {
     diasExtension: 30,
     habilitarTodasLasCarreras: true,
   });
+
+  // Filtros y Selección de Carreras (Paso 4)
+  filtroTextoCarrera = signal<string>('');
+  filtroModalidadEstudio = signal<string>('TODAS');
+  carrerasSeleccionadas = signal<Set<number>>(new Set());
+
+  // Modalidades Maestras Seleccionadas (Paso 5)
+  modalidadesSeleccionadas = signal<Set<number>>(new Set());
 
   // ----------------------------------------------------
   // Paso 3: Cronograma Visual y Calendario Multi-Fase
@@ -103,12 +132,10 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const finPost = f.fechaFinStr;
 
     const dFinPost = this.fromYMD(finPost);
-    // Inicio de titulación = día posterior al cierre de postulación
     const dInicioTit = new Date(dFinPost.getTime() + 24 * 60 * 60 * 1000);
     const diasTit = Math.max(1, Number(f.diasPermitidos) || 90);
     const dFinTit = new Date(dInicioTit.getTime() + (diasTit - 1) * 24 * 60 * 60 * 1000);
 
-    // Inicio de prórroga = día posterior al fin de titulación reglamentaria
     const dInicioPro = new Date(dFinTit.getTime() + 24 * 60 * 60 * 1000);
     const diasPro = Math.max(0, Number(f.diasExtension) || 0);
     const dFinPro =
@@ -138,7 +165,6 @@ export class AperturaPeriodoModalComponent implements OnInit {
     };
   });
 
-  // Generador de la cuadrícula del calendario
   calendarDays = computed<CalendarDayItem[]>(() => {
     const current = this.currentCalendarMonth();
     const year = current.getFullYear();
@@ -155,78 +181,85 @@ export class AperturaPeriodoModalComponent implements OnInit {
 
     const todayStr = this.toYMD(new Date());
 
-    const firstDayOfWeek = new Date(year, month, 1).getDay();
-    const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+    const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-    const prevMonthDaysCount = new Date(year, month, 0).getDate();
     const days: CalendarDayItem[] = [];
 
-    const buildDay = (d: Date, isCurMonth: boolean): CalendarDayItem => {
-      const s = this.toYMD(d);
-      const isPost = s >= postIni && s <= postFin;
-      const isTit = s >= titIni && s <= titFin;
-      const isPro = tienePro && s >= proIni && s <= proFin;
-
-      return {
-        dateStr: s,
-        dayNumber: d.getDate(),
-        isCurrentMonth: isCurMonth,
-        isToday: s === todayStr,
-        isPostulacion: isPost,
-        isPostulacionStart: s === postIni,
-        isPostulacionEnd: s === postFin,
-        isTitulacion: isTit,
-        isTitulacionStart: s === titIni,
-        isTitulacionEnd: s === titFin,
-        isProrroga: isPro,
-        isProrrogaStart: tienePro && s === proIni,
-        isProrrogaEnd: tienePro && s === proFin,
-      };
-    };
-
-    for (let i = startOffset - 1; i >= 0; i--) {
-      days.push(buildDay(new Date(year, month - 1, prevMonthDaysCount - i), false));
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const dNum = daysInPrevMonth - i;
+      const prevDate = new Date(year, month - 1, dNum);
+      const dStr = this.toYMD(prevDate);
+      days.push(
+        this.buildDayItem(dStr, dNum, false, todayStr, postIni, postFin, titIni, titFin, proIni, proFin, tienePro),
+      );
     }
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(buildDay(new Date(year, month, day), true));
+    for (let d = 1; d <= daysInMonth; d++) {
+      const curDate = new Date(year, month, d);
+      const dStr = this.toYMD(curDate);
+      days.push(
+        this.buildDayItem(dStr, d, true, todayStr, postIni, postFin, titIni, titFin, proIni, proFin, tienePro),
+      );
     }
 
-    const remaining = (7 - (days.length % 7)) % 7;
-    for (let day = 1; day <= remaining; day++) {
-      days.push(buildDay(new Date(year, month + 1, day), false));
+    const remaining = 42 - days.length;
+    for (let d = 1; d <= remaining; d++) {
+      const nextDate = new Date(year, month + 1, d);
+      const dStr = this.toYMD(nextDate);
+      days.push(
+        this.buildDayItem(dStr, d, false, todayStr, postIni, postFin, titIni, titFin, proIni, proFin, tienePro),
+      );
     }
 
     return days;
   });
 
-  nombreMesVisual = computed(() => {
-    const d = this.currentCalendarMonth();
+  private buildDayItem(
+    dStr: string,
+    dNum: number,
+    isCurrentMonth: boolean,
+    todayStr: string,
+    postIni: string,
+    postFin: string,
+    titIni: string,
+    titFin: string,
+    proIni: string,
+    proFin: string,
+    tienePro: boolean,
+  ): CalendarDayItem {
+    const isPost = dStr >= postIni && dStr <= postFin;
+    const isTit = dStr >= titIni && dStr <= titFin;
+    const isPro = tienePro && dStr >= proIni && dStr <= proFin;
+
+    return {
+      dateStr: dStr,
+      dayNumber: dNum,
+      isCurrentMonth,
+      isToday: dStr === todayStr,
+      isPostulacion: isPost,
+      isPostulacionStart: dStr === postIni,
+      isPostulacionEnd: dStr === postFin,
+      isTitulacion: isTit,
+      isTitulacionStart: dStr === titIni,
+      isTitulacionEnd: dStr === titFin,
+      isProrroga: isPro,
+      isProrrogaStart: tienePro && dStr === proIni,
+      isProrrogaEnd: tienePro && dStr === proFin,
+    };
+  }
+
+  calendarMonthLabel = computed(() => {
+    const cur = this.currentCalendarMonth();
     const meses = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
     ];
-    return `${meses[d.getMonth()]} ${d.getFullYear()}`;
+    return `${meses[cur.getMonth()]} ${cur.getFullYear()}`;
   });
 
-  // ----------------------------------------------------
-  // Paso 4: Selección Personalizada de Carreras
-  // ----------------------------------------------------
-  filtroTextoCarrera = signal<string>('');
-  filtroModalidadEstudio = signal<string>('TODAS');
-  carrerasSeleccionadas = signal<Set<number>>(new Set());
-  modalidadesSeleccionadas = signal<Set<number>>(new Set());
+  nombreMesVisual = computed(() => this.calendarMonthLabel());
 
   modalidadesEstudioDisponibles = computed(() => {
     const list = this.modalidadesCarreras();
@@ -241,7 +274,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
 
   carrerasFiltradas = computed(() => {
     let list = this.modalidadesCarreras();
-    const texto = this.filtroTextoCarrera().trim().toLowerCase();
+    const texto = this.filtroTextoCarrera().toLowerCase().trim();
     const mod = this.filtroModalidadEstudio();
 
     if (texto) {
@@ -264,24 +297,88 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const total = this.modalidadesCarreras().length;
     const seleccionadas = this.carrerasSeleccionadas().size;
     const porcentaje = total > 0 ? Math.round((seleccionadas / total) * 100) : 0;
-    return {
-      total,
-      seleccionadas,
-      porcentaje,
-      todasSeleccionadas: total > 0 && seleccionadas === total,
-      ningunaSeleccionada: seleccionadas === 0,
-    };
+    return { total, seleccionadas, porcentaje };
   });
 
-  // ----------------------------------------------------
-  // Ciclo de Vida e Inicialización
-  // ----------------------------------------------------
-  ngOnInit(): void {
-    this.cargarDatosIniciales();
+  constructor() {
+    effect(() => {
+      if (this.visible()) {
+        this.recuperarBorrador();
+      }
+    });
   }
 
-  cargarDatosIniciales(): void {
-    // 1. Períodos académicos ISTPET (Solo vigentes o futuros)
+  ngOnInit(): void {
+    this.cargarDatosBackend();
+  }
+
+  // ----------------------------------------------------
+  // Persistencia de Borrador en SessionStorage
+  // ----------------------------------------------------
+  guardarBorrador(): void {
+    try {
+      const draft: ConvocatoriaDraft = {
+        pasoActual: this.pasoActual(),
+        form: this.form(),
+        carrerasSeleccionadas: Array.from(this.carrerasSeleccionadas()),
+        modalidadesSeleccionadas: Array.from(this.modalidadesSeleccionadas()),
+      };
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch {
+      // Ignorar errores de storage
+    }
+  }
+
+  recuperarBorrador(): boolean {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) return false;
+      const draft: ConvocatoriaDraft = JSON.parse(raw);
+      if (draft && draft.form) {
+        this.form.set(draft.form);
+        if (draft.carrerasSeleccionadas && Array.isArray(draft.carrerasSeleccionadas)) {
+          this.carrerasSeleccionadas.set(new Set(draft.carrerasSeleccionadas));
+        }
+        if (draft.modalidadesSeleccionadas && Array.isArray(draft.modalidadesSeleccionadas)) {
+          this.modalidadesSeleccionadas.set(new Set(draft.modalidadesSeleccionadas));
+        }
+        if (draft.pasoActual && draft.pasoActual >= 1 && draft.pasoActual <= this.totalPasos) {
+          this.pasoActual.set(draft.pasoActual);
+        }
+        return true;
+      }
+    } catch {
+      // Fallback si hay error de parsing
+    }
+    return false;
+  }
+
+  limpiarBorrador(): void {
+    try {
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {}
+  }
+
+  private resetFormulario(): void {
+    this.pasoActual.set(1);
+    this.form.set({
+      idPeriodo: 'ABR2026',
+      detalleConvocatoria: 'Convocatoria Ordinaria ABR2026',
+      fechaInicioStr: this.toYMD(new Date()),
+      fechaFinStr: this.toYMD(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
+      diasPermitidos: 90,
+      diasExtension: 30,
+      habilitarTodasLasCarreras: true,
+    });
+  }
+
+  // ----------------------------------------------------
+  // Carga de Datos desde Backend
+  // ----------------------------------------------------
+  cargarDatosBackend(): void {
+    const tieneBorrador = this.recuperarBorrador();
+
+    // 1. Períodos académicos
     this.titulacionService.getPeriodosAcademicos(true).subscribe({
       next: (data) => {
         if (data && data.length > 0) {
@@ -305,39 +402,74 @@ export class AperturaPeriodoModalComponent implements OnInit {
           const listaFinal = vigentesOFuturos.length > 0 ? vigentesOFuturos : data;
           this.periodos.set(listaFinal);
 
-          const activo = listaFinal.find((p) => p.esActivo);
-          const defaultPeriodo = activo ? activo.idPeriodo : listaFinal[0].idPeriodo;
+          if (!tieneBorrador) {
+            const activo = listaFinal.find((p) => p.esActivo);
+            const defaultPeriodo = activo ? activo.idPeriodo : listaFinal[0].idPeriodo;
 
-          this.form.update((f) => ({
-            ...f,
-            idPeriodo: defaultPeriodo,
-            detalleConvocatoria: `Convocatoria Ordinaria ${defaultPeriodo}`.substring(0, 45),
-          }));
+            this.form.update((f) => ({
+              ...f,
+              idPeriodo: defaultPeriodo,
+              detalleConvocatoria: `Convocatoria Ordinaria ${defaultPeriodo}`.substring(0, 45),
+            }));
+          }
         }
       },
       error: () => this.periodos.set([]),
     });
 
     // 2. Modalidades carreras
+    this.recargarCarreras(!tieneBorrador);
+
+    // 3. Modalidades maestras de titulación
+    this.recargarModalidades(!tieneBorrador);
+  }
+
+  recargarCarreras(autoSeleccionarTodas = false): void {
+    this.cargandoCarreras.set(true);
     this.titulacionService.getModalidadesCarreras(true).subscribe({
       next: (data: ModalidadCarreraDto[]) => {
         this.modalidadesCarreras.set(data || []);
-        const set = new Set<number>((data || []).map((c) => c.idModalidadCarrera));
-        this.carrerasSeleccionadas.set(set);
+        if (autoSeleccionarTodas || this.carrerasSeleccionadas().size === 0) {
+          const set = new Set<number>((data || []).map((c) => c.idModalidadCarrera));
+          this.carrerasSeleccionadas.set(set);
+        }
+        this.cargandoCarreras.set(false);
+        this.guardarBorrador();
       },
-      error: () => this.modalidadesCarreras.set([]),
+      error: () => this.cargandoCarreras.set(false),
     });
+  }
 
-    // 3. Modalidades maestras de titulación
+  recargarModalidades(autoSeleccionarTodas = false): void {
+    this.cargandoModalidades.set(true);
     this.titulacionService.getModalidadesMaestras(true).subscribe({
       next: (data: ModalidadMaestra[]) => {
         const activas = (data || []).filter((m) => m.esActivo);
         this.modalidades.set(activas);
-        const set = new Set<number>(activas.map((m) => m.idModalidadTitulacion));
-        this.modalidadesSeleccionadas.set(set);
+
+        if (autoSeleccionarTodas || this.modalidadesSeleccionadas().size === 0) {
+          const set = new Set<number>(activas.map((m) => m.idModalidadTitulacion));
+          this.modalidadesSeleccionadas.set(set);
+        } else {
+          // Mantener selecciones previas agregando nuevas activas encontradas
+          const set = new Set(this.modalidadesSeleccionadas());
+          activas.forEach((m) => set.add(m.idModalidadTitulacion));
+          this.modalidadesSeleccionadas.set(set);
+        }
+
+        this.cargandoModalidades.set(false);
+        this.guardarBorrador();
       },
-      error: () => this.modalidades.set([]),
+      error: () => this.cargandoModalidades.set(false),
     });
+  }
+
+  crearNuevaModalidad(): void {
+    this.nuevaModalidad.emit();
+  }
+
+  abrirCrearModalidadEnPestana(): void {
+    this.nuevaModalidad.emit();
   }
 
   // ----------------------------------------------------
@@ -349,12 +481,14 @@ export class AperturaPeriodoModalComponent implements OnInit {
       return;
     }
     this.pasoActual.set(paso);
+    this.guardarBorrador();
   }
 
   siguientePaso(): void {
     const actual = this.pasoActual();
     if (this.esPasoValido(actual) && actual < this.totalPasos) {
       this.pasoActual.set(actual + 1);
+      this.guardarBorrador();
     }
   }
 
@@ -362,6 +496,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const actual = this.pasoActual();
     if (actual > 1) {
       this.pasoActual.set(actual - 1);
+      this.guardarBorrador();
     }
   }
 
@@ -398,6 +533,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
       idPeriodo,
       detalleConvocatoria: detalleCorto,
     }));
+    this.guardarBorrador();
   }
 
   // ----------------------------------------------------
@@ -407,6 +543,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const id = this.form().idPeriodo || 'ACTUAL';
     const nuevo = `Convocatoria ${tipo} ${id}`.substring(0, 45);
     this.form.update((f) => ({ ...f, detalleConvocatoria: nuevo }));
+    this.guardarBorrador();
   }
 
   // ----------------------------------------------------
@@ -450,31 +587,35 @@ export class AperturaPeriodoModalComponent implements OnInit {
   }
 
   onDayClick(day: CalendarDayItem): void {
-    const clicked = day.dateStr;
     const f = this.form();
-
-    this.tabFaseActiva.set('postulacion');
+    const clickedDate = day.dateStr;
 
     if (this.seleccionModo() === 'inicio') {
-      this.form.update((prev) => {
-        const fin = clicked > prev.fechaFinStr ? clicked : prev.fechaFinStr;
-        return { ...prev, fechaInicioStr: clicked, fechaFinStr: fin };
-      });
-      this.seleccionModo.set('fin');
-    } else {
-      if (clicked < f.fechaInicioStr) {
+      if (f.fechaFinStr && clickedDate > f.fechaFinStr) {
+        const d1 = this.fromYMD(clickedDate);
+        const d2 = new Date(d1.getTime() + 14 * 24 * 60 * 60 * 1000);
         this.form.update((prev) => ({
           ...prev,
-          fechaInicioStr: clicked,
+          fechaInicioStr: clickedDate,
+          fechaFinStr: this.toYMD(d2),
         }));
       } else {
+        this.form.update((prev) => ({ ...prev, fechaInicioStr: clickedDate }));
+      }
+      this.seleccionModo.set('fin');
+    } else {
+      if (clickedDate < f.fechaInicioStr) {
         this.form.update((prev) => ({
           ...prev,
-          fechaFinStr: clicked,
+          fechaInicioStr: clickedDate,
+          fechaFinStr: prev.fechaInicioStr,
         }));
-        this.seleccionModo.set('inicio');
+      } else {
+        this.form.update((prev) => ({ ...prev, fechaFinStr: clickedDate }));
       }
+      this.seleccionModo.set('inicio');
     }
+    this.guardarBorrador();
   }
 
   onDiasPostulacionChange(dias: number): void {
@@ -486,6 +627,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
       ...prev,
       fechaFinStr: this.toYMD(fin),
     }));
+    this.guardarBorrador();
   }
 
   aplicarPresetDias(dias: number): void {
@@ -495,10 +637,12 @@ export class AperturaPeriodoModalComponent implements OnInit {
 
   aplicarDiasTitPreset(dias: number): void {
     this.form.update((f) => ({ ...f, diasPermitidos: dias }));
+    this.guardarBorrador();
   }
 
   aplicarDiasExtPreset(dias: number): void {
     this.form.update((f) => ({ ...f, diasExtension: dias }));
+    this.guardarBorrador();
   }
 
   // ----------------------------------------------------
@@ -506,6 +650,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
   // ----------------------------------------------------
   toggleHabilitarTodasLasCarreras(todas: boolean): void {
     this.form.update((f) => ({ ...f, habilitarTodasLasCarreras: todas }));
+    this.guardarBorrador();
   }
 
   toggleCarrera(idModalidadCarrera: number): void {
@@ -516,15 +661,18 @@ export class AperturaPeriodoModalComponent implements OnInit {
       set.add(idModalidadCarrera);
     }
     this.carrerasSeleccionadas.set(set);
+    this.guardarBorrador();
   }
 
   seleccionarTodasCarreras(): void {
     const set = new Set<number>(this.modalidadesCarreras().map((c) => c.idModalidadCarrera));
     this.carrerasSeleccionadas.set(set);
+    this.guardarBorrador();
   }
 
   deseleccionarTodasCarreras(): void {
     this.carrerasSeleccionadas.set(new Set());
+    this.guardarBorrador();
   }
 
   invertirSeleccionCarreras(): void {
@@ -536,6 +684,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
       }
     }
     this.carrerasSeleccionadas.set(invertido);
+    this.guardarBorrador();
   }
 
   seleccionarPorModalidadEstudio(modalidad: string): void {
@@ -547,6 +696,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
       set.add(c.idModalidadCarrera);
     }
     this.carrerasSeleccionadas.set(set);
+    this.guardarBorrador();
   }
 
   // ----------------------------------------------------
@@ -560,11 +710,13 @@ export class AperturaPeriodoModalComponent implements OnInit {
       set.add(idModalidad);
     }
     this.modalidadesSeleccionadas.set(set);
+    this.guardarBorrador();
   }
 
   seleccionarTodasModalidades(): void {
     const set = new Set<number>(this.modalidades().map((m) => m.idModalidadTitulacion));
     this.modalidadesSeleccionadas.set(set);
+    this.guardarBorrador();
   }
 
   onConfirm(): void {
@@ -584,6 +736,9 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const dFin = this.fromYMD(f.fechaFinStr);
     dFin.setHours(23, 59, 59, 999);
 
+    this.limpiarBorrador();
+    this.resetFormulario();
+
     this.confirm.emit({
       idPeriodo: f.idPeriodo,
       detalleConvocatoria: f.detalleConvocatoria,
@@ -597,7 +752,14 @@ export class AperturaPeriodoModalComponent implements OnInit {
     });
   }
 
+  cancelarApertura(): void {
+    this.limpiarBorrador();
+    this.resetFormulario();
+    this.modalClose.emit();
+  }
+
   onClose(): void {
+    this.guardarBorrador();
     this.modalClose.emit();
   }
 

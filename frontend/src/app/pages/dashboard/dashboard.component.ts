@@ -34,7 +34,6 @@ import {
 
 import { TopbarComponent } from '../../shared/components/topbar/topbar.component';
 import { NetworkBannerComponent } from '../../shared/components/network-banner/network-banner.component';
-import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
 import { DictamenModalComponent } from '../../shared/components/dictamen-modal/dictamen-modal.component';
 import { AperturaPeriodoModalComponent } from '../../shared/components/apertura-periodo-modal/apertura-periodo-modal.component';
 
@@ -68,7 +67,6 @@ import { ReportesTabComponent } from './components/reportes-tab/reportes-tab.com
     MatCheckboxModule,
     TopbarComponent,
     NetworkBannerComponent,
-    KpiCardComponent,
     DictamenModalComponent,
     AperturaPeriodoModalComponent,
     PostulacionesBandejaComponent,
@@ -177,6 +175,224 @@ export class DashboardComponent implements OnInit {
     return list.filter((r) => (r.nombreRequisito || '').toLowerCase().includes(query));
   });
 
+  // Computed de Cronograma Dinámico del Estudiante (calculado desde la convocatoria activa)
+  cronogramaEstudiante = computed(() => {
+    const conv = this.convocatoriaActiva();
+    const portalConv = this.portalEstudiante()?.convocatoria;
+
+    const fechaInicioStr = conv?.fechaInicio || portalConv?.fechaInicio || null;
+    const fechaFinStr = conv?.fechaFin || portalConv?.fechaCierre || null;
+    const diasPermitidos = conv?.diasPermitidos ?? 90;
+    const diasExtension = conv?.diasExtension ?? 30;
+    const detalleConvocatoria = conv?.detalle || portalConv?.detalle || 'Convocatoria Ordinaria';
+    const periodo = conv?.idPeriodo || portalConv?.periodo || '';
+
+    if (!fechaInicioStr || !fechaFinStr) {
+      return {
+        tieneDatosReales: false,
+        periodo,
+        detalleConvocatoria,
+        diasPermitidos,
+        diasExtension,
+        fases: [
+          {
+            fase: 1,
+            titulo: 'Recepción de Expedientes y Postulación',
+            etiqueta: 'Fase 1 · Postulación',
+            estado: 'En Curso',
+            estadoClase: 'pill--active',
+            esActiva: true,
+            fechaInicio: null as Date | null,
+            fechaFin: null as Date | null,
+            duracionDias: 30,
+            rangoTexto: 'Conforme a calendario de cohorte',
+            descripcion: 'Registro en plataforma institucional, selección de modalidad habilitada y carga de los requisitos iniciales.',
+            hito: 'Generación de expediente único de titulación'
+          },
+          {
+            fase: 2,
+            titulo: 'Validación Documental y Dictamen',
+            etiqueta: 'Fase 2 · Secretaría',
+            estado: 'Próxima Fase',
+            estadoClase: 'pill--upcoming',
+            esActiva: false,
+            fechaInicio: null as Date | null,
+            fechaFin: null as Date | null,
+            duracionDias: 10,
+            rangoTexto: 'Posterior al cierre de postulación',
+            descripcion: 'Verificación de requisitos habilitantes por secretaría académica y docentes revisores para emisión del dictamen.',
+            hito: 'Dictamen de admisión formal a la cohorte'
+          },
+          {
+            fase: 3,
+            titulo: 'Desarrollo de Titulación y Tutorías',
+            etiqueta: 'Fase 3 · Ejecución',
+            estado: 'Programada',
+            estadoClase: 'pill--scheduled',
+            esActiva: false,
+            fechaInicio: null as Date | null,
+            fechaFin: null as Date | null,
+            duracionDias: diasPermitidos,
+            rangoTexto: `${diasPermitidos} días de desarrollo ordinario`,
+            descripcion: 'Desarrollo de proyectos técnicos con tutoría docente periódica o curso y examen complexivo.',
+            hito: 'Aprobación del informe técnico o examen complexivo'
+          },
+          {
+            fase: 4,
+            titulo: 'Defensas de Grado y Actas Finales',
+            etiqueta: 'Fase 4 · Culminación',
+            estado: 'Programada',
+            estadoClase: 'pill--scheduled',
+            esActiva: false,
+            fechaInicio: null as Date | null,
+            fechaFin: null as Date | null,
+            duracionDias: 15,
+            rangoTexto: 'Período de cierre de cohorte',
+            descripcion: 'Sustentación oral ante el tribunal evaluador, asentamiento de actas de graduación y registro en SENESCYT.',
+            hito: 'Emisión de Acta Final de Grado'
+          }
+        ],
+        prorroga: null
+      };
+    }
+
+    const dInicioPost = new Date(fechaInicioStr);
+    const dFinPost = new Date(fechaFinStr);
+
+    const diffPostMs = dFinPost.getTime() - dInicioPost.getTime();
+    const diasPost = Math.max(1, Math.round(diffPostMs / (1000 * 60 * 60 * 24)) + 1);
+
+    // Fase 2: Validación Secretaría (primeros 10 días tras el cierre de postulación)
+    const dInicioVal = new Date(dFinPost.getTime() + 24 * 60 * 60 * 1000);
+    const dFinVal = new Date(dInicioVal.getTime() + 9 * 24 * 60 * 60 * 1000);
+
+    // Fase 3: Desarrollo de Titulación (diasPermitidos configurados en la convocatoria)
+    const dInicioTit = new Date(dFinPost.getTime() + 24 * 60 * 60 * 1000);
+    const dFinTit = new Date(dInicioTit.getTime() + (diasPermitidos - 1) * 24 * 60 * 60 * 1000);
+
+    // Fase 4: Defensas y Actas (después del desarrollo)
+    const dInicioDef = new Date(dFinTit.getTime() + 24 * 60 * 60 * 1000);
+    const dFinDef = new Date(dInicioDef.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    // Prórroga (si tiene días de extensión configurados)
+    const dInicioPro = new Date(dFinTit.getTime() + 24 * 60 * 60 * 1000);
+    const dFinPro = new Date(dInicioPro.getTime() + (diasExtension - 1) * 24 * 60 * 60 * 1000);
+
+    const hoy = new Date();
+    const esPostActiva = hoy >= dInicioPost && hoy <= new Date(dFinPost.getTime() + 23 * 59 * 59 * 1000);
+    const esValActiva = hoy > dFinPost && hoy <= dFinVal;
+    const esTitActiva = hoy > dFinPost && hoy <= dFinTit;
+    const esDefActiva = hoy > dFinTit && hoy <= dFinDef;
+
+    return {
+      tieneDatosReales: true,
+      periodo,
+      detalleConvocatoria,
+      diasPermitidos,
+      diasExtension,
+      fases: [
+        {
+          fase: 1,
+          titulo: 'Recepción de Expedientes y Postulación',
+          etiqueta: 'Fase 1 · Postulación',
+          estado: esPostActiva ? 'En Curso' : (hoy < dInicioPost ? 'Por Iniciar' : 'Finalizada'),
+          estadoClase: esPostActiva ? 'pill--active' : (hoy < dInicioPost ? 'pill--upcoming' : 'pill--completed'),
+          esActiva: esPostActiva,
+          fechaInicio: dInicioPost,
+          fechaFin: dFinPost,
+          duracionDias: diasPost,
+          rangoTexto: null,
+          descripcion: 'Registro en plataforma institucional, selección de modalidad habilitada y carga de los requisitos iniciales.',
+          hito: 'Generación de expediente único de titulación'
+        },
+        {
+          fase: 2,
+          titulo: 'Validación Documental por Secretaría',
+          etiqueta: 'Fase 2 · Secretaría',
+          estado: esValActiva ? 'En Curso' : (hoy <= dFinPost ? 'Próxima Fase' : 'Finalizada'),
+          estadoClase: esValActiva ? 'pill--active' : (hoy <= dFinPost ? 'pill--upcoming' : 'pill--completed'),
+          esActiva: esValActiva,
+          fechaInicio: dInicioVal,
+          fechaFin: dFinVal,
+          duracionDias: 10,
+          rangoTexto: null,
+          descripcion: 'Verificación de requisitos habilitantes por secretaría académica y docentes revisores para emisión del dictamen.',
+          hito: 'Dictamen de admisión formal a la cohorte'
+        },
+        {
+          fase: 3,
+          titulo: 'Desarrollo de Titulación y Tutorías',
+          etiqueta: 'Fase 3 · Ejecución',
+          estado: esTitActiva ? 'En Curso' : (hoy < dInicioTit ? 'Programada' : 'Finalizada'),
+          estadoClase: esTitActiva ? 'pill--active' : (hoy < dInicioTit ? 'pill--scheduled' : 'pill--completed'),
+          esActiva: esTitActiva,
+          fechaInicio: dInicioTit,
+          fechaFin: dFinTit,
+          duracionDias: diasPermitidos,
+          rangoTexto: null,
+          descripcion: 'Desarrollo de proyectos técnicos con tutoría docente periódica o curso de preparación y examen complexivo.',
+          hito: 'Aprobación del informe técnico o examen complexivo'
+        },
+        {
+          fase: 4,
+          titulo: 'Defensas de Grado y Actas Finales',
+          etiqueta: 'Fase 4 · Culminación',
+          estado: esDefActiva ? 'En Curso' : (hoy < dInicioDef ? 'Programada' : 'Finalizada'),
+          estadoClase: esDefActiva ? 'pill--active' : (hoy < dInicioDef ? 'pill--scheduled' : 'pill--completed'),
+          esActiva: esDefActiva,
+          fechaInicio: dInicioDef,
+          fechaFin: dFinDef,
+          duracionDias: 15,
+          rangoTexto: null,
+          descripcion: 'Sustentación oral ante el tribunal evaluador, asentamiento de actas de graduación y registro en SENESCYT.',
+          hito: 'Emisión de Acta Final de Grado'
+        }
+      ],
+      prorroga: diasExtension > 0 ? {
+        diasExtension,
+        fechaInicio: dInicioPro,
+        fechaFin: dFinPro
+      } : null
+    };
+  });
+
+  // Computed & Helpers para Vista General Ejecutiva
+  tasaAprobacion = computed(() => {
+    const total = this.resumenGeneral()?.totalPostulaciones ?? this.postulacionesTotal();
+    const aprob = this.resumenGeneral()?.totalAprobadas ?? this.totalAprobadas();
+    if (!total || total === 0) return 0;
+    return Math.min(100, Math.round((aprob / total) * 100));
+  });
+
+  tasaEnRevision = computed(() => {
+    const total = this.resumenGeneral()?.totalPostulaciones ?? this.postulacionesTotal();
+    const rev = this.resumenGeneral()?.totalEnRevision ?? this.totalEnRevision();
+    if (!total || total === 0) return 0;
+    return Math.min(100, Math.round((rev / total) * 100));
+  });
+
+  tasaObservadas = computed(() => {
+    const total = this.resumenGeneral()?.totalPostulaciones ?? this.postulacionesTotal();
+    const obs = this.resumenGeneral()?.totalObservadas ?? 0;
+    if (!total || total === 0) return 0;
+    return Math.min(100, Math.round((obs / total) * 100));
+  });
+
+  tasaRechazadas = computed(() => {
+    const total = this.resumenGeneral()?.totalPostulaciones ?? this.postulacionesTotal();
+    const rech = this.resumenGeneral()?.totalRechazadas ?? 0;
+    if (!total || total === 0) return 0;
+    return Math.min(100, Math.round((rech / total) * 100));
+  });
+
+  totalObservadasYRechazadas = computed(() => {
+    return (this.resumenGeneral()?.totalObservadas ?? 0) + (this.resumenGeneral()?.totalRechazadas ?? 0);
+  });
+
+  postulacionesRecientes = computed(() => {
+    return this.postulacionesLista().slice(0, 5);
+  });
+
   // Modales
   aperturaModalVisible = signal<boolean>(false);
   nuevoRequisitoModalVisible = signal<boolean>(false);
@@ -208,6 +424,27 @@ export class DashboardComponent implements OnInit {
     esArticuloCientifico: 'NO',
     generaTesis: 'NO',
     cantidadMinima: 1,
+    idsRequisitos: [] as number[],
+  });
+
+  // Estado para selección y creación inline de requisitos al crear modalidad
+  filtroBusquedaRequisitosModalidad = signal<string>('');
+  mostrandoCrearRequisitoInline = signal<boolean>(false);
+  creandoRequisitoInline = signal<boolean>(false);
+  nuevoRequisitoInlineForm = signal({
+    requisito: '',
+    esAdjunto: true,
+    esBool: false,
+    subeAlumno: true,
+    subeColaborador: false,
+  });
+
+  // Requisitos disponibles para seleccionar en nueva modalidad
+  requisitosDisponiblesParaNuevaModalidad = computed(() => {
+    const todos = this.requisitosMaestros().filter((r) => r.esActivo);
+    const query = this.filtroBusquedaRequisitosModalidad().toLowerCase().trim();
+    if (!query) return todos;
+    return todos.filter((r) => r.requisito.toLowerCase().includes(query));
   });
 
   // Formulario de Creación de Requisito
@@ -282,6 +519,7 @@ export class DashboardComponent implements OnInit {
     if (this.isEstudiante()) {
       this.activeTab.set('postulacion');
       this.cargarPortalEstudiante();
+      this.cargarConvocatoriaActiva();
     } else if (this.isAdmin()) {
       this.activeTab.set('resumen');
       this.cargarResumenGeneral();
@@ -289,6 +527,7 @@ export class DashboardComponent implements OnInit {
       this.cargarTotalPostulaciones();
       this.cargarConfiguracionesMaestras();
       this.cargarEstadosPostulacion();
+      this.cargarPostulaciones();
       if (this.isDocente()) {
         this.cargarMisPendientesDocente();
       }
@@ -302,6 +541,7 @@ export class DashboardComponent implements OnInit {
       this.cargarTotalPostulaciones();
       this.cargarConfiguracionesMaestras();
       this.cargarEstadosPostulacion();
+      this.cargarPostulaciones();
     }
 
     this.cargarCarrerasUsuario();
@@ -711,6 +951,68 @@ export class DashboardComponent implements OnInit {
       esArticuloCientifico: 'NO',
       generaTesis: 'NO',
       cantidadMinima: 1,
+      idsRequisitos: [],
+    });
+    this.filtroBusquedaRequisitosModalidad.set('');
+    this.mostrandoCrearRequisitoInline.set(false);
+  }
+
+  toggleRequisitoEnNuevaModalidad(idRequisito: number): void {
+    this.nuevaModalidadForm.update((f) => {
+      const set = new Set(f.idsRequisitos);
+      if (set.has(idRequisito)) {
+        set.delete(idRequisito);
+      } else {
+        set.add(idRequisito);
+      }
+      return { ...f, idsRequisitos: Array.from(set) };
+    });
+  }
+
+  seleccionarTodosRequisitosNuevaModalidad(): void {
+    const ids = this.requisitosMaestros()
+      .filter((r) => r.esActivo)
+      .map((r) => r.idRequisitos);
+    this.nuevaModalidadForm.update((f) => ({ ...f, idsRequisitos: ids }));
+  }
+
+  deseleccionarTodosRequisitosNuevaModalidad(): void {
+    this.nuevaModalidadForm.update((f) => ({ ...f, idsRequisitos: [] }));
+  }
+
+  crearRequisitoInline(): void {
+    const f = this.nuevoRequisitoInlineForm();
+    if (!f.requisito.trim()) {
+      this.mostrarMensaje('error', 'El nombre del requisito es obligatorio.');
+      return;
+    }
+
+    this.creandoRequisitoInline.set(true);
+    this.titulacionService.crearRequisitoMaestro(f).subscribe({
+      next: (nuevoId) => {
+        this.creandoRequisitoInline.set(false);
+        this.mostrarMensaje('exito', `Requisito "${f.requisito}" creado y añadido.`);
+        this.nuevoRequisitoInlineForm.set({
+          requisito: '',
+          esAdjunto: true,
+          esBool: false,
+          subeAlumno: true,
+          subeColaborador: false,
+        });
+        this.mostrandoCrearRequisitoInline.set(false);
+
+        // Seleccionar automáticamente en la nueva modalidad
+        this.nuevaModalidadForm.update((mf) => ({
+          ...mf,
+          idsRequisitos: Array.from(new Set([...mf.idsRequisitos, nuevoId])),
+        }));
+
+        this.cargarConfiguracionesMaestras();
+      },
+      error: (err) => {
+        this.creandoRequisitoInline.set(false);
+        this.mostrarMensaje('error', err.error?.message || 'Error al crear el requisito.');
+      },
     });
   }
 
@@ -721,9 +1023,18 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    this.titulacionService.crearModalidadMaestra(f).subscribe({
+    const payload: Partial<ModalidadMaestra> & { idsRequisitos?: number[] } = {
+      modalidadTitulacion: f.modalidadTitulacion.trim(),
+      esComplexivo: f.esComplexivo,
+      esArticuloCientifico: f.esArticuloCientifico,
+      generaTesis: f.generaTesis,
+      cantidadMinima: f.cantidadMinima,
+      idsRequisitos: f.idsRequisitos.length > 0 ? f.idsRequisitos : undefined,
+    };
+
+    this.titulacionService.crearModalidadMaestra(payload).subscribe({
       next: () => {
-        this.mostrarMensaje('exito', 'Modalidad maestra creada exitosamente.');
+        this.mostrarMensaje('exito', 'Modalidad maestra creada exitosamente con sus requisitos.');
         this.nuevaModalidadModalVisible.set(false);
         this.resetNuevaModalidadForm();
         this.cargarConfiguracionesMaestras();
@@ -1025,6 +1336,8 @@ export class DashboardComponent implements OnInit {
     if (tab === 'resumen') {
       this.cargarResumenGeneral();
       this.cargarConvocatoriaActiva();
+      this.cargarTotalPostulaciones();
+      this.cargarPostulaciones();
     } else if (tab === 'cohortes') {
       this.cargarHistoricoConvocatorias();
     } else if (tab === 'postulaciones') {
@@ -1036,6 +1349,57 @@ export class DashboardComponent implements OnInit {
     } else if (tab === 'evaluacion') {
       this.cargarMisPendientesDocente();
     }
+  }
+
+  abrirAperturaModal(): void {
+    this.aperturaModalVisible.set(true);
+  }
+
+  formatearFechaHumana(fechaStr: string | null | undefined): string {
+    if (!fechaStr) return 'No definida';
+    try {
+      const fecha = new Date(fechaStr);
+      if (isNaN(fecha.getTime())) return fechaStr;
+      return fecha.toLocaleDateString('es-EC', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+    } catch {
+      return fechaStr;
+    }
+  }
+
+  getEstadoBadgeClass(nombreEstado?: string): string {
+    const est = (nombreEstado || '').toUpperCase();
+    if (est.includes('APROB')) return 'fluent-badge--success';
+    if (est.includes('OBSERV')) return 'fluent-badge--warning';
+    if (est.includes('REVIS') || est.includes('REGISTR')) return 'fluent-badge--info';
+    if (est.includes('RECHAZ')) return 'fluent-badge--error';
+    return 'fluent-badge--neutral';
+  }
+
+  getEstadoDotClass(nombreEstado?: string): string {
+    const est = (nombreEstado || '').toUpperCase();
+    if (est.includes('APROB')) return 'dot-success';
+    if (est.includes('OBSERV')) return 'dot-warning';
+    if (est.includes('REVIS') || est.includes('REGISTR')) return 'dot-info';
+    if (est.includes('RECHAZ')) return 'dot-error';
+    return 'dot-neutral';
+  }
+
+  irAPostulacionesConFiltro(estadoNombre?: string): void {
+    if (estadoNombre) {
+      const estado = this.estadosPostulacion().find((e) =>
+        e.nombre.toUpperCase().includes(estadoNombre.toUpperCase()),
+      );
+      if (estado) {
+        this.filtroEstado.set(estado.idPostulacionEstado);
+      }
+    } else {
+      this.filtroEstado.set(null);
+    }
+    this.setActiveTab('postulaciones');
   }
 
   logout(): void {

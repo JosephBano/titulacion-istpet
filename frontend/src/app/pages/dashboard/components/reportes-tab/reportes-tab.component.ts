@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { ReportesService } from '../../../../core/services/reportes.service';
 import { EgresadosService } from '../../../../core/services/egresados.service';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -27,7 +28,7 @@ import { UserPermissions } from '../../../../core/models/auth.models';
 @Component({
   selector: 'app-reportes-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DrawerComponent],
   templateUrl: './reportes-tab.component.html',
   styleUrl: './reportes-tab.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +43,7 @@ export class ReportesTabComponent implements OnInit {
   // Catálogo de reportes
   catalogo = signal<ReporteCatalogoItem[]>(this.reportesService.catalogoReportes);
   reporteSeleccionado = signal<ReporteCatalogoItem>(this.catalogo()[0]);
+  drawerAbierto = signal<boolean>(false);
 
   // Listas de catálogos para filtros
   periodos = signal<PeriodoItem[]>([]);
@@ -97,9 +99,7 @@ export class ReportesTabComponent implements OnInit {
   }
 
   private cargarCatalogos(): void {
-    this.cargandoDatos.set(true);
-
-    // Cargar períodos y carreras en paralelo
+    // Cargar períodos y carreras en segundo plano
     this.egresadosService.getPeriodos().subscribe({
       next: (data) => {
         this.periodos.set(data || []);
@@ -109,11 +109,8 @@ export class ReportesTabComponent implements OnInit {
         } else if (data.length > 0) {
           this.periodoSeleccionado.set(data[0].idPeriodo);
         }
-        this.cargarDatosVistaPrevia();
       },
-      error: () => {
-        this.cargandoDatos.set(false);
-      },
+      error: () => {},
     });
 
     this.egresadosService.getCarreras().subscribe({
@@ -122,14 +119,18 @@ export class ReportesTabComponent implements OnInit {
     });
   }
 
-  seleccionarReporte(rep: ReporteCatalogoItem): void {
-    if (!rep.disponible) {
-      this.notificationService.info(
-        `El reporte "${rep.titulo}" estará disponible en la próxima actualización.`,
-      );
-      return;
-    }
+  abrirReporte(rep: ReporteCatalogoItem): void {
     this.reporteSeleccionado.set(rep);
+    this.drawerAbierto.set(true);
+    this.cargarDatosVistaPrevia();
+  }
+
+  cerrarDrawer(): void {
+    this.drawerAbierto.set(false);
+  }
+
+  seleccionarReporte(rep: ReporteCatalogoItem): void {
+    this.abrirReporte(rep);
   }
 
   onPeriodoChange(nuevoPeriodo: string): void {

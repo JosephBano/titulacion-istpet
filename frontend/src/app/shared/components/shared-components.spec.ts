@@ -101,6 +101,37 @@ describe('Shared UI Components Unit Tests', () => {
     });
   });
 
+  it('AperturaPeriodoModalComponent: debe guardar y recuperar borrador en sessionStorage y limpiarlo al cancelar', () => {
+    TestBed.runInInjectionContext(() => {
+      const comp = new AperturaPeriodoModalComponent();
+      comp.form.set({
+        idPeriodo: 'OCT2026',
+        detalleConvocatoria: 'Convocatoria Test Persistencia',
+        fechaInicioStr: '2026-10-01',
+        fechaFinStr: '2026-10-20',
+        diasPermitidos: 100,
+        diasExtension: 45,
+        habilitarTodasLasCarreras: false,
+      });
+      comp.pasoActual.set(3);
+      comp.guardarBorrador();
+
+      // Instanciar nuevo componente y recuperar
+      const comp2 = new AperturaPeriodoModalComponent();
+      const recuperado = comp2.recuperarBorrador();
+      expect(recuperado).toBe(true);
+      expect(comp2.form().idPeriodo).toBe('OCT2026');
+      expect(comp2.form().detalleConvocatoria).toBe('Convocatoria Test Persistencia');
+      expect(comp2.pasoActual()).toBe(3);
+
+      // Cancelar debe limpiar el borrador
+      comp2.cancelarApertura();
+      expect(comp2.pasoActual()).toBe(1);
+      const raw = sessionStorage.getItem('istpet_convocatoria_apertura_draft');
+      expect(raw).toBeNull();
+    });
+  });
+
   describe('DrawerComponent', () => {
     it('debe instanciarse con valores por defecto', () => {
       TestBed.runInInjectionContext(() => {

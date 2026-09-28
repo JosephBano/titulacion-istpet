@@ -32,6 +32,7 @@ export interface DocumentoVisorInfo {
 })
 export class EvaluacionDocenteTabComponent {
   private readonly sanitizer = inject(DomSanitizer);
+  readonly skeletonRows = Array.from({ length: 5 }, (_, i) => i);
 
   items = input<RequisitoEvaluacionDocente[]>([]);
   cargando = input<boolean>(false);
@@ -133,6 +134,25 @@ export class EvaluacionDocenteTabComponent {
     return Math.min(this.paginaActual() * this.tamanoPagina(), this.totalFiltrados());
   });
 
+  paginasDisponibles = computed(() => {
+    const total = this.totalPaginas();
+    const actual = this.paginaActual();
+    const pages: number[] = [];
+    const maxVisible = 5;
+
+    let start = Math.max(1, actual - Math.floor(maxVisible / 2));
+    const end = Math.min(total, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  });
+
   // Navegación dentro del Drawer
   indiceActual = computed(() => {
     const sel = this.casoSeleccionado();
@@ -212,9 +232,14 @@ export class EvaluacionDocenteTabComponent {
   }
 
   irAPagina(p: number): void {
-    if (p >= 1 && p <= this.totalPaginas()) {
+    if (p >= 1 && p <= this.totalPaginas() && p !== this.paginaActual()) {
       this.paginaActual.set(p);
     }
+  }
+
+  cambiarTamanoPagina(size: number | string): void {
+    this.tamanoPagina.set(+size || 10);
+    this.paginaActual.set(1);
   }
 
   // Apertura y Navegación del Drawer

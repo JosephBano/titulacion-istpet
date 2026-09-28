@@ -1,102 +1,48 @@
-<section class="evaluacion-section">
-  <!-- Cabecera Limpia y Métricas -->
-  <div class="evaluacion-header">
-    <div class="evaluacion-header-info">
-      <div class="header-badge-row">
-        <span class="evaluacion-eyebrow">PANEL EVALUADOR</span>
-        <span class="header-count-tag">{{ items().length }} casos asignados</span>
-      </div>
-      <h2 class="evaluacion-title">Validación de Requisitos</h2>
-      <p class="evaluacion-desc">
-        Revise y apruebe las evidencias de titulación asignadas a su cargo. Seleccione un caso para
-        abrir el visor y calificar.
+<div class="evaluacion-tab-container">
+  <!-- Header de Sección -->
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Validación de Requisitos</h2>
+      <p class="section-subtitle">
+        Revise y apruebe las evidencias de titulación asignadas a su cargo docente. Seleccione un caso para abrir el visor y calificar.
       </p>
-    </div>
-
-    <!-- Pestañas de Estado Rápidas -->
-    <div class="status-tab-group">
-      <button
-        type="button"
-        class="status-tab-btn"
-        [class.active]="filtroCumplimiento() === 'TODOS'"
-        (click)="setFiltro('TODOS')"
-      >
-        <span>Todos</span>
-        <span class="tab-badge">{{ items().length }}</span>
-      </button>
-
-      <button
-        type="button"
-        class="status-tab-btn"
-        [class.active]="filtroCumplimiento() === 'PENDIENTES'"
-        (click)="setFiltro('PENDIENTES')"
-      >
-        <span class="status-dot dot-warning"></span>
-        <span>Pendientes</span>
-        <span class="tab-badge badge-warning">{{ totalPendientes() }}</span>
-      </button>
-
-      <button
-        type="button"
-        class="status-tab-btn"
-        [class.active]="filtroCumplimiento() === 'APROBADOS'"
-        (click)="setFiltro('APROBADOS')"
-      >
-        <span class="status-dot dot-success"></span>
-        <span>Aprobados</span>
-        <span class="tab-badge badge-success">{{ totalAprobados() }}</span>
-      </button>
     </div>
   </div>
 
-  <!-- Contenedor Principal de la Lista -->
-  <div class="evaluacion-box">
-    <!-- Barra de Filtros: Buscador + Filtro por Carrera -->
-    <div class="evaluacion-toolbar">
-      <div class="search-wrap">
-        <svg
-          class="search-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input
-          type="text"
-          class="search-input"
-          placeholder="Buscar estudiante, cédula o requisito..."
-          [ngModel]="busqueda()"
-          (ngModelChange)="onSearchChange($event)"
-        />
-        @if (busqueda()) {
-          <button
-            type="button"
-            class="search-clear-btn"
-            (click)="onSearchChange('')"
-            title="Limpiar búsqueda"
-          >
-            &times;
-          </button>
-        }
+  <!-- Barra de Filtros Fluent -->
+  <div class="fluent-filters-card">
+    <div class="filters-grid">
+      <!-- Buscador -->
+      <div class="filter-group search-group">
+        <label for="busquedaEvalInput" class="filter-label">Buscar por Estudiante, Cédula o Requisito</label>
+        <div class="search-input-wrapper">
+          <input
+            id="busquedaEvalInput"
+            type="text"
+            class="fluent-input"
+            placeholder="Ingrese nombre, cédula o requisito..."
+            [ngModel]="busqueda()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+          @if (busqueda()) {
+            <button type="button" class="btn btn-secondary btn-sm" (click)="onSearchChange('')">
+              Limpiar
+            </button>
+          }
+        </div>
       </div>
 
-      <!-- Filtro por Carrera (si hay más de 1 carrera) -->
+      <!-- Filtro Carrera -->
       @if (carrerasDisponibles().length > 1) {
-        <div class="carrera-filter-wrap">
-          <label class="filter-label" for="carreraSelect">Carrera:</label>
+        <div class="filter-group">
+          <label for="carreraEvalSelect" class="filter-label">Carrera</label>
           <select
-            id="carreraSelect"
-            class="carrera-select"
+            id="carreraEvalSelect"
+            class="fluent-select"
             [ngModel]="filtroCarrera()"
             (ngModelChange)="setFiltroCarrera($event)"
           >
-            <option value="TODAS">Todas las carreras ({{ carrerasDisponibles().length }})</option>
+            <option value="TODAS">Todas las carreras</option>
             @for (c of carrerasDisponibles(); track c) {
               <option [value]="c">{{ c }}</option>
             }
@@ -104,118 +50,222 @@
         </div>
       }
 
-      <div class="toolbar-meta">
-        <span class="counter-text">{{ totalFiltrados() }} caso(s) encontrado(s)</span>
+      <!-- Filtro Estado Cumplimiento -->
+      <div class="filter-group">
+        <label class="filter-label">Estado</label>
+        <div class="filter-pill-group">
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroCumplimiento() === 'TODOS'"
+            (click)="setFiltro('TODOS')"
+          >
+            <span>Todos ({{ items().length }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroCumplimiento() === 'PENDIENTES'"
+            (click)="setFiltro('PENDIENTES')"
+          >
+            <span class="pill-dot dot-warning"></span>
+            <span>Pendientes ({{ totalPendientes() }})</span>
+          </button>
+          <button
+            type="button"
+            class="filter-pill-btn"
+            [class.active]="filtroCumplimiento() === 'APROBADOS'"
+            (click)="setFiltro('APROBADOS')"
+          >
+            <span class="pill-dot dot-success"></span>
+            <span>Aprobados ({{ totalAprobados() }})</span>
+          </button>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Estados de Carga / Vacío -->
-    @if (cargando()) {
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <span>Cargando lista de casos asignados...</span>
-      </div>
-    } @else if (items().length === 0) {
-      <div class="empty-state">
-        <div class="empty-icon-wrap">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="36"
-            height="36"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-        </div>
-        <h3>No tiene requisitos asignados</h3>
-        <p>
-          Actualmente no registra postulaciones pendientes bajo su responsabilidad de evaluación.
-        </p>
-      </div>
-    } @else if (itemsFiltrados().length === 0) {
-      <div class="empty-state">
-        <div class="empty-icon-wrap">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="36"
-            height="36"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </div>
-        <h3>Sin coincidencias</h3>
-        <p>No se encontraron postulantes con el término de búsqueda o filtros seleccionados.</p>
-      </div>
-    } @else {
-      <!-- TABLA ELEGANTE Y COMPACTA -->
-      <div class="table-responsive">
-        <table class="cases-table">
-          <thead>
+  <!-- Estado de Carga / Vacío / Tabla -->
+  @if (cargando()) {
+    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Cargando casos asignados">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Carrera</th>
+            <th>Requisito a Validar</th>
+            <th>Documento</th>
+            <th class="text-center">Estado</th>
+            <th class="text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of skeletonRows; track row) {
             <tr>
-              <th class="th-estudiante">Estudiante</th>
-              <th class="th-carrera">Carrera</th>
-              <th class="th-requisito">Requisito a Validar</th>
-              <th class="th-doc">Documento</th>
-              <th class="th-estado text-center">Estado</th>
-              <th class="th-acciones text-end">Acciones</th>
+              <td><span class="skeleton-line skeleton-w-lg"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td class="text-center"><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
             </tr>
-          </thead>
-          <tbody>
-            @for (item of itemsPaginados(); track item.idPostulacionAlumnoRequisitoModalidad) {
-              <tr
-                class="case-row"
-                [class.row-approved]="getAprobado(item)"
-                (click)="abrirRevision(item)"
-              >
-                <!-- 1. Estudiante -->
-                <td class="td-estudiante">
-                  <div class="student-cell">
-                    <div class="student-avatar" [class.avatar-approved]="getAprobado(item)">
-                      {{ getIniciales(item.nombreAlumno) }}
-                    </div>
-                    <div class="student-info">
-                      <strong class="student-name">{{ item.nombreAlumno }}</strong>
-                      <span class="student-id">CI: {{ item.cedulaAlumno }}</span>
-                    </div>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">No tiene requisitos asignados</h3>
+      <p class="empty-desc">
+        Actualmente no registra postulaciones pendientes bajo su responsabilidad de evaluación docente.
+      </p>
+    </div>
+  } @else if (itemsFiltrados().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">Sin coincidencias</h3>
+      <p class="empty-desc">No se encontraron casos con el término de búsqueda o filtros seleccionados.</p>
+      <button type="button" class="btn btn-secondary" (click)="setFiltro('TODOS'); setFiltroCarrera('TODAS'); onSearchChange('')">
+        Restablecer Filtros
+      </button>
+    </div>
+  } @else {
+    <!-- Tabla Fluent -->
+    <div class="fluent-table-wrapper">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Carrera</th>
+            <th>Requisito a Validar</th>
+            <th>Documento</th>
+            <th class="text-center">Estado</th>
+            <th class="text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of itemsPaginados(); track item.idPostulacionAlumnoRequisitoModalidad) {
+            <tr
+              class="case-row"
+              [class.row-approved]="getAprobado(item)"
+              (click)="abrirRevision(item)"
+            >
+              <!-- 1. Estudiante -->
+              <td>
+                <div class="student-cell">
+                  <div class="student-avatar" [class.avatar-approved]="getAprobado(item)">
+                    {{ getIniciales(item.nombreAlumno) }}
                   </div>
-                </td>
+                  <div class="student-info">
+                    <strong class="student-name">{{ item.nombreAlumno }}</strong>
+                    <span class="student-id">CI: {{ item.cedulaAlumno }}</span>
+                  </div>
+                </div>
+              </td>
 
-                <!-- 2. Carrera -->
-                <td class="td-carrera">
-                  <span class="carrera-tag" [title]="item.carrera || 'Sin Carrera'">
-                    {{ item.carrera || 'No especificada' }}
+              <!-- 2. Carrera -->
+              <td>
+                <span class="carrera-tag" [title]="item.carrera || 'Sin Carrera'">
+                  {{ item.carrera || 'No especificada' }}
+                </span>
+              </td>
+
+              <!-- 3. Requisito -->
+              <td>
+                <div class="req-cell">
+                  <span class="req-title">{{ item.nombreRequisito }}</span>
+                  @if (item.observaciones) {
+                    <span class="req-obs-snippet" [title]="item.observaciones">
+                      Obs: {{ item.observaciones }}
+                    </span>
+                  }
+                </div>
+              </td>
+
+              <!-- 4. Documento Adjunto -->
+              <td (click)="$event.stopPropagation()">
+                @if (item.rutaArchivoAdjunto) {
+                  <button
+                    type="button"
+                    class="doc-badge-btn"
+                    (click)="abrirRevision(item)"
+                    title="Ver documento adjunto"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Ver PDF</span>
+                  </button>
+                } @else {
+                  <span class="no-doc-tag">— Sin archivo —</span>
+                }
+              </td>
+
+              <!-- 5. Estado de Cumplimiento -->
+              <td class="text-center">
+                @if (getAprobado(item)) {
+                  <span class="badge-status status-cumple">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Aprobado</span>
                   </span>
-                </td>
+                } @else {
+                  <span class="badge-status status-pendiente">
+                    <span class="pulse-dot"></span>
+                    <span>Pendiente</span>
+                  </span>
+                }
+              </td>
 
-                <!-- 3. Requisito -->
-                <td class="td-requisito">
-                  <div class="req-cell">
-                    <span class="req-title">{{ item.nombreRequisito }}</span>
-                    @if (item.observaciones) {
-                      <span class="req-obs-snippet" [title]="item.observaciones">
-                        Obs: {{ item.observaciones }}
-                      </span>
-                    }
-                  </div>
-                </td>
+              <!-- 6. Acciones -->
+              <td class="text-right" (click)="$event.stopPropagation()">
+                <div class="actions-group">
+                  <button
+                    type="button"
+                    class="btn-action-review"
+                    (click)="abrirRevision(item)"
+                    title="Revisar expediente y calificar"
+                  >
+                    <span>Revisar</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
 
-                <!-- 4. Documento Adjunto -->
-                <td class="td-doc" (click)="$event.stopPropagation()">
-                  @if (item.rutaArchivoAdjunto) {
+                  @if (!getAprobado(item)) {
                     <button
                       type="button"
-                      class="doc-badge-btn"
-                      (click)="abrirRevision(item)"
-                      title="Ver documento adjunto"
+                      class="btn-quick-approve"
+                      (click)="aprobarDirecto(item, $event)"
+                      [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
+                      title="Aprobar directamente este requisito"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -224,127 +274,78 @@
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                      </svg>
-                      <span>Ver PDF</span>
-                    </button>
-                  } @else {
-                    <span class="no-doc-tag">— Sin archivo —</span>
-                  }
-                </td>
-
-                <!-- 5. Estado de Cumplimiento -->
-                <td class="td-estado text-center">
-                  @if (getAprobado(item)) {
-                    <span class="badge-status status-cumple">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="3"
+                        stroke-width="2.5"
                       >
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
-                      <span>Aprobado</span>
-                    </span>
-                  } @else {
-                    <span class="badge-status status-pendiente">
-                      <span class="pulse-dot"></span>
-                      <span>Pendiente</span>
-                    </span>
-                  }
-                </td>
-
-                <!-- 6. Acciones -->
-                <td class="td-acciones text-end" (click)="$event.stopPropagation()">
-                  <div class="actions-group">
-                    <button
-                      type="button"
-                      class="btn-action-review"
-                      (click)="abrirRevision(item)"
-                      title="Revisar expediente y calificar"
-                    >
-                      <span>Revisar</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                      </svg>
                     </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-                    <!-- Botón rápido de aprobación si está pendiente -->
-                    @if (!getAprobado(item)) {
-                      <button
-                        type="button"
-                        class="btn-quick-approve"
-                        (click)="aprobarDirecto(item, $event)"
-                        [disabled]="guardandoId() === item.idPostulacionAlumnoRequisitoModalidad"
-                        title="Aprobar directamente este requisito"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2.5"
-                        >
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    <!-- Paginador Fluent -->
+    <div class="fluent-pagination">
+      <div class="pagination-info">
+        Mostrando {{ (paginaActual() - 1) * tamanoPagina() + 1 }} a
+        {{
+          paginaActual() * tamanoPagina() > totalFiltrados()
+            ? totalFiltrados()
+            : paginaActual() * tamanoPagina()
+        }}
+        de {{ totalFiltrados() }} casos
       </div>
 
-      <!-- Paginador Limpio -->
-      <div class="pagination-footer">
-        <span class="pagination-info">
-          Mostrando {{ rangoInicio() }}-{{ rangoFin() }} de {{ totalFiltrados() }} casos
-        </span>
-
-        <div class="pagination-controls">
-          <button
-            type="button"
-            class="page-btn"
-            [disabled]="paginaActual() === 1"
-            (click)="irAPagina(paginaActual() - 1)"
+      <div class="pagination-controls">
+        <div class="page-size-selector">
+          <label for="pageSizeSelect">Por página:</label>
+          <select
+            id="pageSizeSelect"
+            [ngModel]="tamanoPagina()"
+            (ngModelChange)="cambiarTamanoPagina($event)"
           >
-            &larr; Anterior
-          </button>
-          <span class="current-page-tag">Página {{ paginaActual() }} de {{ totalPaginas() }}</span>
-          <button
-            type="button"
-            class="page-btn"
-            [disabled]="paginaActual() === totalPaginas()"
-            (click)="irAPagina(paginaActual() + 1)"
-          >
-            Siguiente &rarr;
-          </button>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
         </div>
+
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === 1"
+          (click)="irAPagina(paginaActual() - 1)"
+        >
+          Anterior
+        </button>
+
+        @for (p of paginasDisponibles(); track p) {
+          <button
+            type="button"
+            class="page-btn"
+            [class.active]="p === paginaActual()"
+            (click)="irAPagina(p)"
+          >
+            {{ p }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === totalPaginas()"
+          (click)="irAPagina(paginaActual() + 1)"
+        >
+          Siguiente
+        </button>
       </div>
-    }
-  </div>
-</section>
+    </div>
+  }
+</div>
 
 <!-- ========================================================================= -->
 <!-- DRAWER LATERAL DE REVISIÓN ENFOCADA (UN SOLO CASO A LA VEZ) -->

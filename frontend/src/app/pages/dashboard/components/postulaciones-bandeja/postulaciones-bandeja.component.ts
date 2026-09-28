@@ -17,6 +17,8 @@ export interface DictamenEvento {
   styleUrls: ['./postulaciones-bandeja.component.css'],
 })
 export class PostulacionesBandejaComponent {
+  readonly skeletonItems = Array.from({ length: 6 }, (_, i) => i);
+
   postulaciones = input<PostulacionResumen[]>([]);
   total = input<number>(0);
   loading = input<boolean>(false);

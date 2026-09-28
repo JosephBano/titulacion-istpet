@@ -1,13 +1,18 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   width: 100%;
+  min-height: 0;
 }
 
 .reportes-section {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   gap: 18px;
   width: 100%;
+  min-height: 0;
 }
 
 /* 1. Header */
@@ -546,23 +551,27 @@
   line-height: 1;
 }
 
-.header-right-meta {
+.preview-footer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-surface-alt, #faf9f8);
+  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
 }
 
-.box-counter {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted, #605e5c);
-  background: rgba(0, 0, 0, 0.04);
-  padding: 3px 8px;
-  border-radius: 2px;
+:host-context([data-theme="dark"]) .preview-footer {
+  background: rgba(255, 255, 255, 0.02);
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
-:host-context([data-theme="dark"]) .box-counter {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.7);
+.pagination-range-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #605e5c);
+}
+
+:host-context([data-theme="dark"]) .pagination-range-text {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Tabla Fluent 2 */
@@ -826,3 +835,18 @@
 :host-context([data-theme="dark"]) .fluent-btn-primary:hover:not(:disabled) {
   background: var(--istpet-gold-hover, #d4af37);
 }
+
+/* 7. Drawer Full Size Content Styles */
+.drawer-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drawer-report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+

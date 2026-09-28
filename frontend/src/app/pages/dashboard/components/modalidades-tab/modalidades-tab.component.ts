@@ -11,6 +11,8 @@ import { ModalidadMaestra } from '../../../../core/models/titulacion.models';
   styleUrls: ['./modalidades-tab.component.css'],
 })
 export class ModalidadesTabComponent {
+  readonly skeletonRows = Array.from({ length: 5 }, (_, i) => i);
+
   modalidades = input<ModalidadMaestra[]>([]);
   loading = input<boolean>(false);
 
@@ -104,9 +106,8 @@ export class ModalidadesTabComponent {
     }
   }
 
-  onTamanoPaginaChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.tamanoPagina.set(+select.value || 10);
+  cambiarTamanoPagina(size: number | string): void {
+    this.tamanoPagina.set(+size || 10);
     this.paginaActual.set(1);
   }
 }

@@ -6,9 +6,6 @@
       <h2 class="bandeja-title">Postulaciones de Titulación</h2>
     </div>
     <div class="bandeja-header-actions">
-      <span class="meta-counter">
-        {{ total() }} {{ total() === 1 ? 'postulación' : 'postulaciones' }}
-      </span>
       <button
         type="button"
         class="btn-icon-text"
@@ -138,9 +135,54 @@
 
   <!-- 3. Grid de Tarjetas de Postulación Flotantes (Sin caja ni marco de fondo) -->
   @if (loading()) {
-    <div class="loading-state-box">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Cargando expedientes de titulación...</p>
+    <div class="cards-grid skeleton-grid" aria-busy="true" aria-label="Cargando expedientes de titulación">
+      @for (item of skeletonItems; track item) {
+        <article class="card-item skeleton-card">
+          <!-- Top: ID y Estado Skeleton -->
+          <div class="card-header">
+            <span class="skeleton-line skeleton-id"></span>
+            <span class="skeleton-line skeleton-status"></span>
+          </div>
+
+          <!-- Estudiante Skeleton -->
+          <div class="card-student">
+            <div class="skeleton-line skeleton-name"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+          </div>
+
+          <!-- Detalles Académicos Skeleton -->
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="skeleton-line skeleton-key"></span>
+              <span class="skeleton-line skeleton-val-lg"></span>
+            </div>
+            <div class="detail-item">
+              <span class="skeleton-line skeleton-key"></span>
+              <span class="skeleton-line skeleton-val-md"></span>
+            </div>
+            <div class="detail-item">
+              <span class="skeleton-line skeleton-key"></span>
+              <span class="skeleton-line skeleton-badge"></span>
+            </div>
+          </div>
+
+          <!-- Progreso de Requisitos Skeleton -->
+          <div class="card-progress">
+            <div class="progress-info">
+              <span class="skeleton-line skeleton-prog-label"></span>
+              <span class="skeleton-line skeleton-prog-count"></span>
+            </div>
+            <div class="progress-track skeleton-track"></div>
+          </div>
+
+          <!-- Acciones Skeleton -->
+          <div class="card-actions">
+            <div class="skeleton-btn"></div>
+            <div class="skeleton-btn"></div>
+            <div class="skeleton-btn"></div>
+          </div>
+        </article>
+      }
     </div>
   } @else if (postulaciones().length === 0) {
     <div class="empty-state-box">
@@ -368,8 +410,7 @@
     <footer class="bandeja-pagination">
       <div class="pagination-left">
         <span class="pagination-range-text">
-          Mostrando <strong>{{ rangoInicio() }}</strong
-          >–<strong>{{ rangoFin() }}</strong> de <strong>{{ total() }}</strong> postulaciones
+          Mostrando {{ rangoInicio() }} a {{ rangoFin() }} de {{ total() }} postulaciones
         </span>
 
         <div class="page-size-selector">

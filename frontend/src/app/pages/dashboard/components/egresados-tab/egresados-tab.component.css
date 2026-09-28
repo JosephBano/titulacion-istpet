@@ -3,15 +3,20 @@
    ========================================================================== */
 
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
   width: 100%;
+  min-height: 0;
 }
 
 .egresados-tab-container {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   gap: 18px;
   width: 100%;
+  min-height: 0;
 }
 
 /* 1. Header */
@@ -511,6 +516,8 @@
   border-radius: 4px;
   gap: 12px;
   text-align: center;
+  flex: 1 1 auto;
+  min-height: 380px;
 }
 
 :host-context([data-theme="dark"]) .state-container {
@@ -531,6 +538,50 @@
   border-color: rgba(197, 155, 39, 0.2);
   border-top-color: var(--istpet-gold, #c59b27);
 }
+
+/* Skeleton Loading Table */
+.table-skeleton-box {
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton-line {
+  display: inline-block;
+  height: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.12) 37%,
+    rgba(0, 0, 0, 0.06) 63%
+  );
+  background-size: 400% 100%;
+  border-radius: 4px;
+  animation: fluentSkeletonShimmer 1.4s ease infinite;
+}
+
+:host-context([data-theme="dark"]) .skeleton-line {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.12) 37%,
+    rgba(255, 255, 255, 0.05) 63%
+  );
+  background-size: 400% 100%;
+}
+
+@keyframes fluentSkeletonShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.skeleton-w-sm { width: 60px; }
+.skeleton-w-md { width: 120px; }
+.skeleton-w-lg { width: 180px; }
+.skeleton-right { margin-left: auto; }
 
 @keyframes spin {
   to {

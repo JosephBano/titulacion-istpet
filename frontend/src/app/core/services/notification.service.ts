@@ -34,4 +34,11 @@ export class NotificationService {
       panelClass: ['istpet-snackbar', 'istpet-snackbar--info'],
     });
   }
+
+  warning(texto: string): void {
+    this.snackBar.open(texto, 'Cerrar', {
+      ...this.defaultConfig,
+      panelClass: ['istpet-snackbar', 'istpet-snackbar--warning'],
+    });
+  }
 }

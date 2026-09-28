@@ -300,6 +300,7 @@ export interface ModalidadMaestra {
   cantidadMinima: number | null;
   esActivo: boolean;
   totalRequisitosAsociados: number;
+  requisitos?: RequisitoModalidadMatriz[];
 }
 
 export interface RequisitoMaestro {

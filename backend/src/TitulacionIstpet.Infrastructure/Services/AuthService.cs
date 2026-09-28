@@ -39,7 +39,7 @@ public class AuthService : IAuthService
 
         if (user == null)
         {
-            // Auto-aprovisionamiento si existe en la tabla Alumnos
+            // 1. Auto-aprovisionamiento si existe en la tabla Alumnos
             var alumno = await _context.Alumnos
                 .FirstOrDefaultAsync(a =>
                     a.IdAlumno == cleanInput ||
@@ -50,6 +50,75 @@ public class AuthService : IAuthService
 
             if (alumno != null && _passwordHasher.VerifyPassword(request.Password, alumno.Password))
             {
+                // Validar que el estudiante pertenezca al último nivel o sea egresado apto para titulación
+                var matriculasAlumno = await _context.Matriculas
+                    .AsNoTracking()
+                    .Include(m => m.IdNivelNavigation)
+                    .Where(m => m.IdAlumno == alumno.IdAlumno && (m.Retirado == null || m.Retirado == false))
+                    .ToListAsync(cancellationToken);
+
+                if (matriculasAlumno.Count == 0)
+                {
+                    throw new UnauthorizedAccessException("Estimado estudiante, no registra matrículas activas en la institución.");
+                }
+
+                var carrerasAlumnoIds = matriculasAlumno
+                    .Where(m => m.IdNivelNavigation != null && m.IdNivelNavigation.IdCarrera > 0)
+                    .Select(m => m.IdNivelNavigation!.IdCarrera)
+                    .Distinct()
+                    .ToList();
+
+                var nivelesMaximosPorCarrera = await _context.Cursos
+                    .AsNoTracking()
+                    .Where(c => carrerasAlumnoIds.Contains(c.IdCarrera))
+                    .GroupBy(c => c.IdCarrera)
+                    .Select(g => new { IdCarrera = g.Key, MaxOrden = g.Max(c => c.Orden ?? 0) })
+                    .ToDictionaryAsync(x => x.IdCarrera, x => x.MaxOrden, cancellationToken);
+
+                bool esAptoTitulacion = false;
+                int nivelActualMax = 0;
+                string nombreNivelActual = string.Empty;
+
+                foreach (var mat in matriculasAlumno)
+                {
+                    if (mat.IdNivelNavigation != null)
+                    {
+                        int idCarrera = mat.IdNivelNavigation.IdCarrera;
+                        int ordenMatricula = mat.IdNivelNavigation.Orden ?? 0;
+                        int maxNivelCarrera = nivelesMaximosPorCarrera.GetValueOrDefault(idCarrera, 5);
+
+                        if (ordenMatricula > nivelActualMax)
+                        {
+                            nivelActualMax = ordenMatricula;
+                            nombreNivelActual = mat.IdNivelNavigation.Nivel ?? $"Nivel {ordenMatricula}";
+                        }
+
+                        if (ordenMatricula >= maxNivelCarrera || ordenMatricula >= 4)
+                        {
+                            esAptoTitulacion = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!esAptoTitulacion)
+                {
+                    bool tienePostulacionPrevia = await _context.TitulPostulacionAlumnos
+                        .AsNoTracking()
+                        .AnyAsync(p => p.IdMatriculaNavigation.IdAlumno == alumno.IdAlumno, cancellationToken);
+
+                    if (tienePostulacionPrevia)
+                    {
+                        esAptoTitulacion = true;
+                    }
+                }
+
+                if (!esAptoTitulacion)
+                {
+                    var nivelMsg = !string.IsNullOrWhiteSpace(nombreNivelActual) ? $" (Nivel registrado: {nombreNivelActual})" : string.Empty;
+                    throw new UnauthorizedAccessException($"Estimado estudiante, el Sistema de Titulación está habilitado exclusivamente para estudiantes del último semestre o egresados{nivelMsg}.");
+                }
+
                 var nombreCompleto = $"{alumno.PrimerNombre} {alumno.ApellidoPaterno}".Trim();
                 if (string.IsNullOrWhiteSpace(nombreCompleto))
                 {
@@ -75,24 +144,83 @@ public class AuthService : IAuthService
                 _context.Usuarios.Add(user);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                // Asignar rol institucional de estudiante: IdRol = 15 ('alumno')
-                var rolAlumno = await _context.RbacRol
-                    .FirstOrDefaultAsync(r => r.IdRol == 15 || r.CodigoRol == "alumno", cancellationToken);
+                // Asignar rol TITULACION_ESTUDIANTE o alumno
+                var rolEstudiante = await _context.RbacRol
+                    .FirstOrDefaultAsync(r => r.CodigoRol == "TITULACION_ESTUDIANTE" || r.CodigoRol == "alumno" || r.IdRol == 15, cancellationToken);
 
-                int idRolAsignar = rolAlumno?.IdRol ?? 15;
-
-                var usuarioRol = new RbacUsuarioRol
+                if (rolEstudiante != null)
                 {
-                    IdUsuario = user.IdUsuario,
-                    IdRol = idRolAsignar,
-                    EsActivo = true
-                };
-                _context.RbacUsuarioRol.Add(usuarioRol);
-                await _context.SaveChangesAsync(cancellationToken);
+                    _context.RbacUsuarioRol.Add(new RbacUsuarioRol
+                    {
+                        IdUsuario = user.IdUsuario,
+                        IdRol = rolEstudiante.IdRol,
+                        EsActivo = true,
+                        FechaCreacion = DateOnly.FromDateTime(DateTime.UtcNow)
+                    });
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
             }
             else
             {
-                throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
+                // 2. Auto-aprovisionamiento si existe en la tabla Profesores
+                var profesor = await _context.Profesores
+                    .FirstOrDefaultAsync(p =>
+                        p.IdProfesor == cleanInput ||
+                        (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
+                        (p.Email != null && p.Email == cleanInput),
+                        cancellationToken);
+
+                if (profesor != null && _passwordHasher.VerifyPassword(request.Password, profesor.Clave))
+                {
+                    if (profesor.Activo != true)
+                    {
+                        throw new UnauthorizedAccessException("El docente se encuentra inactivo en la institución.");
+                    }
+
+                    var nombreCompleto = $"{profesor.PrimerNombre} {profesor.Apellidos}".Trim();
+                    if (string.IsNullOrWhiteSpace(nombreCompleto))
+                    {
+                        nombreCompleto = profesor.Nombres ?? profesor.IdProfesor;
+                    }
+
+                    var emailInst = !string.IsNullOrWhiteSpace(profesor.EmailInstitucional)
+                        ? profesor.EmailInstitucional
+                        : (!string.IsNullOrWhiteSpace(profesor.Email) ? profesor.Email : $"{profesor.IdProfesor}@istpet.edu.ec");
+
+                    user = new Usuarios
+                    {
+                        IdSigafi = profesor.IdProfesor,
+                        TablaSigafi = "profesor",
+                        Nombre = nombreCompleto,
+                        Contrasenia = _passwordHasher.HashPassword(request.Password),
+                        Activo = true,
+                        Administrador = false,
+                        EmailInstitucional = emailInst,
+                        EmailValidado = true
+                    };
+
+                    _context.Usuarios.Add(user);
+                    await _context.SaveChangesAsync(cancellationToken);
+
+                    var rolDocente = await _context.RbacRol
+                        .FirstOrDefaultAsync(r => r.CodigoRol == "TITULACION_DOCENTE" || r.CodigoRol == "docente" || r.IdRol == 25, cancellationToken);
+
+                    if (rolDocente != null)
+                    {
+                        _context.RbacUsuarioRol.Add(new RbacUsuarioRol
+                        {
+                            IdUsuario = user.IdUsuario,
+                            IdRol = rolDocente.IdRol,
+                            EsActivo = true,
+                            FechaCreacion = DateOnly.FromDateTime(DateTime.UtcNow)
+                        });
+                        await _context.SaveChangesAsync(cancellationToken);
+                    }
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
+                }
             }
         }
         else

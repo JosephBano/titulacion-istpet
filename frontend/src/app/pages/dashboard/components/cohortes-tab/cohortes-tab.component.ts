@@ -15,6 +15,8 @@ import { ConvocatoriaCardComponent } from '../../../../shared/components/convoca
   styleUrls: ['./cohortes-tab.component.css'],
 })
 export class CohortesTabComponent {
+  readonly skeletonRows = Array.from({ length: 5 }, (_, i) => i);
+
   convocatoriaActiva = input<ConvocatoriaDetalle | null>(null);
   convocatoriasLista = input<ConvocatoriaResumen[]>([]);
   loading = input<boolean>(false);
@@ -113,9 +115,8 @@ export class CohortesTabComponent {
     }
   }
 
-  onTamanoPaginaChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.tamanoPagina.set(+select.value || 10);
+  cambiarTamanoPagina(size: number | string): void {
+    this.tamanoPagina.set(+size || 10);
     this.paginaActual.set(1);
   }
 }

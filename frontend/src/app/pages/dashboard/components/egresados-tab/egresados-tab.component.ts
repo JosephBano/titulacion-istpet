@@ -20,6 +20,7 @@ import {
 })
 export class EgresadosTabComponent implements OnInit {
   private readonly egresadosService = inject(EgresadosService);
+  readonly skeletonRows = Array.from({ length: 5 }, (_, i) => i);
 
   // Estados reactivos principales
   estudiantes = signal<EstudiantePendienteEgreso[]>([]);

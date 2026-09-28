@@ -28,48 +28,6 @@ export class ReportesService {
       badge: 'Principal',
       disponible: true,
     },
-    {
-      id: 'expedientes-postulaciones',
-      titulo: 'Bandeja General de Postulaciones y Dictámenes',
-      descripcion:
-        'Listado consolidado de solicitudes de titulación registradas en el período, incluyendo estado de aprobación y dictamen emitido.',
-      categoria: 'Convocatorias y Postulaciones',
-      icono: 'report-applications',
-      formatosDisponibles: ['PDF'],
-      requierePeriodo: true,
-      requiereCarrera: true,
-      requiereEstado: true,
-      badge: 'Próximamente',
-      disponible: false,
-    },
-    {
-      id: 'avance-requisitos-docente',
-      titulo: 'Consolidado de Validación de Requisitos por Docente',
-      descripcion:
-        'Seguimiento y estado de cumplimiento de requisitos evaluados por los docentes y secretaría académica.',
-      categoria: 'Validación y Docencia',
-      icono: 'report-evaluations',
-      formatosDisponibles: ['PDF'],
-      requierePeriodo: true,
-      requiereCarrera: true,
-      requiereEstado: false,
-      badge: 'Próximamente',
-      disponible: false,
-    },
-    {
-      id: 'estadistica-modalidades',
-      titulo: 'Distribución Estadística de Modalidades de Grado',
-      descripcion:
-        'Métricas institucionales de postulantes por examen complexivo, artículo científico y proyecto de investigación.',
-      categoria: 'Actas y Dictámenes',
-      icono: 'report-analytics',
-      formatosDisponibles: ['PDF'],
-      requierePeriodo: true,
-      requiereCarrera: false,
-      requiereEstado: false,
-      badge: 'Próximamente',
-      disponible: false,
-    },
   ];
 
   /**

@@ -558,7 +558,33 @@
     @if (pasoActual() === 4) {
       <div class="step-content-pane">
         <div class="step-pane-header">
-          <span class="step-pane-badge">Paso 4</span>
+          <div class="label-with-refresh">
+            <span class="step-pane-badge">Paso 4</span>
+            <button
+              type="button"
+              class="btn-mini-refresh"
+              (click)="recargarCarreras()"
+              [disabled]="cargandoCarreras()"
+              title="Actualizar carreras desde el servidor"
+            >
+              <svg
+                class="refresh-icon"
+                [class.spinning]="cargandoCarreras()"
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>{{ cargandoCarreras() ? 'Actualizando...' : 'Actualizar' }}</span>
+            </button>
+          </div>
           <h4 class="step-pane-title">Alcance de Carreras Habilitadas</h4>
           <p class="step-pane-desc">
             Determine si la convocatoria se abre para toda la oferta académica o seleccione de forma
@@ -885,59 +911,193 @@
         <!-- Modalidades Maestras Grid -->
         <div class="form-section-card">
           <div class="section-top-row">
-            <span class="fluent-field-label">Modalidades de Grado Autorizadas:</span>
-            <button type="button" class="btn-bulk" (click)="seleccionarTodasModalidades()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
+            <div class="label-with-refresh">
+              <span class="fluent-field-label">Modalidades de Grado Autorizadas:</span>
+              <button
+                type="button"
+                class="btn-mini-refresh"
+                (click)="recargarModalidades()"
+                [disabled]="cargandoModalidades()"
+                title="Actualizar modalidades desde el servidor"
               >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Seleccionar Todas</span>
-            </button>
+                <svg
+                  class="refresh-icon"
+                  [class.spinning]="cargandoModalidades()"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <polyline points="1 20 1 14 7 14"></polyline>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                <span>{{ cargandoModalidades() ? 'Actualizando...' : 'Actualizar' }}</span>
+              </button>
+            </div>
+
+            <div class="top-action-buttons">
+              <button
+                type="button"
+                class="btn-create-modalidad-top"
+                (click)="abrirCrearModalidadEnPestana()"
+                title="Crear o gestionar modalidades en una nueva pestaña"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>+ Nueva Modalidad</span>
+              </button>
+
+              @if (modalidades().length > 0) {
+                <button type="button" class="btn-bulk" (click)="seleccionarTodasModalidades()">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Seleccionar Todas</span>
+                </button>
+              }
+            </div>
           </div>
 
-          <div class="modalidades-cards-grid">
-            @for (m of modalidades(); track m.idModalidadTitulacion) {
-              <div
-                class="modalidad-tile-card"
-                [class.selected]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
-                (click)="toggleModalidad(m.idModalidadTitulacion)"
-                (keydown.enter)="toggleModalidad(m.idModalidadTitulacion)"
-                tabindex="0"
-                role="checkbox"
-                [attr.aria-checked]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
-              >
-                <div class="mod-checkbox">
-                  @if (modalidadesSeleccionadas().has(m.idModalidadTitulacion)) {
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="3"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  }
-                </div>
-                <div class="mod-info">
-                  <span class="mod-title">{{ m.modalidadTitulacion }}</span>
-                  <span class="mod-stats">
-                    Mínimo {{ m.cantidadMinima || 1 }} estudiante(s) ·
-                    {{ m.totalRequisitosAsociados }} requisitos
-                  </span>
-                </div>
+          @if (modalidades().length === 0) {
+            <div class="warning-callout">
+              <div class="callout-icon-col">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
               </div>
-            }
-          </div>
+              <div class="callout-content">
+                <strong>No existen modalidades de grado autorizadas o registradas</strong>
+                <p>
+                  No se encontraron modalidades de titulación activas en el catálogo institucional. Para aperturar la convocatoria, abra la gestión en una pestaña nueva, cree al menos una modalidad y luego haga clic en el botón <strong>"Actualizar"</strong> para sincronizar sin perder sus datos.
+                </p>
+                <button type="button" class="btn-create-modalidad" (click)="abrirCrearModalidadEnPestana()">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <span>Crear Modalidad en Nueva Pestaña</span>
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="modalidades-cards-grid">
+              @for (m of modalidades(); track m.idModalidadTitulacion) {
+                <div
+                  class="modalidad-tile-card"
+                  [class.selected]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
+                  (click)="toggleModalidad(m.idModalidadTitulacion)"
+                  (keydown.enter)="toggleModalidad(m.idModalidadTitulacion)"
+                  tabindex="0"
+                  role="checkbox"
+                  [attr.aria-checked]="modalidadesSeleccionadas().has(m.idModalidadTitulacion)"
+                >
+                  <div class="mod-checkbox">
+                    @if (modalidadesSeleccionadas().has(m.idModalidadTitulacion)) {
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                      >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    }
+                  </div>
+                  <div class="mod-info">
+                    <div class="mod-header-row">
+                      <span class="mod-title">{{ m.modalidadTitulacion }}</span>
+                    </div>
+                    <div class="mod-badges-row">
+                      <span class="mod-pill-stat">
+                        Mín. {{ m.cantidadMinima || 1 }} {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
+                      </span>
+                      <span class="mod-pill-req">
+                        {{ m.totalRequisitosAsociados }} {{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}
+                      </span>
+                      @if (m.esComplexivo === 'SI') {
+                        <span class="mod-pill-feat complexivo">Complexivo</span>
+                      }
+                      @if (m.esArticuloCientifico === 'SI') {
+                        <span class="mod-pill-feat articulo">Artículo</span>
+                      }
+                      @if (m.generaTesis === 'SI') {
+                        <span class="mod-pill-feat tesis">Proyecto / TIC</span>
+                      }
+                    </div>
+
+                    <!-- Desglose de requisitos que componen a esta modalidad -->
+                    @if (m.requisitos && m.requisitos.length > 0) {
+                      <div class="mod-requisitos-box">
+                        <span class="mod-requisitos-header">Requisitos que la componen:</span>
+                        <div class="mod-requisitos-tags">
+                          @for (r of m.requisitos; track r.idRequisitoModalidad) {
+                            <span
+                              class="mod-req-tag"
+                              [title]="r.nombreRequisito + (r.esAdjunto ? ' (Archivo PDF)' : ' (Validación directa)')"
+                            >
+                              <span
+                                class="mod-req-dot"
+                                [class.dot-pdf]="r.esAdjunto"
+                                [class.dot-bool]="!r.esAdjunto"
+                              ></span>
+                              <span class="mod-req-name">{{ r.nombreRequisito }}</span>
+                            </span>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="mod-requisitos-empty">
+                        <span>Sin requisitos vinculados en la matriz</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
 
         <!-- Ficha Técnica Resumen -->
@@ -1002,7 +1162,7 @@
 
   <footer class="dictamen-modal-actions" drawer-footer>
     <div class="footer-left">
-      <button type="button" class="fluent-btn-ghost" (click)="onClose()">Cancelar</button>
+      <button type="button" class="fluent-btn-ghost" (click)="cancelarApertura()">Cancelar</button>
     </div>
 
     <div class="footer-right">

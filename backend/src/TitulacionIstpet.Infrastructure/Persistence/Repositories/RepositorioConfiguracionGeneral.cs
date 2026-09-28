@@ -16,6 +16,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         var query = _context.TitulModalidades
             .AsNoTracking()
             .Include(m => m.TitulRequisitoModalidad)
+                .ThenInclude(rm => rm.IdRequisitosNavigation)
             .AsQueryable();
 
         if (soloActivas)
@@ -33,7 +34,23 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
                 m.GeneraTesis,
                 m.CantidadMinima,
                 m.EsActivo ?? false,
-                m.TitulRequisitoModalidad.Count(r => r.EsActivo)
+                m.TitulRequisitoModalidad.Count(r => r.EsActivo),
+                m.TitulRequisitoModalidad
+                    .Where(r => r.EsActivo)
+                    .Select(rm => new RequisitoModalidadMatrizDto(
+                        rm.IdRequisitoModalidad,
+                        rm.IdModalidadTitulacion,
+                        m.ModalidadTitulacion ?? string.Empty,
+                        rm.IdRequisitos,
+                        rm.IdRequisitosNavigation.Requisito ?? string.Empty,
+                        rm.IdRequisitosNavigation.EsAdjunto ?? false,
+                        rm.IdRequisitosNavigation.EsBool ?? false,
+                        rm.IdRequisitosNavigation.SubeAlumno ?? false,
+                        rm.IdRequisitosNavigation.SubeColaborador ?? false,
+                        rm.EsRequisitoFinal ?? false,
+                        rm.EsActivo
+                    ))
+                    .ToList()
             ))
             .ToListAsync(ct);
     }
@@ -43,6 +60,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         var m = await _context.TitulModalidades
             .AsNoTracking()
             .Include(m => m.TitulRequisitoModalidad)
+                .ThenInclude(rm => rm.IdRequisitosNavigation)
             .FirstOrDefaultAsync(m => m.IdModalidadTitulacion == idModalidad, ct);
 
         if (m == null)
@@ -58,7 +76,23 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
             m.GeneraTesis,
             m.CantidadMinima,
             m.EsActivo ?? false,
-            m.TitulRequisitoModalidad.Count(r => r.EsActivo)
+            m.TitulRequisitoModalidad.Count(r => r.EsActivo),
+            m.TitulRequisitoModalidad
+                .Where(r => r.EsActivo)
+                .Select(rm => new RequisitoModalidadMatrizDto(
+                    rm.IdRequisitoModalidad,
+                    rm.IdModalidadTitulacion,
+                    m.ModalidadTitulacion ?? string.Empty,
+                    rm.IdRequisitos,
+                    rm.IdRequisitosNavigation.Requisito ?? string.Empty,
+                    rm.IdRequisitosNavigation.EsAdjunto ?? false,
+                    rm.IdRequisitosNavigation.EsBool ?? false,
+                    rm.IdRequisitosNavigation.SubeAlumno ?? false,
+                    rm.IdRequisitosNavigation.SubeColaborador ?? false,
+                    rm.EsRequisitoFinal ?? false,
+                    rm.EsActivo
+                ))
+                .ToList()
         );
     }
 
@@ -77,6 +111,24 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
 
         _context.TitulModalidades.Add(entidad);
         await _context.SaveChangesAsync(ct);
+
+        if (dto.IdsRequisitos != null && dto.IdsRequisitos.Count > 0)
+        {
+            foreach (var idReq in dto.IdsRequisitos.Distinct())
+            {
+                var reqMod = new TitulRequisitoModalidad
+                {
+                    IdModalidadTitulacion = entidad.IdModalidadTitulacion,
+                    IdRequisitos = idReq,
+                    EsRequisitoFinal = false,
+                    FechaRegistro = DateTime.UtcNow,
+                    EsActivo = true
+                };
+                _context.TitulRequisitoModalidad.Add(reqMod);
+            }
+            await _context.SaveChangesAsync(ct);
+        }
+
         return entidad.IdModalidadTitulacion;
     }
 

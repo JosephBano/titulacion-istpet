@@ -86,9 +86,37 @@
 
   <!-- Estado de Carga / Error -->
   @if (cargando()) {
-    <div class="state-container">
-      <div class="spinner"></div>
-      <p class="state-text">Analizando expediente académico y avance de niveles...</p>
+    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Analizando expedientes académicos">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Estudiante</th>
+            <th>Carrera y Malla</th>
+            <th>Niveles</th>
+            <th>Asignaturas</th>
+            <th>Promedio</th>
+            <th>Estado Titulación</th>
+            <th>Matrículas / Deuda</th>
+            <th class="text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of skeletonRows; track row) {
+            <tr>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-w-lg"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   } @else if (error()) {
     <div class="state-container error-state">

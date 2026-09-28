@@ -1,46 +1,45 @@
-<section class="modalidades-section">
-  <div class="modalidades-header">
-    <div class="modalidades-header-info">
-      <span class="modalidades-eyebrow">CONFIGURACIÓN ACADÉMICA</span>
-      <h2 class="modalidades-title">Modalidades de Titulación y Matriz de Requisitos</h2>
+<div class="modalidades-tab-container">
+  <!-- Header de Sección -->
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Modalidades de Titulación y Matriz</h2>
+      <p class="section-subtitle">
+        Catálogo oficial de modalidades académicas de titulación y configuración de matriz de requisitos asociados.
+      </p>
     </div>
-    <button type="button" class="fluent-btn-primary" (click)="nuevaModalidad.emit()">
-      + Nueva Modalidad
-    </button>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" (click)="nuevaModalidad.emit()">
+        + Nueva Modalidad
+      </button>
+    </div>
   </div>
 
-  <div class="modalidades-box">
-    <!-- Header con Buscador y Filtro Rápido Normalizado -->
-    <div class="modalidades-box-header">
-      <div class="header-left-tools">
-        <!-- Buscador -->
-        <div class="mod-search-box">
-          <svg
-            class="search-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+  <!-- Barra de Filtros Fluent -->
+  <div class="fluent-filters-card">
+    <div class="filters-grid">
+      <!-- Buscador -->
+      <div class="filter-group search-group">
+        <label for="busquedaModInput" class="filter-label">Buscar por Modalidad o ID</label>
+        <div class="search-input-wrapper">
           <input
+            id="busquedaModInput"
             type="text"
-            class="search-input"
-            placeholder="Buscar modalidad por nombre o ID..."
+            class="fluent-input"
+            placeholder="Ingrese nombre o código de la modalidad..."
             [ngModel]="busqueda()"
             (ngModelChange)="onSearchChange($event)"
           />
           @if (busqueda()) {
-            <button type="button" class="search-clear-btn" (click)="onSearchChange('')">×</button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="onSearchChange('')">
+              Limpiar
+            </button>
           }
         </div>
+      </div>
 
-        <!-- Botones de Filtro Rápido de Estado -->
+      <!-- Filtro Estado -->
+      <div class="filter-group">
+        <label class="filter-label">Estado</label>
         <div class="filter-pill-group">
           <button
             type="button"
@@ -70,133 +69,164 @@
           </button>
         </div>
       </div>
-
-      <div class="header-right-meta">
-        <span class="box-counter">{{ totalFiltrados() }} mostrado(s)</span>
-      </div>
     </div>
+  </div>
 
-    @if (loading()) {
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <span>Cargando modalidades de titulación...</span>
-      </div>
-    } @else if (modalidades().length === 0) {
-      <div class="empty-table-msg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 17 12 22 22 17"></polyline>
-          <polyline points="2 12 12 17 22 12"></polyline>
-        </svg>
-        <p>No hay modalidades maestras registradas en el catálogo.</p>
-      </div>
-    } @else if (modalidadesFiltradas().length === 0) {
-      <div class="empty-table-msg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <p>No se encontraron modalidades que coincidan con la búsqueda.</p>
-      </div>
-    } @else {
-      <div class="modalidades-table-wrapper">
-        <table class="fluent-table">
-          <thead>
+  <!-- Estado de Carga / Error / Vacío / Tabla -->
+  @if (loading()) {
+    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Cargando modalidades de titulación">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Modalidad de Titulación</th>
+            <th>Integrantes</th>
+            <th>Características</th>
+            <th>Requisitos Asociados</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of skeletonRows; track row) {
             <tr>
-              <th>MODALIDAD DE TITULACIÓN</th>
-              <th>INTEGRANTES</th>
-              <th>CARACTERÍSTICAS</th>
-              <th>REQUISITOS ASOCIADOS</th>
-              <th>ESTADO</th>
-              <th class="text-right">ACCIONES</th>
+              <td><span class="skeleton-line skeleton-w-lg"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
             </tr>
-          </thead>
-          <tbody>
-            @for (m of modalidadesPaginadas(); track m.idModalidadTitulacion) {
-              <tr>
-                <td>
-                  <span class="modalidad-nombre">{{ m.modalidadTitulacion }}</span>
-                </td>
-                <td>
-                  <span class="integrantes-tag">
-                    {{ m.cantidadMinima || 1 }}
-                    {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="caracteristicas-row">
-                    @if (m.esComplexivo === 'SI') {
-                      <span class="chip-feature chip-feature--complexivo">
-                        <span class="feature-dot"></span>
-                        <span>Complexivo</span>
-                      </span>
-                    }
-                    @if (m.esArticuloCientifico === 'SI') {
-                      <span class="chip-feature chip-feature--articulo">
-                        <span class="feature-dot"></span>
-                        <span>Artículo</span>
-                      </span>
-                    }
-                    @if (m.generaTesis === 'SI') {
-                      <span class="chip-feature chip-feature--tesis">
-                        <span class="feature-dot"></span>
-                        <span>Proyecto / TIC</span>
-                      </span>
-                    }
-                    @if (
-                      m.esComplexivo !== 'SI' &&
-                      m.esArticuloCientifico !== 'SI' &&
-                      m.generaTesis !== 'SI'
-                    ) {
-                      <span class="chip-feature chip-feature--general">
-                        <span class="feature-dot"></span>
-                        <span>General</span>
-                      </span>
-                    }
-                  </div>
-                </td>
-                <td>
-                  <span class="req-count-badge">
-                    <strong>{{ m.totalRequisitosAsociados }}</strong>
-                    <span>{{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}</span>
-                  </span>
-                </td>
-                <td>
-                  <span class="status-cell">
-                    <span
-                      class="status-dot"
-                      [class.status-dot--success]="m.esActivo"
-                      [class.status-dot--neutral]="!m.esActivo"
-                    ></span>
-                    <span
-                      class="status-label"
-                      [class.status-label--success]="m.esActivo"
-                      [class.status-label--neutral]="!m.esActivo"
-                    >
-                      {{ m.esActivo ? 'Activa' : 'Inactiva' }}
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (modalidades().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">No hay modalidades maestras</h3>
+      <p class="empty-desc">Aún no se han configurado modalidades de titulación en el catálogo institucional.</p>
+      <button type="button" class="btn btn-primary" (click)="nuevaModalidad.emit()">
+        + Crear Primera Modalidad
+      </button>
+    </div>
+  } @else if (modalidadesFiltradas().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">Sin resultados de búsqueda</h3>
+      <p class="empty-desc">No se encontraron modalidades que coincidan con "{{ busqueda() }}".</p>
+      <button type="button" class="btn btn-secondary" (click)="setFiltroEstado('TODAS'); onSearchChange('')">
+        Restablecer Filtros
+      </button>
+    </div>
+  } @else {
+    <!-- Tabla Fluent -->
+    <div class="fluent-table-wrapper">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Modalidad de Titulación</th>
+            <th>Integrantes</th>
+            <th>Características</th>
+            <th>Requisitos Asociados</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of modalidadesPaginadas(); track m.idModalidadTitulacion) {
+            <tr>
+              <td>
+                <span class="modalidad-nombre">{{ m.modalidadTitulacion }}</span>
+              </td>
+              <td>
+                <span class="integrantes-tag">
+                  {{ m.cantidadMinima || 1 }}
+                  {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
+                </span>
+              </td>
+              <td>
+                <div class="caracteristicas-row">
+                  @if (m.esComplexivo === 'SI') {
+                    <span class="chip-feature chip-feature--complexivo">
+                      <span class="feature-dot"></span>
+                      <span>Complexivo</span>
                     </span>
+                  }
+                  @if (m.esArticuloCientifico === 'SI') {
+                    <span class="chip-feature chip-feature--articulo">
+                      <span class="feature-dot"></span>
+                      <span>Artículo</span>
+                    </span>
+                  }
+                  @if (m.generaTesis === 'SI') {
+                    <span class="chip-feature chip-feature--tesis">
+                      <span class="feature-dot"></span>
+                      <span>Proyecto / TIC</span>
+                    </span>
+                  }
+                  @if (
+                    m.esComplexivo !== 'SI' &&
+                    m.esArticuloCientifico !== 'SI' &&
+                    m.generaTesis !== 'SI'
+                  ) {
+                    <span class="chip-feature chip-feature--general">
+                      <span class="feature-dot"></span>
+                      <span>General</span>
+                    </span>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="req-cell-block">
+                  <div class="req-count-header">
+                    <span class="req-count-badge">
+                      <strong>{{ m.totalRequisitosAsociados }}</strong>
+                      <span>{{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}</span>
+                    </span>
+                  </div>
+                  @if (m.requisitos && m.requisitos.length > 0) {
+                    <div class="req-chips-list">
+                      @for (r of m.requisitos.slice(0, 3); track r.idRequisitoModalidad) {
+                        <span class="req-chip-item" [title]="r.nombreRequisito + (r.esAdjunto ? ' (PDF)' : ' (Validación)')">
+                          <span class="req-chip-dot" [class.dot-pdf]="r.esAdjunto" [class.dot-bool]="!r.esAdjunto"></span>
+                          <span class="req-chip-text">{{ r.nombreRequisito }}</span>
+                        </span>
+                      }
+                      @if (m.requisitos.length > 3) {
+                        <button
+                          type="button"
+                          class="req-chip-more-btn"
+                          (click)="abrirMatriz.emit(m)"
+                          [title]="'Abrir matriz para ver todos los ' + m.requisitos.length + ' requisitos'"
+                        >
+                          +{{ m.requisitos.length - 3 }} más
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <span class="req-empty-hint">Sin requisitos configurados</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span class="status-cell">
+                  <span
+                    class="status-dot"
+                    [class.status-dot--success]="m.esActivo"
+                    [class.status-dot--neutral]="!m.esActivo"
+                  ></span>
+                  <span
+                    class="status-label"
+                    [class.status-label--success]="m.esActivo"
+                    [class.status-label--neutral]="!m.esActivo"
+                  >
+                    {{ m.esActivo ? 'Activa' : 'Inactiva' }}
                   </span>
-                </td>
-                <td class="text-right-nowrap">
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="table-actions-group">
                   <button
                     type="button"
-                    class="table-action-btn table-action-btn--primary mr-sm"
+                    class="btn btn-outline-primary btn-sm"
                     (click)="abrirMatriz.emit(m)"
                     title="Gestionar matriz de requisitos de esta modalidad"
                   >
@@ -216,105 +246,80 @@
                       <line x1="3" y1="12" x2="3.01" y2="12"></line>
                       <line x1="3" y1="18" x2="3.01" y2="18"></line>
                     </svg>
-                    <span>Gestionar Matriz</span>
+                    <span>Matriz</span>
                   </button>
                   <button
                     type="button"
-                    class="table-action-btn"
-                    [class.table-action-btn--deactivate]="m.esActivo"
-                    [class.table-action-btn--activate]="!m.esActivo"
+                    class="btn btn-outline-secondary btn-sm"
+                    [class.btn-deactivate]="m.esActivo"
+                    [class.btn-activate]="!m.esActivo"
                     (click)="toggleEstado.emit(m)"
                   >
                     {{ m.esActivo ? 'Desactivar' : 'Activar' }}
                   </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginador Fluent -->
+    <div class="fluent-pagination">
+      <div class="pagination-info">
+        Mostrando {{ (paginaActual() - 1) * tamanoPagina() + 1 }} a
+        {{
+          paginaActual() * tamanoPagina() > totalFiltrados()
+            ? totalFiltrados()
+            : paginaActual() * tamanoPagina()
+        }}
+        de {{ totalFiltrados() }} modalidades
       </div>
 
-      <!-- Paginador Integrado -->
-      <footer class="table-pagination">
-        <div class="pagination-left">
-          <span class="pagination-range-text">
-            Mostrando <strong>{{ rangoInicio() }}</strong
-            >–<strong>{{ rangoFin() }}</strong> de
-            <strong>{{ totalFiltrados() }}</strong> modalidades
-          </span>
-
-          <div class="page-size-selector">
-            <span class="size-label">Por pág:</span>
-            <select
-              class="size-select"
-              [value]="tamanoPagina()"
-              (change)="onTamanoPaginaChange($event)"
-              aria-label="Registros por página"
-            >
-              <option [value]="10">10</option>
-              <option [value]="20">20</option>
-              <option [value]="50">50</option>
-            </select>
-          </div>
+      <div class="pagination-controls">
+        <div class="page-size-selector">
+          <label for="pageSizeSelect">Por página:</label>
+          <select
+            id="pageSizeSelect"
+            [ngModel]="tamanoPagina()"
+            (ngModelChange)="cambiarTamanoPagina($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
         </div>
 
-        <nav class="pagination-nav" aria-label="Paginación de resultados">
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === 1"
+          (click)="irAPagina(paginaActual() - 1)"
+        >
+          Anterior
+        </button>
+
+        @for (p of paginasDisponibles(); track p) {
           <button
             type="button"
-            class="nav-btn nav-btn--prev"
-            [disabled]="paginaActual() <= 1"
-            (click)="irAPagina(paginaActual() - 1)"
-            aria-label="Página anterior"
+            class="page-btn"
+            [class.active]="p === paginaActual()"
+            (click)="irAPagina(p)"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            <span>Anterior</span>
+            {{ p }}
           </button>
+        }
 
-          <div class="page-numbers">
-            @for (p of paginasDisponibles(); track p) {
-              <button
-                type="button"
-                class="num-btn"
-                [class.active]="p === paginaActual()"
-                (click)="irAPagina(p)"
-              >
-                {{ p }}
-              </button>
-            }
-          </div>
-
-          <button
-            type="button"
-            class="nav-btn nav-btn--next"
-            [disabled]="paginaActual() >= totalPaginas()"
-            (click)="irAPagina(paginaActual() + 1)"
-            aria-label="Página siguiente"
-          >
-            <span>Siguiente</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        </nav>
-      </footer>
-    }
-  </div>
-</section>
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === totalPaginas()"
+          (click)="irAPagina(paginaActual() + 1)"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
+</div>
