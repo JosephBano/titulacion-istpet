@@ -6,5 +6,3 @@ export const environment = {
   produccion: false,
   apiBaseUrl: 'http://localhost:5192', // Backend local .NET 8
 } as const;
-
-

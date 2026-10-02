@@ -362,20 +362,23 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 dm.IdAsignatura,
                 NombreAsignatura = asig != null ? asig.Asignatura : null,
                 dm.Creditos,
-                dm.Horas
+                dm.Horas,
+                dm.Opcional,
+                dm.Tipo
             }
         ).ToListAsync(cancellationToken);
 
         var infoMallas = mallasCarrera.Select(m =>
         {
             var dms = detalleMallas.Where(d => d.IdMalla == m.IdMalla).ToList();
+            var obligatorias = dms.Where(d => d.Opcional != true && !EsMateriaIntegracionOTitulacion(d.NombreAsignatura)).ToList();
             return new
             {
                 m.IdMalla,
                 Descripcion = m.Descripcion ?? $"Malla {m.IdMalla}",
                 m.Activa,
                 TotalNiveles = dms.Select(d => d.IdNivel).Distinct().Count(),
-                TotalMaterias = dms.Select(d => d.IdAsignatura).Distinct().Count(),
+                TotalMaterias = obligatorias.Count > 0 ? obligatorias.Select(d => d.IdAsignatura).Distinct().Count() : dms.Select(d => d.IdAsignatura).Distinct().Count(),
                 AsignaturasIds = dms.Select(d => d.IdAsignatura).Distinct().ToHashSet(),
                 NivelesIds = dms.Select(d => d.IdNivel).Distinct().ToHashSet()
             };
@@ -437,12 +440,40 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                     : (cal?.OrdenNivel ?? 0);
 
                 string nombreNivel = cal?.NombreNivel ?? dm.NombreNivel ?? (dm.IdNivel > 0 ? $"Nivel {dm.IdNivel}" : "-");
+                bool esOpcional = dm.Opcional == true || EsMateriaIntegracionOTitulacion(dm.NombreAsignatura);
 
                 if (cal != null)
                 {
+                    bool tieneNotasReales = (cal.Nota1.HasValue && cal.Nota1.Value > 0) ||
+                                            (cal.Nota2.HasValue && cal.Nota2.Value > 0) ||
+                                            (cal.Examen.HasValue && cal.Examen.Value > 0) ||
+                                            (cal.NotaFinal.HasValue && cal.NotaFinal.Value > 0) ||
+                                            (cal.PromedioFinal.HasValue && cal.PromedioFinal.Value > 0);
+
+                    bool aprobado = cal.Aprobado;
+
+                    decimal? n1 = cal.Nota1;
+                    decimal? n2 = cal.Nota2;
+                    decimal? ex = cal.Examen;
+                    decimal? prom = cal.PromedioFinal;
                     decimal? notaEfectiva = cal.NotaFinal.HasValue && cal.NotaFinal.Value > 0
                         ? cal.NotaFinal.Value
                         : (cal.PromedioFinal.HasValue && cal.PromedioFinal.Value > 0 ? cal.PromedioFinal.Value : cal.NotaFinal ?? cal.PromedioFinal);
+                    string? observacion = cal.Observacion;
+
+                    // Si la materia es opcional o de integración curricular y no fue aprobada y todas sus notas son 0/vacías,
+                    // no debe figurar como reprobada con ceros, sino como materia optativa / unidad de titulación
+                    if (esOpcional && !aprobado && !tieneNotasReales)
+                    {
+                        n1 = null;
+                        n2 = null;
+                        ex = null;
+                        prom = null;
+                        notaEfectiva = null;
+                        observacion = EsMateriaIntegracionOTitulacion(dm.NombreAsignatura)
+                            ? "Unidad de Integración Curricular (Proceso de Titulación)"
+                            : "Materia Optativa / No Cursada";
+                    }
 
                     var dto = new ExpedienteAsignaturaDto(
                         dm.IdAsignatura,
@@ -454,15 +485,15 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                         cal.IdPeriodo,
                         cal.Ef1,
                         cal.Ep1,
-                        cal.Nota1,
+                        n1,
                         cal.Ef2,
                         cal.Ep2,
-                        cal.Nota2,
-                        cal.Examen,
-                        cal.PromedioFinal,
+                        n2,
+                        ex,
+                        prom,
                         notaEfectiva,
-                        cal.Aprobado,
-                        cal.Observacion
+                        aprobado,
+                        observacion
                     );
 
                     listaAsignaturas.Add((orden, dto));
@@ -470,9 +501,21 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
                 else
                 {
                     int totalAprobadasEst = calificacionesRecientes.Count(c => c.Aprobado);
-                    string obsPendiente = (totalAprobadasEst >= Math.Max(8, totalMateriasMalla - 3) && (dm.OrdenNivel <= 3 || dm.IdNivel <= 3))
-                        ? "Pendiente (Posible materia no impartida a la cohorte)"
-                        : "Pendiente por cursar";
+                    string obsPendiente;
+                    if (esOpcional)
+                    {
+                        obsPendiente = EsMateriaIntegracionOTitulacion(dm.NombreAsignatura)
+                            ? "Unidad de Integración Curricular (Proceso de Titulación)"
+                            : "Materia Optativa";
+                    }
+                    else if (totalAprobadasEst >= Math.Max(8, totalMateriasMalla - 3) && (dm.OrdenNivel <= 3 || dm.IdNivel <= 3))
+                    {
+                        obsPendiente = "Pendiente (Posible materia no impartida a la cohorte)";
+                    }
+                    else
+                    {
+                        obsPendiente = "Pendiente por cursar";
+                    }
 
                     var dto = new ExpedienteAsignaturaDto(
                         dm.IdAsignatura,

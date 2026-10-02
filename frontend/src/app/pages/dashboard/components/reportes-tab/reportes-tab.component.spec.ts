@@ -37,7 +37,9 @@ describe('ReportesTabComponent Unit Tests', () => {
       const comp = new ReportesTabComponent();
       const catalogo = comp.catalogo();
       expect(catalogo.length).toBeGreaterThan(0);
-      const todosDisponibles = catalogo.every((r) => r.disponible === true && r.badge !== 'Próximamente');
+      const todosDisponibles = catalogo.every(
+        (r) => r.disponible === true && r.badge !== 'Próximamente',
+      );
       expect(todosDisponibles).toBe(true);
     });
   });

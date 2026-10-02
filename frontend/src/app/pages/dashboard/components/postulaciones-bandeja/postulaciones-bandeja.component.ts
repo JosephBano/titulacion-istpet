@@ -184,13 +184,13 @@ export class PostulacionesBandejaComponent {
         catchError((err) => {
           console.warn('No se pudo cargar el detalle de postulación:', err);
           return of(null);
-        })
+        }),
       ),
       expediente: this.egresadosService.getExpedienteAcademico(p.idAlumno, p.idCarrera).pipe(
         catchError((err) => {
           console.warn('No se pudo cargar el expediente académico curricular:', err);
           return of(null);
-        })
+        }),
       ),
     }).subscribe({
       next: ({ postulacion, expediente }) => {

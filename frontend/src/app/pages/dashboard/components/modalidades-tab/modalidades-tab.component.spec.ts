@@ -55,7 +55,8 @@ describe('ModalidadesTabComponent Unit Tests', () => {
         },
       ];
 
-      (comp as unknown as { modalidades: () => ModalidadMaestra[] }).modalidades = () => mockModalidades;
+      (comp as unknown as { modalidades: () => ModalidadMaestra[] }).modalidades = () =>
+        mockModalidades;
 
       expect(comp.totalActivas()).toBe(1);
       expect(comp.totalInactivas()).toBe(1);
@@ -89,7 +90,8 @@ describe('ModalidadesTabComponent Unit Tests', () => {
         },
       ];
 
-      (comp as unknown as { modalidades: () => ModalidadMaestra[] }).modalidades = () => mockModalidades;
+      (comp as unknown as { modalidades: () => ModalidadMaestra[] }).modalidades = () =>
+        mockModalidades;
 
       comp.onSearchChange('Complexivo');
       expect(comp.modalidadesFiltradas().length).toBe(1);

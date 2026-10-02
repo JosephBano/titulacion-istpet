@@ -223,8 +223,9 @@ export class DashboardComponent implements OnInit {
             fechaFin: null as Date | null,
             duracionDias: 30,
             rangoTexto: 'Conforme a calendario de cohorte',
-            descripcion: 'Registro en plataforma institucional, selección de modalidad habilitada y carga de los requisitos iniciales.',
-            hito: 'Generación de expediente único de titulación'
+            descripcion:
+              'Registro en plataforma institucional, selección de modalidad habilitada y carga de los requisitos iniciales.',
+            hito: 'Generación de expediente único de titulación',
           },
           {
             fase: 2,
@@ -237,8 +238,9 @@ export class DashboardComponent implements OnInit {
             fechaFin: null as Date | null,
             duracionDias: 10,
             rangoTexto: 'Posterior al cierre de postulación',
-            descripcion: 'Verificación de requisitos habilitantes por secretaría académica y docentes revisores para emisión del dictamen.',
-            hito: 'Dictamen de admisión formal a la cohorte'
+            descripcion:
+              'Verificación de requisitos habilitantes por secretaría académica y docentes revisores para emisión del dictamen.',
+            hito: 'Dictamen de admisión formal a la cohorte',
           },
           {
             fase: 3,
@@ -251,8 +253,9 @@ export class DashboardComponent implements OnInit {
             fechaFin: null as Date | null,
             duracionDias: diasPermitidos,
             rangoTexto: `${diasPermitidos} días de desarrollo ordinario`,
-            descripcion: 'Desarrollo de proyectos técnicos con tutoría docente periódica o curso y examen complexivo.',
-            hito: 'Aprobación del informe técnico o examen complexivo'
+            descripcion:
+              'Desarrollo de proyectos técnicos con tutoría docente periódica o curso y examen complexivo.',
+            hito: 'Aprobación del informe técnico o examen complexivo',
           },
           {
             fase: 4,
@@ -265,11 +268,12 @@ export class DashboardComponent implements OnInit {
             fechaFin: null as Date | null,
             duracionDias: 15,
             rangoTexto: 'Período de cierre de cohorte',
-            descripcion: 'Sustentación oral ante el tribunal evaluador, asentamiento de actas de graduación y registro en SENESCYT.',
-            hito: 'Emisión de Acta Final de Grado'
-          }
+            descripcion:
+              'Sustentación oral ante el tribunal evaluador, asentamiento de actas de graduación y registro en SENESCYT.',
+            hito: 'Emisión de Acta Final de Grado',
+          },
         ],
-        prorroga: null
+        prorroga: null,
       };
     }
 
@@ -296,7 +300,8 @@ export class DashboardComponent implements OnInit {
     const dFinPro = new Date(dInicioPro.getTime() + (diasExtension - 1) * 24 * 60 * 60 * 1000);
 
     const hoy = new Date();
-    const esPostActiva = hoy >= dInicioPost && hoy <= new Date(dFinPost.getTime() + 23 * 59 * 59 * 1000);
+    const esPostActiva =
+      hoy >= dInicioPost && hoy <= new Date(dFinPost.getTime() + 23 * 59 * 59 * 1000);
     const esValActiva = hoy > dFinPost && hoy <= dFinVal;
     const esTitActiva = hoy > dFinPost && hoy <= dFinTit;
     const esDefActiva = hoy > dFinTit && hoy <= dFinDef;
@@ -312,64 +317,87 @@ export class DashboardComponent implements OnInit {
           fase: 1,
           titulo: 'Recepción de Expedientes y Postulación',
           etiqueta: 'Fase 1 · Postulación',
-          estado: esPostActiva ? 'En Curso' : (hoy < dInicioPost ? 'Por Iniciar' : 'Finalizada'),
-          estadoClase: esPostActiva ? 'pill--active' : (hoy < dInicioPost ? 'pill--upcoming' : 'pill--completed'),
+          estado: esPostActiva ? 'En Curso' : hoy < dInicioPost ? 'Por Iniciar' : 'Finalizada',
+          estadoClase: esPostActiva
+            ? 'pill--active'
+            : hoy < dInicioPost
+              ? 'pill--upcoming'
+              : 'pill--completed',
           esActiva: esPostActiva,
           fechaInicio: dInicioPost,
           fechaFin: dFinPost,
           duracionDias: diasPost,
           rangoTexto: null,
-          descripcion: 'Registro en plataforma institucional, selección de modalidad habilitada y carga de los requisitos iniciales.',
-          hito: 'Generación de expediente único de titulación'
+          descripcion:
+            'Registro en plataforma institucional, selección de modalidad habilitada y carga de los requisitos iniciales.',
+          hito: 'Generación de expediente único de titulación',
         },
         {
           fase: 2,
           titulo: 'Validación Documental por Secretaría',
           etiqueta: 'Fase 2 · Secretaría',
-          estado: esValActiva ? 'En Curso' : (hoy <= dFinPost ? 'Próxima Fase' : 'Finalizada'),
-          estadoClase: esValActiva ? 'pill--active' : (hoy <= dFinPost ? 'pill--upcoming' : 'pill--completed'),
+          estado: esValActiva ? 'En Curso' : hoy <= dFinPost ? 'Próxima Fase' : 'Finalizada',
+          estadoClase: esValActiva
+            ? 'pill--active'
+            : hoy <= dFinPost
+              ? 'pill--upcoming'
+              : 'pill--completed',
           esActiva: esValActiva,
           fechaInicio: dInicioVal,
           fechaFin: dFinVal,
           duracionDias: 10,
           rangoTexto: null,
-          descripcion: 'Verificación de requisitos habilitantes por secretaría académica y docentes revisores para emisión del dictamen.',
-          hito: 'Dictamen de admisión formal a la cohorte'
+          descripcion:
+            'Verificación de requisitos habilitantes por secretaría académica y docentes revisores para emisión del dictamen.',
+          hito: 'Dictamen de admisión formal a la cohorte',
         },
         {
           fase: 3,
           titulo: 'Desarrollo de Titulación y Tutorías',
           etiqueta: 'Fase 3 · Ejecución',
-          estado: esTitActiva ? 'En Curso' : (hoy < dInicioTit ? 'Programada' : 'Finalizada'),
-          estadoClase: esTitActiva ? 'pill--active' : (hoy < dInicioTit ? 'pill--scheduled' : 'pill--completed'),
+          estado: esTitActiva ? 'En Curso' : hoy < dInicioTit ? 'Programada' : 'Finalizada',
+          estadoClase: esTitActiva
+            ? 'pill--active'
+            : hoy < dInicioTit
+              ? 'pill--scheduled'
+              : 'pill--completed',
           esActiva: esTitActiva,
           fechaInicio: dInicioTit,
           fechaFin: dFinTit,
           duracionDias: diasPermitidos,
           rangoTexto: null,
-          descripcion: 'Desarrollo de proyectos técnicos con tutoría docente periódica o curso de preparación y examen complexivo.',
-          hito: 'Aprobación del informe técnico o examen complexivo'
+          descripcion:
+            'Desarrollo de proyectos técnicos con tutoría docente periódica o curso de preparación y examen complexivo.',
+          hito: 'Aprobación del informe técnico o examen complexivo',
         },
         {
           fase: 4,
           titulo: 'Defensas de Grado y Actas Finales',
           etiqueta: 'Fase 4 · Culminación',
-          estado: esDefActiva ? 'En Curso' : (hoy < dInicioDef ? 'Programada' : 'Finalizada'),
-          estadoClase: esDefActiva ? 'pill--active' : (hoy < dInicioDef ? 'pill--scheduled' : 'pill--completed'),
+          estado: esDefActiva ? 'En Curso' : hoy < dInicioDef ? 'Programada' : 'Finalizada',
+          estadoClase: esDefActiva
+            ? 'pill--active'
+            : hoy < dInicioDef
+              ? 'pill--scheduled'
+              : 'pill--completed',
           esActiva: esDefActiva,
           fechaInicio: dInicioDef,
           fechaFin: dFinDef,
           duracionDias: 15,
           rangoTexto: null,
-          descripcion: 'Sustentación oral ante el tribunal evaluador, asentamiento de actas de graduación y registro en SENESCYT.',
-          hito: 'Emisión de Acta Final de Grado'
-        }
+          descripcion:
+            'Sustentación oral ante el tribunal evaluador, asentamiento de actas de graduación y registro en SENESCYT.',
+          hito: 'Emisión de Acta Final de Grado',
+        },
       ],
-      prorroga: diasExtension > 0 ? {
-        diasExtension,
-        fechaInicio: dInicioPro,
-        fechaFin: dFinPro
-      } : null
+      prorroga:
+        diasExtension > 0
+          ? {
+              diasExtension,
+              fechaInicio: dInicioPro,
+              fechaFin: dFinPro,
+            }
+          : null,
     };
   });
 
@@ -403,7 +431,9 @@ export class DashboardComponent implements OnInit {
   });
 
   totalObservadasYRechazadas = computed(() => {
-    return (this.resumenGeneral()?.totalObservadas ?? 0) + (this.resumenGeneral()?.totalRechazadas ?? 0);
+    return (
+      (this.resumenGeneral()?.totalObservadas ?? 0) + (this.resumenGeneral()?.totalRechazadas ?? 0)
+    );
   });
 
   postulacionesRecientes = computed(() => {

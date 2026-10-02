@@ -4,7 +4,8 @@
     <div>
       <h2 class="section-title">Modalidades de Titulación y Matriz</h2>
       <p class="section-subtitle">
-        Catálogo oficial de modalidades académicas de titulación y configuración de matriz de requisitos asociados.
+        Catálogo oficial de modalidades académicas de titulación y configuración de matriz de
+        requisitos asociados.
       </p>
     </div>
     <div class="header-actions">
@@ -74,7 +75,11 @@
 
   <!-- Estado de Carga / Error / Vacío / Tabla -->
   @if (loading()) {
-    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Cargando modalidades de titulación">
+    <div
+      class="fluent-table-wrapper table-skeleton-box"
+      aria-busy="true"
+      aria-label="Cargando modalidades de titulación"
+    >
       <table class="fluent-table">
         <thead>
           <tr>
@@ -94,7 +99,9 @@
               <td><span class="skeleton-line skeleton-w-md"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
-              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
             </tr>
           }
         </tbody>
@@ -103,7 +110,9 @@
   } @else if (modalidades().length === 0) {
     <div class="state-container empty-state">
       <h3 class="empty-title">No hay modalidades maestras</h3>
-      <p class="empty-desc">Aún no se han configurado modalidades de titulación en el catálogo institucional.</p>
+      <p class="empty-desc">
+        Aún no se han configurado modalidades de titulación en el catálogo institucional.
+      </p>
       <button type="button" class="btn btn-primary" (click)="nuevaModalidad.emit()">
         + Crear Primera Modalidad
       </button>
@@ -112,7 +121,11 @@
     <div class="state-container empty-state">
       <h3 class="empty-title">Sin resultados de búsqueda</h3>
       <p class="empty-desc">No se encontraron modalidades que coincidan con "{{ busqueda() }}".</p>
-      <button type="button" class="btn btn-secondary" (click)="setFiltroEstado('TODAS'); onSearchChange('')">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="setFiltroEstado('TODAS'); onSearchChange('')"
+      >
         Restablecer Filtros
       </button>
     </div>
@@ -179,14 +192,23 @@
                   <div class="req-count-header">
                     <span class="req-count-badge">
                       <strong>{{ m.totalRequisitosAsociados }}</strong>
-                      <span>{{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}</span>
+                      <span>{{
+                        m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos'
+                      }}</span>
                     </span>
                   </div>
                   @if (m.requisitos && m.requisitos.length > 0) {
                     <div class="req-chips-list">
                       @for (r of m.requisitos.slice(0, 3); track r.idRequisitoModalidad) {
-                        <span class="req-chip-item" [title]="r.nombreRequisito + (r.esAdjunto ? ' (PDF)' : ' (Validación)')">
-                          <span class="req-chip-dot" [class.dot-pdf]="r.esAdjunto" [class.dot-bool]="!r.esAdjunto"></span>
+                        <span
+                          class="req-chip-item"
+                          [title]="r.nombreRequisito + (r.esAdjunto ? ' (PDF)' : ' (Validación)')"
+                        >
+                          <span
+                            class="req-chip-dot"
+                            [class.dot-pdf]="r.esAdjunto"
+                            [class.dot-bool]="!r.esAdjunto"
+                          ></span>
                           <span class="req-chip-text">{{ r.nombreRequisito }}</span>
                         </span>
                       }
@@ -195,7 +217,9 @@
                           type="button"
                           class="req-chip-more-btn"
                           (click)="abrirMatriz.emit(m)"
-                          [title]="'Abrir matriz para ver todos los ' + m.requisitos.length + ' requisitos'"
+                          [title]="
+                            'Abrir matriz para ver todos los ' + m.requisitos.length + ' requisitos'
+                          "
                         >
                           +{{ m.requisitos.length - 3 }} más
                         </button>

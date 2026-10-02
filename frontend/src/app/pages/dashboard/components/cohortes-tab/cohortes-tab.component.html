@@ -4,7 +4,8 @@
     <div>
       <h2 class="section-title">Convocatorias y Fechas de Corte</h2>
       <p class="section-subtitle">
-        Gestión de períodos académicos habilitados para titulación, asignación de carreras y control de fechas límite.
+        Gestión de períodos académicos habilitados para titulación, asignación de carreras y control
+        de fechas límite.
       </p>
     </div>
     <div class="header-actions">
@@ -15,7 +16,11 @@
   </div>
 
   @if (loading()) {
-    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Cargando convocatorias">
+    <div
+      class="fluent-table-wrapper table-skeleton-box"
+      aria-busy="true"
+      aria-label="Cargando convocatorias"
+    >
       <table class="fluent-table">
         <thead>
           <tr>
@@ -37,7 +42,9 @@
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
-              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
             </tr>
           }
         </tbody>
@@ -48,8 +55,8 @@
     <div class="state-container empty-state">
       <h3 class="empty-title">No existen convocatorias registradas</h3>
       <p class="empty-desc">
-        Aún no se ha registrado ninguna convocatoria o período académico en el sistema.
-        Haga clic en <strong>"+ Aperturar Nuevo Período"</strong> para registrar el primer período.
+        Aún no se ha registrado ninguna convocatoria o período académico en el sistema. Haga clic en
+        <strong>"+ Aperturar Nuevo Período"</strong> para registrar el primer período.
       </p>
       <button type="button" class="btn btn-primary" (click)="aperturarNuevo.emit()">
         + Aperturar Primer Período
@@ -82,7 +89,8 @@
             <span class="status-banner-badge">Sin convocatoria activa actualmente</span>
           </div>
           <p class="status-banner-desc">
-            No existe un período de titulación abierto en este momento. Las convocatorias anteriores se encuentran archivadas en el histórico inferior.
+            No existe un período de titulación abierto en este momento. Las convocatorias anteriores
+            se encuentran archivadas en el histórico inferior.
           </p>
         </div>
         <button type="button" class="btn btn-secondary" (click)="aperturarNuevo.emit()">
@@ -96,7 +104,9 @@
       <div class="filters-grid">
         <!-- Buscador -->
         <div class="filter-group search-group">
-          <label for="busquedaCohorteInput" class="filter-label">Buscar Cohorte o Descripción</label>
+          <label for="busquedaCohorteInput" class="filter-label"
+            >Buscar Cohorte o Descripción</label
+          >
           <div class="search-input-wrapper">
             <input
               id="busquedaCohorteInput"
@@ -152,8 +162,14 @@
     @if (convocatoriasFiltradas().length === 0) {
       <div class="state-container empty-state">
         <h3 class="empty-title">Sin resultados de búsqueda</h3>
-        <p class="empty-desc">No se encontraron convocatorias que coincidan con "{{ busqueda() }}".</p>
-        <button type="button" class="btn btn-secondary" (click)="setFiltroEstado('TODAS'); onSearchChange('')">
+        <p class="empty-desc">
+          No se encontraron convocatorias que coincidan con "{{ busqueda() }}".
+        </p>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="setFiltroEstado('TODAS'); onSearchChange('')"
+        >
           Restablecer Filtros
         </button>
       </div>

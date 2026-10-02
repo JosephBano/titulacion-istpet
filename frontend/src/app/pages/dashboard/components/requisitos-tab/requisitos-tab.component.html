@@ -4,7 +4,8 @@
     <div>
       <h2 class="section-title">Requisitos Maestros de Titulación</h2>
       <p class="section-subtitle">
-        Catálogo institucional de requisitos obligatorios para la titulación y asignación de profesores evaluadores.
+        Catálogo institucional de requisitos obligatorios para la titulación y asignación de
+        profesores evaluadores.
       </p>
     </div>
     <div class="header-actions">
@@ -74,7 +75,11 @@
 
   <!-- Estado de Carga / Error / Vacío / Tabla -->
   @if (loading()) {
-    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Cargando catálogo de requisitos">
+    <div
+      class="fluent-table-wrapper table-skeleton-box"
+      aria-busy="true"
+      aria-label="Cargando catálogo de requisitos"
+    >
       <table class="fluent-table">
         <thead>
           <tr>
@@ -92,7 +97,9 @@
               <td><span class="skeleton-line skeleton-w-md"></span></td>
               <td><span class="skeleton-line skeleton-w-md"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
-              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
             </tr>
           }
         </tbody>
@@ -110,7 +117,11 @@
     <div class="state-container empty-state">
       <h3 class="empty-title">Sin resultados de búsqueda</h3>
       <p class="empty-desc">No se encontraron requisitos que coincidan con "{{ busqueda() }}".</p>
-      <button type="button" class="btn btn-secondary" (click)="setFiltroEstado('TODOS'); onSearchChange('')">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="setFiltroEstado('TODOS'); onSearchChange('')"
+      >
         Restablecer Filtros
       </button>
     </div>
@@ -146,9 +157,7 @@
                         stroke="currentColor"
                         stroke-width="2"
                       >
-                        <path
-                          d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        ></path>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
                       </svg>
                       <span>Archivo Digital (PDF)</span>

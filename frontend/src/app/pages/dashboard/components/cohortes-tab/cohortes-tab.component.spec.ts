@@ -60,7 +60,8 @@ describe('CohortesTabComponent Unit Tests', () => {
         },
       ];
 
-      (comp as unknown as { convocatoriasLista: () => ConvocatoriaResumen[] }).convocatoriasLista = () => mockList;
+      (comp as unknown as { convocatoriasLista: () => ConvocatoriaResumen[] }).convocatoriasLista =
+        () => mockList;
 
       expect(comp.totalVigentes()).toBe(1);
       expect(comp.totalCerradas()).toBe(1);
@@ -100,7 +101,8 @@ describe('CohortesTabComponent Unit Tests', () => {
         },
       ];
 
-      (comp as unknown as { convocatoriasLista: () => ConvocatoriaResumen[] }).convocatoriasLista = () => mockList;
+      (comp as unknown as { convocatoriasLista: () => ConvocatoriaResumen[] }).convocatoriasLista =
+        () => mockList;
 
       comp.onSearchChange('OCT2025');
       expect(comp.convocatoriasFiltradas().length).toBe(1);

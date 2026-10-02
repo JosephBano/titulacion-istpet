@@ -580,7 +580,9 @@
               >
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                <path
+                  d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                ></path>
               </svg>
               <span>{{ cargandoCarreras() ? 'Actualizando...' : 'Actualizar' }}</span>
             </button>
@@ -933,7 +935,9 @@
                 >
                   <polyline points="23 4 23 10 17 10"></polyline>
                   <polyline points="1 20 1 14 7 14"></polyline>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  <path
+                    d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                  ></path>
                 </svg>
                 <span>{{ cargandoModalidades() ? 'Actualizando...' : 'Actualizar' }}</span>
               </button>
@@ -992,7 +996,9 @@
                   stroke="currentColor"
                   stroke-width="2"
                 >
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  ></path>
                   <line x1="12" y1="9" x2="12" y2="13"></line>
                   <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
@@ -1000,9 +1006,16 @@
               <div class="callout-content">
                 <strong>No existen modalidades de grado autorizadas o registradas</strong>
                 <p>
-                  No se encontraron modalidades de titulación activas en el catálogo institucional. Para aperturar la convocatoria, abra la gestión en una pestaña nueva, cree al menos una modalidad y luego haga clic en el botón <strong>"Actualizar"</strong> para sincronizar sin perder sus datos.
+                  No se encontraron modalidades de titulación activas en el catálogo institucional.
+                  Para aperturar la convocatoria, abra la gestión en una pestaña nueva, cree al
+                  menos una modalidad y luego haga clic en el botón
+                  <strong>"Actualizar"</strong> para sincronizar sin perder sus datos.
                 </p>
-                <button type="button" class="btn-create-modalidad" (click)="abrirCrearModalidadEnPestana()">
+                <button
+                  type="button"
+                  class="btn-create-modalidad"
+                  (click)="abrirCrearModalidadEnPestana()"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="13"
@@ -1052,10 +1065,12 @@
                     </div>
                     <div class="mod-badges-row">
                       <span class="mod-pill-stat">
-                        Mín. {{ m.cantidadMinima || 1 }} {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
+                        Mín. {{ m.cantidadMinima || 1 }}
+                        {{ m.cantidadMinima === 1 ? 'estudiante' : 'estudiantes' }}
                       </span>
                       <span class="mod-pill-req">
-                        {{ m.totalRequisitosAsociados }} {{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}
+                        {{ m.totalRequisitosAsociados }}
+                        {{ m.totalRequisitosAsociados === 1 ? 'requisito' : 'requisitos' }}
                       </span>
                       @if (m.esComplexivo === 'SI') {
                         <span class="mod-pill-feat complexivo">Complexivo</span>
@@ -1076,7 +1091,10 @@
                           @for (r of m.requisitos; track r.idRequisitoModalidad) {
                             <span
                               class="mod-req-tag"
-                              [title]="r.nombreRequisito + (r.esAdjunto ? ' (Archivo PDF)' : ' (Validación directa)')"
+                              [title]="
+                                r.nombreRequisito +
+                                (r.esAdjunto ? ' (Archivo PDF)' : ' (Validación directa)')
+                              "
                             >
                               <span
                                 class="mod-req-dot"

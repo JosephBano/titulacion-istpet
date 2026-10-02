@@ -4,7 +4,8 @@
     <div>
       <h2 class="section-title">Validación de Requisitos</h2>
       <p class="section-subtitle">
-        Revise y apruebe las evidencias de titulación asignadas a su cargo docente. Seleccione un caso para abrir el visor y calificar.
+        Revise y apruebe las evidencias de titulación asignadas a su cargo docente. Seleccione un
+        caso para abrir el visor y calificar.
       </p>
     </div>
   </div>
@@ -14,7 +15,9 @@
     <div class="filters-grid">
       <!-- Buscador -->
       <div class="filter-group search-group">
-        <label for="busquedaEvalInput" class="filter-label">Buscar por Estudiante, Cédula o Requisito</label>
+        <label for="busquedaEvalInput" class="filter-label"
+          >Buscar por Estudiante, Cédula o Requisito</label
+        >
         <div class="search-input-wrapper">
           <input
             id="busquedaEvalInput"
@@ -87,7 +90,11 @@
 
   <!-- Estado de Carga / Vacío / Tabla -->
   @if (cargando()) {
-    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Cargando casos asignados">
+    <div
+      class="fluent-table-wrapper table-skeleton-box"
+      aria-busy="true"
+      aria-label="Cargando casos asignados"
+    >
       <table class="fluent-table">
         <thead>
           <tr>
@@ -107,7 +114,9 @@
               <td><span class="skeleton-line skeleton-w-md"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td class="text-center"><span class="skeleton-line skeleton-w-sm"></span></td>
-              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
             </tr>
           }
         </tbody>
@@ -117,14 +126,21 @@
     <div class="state-container empty-state">
       <h3 class="empty-title">No tiene requisitos asignados</h3>
       <p class="empty-desc">
-        Actualmente no registra postulaciones pendientes bajo su responsabilidad de evaluación docente.
+        Actualmente no registra postulaciones pendientes bajo su responsabilidad de evaluación
+        docente.
       </p>
     </div>
   } @else if (itemsFiltrados().length === 0) {
     <div class="state-container empty-state">
       <h3 class="empty-title">Sin coincidencias</h3>
-      <p class="empty-desc">No se encontraron casos con el término de búsqueda o filtros seleccionados.</p>
-      <button type="button" class="btn btn-secondary" (click)="setFiltro('TODOS'); setFiltroCarrera('TODAS'); onSearchChange('')">
+      <p class="empty-desc">
+        No se encontraron casos con el término de búsqueda o filtros seleccionados.
+      </p>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="setFiltro('TODOS'); setFiltroCarrera('TODAS'); onSearchChange('')"
+      >
         Restablecer Filtros
       </button>
     </div>

@@ -86,7 +86,11 @@
 
   <!-- Estado de Carga / Error -->
   @if (cargando()) {
-    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Buscando alumnos">
+    <div
+      class="fluent-table-wrapper table-skeleton-box"
+      aria-busy="true"
+      aria-label="Buscando alumnos"
+    >
       <table class="fluent-table">
         <thead>
           <tr>
@@ -104,7 +108,9 @@
               <td><span class="skeleton-line skeleton-w-lg"></span></td>
               <td><span class="skeleton-line skeleton-w-md"></span></td>
               <td><span class="skeleton-line skeleton-w-md"></span></td>
-              <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
             </tr>
           }
         </tbody>
@@ -471,9 +477,22 @@
 
             <!-- Alerta de Auditoría de Malla (Casos de materias no dictadas / pendientes) -->
             @if (exp.materiasAprobadas < exp.totalMateriasMalla) {
-              <div class="malla-alert-box" [class.malla-alert-box--special]="exp.totalMateriasMalla - exp.materiasAprobadas <= 2">
+              <div
+                class="malla-alert-box"
+                [class.malla-alert-box--special]="
+                  exp.totalMateriasMalla - exp.materiasAprobadas <= 2
+                "
+              >
                 <div class="malla-alert-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="8" x2="12" y2="12"></line>
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -481,13 +500,20 @@
                 </div>
                 <div class="malla-alert-content">
                   <div class="malla-alert-title">
-                    Auditoría Curricular: {{ exp.totalMateriasMalla - exp.materiasAprobadas }} asignatura(s) pendiente(s) en catálogo de malla
+                    Auditoría Curricular:
+                    {{ exp.totalMateriasMalla - exp.materiasAprobadas }} asignatura(s) pendiente(s)
+                    en catálogo de malla
                   </div>
                   <p class="malla-alert-desc">
-                    El estudiante registra {{ exp.materiasAprobadas }} de {{ exp.totalMateriasMalla }} materias cursadas en la malla <strong>{{ exp.malla }}</strong>.
+                    El estudiante registra {{ exp.materiasAprobadas }} de
+                    {{ exp.totalMateriasMalla }} materias cursadas en la malla
+                    <strong>{{ exp.malla }}</strong
+                    >.
                     @if (exp.totalMateriasMalla - exp.materiasAprobadas <= 2) {
                       <span>
-                        Al haber cursado los semestres superiores, si esta asignatura corresponde a una materia histórica que <strong>no fue dictada a la cohorte</strong>, procede la verificación institucional para habilitar la titulación.
+                        Al haber cursado los semestres superiores, si esta asignatura corresponde a
+                        una materia histórica que <strong>no fue dictada a la cohorte</strong>,
+                        procede la verificación institucional para habilitar la titulación.
                       </span>
                     }
                   </p>
@@ -553,8 +579,17 @@
                     ) {
                       <tr
                         [class.row-reprobado]="!a.aprobado && a.idPeriodo"
-                        [class.row-pendiente]="!a.aprobado && !a.idPeriodo && (!a.observacion || !a.observacion.includes('no impartida'))"
-                        [class.row-no-impartida]="!a.aprobado && !a.idPeriodo && a.observacion && a.observacion.includes('no impartida')"
+                        [class.row-pendiente]="
+                          !a.aprobado &&
+                          !a.idPeriodo &&
+                          (!a.observacion || !a.observacion.includes('no impartida'))
+                        "
+                        [class.row-no-impartida]="
+                          !a.aprobado &&
+                          !a.idPeriodo &&
+                          a.observacion &&
+                          a.observacion.includes('no impartida')
+                        "
                       >
                         <td>{{ a.nombreNivel || (a.nivel ? 'Nivel ' + a.nivel : '-') }}</td>
                         <td>{{ a.nombreAsignatura }}</td>

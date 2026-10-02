@@ -56,9 +56,7 @@
 
         <div class="reporte-card-footer">
           <span class="reporte-category">{{ rep.categoria }}</span>
-          <span class="action-hint">
-            Abrir Reporte &rarr;
-          </span>
+          <span class="action-hint"> Abrir Reporte &rarr; </span>
         </div>
       </div>
     }
@@ -294,7 +292,8 @@
                         <span class="progress-pill">
                           {{
                             e.totalMateriasMalla > 0
-                              ? ((e.materiasAprobadas / e.totalMateriasMalla) * 100 | number: '1.0-0')
+                              ? ((e.materiasAprobadas / e.totalMateriasMalla) * 100
+                                | number: '1.0-0')
                               : 100
                           }}%
                         </span>

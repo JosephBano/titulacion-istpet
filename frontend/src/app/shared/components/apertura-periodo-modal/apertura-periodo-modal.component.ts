@@ -192,7 +192,19 @@ export class AperturaPeriodoModalComponent implements OnInit {
       const prevDate = new Date(year, month - 1, dNum);
       const dStr = this.toYMD(prevDate);
       days.push(
-        this.buildDayItem(dStr, dNum, false, todayStr, postIni, postFin, titIni, titFin, proIni, proFin, tienePro),
+        this.buildDayItem(
+          dStr,
+          dNum,
+          false,
+          todayStr,
+          postIni,
+          postFin,
+          titIni,
+          titFin,
+          proIni,
+          proFin,
+          tienePro,
+        ),
       );
     }
 
@@ -200,7 +212,19 @@ export class AperturaPeriodoModalComponent implements OnInit {
       const curDate = new Date(year, month, d);
       const dStr = this.toYMD(curDate);
       days.push(
-        this.buildDayItem(dStr, d, true, todayStr, postIni, postFin, titIni, titFin, proIni, proFin, tienePro),
+        this.buildDayItem(
+          dStr,
+          d,
+          true,
+          todayStr,
+          postIni,
+          postFin,
+          titIni,
+          titFin,
+          proIni,
+          proFin,
+          tienePro,
+        ),
       );
     }
 
@@ -209,7 +233,19 @@ export class AperturaPeriodoModalComponent implements OnInit {
       const nextDate = new Date(year, month + 1, d);
       const dStr = this.toYMD(nextDate);
       days.push(
-        this.buildDayItem(dStr, d, false, todayStr, postIni, postFin, titIni, titFin, proIni, proFin, tienePro),
+        this.buildDayItem(
+          dStr,
+          d,
+          false,
+          todayStr,
+          postIni,
+          postFin,
+          titIni,
+          titFin,
+          proIni,
+          proFin,
+          tienePro,
+        ),
       );
     }
 
@@ -253,8 +289,18 @@ export class AperturaPeriodoModalComponent implements OnInit {
   calendarMonthLabel = computed(() => {
     const cur = this.currentCalendarMonth();
     const meses = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
     ];
     return `${meses[cur.getMonth()]} ${cur.getFullYear()}`;
   });
@@ -523,9 +569,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
     const p = this.periodos().find((x) => x.idPeriodo === idPeriodo);
     const detallePeriodo = p?.nombre || idPeriodo;
 
-    let titulo = tipo
-      ? `Convocatoria ${tipo} ${detallePeriodo}`
-      : `Convocatoria ${detallePeriodo}`;
+    let titulo = tipo ? `Convocatoria ${tipo} ${detallePeriodo}` : `Convocatoria ${detallePeriodo}`;
 
     if (titulo.length > 50) {
       titulo = `Convocatoria ${detallePeriodo}`;

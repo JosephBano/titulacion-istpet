@@ -21,8 +21,8 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       const isHttpError = error instanceof HttpErrorResponse;
       const statusCode = isHttpError
         ? error.status
-        : (error as { estado?: number; status?: number })?.estado ??
-          (error as { estado?: number; status?: number })?.status;
+        : ((error as { estado?: number; status?: number })?.estado ??
+          (error as { estado?: number; status?: number })?.status);
 
       const isLogin = req.url.includes('/auth/login');
       const isRefresh = req.url.includes('/auth/refresh-token');
