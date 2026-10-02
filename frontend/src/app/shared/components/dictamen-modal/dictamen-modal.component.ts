@@ -10,6 +10,7 @@ import {
   PostulacionRequisitoDetalle,
 } from '../../../core/models/titulacion.models';
 import { TitulacionService } from '../../../core/services/titulacion.service';
+import { environment } from '../../../../environments/environment';
 
 export interface DictamenModalData {
   idPostulacion: number;
@@ -42,11 +43,11 @@ export class DictamenModalComponent {
 
   getArchivoUrl(ruta?: string | null): string {
     if (!ruta) return '';
-    if (ruta.startsWith('http://') || ruta.startsWith('https://')) {
+    if (ruta.startsWith('http://') || ruta.startsWith('https://') || ruta.startsWith('blob:')) {
       return ruta;
     }
     const cleanPath = ruta.startsWith('/') ? ruta : '/' + ruta;
-    return 'http://localhost:5192' + cleanPath;
+    return `${environment.apiBaseUrl}${cleanPath}`;
   }
 
   safeVisorUrl = computed<SafeResourceUrl | null>(() => {

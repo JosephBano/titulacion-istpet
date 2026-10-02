@@ -50,14 +50,19 @@ public class RbacService : IRbacService
             .ToListAsync(cancellationToken);
 
         var modulesGrouped = permissionsQuery
-            .GroupBy(p => p.IdModulosOperacionesNavigation.IdModulosNavigation)
+            .Where(p => p.IdModulosOperacionesNavigation?.IdModulosNavigation != null)
+            .GroupBy(p => new
+            {
+                p.IdModulosOperacionesNavigation.IdModulosNavigation.IdModulos,
+                p.IdModulosOperacionesNavigation.IdModulosNavigation.Nombre
+            })
             .Select(g => new RbacModuloPermissionsDto
             {
                 IdModulo = g.Key.IdModulos,
                 NombreModulo = g.Key.Nombre ?? string.Empty,
-                Operaciones = g.Select(p => p.IdModulosOperacionesNavigation.IdOperacionesNavigation.NombreOperacion ?? string.Empty)
+                Operaciones = g.Select(p => p.IdModulosOperacionesNavigation?.IdOperacionesNavigation?.NombreOperacion ?? string.Empty)
                                .Where(o => !string.IsNullOrWhiteSpace(o))
-                               .Distinct()
+                               .Distinct(StringComparer.OrdinalIgnoreCase)
                                .ToList()
             })
             .ToList();
@@ -101,7 +106,7 @@ public class RbacService : IRbacService
                 Operaciones = m.RbacModulosOperaciones
                     .Select(mo => mo.IdOperacionesNavigation?.NombreOperacion ?? string.Empty)
                     .Where(o => !string.IsNullOrWhiteSpace(o))
-                    .Distinct()
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList()
             }).ToList();
         }
@@ -127,6 +132,9 @@ public class RbacService : IRbacService
             return false;
         }
 
-        return modulo.Operaciones.Any(o => string.Equals(o, operationName, StringComparison.OrdinalIgnoreCase));
+        return modulo.Operaciones.Any(o =>
+            string.Equals(o, operationName, StringComparison.OrdinalIgnoreCase) ||
+            (operationName.Equals("consultar", StringComparison.OrdinalIgnoreCase) && o.Equals("ver", StringComparison.OrdinalIgnoreCase)) ||
+            (operationName.Equals("ver", StringComparison.OrdinalIgnoreCase) && o.Equals("consultar", StringComparison.OrdinalIgnoreCase)));
     }
 }

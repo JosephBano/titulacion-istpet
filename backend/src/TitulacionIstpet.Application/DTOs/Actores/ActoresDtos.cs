@@ -47,3 +47,24 @@ public sealed record AptitudTitulacionResponseDto(
     bool EsAptoTitulacion,
     string MensajeEstado
 );
+
+public sealed record DetalleDeudaDto(
+    int IdMatricula,
+    string Periodo,
+    string Especie,
+    decimal CreditoInicial,
+    decimal Saldo,
+    decimal SaldoBeca
+);
+
+public sealed record EstadoFinancieroAlumnoDto(
+    string IdAlumno,
+    string NombreAlumno,
+    bool NoAdeuda,
+    decimal SaldoPendienteTotal,
+    bool TieneRestricciones,
+    IReadOnlyList<string> RestriccionesActivas,
+    IReadOnlyList<DetalleDeudaDto> DeudasPendientes,
+    string Mensaje
+);
+

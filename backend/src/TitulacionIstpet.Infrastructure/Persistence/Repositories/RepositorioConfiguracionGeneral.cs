@@ -16,6 +16,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         var query = _context.TitulModalidades
             .AsNoTracking()
             .Include(m => m.TitulRequisitoModalidad)
+                .ThenInclude(rm => rm.IdRequisitosNavigation)
             .AsQueryable();
 
         if (soloActivas)
@@ -23,19 +24,36 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
             query = query.Where(m => m.EsActivo == true);
         }
 
-        return await query
+        var entidades = await query
             .OrderBy(m => m.ModalidadTitulacion)
-            .Select(m => new ModalidadMaestraDto(
-                m.IdModalidadTitulacion,
-                m.ModalidadTitulacion ?? string.Empty,
-                m.EsComplexivo,
-                m.EsArticuloCientifico,
-                m.GeneraTesis,
-                m.CantidadMinima,
-                m.EsActivo ?? false,
-                m.TitulRequisitoModalidad.Count(r => r.EsActivo)
-            ))
             .ToListAsync(ct);
+
+        return entidades.Select(m => new ModalidadMaestraDto(
+            m.IdModalidadTitulacion,
+            m.ModalidadTitulacion ?? string.Empty,
+            m.EsComplexivo,
+            m.EsArticuloCientifico,
+            m.GeneraTesis,
+            m.CantidadMinima,
+            m.EsActivo ?? false,
+            m.TitulRequisitoModalidad.Count(r => r.EsActivo == true),
+            m.TitulRequisitoModalidad
+                .Where(r => r.EsActivo == true)
+                .Select(rm => new RequisitoModalidadMatrizDto(
+                    rm.IdRequisitoModalidad,
+                    rm.IdModalidadTitulacion,
+                    m.ModalidadTitulacion ?? string.Empty,
+                    rm.IdRequisitos,
+                    rm.IdRequisitosNavigation?.Requisito ?? string.Empty,
+                    rm.IdRequisitosNavigation?.EsAdjunto ?? false,
+                    rm.IdRequisitosNavigation?.EsBool ?? false,
+                    rm.IdRequisitosNavigation?.SubeAlumno ?? false,
+                    rm.IdRequisitosNavigation?.SubeColaborador ?? false,
+                    rm.EsRequisitoFinal ?? false,
+                    rm.EsActivo
+                ))
+                .ToList()
+        )).ToList();
     }
 
     public async Task<ModalidadMaestraDto?> ObtenerModalidadPorIdAsync(int idModalidad, CancellationToken ct = default)
@@ -43,6 +61,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         var m = await _context.TitulModalidades
             .AsNoTracking()
             .Include(m => m.TitulRequisitoModalidad)
+                .ThenInclude(rm => rm.IdRequisitosNavigation)
             .FirstOrDefaultAsync(m => m.IdModalidadTitulacion == idModalidad, ct);
 
         if (m == null)
@@ -58,7 +77,23 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
             m.GeneraTesis,
             m.CantidadMinima,
             m.EsActivo ?? false,
-            m.TitulRequisitoModalidad.Count(r => r.EsActivo)
+            m.TitulRequisitoModalidad.Count(r => r.EsActivo),
+            m.TitulRequisitoModalidad
+                .Where(r => r.EsActivo)
+                .Select(rm => new RequisitoModalidadMatrizDto(
+                    rm.IdRequisitoModalidad,
+                    rm.IdModalidadTitulacion,
+                    m.ModalidadTitulacion ?? string.Empty,
+                    rm.IdRequisitos,
+                    rm.IdRequisitosNavigation.Requisito ?? string.Empty,
+                    rm.IdRequisitosNavigation.EsAdjunto ?? false,
+                    rm.IdRequisitosNavigation.EsBool ?? false,
+                    rm.IdRequisitosNavigation.SubeAlumno ?? false,
+                    rm.IdRequisitosNavigation.SubeColaborador ?? false,
+                    rm.EsRequisitoFinal ?? false,
+                    rm.EsActivo
+                ))
+                .ToList()
         );
     }
 
@@ -77,6 +112,24 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
 
         _context.TitulModalidades.Add(entidad);
         await _context.SaveChangesAsync(ct);
+
+        if (dto.IdsRequisitos != null && dto.IdsRequisitos.Count > 0)
+        {
+            foreach (var idReq in dto.IdsRequisitos.Distinct())
+            {
+                var reqMod = new TitulRequisitoModalidad
+                {
+                    IdModalidadTitulacion = entidad.IdModalidadTitulacion,
+                    IdRequisitos = idReq,
+                    EsRequisitoFinal = false,
+                    FechaRegistro = DateTime.UtcNow,
+                    EsActivo = true
+                };
+                _context.TitulRequisitoModalidad.Add(reqMod);
+            }
+            await _context.SaveChangesAsync(ct);
+        }
+
         return entidad.IdModalidadTitulacion;
     }
 
@@ -215,7 +268,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
                 rm.IdRequisitosNavigation.EsBool ?? false,
                 rm.IdRequisitosNavigation.SubeAlumno ?? false,
                 rm.IdRequisitosNavigation.SubeColaborador ?? false,
-                rm.EsRequistoFinal ?? false,
+                rm.EsRequisitoFinal ?? false,
                 rm.EsActivo
             ))
             .ToListAsync(ct);
@@ -229,7 +282,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         if (existente != null)
         {
             existente.EsActivo = true;
-            existente.EsRequistoFinal = dto.EsRequisitoFinal;
+            existente.EsRequisitoFinal = dto.EsRequisitoFinal;
             existente.FechaRegistro = DateTime.UtcNow;
             await _context.SaveChangesAsync(ct);
             return existente.IdRequisitoModalidad;
@@ -239,7 +292,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
         {
             IdModalidadTitulacion = dto.IdModalidadTitulacion,
             IdRequisitos = dto.IdRequisitos,
-            EsRequistoFinal = dto.EsRequisitoFinal,
+            EsRequisitoFinal = dto.EsRequisitoFinal,
             FechaRegistro = DateTime.UtcNow,
             EsActivo = true
         };
@@ -284,7 +337,7 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
 
         string? periodoCodigo = cohorte?.IdPeriodo;
         string? periodoNombreHumano = cohorte?.IdPeriodoNavigation?.Detalle;
-        string? convocatoriaDetalle = cohorte?.Detelle;
+        string? convocatoriaDetalle = cohorte?.Detalle;
         DateTime? fechaInicio = cohorte?.FechaInicio;
         DateTime? fechaFin = cohorte?.FechaFin;
         bool estaVigente = cohorte != null && cohorte.EsActivo == true &&

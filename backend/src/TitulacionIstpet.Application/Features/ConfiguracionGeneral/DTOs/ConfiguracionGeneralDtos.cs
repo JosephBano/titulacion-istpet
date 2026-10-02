@@ -8,7 +8,8 @@ public sealed record ModalidadMaestraDto(
     string? GeneraTesis,
     int? CantidadMinima,
     bool EsActivo,
-    int TotalRequisitosAsociados
+    int TotalRequisitosAsociados,
+    IReadOnlyList<RequisitoModalidadMatrizDto>? Requisitos = null
 );
 
 public sealed record CrearModalidadMaestraDto(
@@ -16,7 +17,8 @@ public sealed record CrearModalidadMaestraDto(
     string? EsComplexivo = "NO",
     string? EsArticuloCientifico = "NO",
     string? GeneraTesis = "NO",
-    int? CantidadMinima = 1
+    int? CantidadMinima = 1,
+    IReadOnlyList<int>? IdsRequisitos = null
 );
 
 public sealed record ActualizarModalidadMaestraDto(

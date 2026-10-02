@@ -2,7 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../config/api.config';
-import { AlumnoApto, GraduadoHistorico, FiltroAlumnosParams } from '../models/alumno-filtro.model';
+import {
+  AlumnoApto,
+  GraduadoHistorico,
+  FiltroAlumnosParams,
+  EstadoFinancieroAlumno,
+} from '../models/alumno-filtro.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,5 +34,11 @@ export class AlumnosTitulacionService {
     if (params?.busqueda) httpParams = httpParams.set('q', params.busqueda);
 
     return this.http.get<GraduadoHistorico[]>(`${this.apiUrl}/graduados`, { params: httpParams });
+  }
+
+  validarNoAdeudar(idAlumno: string): Observable<EstadoFinancieroAlumno> {
+    return this.http.get<EstadoFinancieroAlumno>(
+      `${this.apiUrl}/${encodeURIComponent(idAlumno)}/no-adeuda`,
+    );
   }
 }

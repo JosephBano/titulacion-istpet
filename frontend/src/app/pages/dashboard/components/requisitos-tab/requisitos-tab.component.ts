@@ -11,10 +11,13 @@ import { RequisitoMaestro } from '../../../../core/models/titulacion.models';
   styleUrls: ['./requisitos-tab.component.css'],
 })
 export class RequisitosTabComponent {
+  readonly skeletonRows = Array.from({ length: 5 }, (_, i) => i);
+
   requisitos = input<RequisitoMaestro[]>([]);
   loading = input<boolean>(false);
 
   nuevoRequisito = output<void>();
+  editarRequisito = output<RequisitoMaestro>();
   toggleEstado = output<RequisitoMaestro>();
   gestionarResponsables = output<RequisitoMaestro>();
 
@@ -110,9 +113,8 @@ export class RequisitosTabComponent {
     }
   }
 
-  onTamanoPaginaChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.tamanoPagina.set(+select.value || 10);
+  cambiarTamanoPagina(size: number | string): void {
+    this.tamanoPagina.set(+size || 10);
     this.paginaActual.set(1);
   }
 }

@@ -6,9 +6,6 @@
       <h2 class="bandeja-title">Postulaciones de Titulación</h2>
     </div>
     <div class="bandeja-header-actions">
-      <span class="meta-counter">
-        {{ total() }} {{ total() === 1 ? 'postulación' : 'postulaciones' }}
-      </span>
       <button
         type="button"
         class="btn-icon-text"
@@ -82,7 +79,7 @@
         >
           <option value="">Todas las Carreras</option>
           @for (c of carreras(); track c.idCarrera) {
-            <option [value]="c.idCarrera">{{ c.aliasCarrera || c.nombreCarrera }}</option>
+            <option [value]="c.idCarrera">{{ c.nombreCarrera }}</option>
           }
         </select>
       </div>
@@ -138,9 +135,58 @@
 
   <!-- 3. Grid de Tarjetas de Postulación Flotantes (Sin caja ni marco de fondo) -->
   @if (loading()) {
-    <div class="loading-state-box">
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Cargando expedientes de titulación...</p>
+    <div
+      class="cards-grid skeleton-grid"
+      aria-busy="true"
+      aria-label="Cargando expedientes de titulación"
+    >
+      @for (item of skeletonItems; track item) {
+        <article class="card-item skeleton-card">
+          <!-- Top: ID y Estado Skeleton -->
+          <div class="card-header">
+            <span class="skeleton-line skeleton-id"></span>
+            <span class="skeleton-line skeleton-status"></span>
+          </div>
+
+          <!-- Estudiante Skeleton -->
+          <div class="card-student">
+            <div class="skeleton-line skeleton-name"></div>
+            <div class="skeleton-line skeleton-meta"></div>
+          </div>
+
+          <!-- Detalles Académicos Skeleton -->
+          <div class="card-details">
+            <div class="detail-item">
+              <span class="skeleton-line skeleton-key"></span>
+              <span class="skeleton-line skeleton-val-lg"></span>
+            </div>
+            <div class="detail-item">
+              <span class="skeleton-line skeleton-key"></span>
+              <span class="skeleton-line skeleton-val-md"></span>
+            </div>
+            <div class="detail-item">
+              <span class="skeleton-line skeleton-key"></span>
+              <span class="skeleton-line skeleton-badge"></span>
+            </div>
+          </div>
+
+          <!-- Progreso de Requisitos Skeleton -->
+          <div class="card-progress">
+            <div class="progress-info">
+              <span class="skeleton-line skeleton-prog-label"></span>
+              <span class="skeleton-line skeleton-prog-count"></span>
+            </div>
+            <div class="progress-track skeleton-track"></div>
+          </div>
+
+          <!-- Acciones Skeleton -->
+          <div class="card-actions">
+            <div class="skeleton-btn"></div>
+            <div class="skeleton-btn"></div>
+            <div class="skeleton-btn"></div>
+          </div>
+        </article>
+      }
     </div>
   } @else if (postulaciones().length === 0) {
     <div class="empty-state-box">
@@ -196,7 +242,7 @@
         <article class="card-item" [ngClass]="getEstadoClass(p.nombreEstado)">
           <!-- Top: ID y Estado -->
           <div class="card-header">
-            <span class="card-id">EXP-{{ p.idPostulacionAlumnos }}</span>
+            <span class="card-id">#{{ p.idPostulacionAlumnos }}</span>
             <span class="card-status-tag">
               <span class="status-dot" [ngClass]="getEstadoDotClass(p.nombreEstado)"></span>
               <span class="status-name">{{ p.nombreEstado }}</span>
@@ -218,6 +264,62 @@
             <div class="detail-item">
               <span class="detail-key">Modalidad:</span>
               <span class="detail-val font-semibold">{{ p.modalidadTitulacion }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-key">Finanzas:</span>
+              <span class="detail-val">
+                @if (p.noAdeuda === true) {
+                  <span
+                    class="status-badge financas-al-dia"
+                    title="Sin deudas de matrícula ni restricciones en SIGAFI"
+                  >
+                    <svg
+                      class="badge-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Al Día (No Adeuda)
+                  </span>
+                } @else if (p.noAdeuda === false) {
+                  <span
+                    class="status-badge financas-deuda"
+                    [title]="
+                      'Saldo pendiente: $' +
+                      (p.saldoPendiente | number: '1.2-2') +
+                      (p.tieneRestricciones ? ' (con restricciones activas)' : '')
+                    "
+                  >
+                    <svg
+                      class="badge-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    @if (p.saldoPendiente && p.saldoPendiente > 0) {
+                      Adeuda ${{ p.saldoPendiente | number: '1.2-2' }}
+                    } @else {
+                      Con Restricción
+                    }
+                  </span>
+                } @else {
+                  <span class="status-badge financas-pendiente">Pendiente</span>
+                }
+              </span>
             </div>
           </div>
 
@@ -243,6 +345,27 @@
           <div class="card-actions">
             <button
               type="button"
+              class="action-btn action-btn--examine"
+              (click)="examinarPostulacion(p)"
+              title="Examinar historial académico (26 materias), requisitos y finanzas"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>Examinar</span>
+            </button>
+
+            <button
+              type="button"
               class="action-btn action-btn--approve"
               (click)="emitirDictamen(p.idPostulacionAlumnos, 'APROBAR')"
               title="Aprobar postulación formal"
@@ -259,28 +382,6 @@
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               <span>Aprobar</span>
-            </button>
-
-            <button
-              type="button"
-              class="action-btn action-btn--observe"
-              (click)="emitirDictamen(p.idPostulacionAlumnos, 'OBSERVAR')"
-              title="Observar y solicitar subsanación"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-              <span>Observar</span>
             </button>
 
             <button
@@ -312,8 +413,7 @@
     <footer class="bandeja-pagination">
       <div class="pagination-left">
         <span class="pagination-range-text">
-          Mostrando <strong>{{ rangoInicio() }}</strong
-          >–<strong>{{ rangoFin() }}</strong> de <strong>{{ total() }}</strong> postulaciones
+          Mostrando {{ rangoInicio() }} a {{ rangoFin() }} de {{ total() }} postulaciones
         </span>
 
         <div class="page-size-selector">
@@ -390,3 +490,846 @@
     </footer>
   }
 </section>
+
+<!-- ========================================================================= -->
+<!-- 5. DRAWER / MODAL DE EXAMEN INTEGRAL DE POSTULACIÓN Y EXPEDIENTE ACADÉMICO -->
+<!-- ========================================================================= -->
+@if (mostrarExamenModal()) {
+  <div
+    class="drawer-backdrop"
+    role="presentation"
+    (click)="cerrarExamenModal()"
+    (keydown.escape)="cerrarExamenModal()"
+  >
+    <div
+      class="drawer-panel"
+      role="dialog"
+      aria-modal="true"
+      tabindex="0"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+    >
+      <!-- Header del Examen -->
+      <div class="drawer-header">
+        <div class="drawer-header-info">
+          <div class="drawer-eyebrow-row">
+            <span class="drawer-badge-exp"
+              >#{{ postulacionResumenSeleccionada()?.idPostulacionAlumnos }}</span
+            >
+            <span class="drawer-status-tag">
+              <span
+                class="status-dot"
+                [ngClass]="getEstadoDotClass(postulacionResumenSeleccionada()?.nombreEstado || '')"
+              ></span>
+              <span>{{ postulacionResumenSeleccionada()?.nombreEstado }}</span>
+            </span>
+          </div>
+          <h3 class="drawer-title">{{ postulacionResumenSeleccionada()?.nombreAlumno }}</h3>
+          <p class="drawer-subtitle">
+            C.I. {{ postulacionResumenSeleccionada()?.cedulaAlumno }} &bull;
+            {{ postulacionResumenSeleccionada()?.nombreCarrera }} &bull;
+            <strong>{{ postulacionResumenSeleccionada()?.modalidadTitulacion }}</strong>
+          </p>
+        </div>
+
+        <div class="drawer-header-actions">
+          <button
+            type="button"
+            class="btn-icon-text"
+            (click)="imprimirExpediente()"
+            title="Imprimir expediente o guardar en PDF"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path
+                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+              ></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>Imprimir</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn-close"
+            (click)="cerrarExamenModal()"
+            title="Cerrar panel de examen"
+          >
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <!-- Cuerpo del Examen -->
+      <div class="drawer-body">
+        @if (cargandoExamen()) {
+          <div class="state-container">
+            <div class="spinner"></div>
+            <p class="state-text">
+              Cargando expediente académico curricular y requisitos de titulación...
+            </p>
+          </div>
+        } @else if (errorExamen()) {
+          <div class="state-container">
+            <p class="text-danger">{{ errorExamen() }}</p>
+            <button
+              type="button"
+              class="btn-icon-text"
+              (click)="
+                postulacionResumenSeleccionada() &&
+                  examinarPostulacion(postulacionResumenSeleccionada()!)
+              "
+            >
+              Reintentar
+            </button>
+          </div>
+        } @else {
+          <!-- Tarjeta de Contacto Rápido del Estudiante -->
+          @if (expedienteSeleccionado(); as exp) {
+            <div class="contact-card">
+              <div class="contact-card-header">
+                <h4 class="contact-card-title">Datos del Postulante</h4>
+                <span class="contact-badge">Contacto y Localización</span>
+              </div>
+              <div class="contact-grid">
+                <div class="contact-item">
+                  <span class="contact-label">Correo Personal</span>
+                  @if (exp.email) {
+                    <a [href]="'mailto:' + exp.email" class="contact-link email-link">
+                      {{ exp.email }}
+                    </a>
+                  } @else {
+                    <span class="contact-muted">No registrado</span>
+                  }
+                </div>
+
+                <div class="contact-item">
+                  <span class="contact-label">Correo Institucional</span>
+                  @if (exp.emailInstitucional) {
+                    <a [href]="'mailto:' + exp.emailInstitucional" class="contact-link email-link">
+                      {{ exp.emailInstitucional }}
+                    </a>
+                  } @else {
+                    <span class="contact-muted">No registrado</span>
+                  }
+                </div>
+
+                <div class="contact-item">
+                  <span class="contact-label">Celular / WhatsApp</span>
+                  @if (exp.celular) {
+                    <div class="contact-phone-group">
+                      <a [href]="'tel:' + exp.celular" class="contact-link phone-link">
+                        {{ exp.celular }}
+                      </a>
+                      <a
+                        [href]="
+                          'https://wa.me/' +
+                          (exp.celular.startsWith('0')
+                            ? '593' + exp.celular.substring(1)
+                            : exp.celular)
+                        "
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn-whatsapp"
+                        title="Abrir chat de WhatsApp"
+                      >
+                        WhatsApp
+                      </a>
+                    </div>
+                  } @else {
+                    <span class="contact-muted">No registrado</span>
+                  }
+                </div>
+
+                <div class="contact-item">
+                  <span class="contact-label">Teléfono Fijo</span>
+                  @if (exp.telefono) {
+                    <a [href]="'tel:' + exp.telefono" class="contact-link phone-link">
+                      {{ exp.telefono }}
+                    </a>
+                  } @else {
+                    <span class="contact-muted">No registrado</span>
+                  }
+                </div>
+
+                <div class="contact-item full-width">
+                  <span class="contact-label">Dirección Domiciliaria</span>
+                  <span class="contact-text">
+                    {{
+                      exp.direccion
+                        ? exp.direccion +
+                          (exp.ciudadResidencia ? ' (' + exp.ciudadResidencia + ')' : '')
+                        : exp.ciudadResidencia || 'No registrada'
+                    }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Pestañas de Navegación Interna -->
+          <div class="expediente-nav-tabs">
+            <button
+              type="button"
+              class="expediente-tab-btn"
+              [class.active]="seccionExamen() === 'academico'"
+              (click)="cambiarSeccionExamen('academico')"
+            >
+              <svg
+                class="tab-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>Malla y Asignaturas (26 Materias)</span>
+            </button>
+
+            <button
+              type="button"
+              class="expediente-tab-btn"
+              [class.active]="seccionExamen() === 'requisitos'"
+              (click)="cambiarSeccionExamen('requisitos')"
+            >
+              <svg
+                class="tab-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <span>Requisitos y Evidencias de Titulación</span>
+              @if (postulacionDetalleSeleccionada(); as post) {
+                <span class="tab-badge al-dia"> {{ post.requisitos.length }} req. </span>
+              }
+            </button>
+
+            <button
+              type="button"
+              class="expediente-tab-btn"
+              [class.active]="seccionExamen() === 'pagos'"
+              (click)="cambiarSeccionExamen('pagos')"
+            >
+              <svg
+                class="tab-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              <span>Finanzas SIGAFI</span>
+              @if (expedienteSeleccionado()?.financiero; as fin) {
+                @if (fin.estaAlDia) {
+                  <span class="tab-badge al-dia">Al Día</span>
+                } @else {
+                  <span class="tab-badge deuda"
+                    >Adeuda ${{ fin.saldoTotalPendiente | number: '1.2-2' }}</span
+                  >
+                }
+              }
+            </button>
+          </div>
+
+          <!-- SECCIÓN 1: EXPEDIENTE ACADÉMICO / 26 MATERIAS -->
+          @if (seccionExamen() === 'academico') {
+            @if (expedienteSeleccionado(); as exp) {
+              <!-- Métricas Clave de Avance -->
+              <div class="expediente-info-grid">
+                <div class="info-block">
+                  <span class="info-label">Carrera:</span>
+                  <span class="info-value font-semibold">{{ exp.carrera }}</span>
+                </div>
+                <div class="info-block">
+                  <span class="info-label">Malla Curricular:</span>
+                  <span class="info-value">{{ exp.malla }} ({{ exp.modalidad }})</span>
+                </div>
+                <div class="info-block">
+                  <span class="info-label">Avance Niveles:</span>
+                  <span class="info-value text-success font-bold">
+                    {{ exp.nivelesAprobados }} de {{ exp.totalNivelesMalla }} niveles
+                  </span>
+                </div>
+                <div class="info-block">
+                  <span class="info-label">Avance Materias:</span>
+                  <span class="info-value text-success font-bold">
+                    {{ exp.materiasAprobadas }} de {{ exp.totalMateriasMalla }} materias ({{
+                      (exp.materiasAprobadas * 100) / (exp.totalMateriasMalla || 1)
+                        | number: '1.0-0'
+                    }}%)
+                  </span>
+                </div>
+                <div class="info-block">
+                  <span class="info-label">Promedio General:</span>
+                  <span class="info-value font-bold">{{
+                    exp.promedioGeneral | number: '1.2-2'
+                  }}</span>
+                </div>
+                <div class="info-block">
+                  <span class="info-label">Condición Académica:</span>
+                  <span class="info-value">
+                    @if (exp.esEgresadoTitulado) {
+                      <span class="status-badge egresado">
+                        Egresado
+                        {{ exp.numeroActaGrado ? '(Acta: ' + exp.numeroActaGrado + ')' : '' }}
+                      </span>
+                    } @else {
+                      <span class="status-badge sin-egresar">En Trámite de Egreso</span>
+                    }
+                  </span>
+                </div>
+              </div>
+
+              <!-- Alerta de Auditoría Curricular (Asignaturas no dictadas a la cohorte) -->
+              @if (exp.materiasAprobadas < exp.totalMateriasMalla) {
+                <div
+                  class="malla-alert-box"
+                  [class.malla-alert-box--special]="
+                    exp.totalMateriasMalla - exp.materiasAprobadas <= 2
+                  "
+                >
+                  <div class="malla-alert-icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                  </div>
+                  <div class="malla-alert-content">
+                    <div class="malla-alert-title">
+                      Auditoría Curricular:
+                      {{ exp.totalMateriasMalla - exp.materiasAprobadas }} asignatura(s)
+                      pendiente(s) en catálogo de malla
+                    </div>
+                    <p class="malla-alert-desc">
+                      El estudiante registra {{ exp.materiasAprobadas }} de
+                      {{ exp.totalMateriasMalla }} materias cursadas en la malla
+                      <strong>{{ exp.malla }}</strong
+                      >.
+                      @if (exp.totalMateriasMalla - exp.materiasAprobadas <= 2) {
+                        <span>
+                          Al haber aprobado semestres superiores, si esta asignatura corresponde a
+                          una materia histórica que <strong>no fue dictada a la cohorte</strong>,
+                          procede la verificación institucional para habilitar la postulación.
+                        </span>
+                      }
+                    </p>
+                  </div>
+                </div>
+              }
+
+              <!-- Tabla de Periodos Cursados -->
+              @if (exp.periodosCursados.length > 0) {
+                <div class="subtable-section">
+                  <h4 class="subtable-title">Periodos Académicos Cursados</h4>
+                  <div class="subtable-wrapper">
+                    <table class="fluent-subtable">
+                      <thead>
+                        <tr>
+                          <th>Periodo</th>
+                          <th>Detalle</th>
+                          <th>Nivel</th>
+                          <th>Paralelo</th>
+                          <th>Fecha Matrícula</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (
+                          m of exp.periodosCursados;
+                          track m.idPeriodo + '-' + m.idNivel + '-' + $index
+                        ) {
+                          <tr>
+                            <td class="font-mono">{{ m.idPeriodo }}</td>
+                            <td>{{ m.nombrePeriodo }}</td>
+                            <td>{{ m.nombreNivel || 'Nivel ' + m.idNivel }}</td>
+                            <td>{{ m.paralelo || '-' }}</td>
+                            <td>
+                              {{ m.fechaMatricula ? (m.fechaMatricula | date: 'dd/MM/yyyy') : '-' }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+
+              <!-- Tabla Completa de Asignaturas y Calificaciones (26 materias) -->
+              <div class="subtable-section">
+                <h4 class="subtable-title">
+                  Historial Completo de Asignaturas de la Carrera ({{ exp.asignaturas.length }}
+                  materias)
+                </h4>
+                <div class="subtable-wrapper">
+                  <table class="fluent-subtable">
+                    <thead>
+                      <tr>
+                        <th>Nivel</th>
+                        <th>Asignatura</th>
+                        <th>Periodo</th>
+                        <th>P1</th>
+                        <th>P2</th>
+                        <th>Examen</th>
+                        <th>Nota Final</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (
+                        a of exp.asignaturas;
+                        track a.idAsignatura + '-' + (a.idPeriodo || '') + '-' + $index
+                      ) {
+                        <tr
+                          [class.row-reprobado]="
+                            !a.aprobado &&
+                            a.idPeriodo &&
+                            ((a.notaFinal && a.notaFinal > 0) ||
+                              (a.promedioFinal && a.promedioFinal > 0) ||
+                              (a.nota1 && a.nota1 > 0) ||
+                              (a.nota2 && a.nota2 > 0) ||
+                              (a.examen && a.examen > 0))
+                          "
+                          [class.row-pendiente]="
+                            !a.aprobado &&
+                            !a.idPeriodo &&
+                            (!a.observacion || !a.observacion.includes('no impartida'))
+                          "
+                          [class.row-no-impartida]="
+                            !a.aprobado &&
+                            a.observacion &&
+                            (a.observacion.includes('no impartida') ||
+                              a.observacion.includes('Optativa') ||
+                              a.observacion.includes('Integración'))
+                          "
+                        >
+                          <td>{{ a.nombreNivel || (a.nivel ? 'Nivel ' + a.nivel : '-') }}</td>
+                          <td class="font-semibold">{{ a.nombreAsignatura }}</td>
+                          <td class="font-mono">{{ a.idPeriodo || '-' }}</td>
+                          <td>
+                            {{
+                              a.nota1 !== null &&
+                              a.nota1 !== undefined &&
+                              (a.nota1 > 0 || a.aprobado)
+                                ? (a.nota1 | number: '1.2-2')
+                                : '-'
+                            }}
+                          </td>
+                          <td>
+                            {{
+                              a.nota2 !== null &&
+                              a.nota2 !== undefined &&
+                              (a.nota2 > 0 || a.aprobado)
+                                ? (a.nota2 | number: '1.2-2')
+                                : '-'
+                            }}
+                          </td>
+                          <td>
+                            {{
+                              a.examen !== null &&
+                              a.examen !== undefined &&
+                              (a.examen > 0 || a.aprobado)
+                                ? (a.examen | number: '1.2-2')
+                                : '-'
+                            }}
+                          </td>
+                          <td class="font-bold">
+                            {{
+                              a.notaFinal !== null &&
+                              a.notaFinal !== undefined &&
+                              (a.notaFinal > 0 || a.aprobado)
+                                ? (a.notaFinal | number: '1.2-2')
+                                : a.promedioFinal !== null &&
+                                    a.promedioFinal !== undefined &&
+                                    (a.promedioFinal > 0 || a.aprobado)
+                                  ? (a.promedioFinal | number: '1.2-2')
+                                  : '-'
+                            }}
+                          </td>
+                          <td>
+                            @if (a.aprobado) {
+                              <span class="badge-aprobado">Aprobado</span>
+                            } @else if (
+                              a.observacion &&
+                              (a.observacion.includes('Optativa') ||
+                                a.observacion.includes('Integración') ||
+                                a.observacion.includes('Titulación'))
+                            ) {
+                              <span class="badge-opcional" [title]="a.observacion">
+                                {{
+                                  a.observacion.includes('Integración')
+                                    ? 'Integración Curricular'
+                                    : 'Optativa / No Cursada'
+                                }}
+                              </span>
+                            } @else if (
+                              a.idPeriodo &&
+                              ((a.notaFinal && a.notaFinal > 0) ||
+                                (a.promedioFinal && a.promedioFinal > 0) ||
+                                (a.nota1 && a.nota1 > 0) ||
+                                (a.nota2 && a.nota2 > 0) ||
+                                (a.examen && a.examen > 0))
+                            ) {
+                              <span class="badge-reprobado">No Aprobado</span>
+                            } @else if (a.observacion && a.observacion.includes('no impartida')) {
+                              <span class="badge-no-impartida" [title]="a.observacion">
+                                No Ofertada / Pendiente
+                              </span>
+                            } @else {
+                              <span class="badge-pendiente">Pendiente</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            } @else {
+              <div class="empty-state-mini">
+                <p>
+                  No se encontró el registro curricular del estudiante en SIGAFI para esta carrera.
+                </p>
+              </div>
+            }
+          }
+
+          <!-- SECCIÓN 2: REQUISITOS Y DOCUMENTOS DE TITULACIÓN -->
+          @if (seccionExamen() === 'requisitos') {
+            @if (postulacionDetalleSeleccionada(); as post) {
+              <div class="requisitos-eval-section">
+                <div class="requisitos-header-summary">
+                  <div>
+                    <h4 class="subtable-title">Requisitos para {{ post.modalidadTitulacion }}</h4>
+                    <p class="section-muted-desc">
+                      Documentos presentados por el estudiante y aprobaciones requeridas
+                    </p>
+                  </div>
+                  <span class="status-badge" [ngClass]="getEstadoClass(post.nombreEstado)">
+                    {{ post.nombreEstado }}
+                  </span>
+                </div>
+
+                @if (post.observacionDictamen) {
+                  <div class="observacion-dictamen-banner">
+                    <strong>Última Observación de Comisión:</strong> {{ post.observacionDictamen }}
+                  </div>
+                }
+
+                <div class="requisitos-list-grid">
+                  @for (req of post.requisitos; track req.idPostulacionAlumnoRequisitoModalidad) {
+                    <div class="requisito-card">
+                      <div class="requisito-card-top">
+                        <div class="requisito-title-wrap">
+                          <span class="requisito-number">#{{ $index + 1 }}</span>
+                          <h5 class="requisito-title">{{ req.nombreRequisito }}</h5>
+                        </div>
+                        <span
+                          class="status-badge"
+                          [class.financas-al-dia]="req.estadoValidacion === 'APROBADO'"
+                          [class.financas-deuda]="
+                            req.estadoValidacion === 'OBSERVADO' ||
+                            req.estadoValidacion === 'RECHAZADO'
+                          "
+                          [class.financas-pendiente]="
+                            !req.estadoValidacion || req.estadoValidacion === 'PENDIENTE'
+                          "
+                        >
+                          {{ req.estadoValidacion || 'PENDIENTE' }}
+                        </span>
+                      </div>
+
+                      <!-- Información de Archivo / Evidencia -->
+                      <div class="requisito-card-body">
+                        @if (req.nombreArchivoAdjunto) {
+                          <div class="evidencia-file-box">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <path
+                                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                              ></path>
+                              <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <div class="file-info-text">
+                              <span class="file-name">{{ req.nombreArchivoAdjunto }}</span>
+                              @if (req.rutaArchivoAdjunto) {
+                                <a
+                                  [href]="req.rutaArchivoAdjunto"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="file-action-link"
+                                  title="Ver / Descargar documento en nueva pestaña"
+                                >
+                                  Ver documento adjunto &rarr;
+                                </a>
+                              }
+                            </div>
+                          </div>
+                        } @else if (req.esAdjunto) {
+                          <div class="evidencia-file-box file-box--empty">
+                            <span class="file-muted"
+                              >Sin documento PDF adjunto por el estudiante</span
+                            >
+                          </div>
+                        }
+
+                        <!-- Observaciones del Evaluador / Comisión -->
+                        @if (req.observaciones) {
+                          <div class="requisito-eval-obs">
+                            <span class="eval-obs-label">Observaciones:</span>
+                            <span class="eval-obs-text">{{ req.observaciones }}</span>
+                          </div>
+                        }
+
+                        @if (req.nombreEvaluador) {
+                          <div class="evaluador-tag">
+                            Evaluado por: {{ req.nombreEvaluador }}
+                            @if (req.fechaEvaluacion) {
+                              &bull; {{ req.fechaEvaluacion | date: 'dd/MM/yyyy' }}
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="empty-state-mini">
+                <p>No se cargaron los requisitos específicos de la postulación.</p>
+              </div>
+            }
+          }
+
+          <!-- SECCIÓN 3: ESTADO FINANCIERO Y PAGOS -->
+          @if (seccionExamen() === 'pagos') {
+            @if (expedienteSeleccionado()?.financiero; as fin) {
+              <div class="finance-summary-cards">
+                <div
+                  class="finance-card"
+                  [class.al-dia]="fin.estaAlDia"
+                  [class.con-deuda]="!fin.estaAlDia"
+                >
+                  <span class="finance-card-label">Estado Global Carrera</span>
+                  <div class="finance-card-value">
+                    @if (fin.estaAlDia) {
+                      <span class="status-badge financas-al-dia lg"> Al Día (No Adeuda) </span>
+                    } @else {
+                      <span class="status-badge financas-deuda lg">
+                        Saldo Pendiente: ${{ fin.saldoTotalPendiente | number: '1.2-2' }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="finance-card">
+                  <span class="finance-card-label">Total Créditos Matrícula</span>
+                  <div class="finance-card-number">
+                    ${{ fin.totalCreditoCargado | number: '1.2-2' }}
+                  </div>
+                </div>
+
+                <div class="finance-card">
+                  <span class="finance-card-label">Total Abonado</span>
+                  <div class="finance-card-number text-success">
+                    ${{ fin.totalAbonado | number: '1.2-2' }}
+                  </div>
+                </div>
+
+                <div class="finance-card">
+                  <span class="finance-card-label">Saldo por Cancelar</span>
+                  <div
+                    class="finance-card-number"
+                    [class.text-danger]="fin.saldoTotalPendiente > 0"
+                  >
+                    ${{ fin.saldoTotalPendiente | number: '1.2-2' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Semestres y Rubros Financieros -->
+              <div class="subtable-section">
+                <h4 class="subtable-title">Historial Financiero por Semestre Cursado</h4>
+                @if (fin.semestres.length === 0) {
+                  <p class="contact-muted">
+                    No se registran créditos de matrícula con saldo pendiente.
+                  </p>
+                } @else {
+                  <div class="finance-semestres-list">
+                    @for (sem of fin.semestres; track sem.idMatricula) {
+                      <div class="semestre-card">
+                        <div
+                          class="semestre-card-header"
+                          role="button"
+                          tabindex="0"
+                          (click)="toggleSemestre(sem.idMatricula)"
+                          (keydown.enter)="toggleSemestre(sem.idMatricula)"
+                        >
+                          <div class="semestre-header-info">
+                            <span class="semestre-periodo-tag font-mono">{{ sem.idPeriodo }}</span>
+                            <span class="semestre-name"
+                              >{{ sem.nombrePeriodo }} &bull;
+                              {{ sem.nombreNivel || 'Nivel ' + sem.idNivel }}</span
+                            >
+                          </div>
+                          <div class="semestre-header-totals">
+                            <span
+                              class="semestre-saldo"
+                              [class.text-danger]="sem.saldoPendiente > 0"
+                            >
+                              Saldo: ${{ sem.saldoPendiente | number: '1.2-2' }}
+                            </span>
+                            <span class="semestre-chevron">
+                              {{ semestreExpandido() === sem.idMatricula ? '▲' : '▼' }}
+                            </span>
+                          </div>
+                        </div>
+
+                        @if (semestreExpandido() === sem.idMatricula) {
+                          <div class="semestre-details">
+                            <table class="fluent-subtable">
+                              <thead>
+                                <tr>
+                                  <th>Rubro</th>
+                                  <th>Valor Inicial</th>
+                                  <th>Abonado</th>
+                                  <th>Saldo</th>
+                                  <th>Estado</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (r of sem.rubros; track r.idCredito) {
+                                  <tr>
+                                    <td>{{ r.rubro }}</td>
+                                    <td>${{ r.valorInicial | number: '1.2-2' }}</td>
+                                    <td>${{ r.totalAbonado | number: '1.2-2' }}</td>
+                                    <td [class.text-danger]="r.saldoPendiente > 0">
+                                      ${{ r.saldoPendiente | number: '1.2-2' }}
+                                    </td>
+                                    <td>
+                                      <span
+                                        class="status-badge"
+                                        [class.financas-al-dia]="r.saldoPendiente === 0"
+                                        [class.financas-deuda]="r.saldoPendiente > 0"
+                                      >
+                                        {{
+                                          r.estado ||
+                                            (r.saldoPendiente === 0 ? 'PAGADO' : 'PENDIENTE')
+                                        }}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state-mini">
+                <p>No se encontraron datos financieros registrados en SIGAFI.</p>
+              </div>
+            }
+          }
+        }
+      </div>
+
+      <!-- Footer con Barra de Dictamen Rápido -->
+      <div class="drawer-footer">
+        <div class="drawer-footer-left">
+          <span class="footer-note">Resolución de Secretaría / Comisión de Titulación</span>
+        </div>
+        <div class="drawer-footer-actions">
+          <button
+            type="button"
+            class="action-btn action-btn--approve btn-footer-action"
+            (click)="dictaminarDesdeExamen('APROBAR')"
+            title="Aprobar postulación formal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Aprobar</span>
+          </button>
+
+          <button
+            type="button"
+            class="action-btn action-btn--reject btn-footer-action"
+            (click)="dictaminarDesdeExamen('RECHAZAR')"
+            title="Rechazar solicitud"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Rechazar</span>
+          </button>
+
+          <button type="button" class="btn-icon-text" (click)="cerrarExamenModal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

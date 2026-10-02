@@ -9804,9 +9804,9 @@ public partial class SigafiDbContext : DbContext
             entity.Property(e => e.IdCohorte)
                 .HasColumnType("int(11)")
                 .HasColumnName("idCohorte");
-            entity.Property(e => e.Detelle)
+            entity.Property(e => e.Detalle)
                 .HasMaxLength(50)
-                .HasColumnName("detelle");
+                .HasColumnName("detalle");
             entity.Property(e => e.DiasExtension)
                 .HasColumnType("int(11)")
                 .HasColumnName("diasExtension");
@@ -10070,9 +10070,9 @@ public partial class SigafiDbContext : DbContext
                 .HasDefaultValueSql("'1'")
                 .HasColumnType("tinyint(4)")
                 .HasColumnName("esActivo");
-            entity.Property(e => e.EsRequistoFinal)
+            entity.Property(e => e.EsRequisitoFinal)
                 .HasColumnType("tinyint(4)")
-                .HasColumnName("esRequistoFinal");
+                .HasColumnName("esRequisitoFinal");
             entity.Property(e => e.FechaDesactiva)
                 .HasColumnType("datetime")
                 .HasColumnName("fechaDesactiva");
@@ -10143,7 +10143,7 @@ public partial class SigafiDbContext : DbContext
 
             entity.Property(e => e.IdTitulResponsableEvidencia)
                 .HasColumnType("int(11)")
-                .HasColumnName("idtitulResponsableEvidecnia");
+                .HasColumnName("idResponsableEvidencia");
             entity.Property(e => e.Actualizado)
                 .HasColumnType("datetime")
                 .HasColumnName("actualizado");

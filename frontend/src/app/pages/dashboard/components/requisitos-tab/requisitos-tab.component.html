@@ -1,46 +1,46 @@
-<section class="requisitos-section">
-  <div class="requisitos-header">
-    <div class="requisitos-header-info">
-      <span class="requisitos-eyebrow">CATÁLOGO INSTITUCIONAL</span>
-      <h2 class="requisitos-title">Requisitos Maestros de Titulación</h2>
+<div class="requisitos-tab-container">
+  <!-- Header de Sección -->
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Requisitos Maestros de Titulación</h2>
+      <p class="section-subtitle">
+        Catálogo institucional de requisitos obligatorios para la titulación y asignación de
+        profesores evaluadores.
+      </p>
     </div>
-    <button type="button" class="fluent-btn-primary" (click)="nuevoRequisito.emit()">
-      + Nuevo Requisito
-    </button>
+    <div class="header-actions">
+      <button type="button" class="btn btn-primary" (click)="nuevoRequisito.emit()">
+        + Nuevo Requisito
+      </button>
+    </div>
   </div>
 
-  <div class="requisitos-box">
-    <!-- Header con Buscador y Filtro Rápido Normalizado -->
-    <div class="requisitos-box-header">
-      <div class="header-left-tools">
-        <!-- Buscador -->
-        <div class="req-search-box">
-          <svg
-            class="search-icon"
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+  <!-- Barra de Filtros Fluent -->
+  <div class="fluent-filters-card">
+    <div class="filters-grid">
+      <!-- Buscador -->
+      <div class="filter-group search-group">
+        <label for="busquedaInput" class="filter-label">Buscar por Requisito o ID</label>
+        <div class="search-input-wrapper">
           <input
+            id="busquedaInput"
             type="text"
-            class="search-input"
-            placeholder="Buscar requisito por nombre o ID..."
+            class="fluent-input"
+            placeholder="Ingrese nombre o ID del requisito..."
             [ngModel]="busqueda()"
             (ngModelChange)="onSearchChange($event)"
           />
           @if (busqueda()) {
-            <button type="button" class="search-clear-btn" (click)="onSearchChange('')">×</button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="onSearchChange('')">
+              Limpiar
+            </button>
           }
         </div>
+      </div>
 
-        <!-- Botones de Filtro Rápido de Estado -->
+      <!-- Filtro Estado -->
+      <div class="filter-group">
+        <span class="filter-label">Estado</span>
         <div class="filter-pill-group">
           <button
             type="button"
@@ -70,252 +70,257 @@
           </button>
         </div>
       </div>
-
-      <div class="header-right-meta">
-        <span class="box-counter">{{ totalFiltrados() }} mostrado(s)</span>
-      </div>
     </div>
+  </div>
 
-    @if (loading()) {
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <span>Cargando catálogo de requisitos...</span>
-      </div>
-    } @else if (requisitos().length === 0) {
-      <div class="empty-table-msg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-        </svg>
-        <p>No hay requisitos maestros registrados en el catálogo.</p>
-      </div>
-    } @else if (requisitosFiltrados().length === 0) {
-      <div class="empty-table-msg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-        >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <p>No se encontraron requisitos que coincidan con la búsqueda.</p>
-      </div>
-    } @else {
-      <div class="requisitos-table-wrapper">
-        <table class="fluent-table">
-          <thead>
+  <!-- Estado de Carga / Error / Vacío / Tabla -->
+  @if (loading()) {
+    <div
+      class="fluent-table-wrapper table-skeleton-box"
+      aria-busy="true"
+      aria-label="Cargando catálogo de requisitos"
+    >
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Nombre del Requisito</th>
+            <th>Tipo de Validación</th>
+            <th>Responsable de Carga</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of skeletonRows; track row) {
             <tr>
-              <th>NOMBRE DEL REQUISITO</th>
-              <th>TIPO DE VALIDACIÓN</th>
-              <th>RESPONSABLE DE CARGA</th>
-              <th>ESTADO</th>
-              <th class="text-right">ACCIONES</th>
+              <td><span class="skeleton-line skeleton-w-lg"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            @for (r of requisitosPaginados(); track r.idRequisitos) {
-              <tr>
-                <td>
-                  <span class="requisito-nombre">{{ r.requisito }}</span>
-                </td>
-                <td>
-                  <div class="tipo-val-cell">
-                    @if (r.esAdjunto) {
-                      <span class="tipo-tag tipo-tag--pdf">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                          ></path>
-                          <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                        <span>Archivo Digital (PDF)</span>
-                      </span>
-                    } @else {
-                      <span class="tipo-tag tipo-tag--bool">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>Validación Booleana</span>
-                      </span>
-                    }
-                  </div>
-                </td>
-                <td>
-                  <span class="responsable-badge" [class.responsable-badge--student]="r.subeAlumno">
-                    {{ r.subeAlumno ? 'Estudiante' : 'Secretaría Académica' }}
-                  </span>
-                </td>
-                <td>
-                  <span class="status-cell">
-                    <span
-                      class="status-dot"
-                      [class.status-dot--success]="r.esActivo"
-                      [class.status-dot--neutral]="!r.esActivo"
-                    ></span>
-                    <span
-                      class="status-label"
-                      [class.status-label--success]="r.esActivo"
-                      [class.status-label--neutral]="!r.esActivo"
-                    >
-                      {{ r.esActivo ? 'Activo' : 'Inactivo' }}
-                    </span>
-                  </span>
-                </td>
-                <td class="text-right">
-                  <div class="table-actions-group">
-                    <button
-                      type="button"
-                      class="table-action-btn table-action-btn--manage"
-                      title="Asignar profesores responsables de validar este requisito"
-                      (click)="gestionarResponsables.emit(r)"
-                    >
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (requisitos().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">No hay requisitos maestros</h3>
+      <p class="empty-desc">Aún no se han registrado requisitos en el catálogo institucional.</p>
+      <button type="button" class="btn btn-primary" (click)="nuevoRequisito.emit()">
+        + Crear Primer Requisito
+      </button>
+    </div>
+  } @else if (requisitosFiltrados().length === 0) {
+    <div class="state-container empty-state">
+      <h3 class="empty-title">Sin resultados de búsqueda</h3>
+      <p class="empty-desc">No se encontraron requisitos que coincidan con "{{ busqueda() }}".</p>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="setFiltroEstado('TODOS'); onSearchChange('')"
+      >
+        Restablecer Filtros
+      </button>
+    </div>
+  } @else {
+    <!-- Tabla Fluent -->
+    <div class="fluent-table-wrapper">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th>Nombre del Requisito</th>
+            <th>Tipo de Validación</th>
+            <th>Responsable de Carga</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of requisitosPaginados(); track r.idRequisitos) {
+            <tr>
+              <td>
+                <span class="requisito-nombre">{{ r.requisito }}</span>
+              </td>
+              <td>
+                <div class="tipo-val-cell">
+                  @if (r.esAdjunto) {
+                    <span class="tipo-tag tipo-tag--pdf">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="13"
-                        height="13"
+                        width="12"
+                        height="12"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
                       >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
                       </svg>
-                      <span>Docentes</span>
-                    </button>
-                    <button
-                      type="button"
-                      class="table-action-btn"
-                      [class.table-action-btn--deactivate]="r.esActivo"
-                      [class.table-action-btn--activate]="!r.esActivo"
-                      (click)="toggleEstado.emit(r)"
+                      <span>Archivo Digital (PDF)</span>
+                    </span>
+                  } @else {
+                    <span class="tipo-tag tipo-tag--bool">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Validación Booleana</span>
+                    </span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span class="responsable-badge" [class.responsable-badge--student]="r.subeAlumno">
+                  {{ r.subeAlumno ? 'Estudiante' : 'Secretaría Académica' }}
+                </span>
+              </td>
+              <td>
+                <span class="status-cell">
+                  <span
+                    class="status-dot"
+                    [class.status-dot--success]="r.esActivo"
+                    [class.status-dot--neutral]="!r.esActivo"
+                  ></span>
+                  <span
+                    class="status-label"
+                    [class.status-label--success]="r.esActivo"
+                    [class.status-label--neutral]="!r.esActivo"
+                  >
+                    {{ r.esActivo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="table-actions-group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Editar nombre y configuración de este requisito"
+                    (click)="editarRequisito.emit(r)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
                     >
-                      {{ r.esActivo ? 'Desactivar' : 'Activar' }}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    <span>Editar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Asignar profesores responsables de validar este requisito"
+                    (click)="gestionarResponsables.emit(r)"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Docentes</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    [class.btn-deactivate]="r.esActivo"
+                    [class.btn-activate]="!r.esActivo"
+                    (click)="toggleEstado.emit(r)"
+                  >
+                    {{ r.esActivo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginador Fluent -->
+    <div class="fluent-pagination">
+      <div class="pagination-info">
+        Mostrando {{ (paginaActual() - 1) * tamanoPagina() + 1 }} a
+        {{
+          paginaActual() * tamanoPagina() > totalFiltrados()
+            ? totalFiltrados()
+            : paginaActual() * tamanoPagina()
+        }}
+        de {{ totalFiltrados() }} requisitos
       </div>
 
-      <!-- Paginador Integrado -->
-      <footer class="table-pagination">
-        <div class="pagination-left">
-          <span class="pagination-range-text">
-            Mostrando <strong>{{ rangoInicio() }}</strong
-            >–<strong>{{ rangoFin() }}</strong> de
-            <strong>{{ totalFiltrados() }}</strong> requisitos
-          </span>
-
-          <div class="page-size-selector">
-            <span class="size-label">Por pág:</span>
-            <select
-              class="size-select"
-              [value]="tamanoPagina()"
-              (change)="onTamanoPaginaChange($event)"
-              aria-label="Registros por página"
-            >
-              <option [value]="10">10</option>
-              <option [value]="20">20</option>
-              <option [value]="50">50</option>
-            </select>
-          </div>
+      <div class="pagination-controls">
+        <div class="page-size-selector">
+          <label for="pageSizeSelect">Por página:</label>
+          <select
+            id="pageSizeSelect"
+            [ngModel]="tamanoPagina()"
+            (ngModelChange)="cambiarTamanoPagina($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
         </div>
 
-        <nav class="pagination-nav" aria-label="Paginación de resultados">
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === 1"
+          (click)="irAPagina(paginaActual() - 1)"
+        >
+          Anterior
+        </button>
+
+        @for (p of paginasDisponibles(); track p) {
           <button
             type="button"
-            class="nav-btn nav-btn--prev"
-            [disabled]="paginaActual() <= 1"
-            (click)="irAPagina(paginaActual() - 1)"
-            aria-label="Página anterior"
+            class="page-btn"
+            [class.active]="p === paginaActual()"
+            (click)="irAPagina(p)"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            <span>Anterior</span>
+            {{ p }}
           </button>
+        }
 
-          <div class="page-numbers">
-            @for (p of paginasDisponibles(); track p) {
-              <button
-                type="button"
-                class="num-btn"
-                [class.active]="p === paginaActual()"
-                (click)="irAPagina(p)"
-              >
-                {{ p }}
-              </button>
-            }
-          </div>
-
-          <button
-            type="button"
-            class="nav-btn nav-btn--next"
-            [disabled]="paginaActual() >= totalPaginas()"
-            (click)="irAPagina(paginaActual() + 1)"
-            aria-label="Página siguiente"
-          >
-            <span>Siguiente</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        </nav>
-      </footer>
-    }
-  </div>
-</section>
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="paginaActual() === totalPaginas()"
+          (click)="irAPagina(paginaActual() + 1)"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+  }
+</div>

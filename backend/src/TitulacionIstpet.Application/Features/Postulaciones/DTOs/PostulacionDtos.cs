@@ -54,7 +54,10 @@ public sealed record PostulacionResumenDto(
     bool EsActivo,
     bool? EsCambioModalidad,
     int TotalRequisitos,
-    int TotalRequisitosCompletados
+    int TotalRequisitosCompletados,
+    bool? NoAdeuda = null,
+    decimal? SaldoPendiente = null,
+    bool? TieneRestricciones = null
 );
 
 public sealed record PostulacionDetalleDto(
@@ -76,7 +79,10 @@ public sealed record PostulacionDetalleDto(
     bool EsActivo,
     bool? EsCambioModalidad,
     IReadOnlyList<PostulacionRequisitoDetalleDto> Requisitos,
-    string? ObservacionDictamen = null
+    string? ObservacionDictamen = null,
+    bool? NoAdeuda = null,
+    decimal? SaldoPendiente = null,
+    bool? TieneRestricciones = null
 );
 
 public sealed record PostulacionRequisitoDetalleDto(
@@ -96,7 +102,8 @@ public sealed record PostulacionRequisitoDetalleDto(
     string? Observaciones = null,
     string? NombreEvaluador = null,
     string? CedulaEvaluador = null,
-    DateTime? FechaEvaluacion = null
+    DateTime? FechaEvaluacion = null,
+    bool EsRequisitoFinal = false
 );
 
 public sealed record EstadoPostulacionDto(

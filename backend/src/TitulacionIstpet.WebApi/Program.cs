@@ -8,6 +8,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((ctx, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration));
 
+var staticPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+if (!Directory.Exists(staticPath))
+{
+    Directory.CreateDirectory(staticPath);
+}
+var evidenciasPath = Path.Combine(staticPath, "evidencias");
+if (!Directory.Exists(evidenciasPath))
+{
+    Directory.CreateDirectory(evidenciasPath);
+}
+builder.Environment.WebRootPath = staticPath;
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddWebApi(builder.Configuration);
@@ -25,18 +37,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(WebApiServiceCollectionExtensions.PoliticaCorsFrontend);
 
-var staticPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
-if (!Directory.Exists(staticPath))
-{
-    Directory.CreateDirectory(staticPath);
-}
-var evidenciasPath = Path.Combine(staticPath, "evidencias");
-if (!Directory.Exists(evidenciasPath))
-{
-    Directory.CreateDirectory(evidenciasPath);
-}
-
 app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(evidenciasPath),
+    RequestPath = "/evidencias",
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    }
+});
 
 if (!app.Environment.IsDevelopment())
 {

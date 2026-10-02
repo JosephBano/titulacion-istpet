@@ -105,4 +105,11 @@ describe('PostulacionesBandejaComponent Unit Tests', () => {
       expect(carreraLimpiada).toBe(true);
     });
   });
+
+  it('debe contener 6 elementos en el arreglo de skeletonItems para el estado de carga', () => {
+    TestBed.runInInjectionContext(() => {
+      const comp = new PostulacionesBandejaComponent();
+      expect(comp.skeletonItems.length).toBe(6);
+    });
+  });
 });

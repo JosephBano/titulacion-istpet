@@ -87,6 +87,57 @@
               <span class="nav-label">Bandeja Postulaciones</span>
               <span class="sidebar-counter">{{ postulacionesTotal() }}</span>
             </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'egresados'"
+              (click)="setActiveTab('egresados')"
+              title="Pendientes de Egreso"
+            >
+              <span class="nav-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </span>
+              <span class="nav-label">Pendientes de Egreso</span>
+            </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'reportes'"
+              (click)="setActiveTab('reportes')"
+              title="Reportes Institucionales"
+            >
+              <span class="nav-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </span>
+              <span class="nav-label">Reportes Institucionales</span>
+            </button>
           </nav>
         </div>
 
@@ -293,216 +344,350 @@
       />
 
       <!-- 1. Banner Institucional de Bienvenida: Solo en Vista General (Resumen) -->
-      @if (activeTab() === 'resumen') {
-        <header class="fluent-banner-card">
-          @if (currentUser(); as user) {
-            <div class="banner-info">
-              <span class="banner-eyebrow">
+      <!-- Encabezado de Página Unificado Fluent 2 -->
+      <header class="fluent-page-header">
+        <div class="page-header-left">
+          <span class="page-header-breadcrumb">
+            Titulación ISTPET &nbsp;/&nbsp;
+            @switch (activeTab()) {
+              @case ('resumen') {
                 {{
                   isEstudiante()
-                    ? 'PORTAL DEL POSTULANTE A TITULACIÓN'
+                    ? 'Portal del Postulante'
                     : isAdmin()
-                      ? 'PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL'
-                      : 'PANEL DOCENTE DE TUTORÍA Y EVALUACIÓN'
+                      ? 'Panel Institucional de Gobernanza y Control'
+                      : 'Panel Docente de Tutoría y Evaluación'
                 }}
-              </span>
-              <h1 class="banner-title">Bienvenido(a), {{ user.nombre }}</h1>
-              <p class="banner-description">
-                {{
-                  isEstudiante()
-                    ? 'Gestione su postulación, consulte requisitos y siga en tiempo real su avance académico de graduación.'
-                    : isAdmin()
-                      ? 'Administración Global del Sistema de Titulación — Instituto Tecnológico Superior Traversari (ISTPET)'
-                      : 'Seguimiento de estudiantes a cargo, revisión de avances de integración curricular y exámenes complexivos.'
-                }}
-              </p>
+              }
+              @case ('postulaciones') {
+                Gestión de Postulantes
+              }
+              @case ('egresados') {
+                Pendientes de Egreso
+              }
+              @case ('reportes') {
+                Reportes Oficiales
+              }
+              @case ('cohortes') {
+                Planificación de Convocatorias
+              }
+              @case ('requisitos') {
+                Catálogos Maestros
+              }
+              @case ('modalidades') {
+                Modalidades de Grado
+              }
+              @case ('evaluacion') {
+                Validación y Dictamen
+              }
+              @case ('postulacion') {
+                Portal del Postulante
+              }
+              @case ('guia') {
+                Documentación Oficial
+              }
+              @case ('cronograma') {
+                Cronograma Institucional
+              }
+              @default {
+                Módulo Activo
+              }
+            }
+          </span>
+          <h1 class="page-header-title">
+            @switch (activeTab()) {
+              @case ('resumen') {
+                Bienvenido(a), {{ currentUser()?.nombre }}
+                <span class="page-header-badge">{{ userRolesFormatted() }}</span>
+              }
+              @case ('postulaciones') {
+                Bandeja de Postulaciones
+                <span class="page-header-badge">{{ postulacionesTotal() }} registradas</span>
+              }
+              @case ('egresados') {
+                Estudiantes Pendientes de Egreso
+              }
+              @case ('reportes') {
+                Centro de Reportes y Documentos Oficiales
+              }
+              @case ('cohortes') {
+                Convocatorias y Cortes
+              }
+              @case ('requisitos') {
+                Requisitos Maestros
+                <span class="page-header-badge"
+                  >{{ requisitosMaestros().length }} configurados</span
+                >
+              }
+              @case ('modalidades') {
+                Modalidades y Matriz
+                <span class="page-header-badge">{{ modalidadesMaestras().length }} activas</span>
+              }
+              @case ('evaluacion') {
+                Validación de Requisitos Asignados
+                <span class="page-header-badge"
+                  >{{ requisitosDocentePendientes().length }} pendientes</span
+                >
+              }
+              @case ('postulacion') {
+                Mi Proceso de Titulación
+              }
+              @case ('guia') {
+                Guía Oficial de Titulación
+              }
+              @case ('cronograma') {
+                Calendario Académico {{ currentYear }}
+              }
+              @default {
+                Titulación ISTPET
+              }
+            }
+          </h1>
+        </div>
+
+        <div class="page-header-right">
+          <div class="header-tag header-date-tag">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>{{ fechaHoyTexto() }}</span>
+          </div>
+          @if (carreraSeleccionada(); as carrera) {
+            <div class="header-tag header-carrera-tag" [title]="carrera.nombreCarrera">
+              <span class="carrera-indicator-dot"></span>
+              <span class="carrera-tag-name">{{ carrera.nombreCarrera }}</span>
             </div>
           }
-        </header>
-      } @else {
-        <!-- 2. Encabezado de Página Compacto para Vistas Operativas (Ahorro de ~180px verticales) -->
-        <header class="fluent-page-header">
-          <div class="page-header-left">
-            <span class="page-header-breadcrumb">
-              Titulación ISTPET &nbsp;/&nbsp;
-              @switch (activeTab()) {
-                @case ('postulaciones') {
-                  Gestión de Postulantes
-                }
-                @case ('cohortes') {
-                  Planificación de Convocatorias
-                }
-                @case ('requisitos') {
-                  Catálogos Maestros
-                }
-                @case ('modalidades') {
-                  Modalidades de Grado
-                }
-                @case ('evaluacion') {
-                  Validación y Dictamen
-                }
-                @case ('postulacion') {
-                  Portal del Postulante
-                }
-                @case ('guia') {
-                  Documentación Oficial
-                }
-                @case ('cronograma') {
-                  Cronograma Institucional
-                }
-                @default {
-                  Módulo Activo
-                }
-              }
-            </span>
-            <h1 class="page-header-title">
-              @switch (activeTab()) {
-                @case ('postulaciones') {
-                  Bandeja de Postulaciones
-                  <span class="page-header-badge">{{ postulacionesTotal() }} registradas</span>
-                }
-                @case ('cohortes') {
-                  Convocatorias y Cortes
-                }
-                @case ('requisitos') {
-                  Requisitos Maestros
-                  <span class="page-header-badge"
-                    >{{ requisitosMaestros().length }} configurados</span
-                  >
-                }
-                @case ('modalidades') {
-                  Modalidades y Matriz
-                  <span class="page-header-badge">{{ modalidadesMaestras().length }} activas</span>
-                }
-                @case ('evaluacion') {
-                  Validación de Requisitos Asignados
-                  <span class="page-header-badge"
-                    >{{ requisitosDocentePendientes().length }} pendientes</span
-                  >
-                }
-                @case ('postulacion') {
-                  Mi Proceso de Titulación
-                }
-                @case ('guia') {
-                  Guía Oficial de Titulación
-                }
-                @case ('cronograma') {
-                  Calendario Académico {{ currentYear }}
-                }
-                @default {
-                  Titulación ISTPET
-                }
-              }
-            </h1>
-          </div>
-        </header>
-      }
+        </div>
+      </header>
 
       <!-- ============================================================ -->
       <!-- VISTAS DEL ADMINISTRADOR                                     -->
       <!-- ============================================================ -->
 
-      <!-- 1. PESTAÑA: VISTA GENERAL (RESUMEN & KPIS EN VIVO) -->
+      <!-- 1. PESTAÑA: VISTA GENERAL (PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL) -->
       @if (isAdmin() && activeTab() === 'resumen') {
-        <section class="fluent-kpi-grid">
-          <app-kpi-card
-            eyebrow="TOTAL POSTULACIONES"
-            [value]="postulacionesTotal()"
-            [subtext]="'Período: ' + periodoNombreAmigable()"
-          />
-          <app-kpi-card
-            eyebrow="POSTULACIONES APROBADAS"
-            [value]="totalAprobadas()"
-            subtext="Habilitados para proceso final"
-          />
-          <app-kpi-card
-            eyebrow="EN REVISIÓN / OBSERVADAS"
-            [value]="totalEnRevision()"
-            subtext="Pendientes de dictamen"
-          />
-          <app-kpi-card
-            eyebrow="ESTADO DE CONVOCATORIA"
-            [value]="
-              convocatoriaActiva()?.estaVigenteCorte
-                ? 'Corte Abierto (Vigente)'
-                : convocatoriaActiva()
-                  ? 'Corte Cerrado'
-                  : 'Sin Convocatoria'
-            "
-            [subtext]="convocatoriaActiva()?.detalle || 'Configure un período'"
-            valueFontSize="1.1rem"
-          />
+        <!-- HERO / BANNER DE ESTADO DEL CICLO ACADÉMICO -->
+        <section class="overview-hero-card">
+          <div class="overview-hero-content">
+            <div class="overview-hero-main">
+              <div class="overview-hero-status">
+                <span
+                  class="status-indicator-dot"
+                  [class.dot-success]="convocatoriaActiva()?.estaVigenteCorte"
+                  [class.dot-warning]="
+                    convocatoriaActiva() && !convocatoriaActiva()?.estaVigenteCorte
+                  "
+                  [class.dot-neutral]="!convocatoriaActiva()"
+                ></span>
+                <span class="overview-hero-badge">
+                  {{
+                    convocatoriaActiva()?.estaVigenteCorte
+                      ? 'CONVOCATORIA VIGENTE'
+                      : convocatoriaActiva()
+                        ? 'CORTE CERRADO'
+                        : 'SIN CONVOCATORIA ACTIVA'
+                  }}
+                </span>
+                @if (convocatoriaActiva()?.idPeriodo) {
+                  <span class="overview-hero-period-tag">{{
+                    convocatoriaActiva()?.idPeriodo
+                  }}</span>
+                }
+              </div>
+
+              <h2 class="overview-hero-title">
+                {{ periodoNombreAmigable() }}
+              </h2>
+              <p class="overview-hero-subtitle">
+                {{
+                  convocatoriaActiva()?.detalle ||
+                    'No existe una convocatoria activa configurada actualmente para el instituto.'
+                }}
+              </p>
+
+              <!-- Métricas del Ciclo Activo -->
+              <div class="overview-hero-meta-grid">
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Fecha Apertura</span>
+                  <span class="hero-meta-value">{{
+                    formatearFechaHumana(
+                      convocatoriaActiva()?.fechaInicio || resumenGeneral()?.fechaInicioCorte
+                    )
+                  }}</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Fecha Límite Corte</span>
+                  <span class="hero-meta-value">{{
+                    formatearFechaHumana(
+                      convocatoriaActiva()?.fechaFin || resumenGeneral()?.fechaFinCorte
+                    )
+                  }}</span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Tiempo Restante</span>
+                  <span class="hero-meta-value">
+                    @if (
+                      convocatoriaActiva()?.estaVigenteCorte &&
+                      (resumenGeneral()?.diasRestantesCorte ?? 0) > 0
+                    ) {
+                      {{ resumenGeneral()?.diasRestantesCorte }} días de corte
+                    } @else if (convocatoriaActiva()?.estaVigenteCorte) {
+                      Último día de vigencia
+                    } @else {
+                      Convocatoria finalizada
+                    }
+                  </span>
+                </div>
+                <div class="hero-meta-item">
+                  <span class="hero-meta-label">Carreras Habilitadas</span>
+                  <span class="hero-meta-value">
+                    {{ resumenGeneral()?.totalCarrerasHabilitadas ?? carrerasDisponibles().length }}
+                    carreras
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <!-- GRIDS DE ACCESO DIRECTO -->
-        <section class="fluent-section">
-          <div class="section-header">
-            <span class="section-eyebrow">MÓDULOS DE ADMINISTRACIÓN</span>
-            <h2 class="section-title">Servicios del Proceso de Titulación</h2>
+        <!-- KPI GRID EJECUTIVO (5 Métricas) -->
+        <section class="overview-kpi-grid">
+          <div
+            class="overview-kpi-card"
+            (click)="irAPostulacionesConFiltro()"
+            role="button"
+            tabindex="0"
+          >
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">TOTAL POSTULACIONES</span>
+              <span class="kpi-icon-pill">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </span>
+            </div>
+            <span class="kpi-value">{{
+              resumenGeneral()?.totalPostulaciones ?? postulacionesTotal()
+            }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Registradas en el ciclo lectivo</span>
+            </div>
           </div>
 
-          <div class="fluent-modules-grid">
-            <button
-              type="button"
-              class="fluent-module-card"
-              (click)="setActiveTab('postulaciones')"
-            >
-              <div class="card-header">
-                <h3 class="card-title">Bandeja de Postulaciones</h3>
-              </div>
-              <p class="card-text">
-                Revisión formal, verificación de requisitos cargados y emisión de dictámenes
-                académicos.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--info"
-                  >{{ postulacionesTotal() }} Registradas</span
-                >
-              </div>
-            </button>
+          <div
+            class="overview-kpi-card kpi-card--success"
+            (click)="irAPostulacionesConFiltro('APROB')"
+            role="button"
+            tabindex="0"
+          >
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">DICTAMINADAS APROBADAS</span>
+              <span class="kpi-badge-pct kpi-badge-pct--success">{{ tasaAprobacion() }}%</span>
+            </div>
+            <span class="kpi-value">{{
+              resumenGeneral()?.totalAprobadas ?? totalAprobadas()
+            }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Habilitadas para titulación</span>
+            </div>
+          </div>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('cohortes')">
-              <div class="card-header">
-                <h3 class="card-title">Convocatorias y Cortes</h3>
-              </div>
-              <p class="card-text">
-                Apertura automatizada de períodos lectivos, definición de fechas de corte y
-                habilitación de carreras.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral">{{
-                  convocatoriaActiva()?.idPeriodo || 'Configurar'
-                }}</span>
-              </div>
-            </button>
+          <div
+            class="overview-kpi-card kpi-card--warning"
+            (click)="irAPostulacionesConFiltro('REVIS')"
+            role="button"
+            tabindex="0"
+          >
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">EN REVISIÓN / PENDIENTES</span>
+              <span class="kpi-badge-pct kpi-badge-pct--warning">{{ tasaEnRevision() }}%</span>
+            </div>
+            <span class="kpi-value">{{
+              resumenGeneral()?.totalEnRevision ?? totalEnRevision()
+            }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext">Pendientes de dictamen docente/admin</span>
+            </div>
+          </div>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('requisitos')">
-              <div class="card-header">
-                <h3 class="card-title">Requisitos Maestros</h3>
-              </div>
-              <p class="card-text">
-                Catálogo general de documentos requeridos (Cédula, Inglés, Vinculación, Prácticas).
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral"
-                  >{{ requisitosMaestros().length }} Configurados</span
-                >
-              </div>
-            </button>
+          <div
+            class="overview-kpi-card kpi-card--error"
+            (click)="irAPostulacionesConFiltro('OBSERV')"
+            role="button"
+            tabindex="0"
+          >
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">OBSERVADAS & RECHAZADAS</span>
+              <span class="kpi-badge-pct kpi-badge-pct--error"
+                >{{ tasaObservadas() + tasaRechazadas() }}%</span
+              >
+            </div>
+            <span class="kpi-value">{{ totalObservadasYRechazadas() }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext"
+                >{{ resumenGeneral()?.totalObservadas ?? 0 }} observadas ·
+                {{ resumenGeneral()?.totalRechazadas ?? 0 }} rechazadas</span
+              >
+            </div>
+          </div>
 
-            <button type="button" class="fluent-module-card" (click)="setActiveTab('modalidades')">
-              <div class="card-header">
-                <h3 class="card-title">Modalidades y Matriz</h3>
-              </div>
-              <p class="card-text">
-                Modalidades reconocidas institucionalmente y asociación de requisitos por modalidad.
-              </p>
-              <div class="card-footer">
-                <span class="fluent-badge fluent-badge--neutral"
-                  >{{ modalidadesMaestras().length }} Modalidades</span
+          <div
+            class="overview-kpi-card kpi-card--info"
+            (click)="setActiveTab('requisitos')"
+            role="button"
+            tabindex="0"
+          >
+            <div class="kpi-top">
+              <span class="kpi-eyebrow">CATÁLOGOS INSTITUCIONALES</span>
+              <span class="kpi-icon-pill">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
                 >
-              </div>
-            </button>
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+              </span>
+            </div>
+            <span class="kpi-value">{{
+              resumenGeneral()?.totalRequisitosActivos ?? requisitosMaestros().length
+            }}</span>
+            <div class="kpi-bottom">
+              <span class="kpi-subtext"
+                >Requisitos ·
+                {{ resumenGeneral()?.totalModalidadesActivas ?? modalidadesMaestras().length }}
+                modalidades</span
+              >
+            </div>
           </div>
         </section>
       }
@@ -530,6 +715,16 @@
         />
       }
 
+      <!-- PESTAÑA: ALUMNOS PENDIENTES DE EGRESO -->
+      @if (isAdmin() && activeTab() === 'egresados') {
+        <app-egresados-tab />
+      }
+
+      <!-- PESTAÑA: REPORTES INSTITUCIONALES -->
+      @if (isAdmin() && activeTab() === 'reportes') {
+        <app-reportes-tab [currentUser]="currentUser()" />
+      }
+
       <!-- 3. PESTAÑA: CONVOCATORIAS Y CORTES -->
       @if (isAdmin() && activeTab() === 'cohortes') {
         <app-cohortes-tab
@@ -547,6 +742,7 @@
           [requisitos]="requisitosMaestros()"
           [loading]="configCargando()"
           (nuevoRequisito)="nuevoRequisitoModalVisible.set(true)"
+          (editarRequisito)="abrirEditarRequisito($event)"
           (toggleEstado)="toggleRequisitoEstado($event)"
           (gestionarResponsables)="abrirGestionResponsables($event)"
         />
@@ -558,6 +754,7 @@
           [modalidades]="modalidadesMaestras()"
           [loading]="configCargando()"
           (nuevaModalidad)="nuevaModalidadModalVisible.set(true)"
+          (editarModalidad)="abrirEditarModalidad($event)"
           (abrirMatriz)="abrirMatriz($event)"
           (toggleEstado)="toggleModalidadEstado($event)"
         />
@@ -572,84 +769,241 @@
             [portal]="portalEstudiante()"
             [modalidadSeleccionada]="modalidadSeleccionada()"
             [postulando]="postulando()"
+            [subiendoRequisitoId]="subiendoRequisitoEstudianteId()"
             [periodoNombreAmigable]="periodoNombreAmigable()"
             (modalidadSelect)="modalidadSeleccionada.set($event)"
             (enviarPostulacion)="enviarPostulacion()"
+            (subirDocumento)="onSubirDocumentoEstudiante($event)"
           />
         }
 
         @if (activeTab() === 'guia') {
-          <section class="fluent-section">
+          <section class="fluent-section guia-section-official">
             <div class="section-header">
-              <span class="section-eyebrow">REGLAMENTO Y NORMATIVA</span>
+              <span class="section-eyebrow">REGLAMENTO Y NORMATIVA ACADÉMICA</span>
               <h2 class="section-title">Guía Oficial de Titulación ISTPET</h2>
+              <p class="section-subtitle">
+                El Instituto Superior Tecnológico Pelileo contempla las siguientes modalidades
+                oficiales para la culminación de sus estudios:
+              </p>
             </div>
-            <div class="guide-content-box">
-              <h3>1. Examen Complexivo</h3>
-              <p>
-                Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
-                conocimiento de la carrera) y una prueba práctica de resolución de caso o desarrollo
-                técnico.
-              </p>
 
-              <h3>2. Trabajo de Integración Curricular (TIC / Tesis)</h3>
-              <p>
-                Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante el
-                período académico, finalizando con la defensa oral ante tribunal.
-              </p>
+            <div class="guide-modalities-grid">
+              <!-- Modalidad 1: Examen Complexivo -->
+              <div class="guide-modality-card">
+                <div class="guide-modality-header">
+                  <div class="guide-modality-number">1</div>
+                  <div class="guide-modality-info">
+                    <span class="guide-modality-type">Evaluación Teórico-Práctica</span>
+                    <h3 class="guide-modality-title">Examen Complexivo</h3>
+                  </div>
+                </div>
+                <div class="guide-modality-body">
+                  <p class="guide-modality-desc">
+                    Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
+                    conocimiento de la carrera) y una prueba práctica de resolución de caso o
+                    desarrollo técnico.
+                  </p>
+                </div>
+              </div>
 
-              <h3>3. Artículo Científico</h3>
-              <p>
-                Redacción de un artículo de investigación científica original bajo formato
-                institucional con carta de aceptación o envío a revista indexada.
-              </p>
+              <!-- Modalidad 2: TIC / Tesis -->
+              <div class="guide-modality-card">
+                <div class="guide-modality-header">
+                  <div class="guide-modality-number">2</div>
+                  <div class="guide-modality-info">
+                    <span class="guide-modality-type">Proyecto de Titulación</span>
+                    <h3 class="guide-modality-title">
+                      Trabajo de Integración Curricular (TIC / Tesis)
+                    </h3>
+                  </div>
+                </div>
+                <div class="guide-modality-body">
+                  <p class="guide-modality-desc">
+                    Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante
+                    el período académico, finalizando con la defensa oral ante tribunal.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Modalidad 3: Artículo Científico -->
+              <div class="guide-modality-card">
+                <div class="guide-modality-header">
+                  <div class="guide-modality-number">3</div>
+                  <div class="guide-modality-info">
+                    <span class="guide-modality-type">Investigación y Publicación</span>
+                    <h3 class="guide-modality-title">Artículo Científico</h3>
+                  </div>
+                </div>
+                <div class="guide-modality-body">
+                  <p class="guide-modality-desc">
+                    Redacción de un artículo de investigación científica original bajo formato
+                    institucional con carta de aceptación o envío a revista indexada.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
         }
 
         @if (activeTab() === 'cronograma') {
-          <section class="fluent-section">
-            <div class="section-header">
-              <span class="section-eyebrow">CALENDARIO ACADÉMICO</span>
-              <h2 class="section-title">Fechas Clave de Titulación {{ currentYear }}</h2>
+          @let crono = cronogramaEstudiante();
+          <section class="fluent-section cronograma-section-student">
+            <!-- Header con información de la cohorte -->
+            <div class="cronograma-hero-header">
+              <div class="cronograma-hero-titles">
+                <span class="section-eyebrow">CALENDARIO ACADÉMICO OFICIAL ISTPET</span>
+                <h2 class="section-title">Cronograma de Titulación y Fechas Clave</h2>
+                <p class="section-subtitle">
+                  {{ crono.detalleConvocatoria }} — Consulte los plazos oficiales de postulación,
+                  validación documental, ejecución académica y sustentaciones.
+                </p>
+              </div>
+              <div class="cronograma-hero-badge-wrap">
+                <span class="cronograma-cohort-badge">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ periodoNombreAmigable() }}
+                </span>
+              </div>
             </div>
-            <div class="fluent-table-wrapper">
-              <table class="fluent-table">
-                <thead>
-                  <tr>
-                    <th>FASE</th>
-                    <th>ACTIVIDAD</th>
-                    <th>FECHA ESTIMADA</th>
-                    <th>ESTADO</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Fase 1</td>
-                    <td>Postulación en línea y recepción de expedientes</td>
-                    <td>01 al 30 de Septiembre</td>
-                    <td><span class="fluent-badge fluent-badge--success">En Curso</span></td>
-                  </tr>
-                  <tr>
-                    <td>Fase 2</td>
-                    <td>Validación documental por Secretaría</td>
-                    <td>01 al 10 de Octubre</td>
-                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                  </tr>
-                  <tr>
-                    <td>Fase 3</td>
-                    <td>Desarrollo de Examen Complexivo y Tutorías</td>
-                    <td>15 de Octubre al 30 de Noviembre</td>
-                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                  </tr>
-                  <tr>
-                    <td>Fase 4</td>
-                    <td>Defensas de Grado y Asentamiento de Actas</td>
-                    <td>Diciembre {{ currentYear }}</td>
-                    <td><span class="fluent-badge fluent-badge--neutral">Programado</span></td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <!-- Stepper / Grid de Fases Dinámicas del Cronograma -->
+            <div class="cronograma-timeline-grid">
+              @for (f of crono.fases; track f.fase) {
+                <div class="timeline-phase-card" [class.phase-card--active]="f.esActiva">
+                  <div class="phase-card-top">
+                    <div class="phase-number-badge">{{ f.fase }}</div>
+                    <span class="phase-status-pill" [ngClass]="f.estadoClase">
+                      @if (f.esActiva) {
+                        <span class="pulse-dot"></span>
+                      }
+                      {{ f.estado }}
+                    </span>
+                  </div>
+                  <div class="phase-card-content">
+                    <span class="phase-stage-tag">{{ f.etiqueta }}</span>
+                    <h3 class="phase-title">{{ f.titulo }}</h3>
+                    <div class="phase-date-box">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      @if (f.fechaInicio && f.fechaFin) {
+                        <span
+                          >{{ f.fechaInicio | date: 'dd MMM yyyy' }} —
+                          {{ f.fechaFin | date: 'dd MMM yyyy' }} ({{ f.duracionDias }} días)</span
+                        >
+                      } @else {
+                        <span>{{ f.rangoTexto }}</span>
+                      }
+                    </div>
+                    <p class="phase-desc">{{ f.descripcion }}</p>
+                  </div>
+                  <div class="phase-card-footer">
+                    <span class="phase-milestone-label">Hito clave:</span>
+                    <span class="phase-milestone-text">{{ f.hito }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Prórroga Extraordinaria (si aplica según convocatoria) -->
+            @if (crono.prorroga) {
+              <div class="cronograma-prorroga-banner">
+                <div class="prorroga-badge-wrap">
+                  <span class="phase-stage-tag">PERÍODO EXTRAORDINARIO</span>
+                  <strong class="prorroga-title">Plazo de Gracia / Prórroga Reglamentaria</strong>
+                </div>
+                <div class="prorroga-body">
+                  <div class="phase-date-box">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span
+                      >{{ crono.prorroga.fechaInicio | date: 'dd MMM yyyy' }} —
+                      {{ crono.prorroga.fechaFin | date: 'dd MMM yyyy' }} ({{
+                        crono.prorroga.diasExtension
+                      }}
+                      días de extensión)</span
+                    >
+                  </div>
+                  <p class="phase-desc">
+                    Período adicional habilitado para culminación de trabajos con previa aprobación
+                    de la Comisión de Titulación conforme al RRA.
+                  </p>
+                </div>
+              </div>
+            }
+
+            <!-- Panel de Notificaciones y Recomendaciones Académicas -->
+            <div class="cronograma-guidelines-box">
+              <div class="guidelines-icon-col">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="guidelines-content-col">
+                <h4 class="guidelines-title">Recomendaciones Importantes del Cronograma</h4>
+                <div class="guidelines-items-grid">
+                  <div class="guideline-item">
+                    <strong>Puntualidad en Entregas:</strong>
+                    <span
+                      >El sistema cerrará automáticamente las postulaciones al vencer la fecha
+                      límite ordinaria de la cohorte.</span
+                    >
+                  </div>
+                  <div class="guideline-item">
+                    <strong>Requisitos Finales:</strong>
+                    <span
+                      >Los documentos como suficiencia de idioma y vinculación deben estar validados
+                      antes del inicio de las Defensas de Grado.</span
+                    >
+                  </div>
+                  <div class="guideline-item">
+                    <strong>Prórroga Reglamentaria:</strong>
+                    <span
+                      >En caso de requerir prórroga académica, esta debe solicitarse formalmente
+                      ante la Comisión conforme al RRA.</span
+                    >
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         }
@@ -719,6 +1073,7 @@
     [visible]="aperturaModalVisible()"
     (modalClose)="aperturaModalVisible.set(false)"
     (confirm)="aperturarPeriodo($event)"
+    (nuevaModalidad)="nuevaModalidadModalVisible.set(true)"
   />
 
   <!-- 2. Drawer de Nuevo Requisito Maestro -->
@@ -755,71 +1110,106 @@
 
       <div class="req-section-divider"></div>
 
-      <!-- Configuración Fila por Fila (Una opción por línea con mensaje claro) -->
+      <!-- Configuración Fila por Fila (Opciones Mutuamente Excluyentes) -->
       <div class="req-options-stack">
-        <span class="req-options-header">MODALIDAD DE ENTREGA</span>
+        <span class="req-options-header">RESPONSABLE Y ORIGEN DEL REQUISITO</span>
 
-        <!-- Fila 1: Archivo Adjunto (PDF) -->
-        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esAdjunto">
-          <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().esAdjunto"
-          />
-          <div class="req-option-info">
-            <span class="req-option-title">Requiere adjuntar documento (PDF)</span>
-            <span class="req-option-desc"
-              >El postulante o responsable debe subir un archivo digital para revisión.</span
-            >
-          </div>
-        </label>
-
-        <!-- Fila 2: Validación Directa Booleana -->
-        <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esBool">
-          <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().esBool"
-          />
-          <div class="req-option-info">
-            <span class="req-option-title">Validación directa (Cumple / No adeuda)</span>
-            <span class="req-option-desc"
-              >Sin archivo adjunto; se registra directamente como apto o exonerado.</span
-            >
-          </div>
-        </label>
-
-        <span class="req-options-header" style="margin-top: 6px">RESPONSABLE Y VISIBILIDAD</span>
-
-        <!-- Fila 3: Carga Estudiante -->
+        <!-- Fila 1: Carga el Estudiante (Excluyente) -->
         <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeAlumno">
           <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().subeAlumno"
+            type="radio"
+            name="responsableRequisito"
+            class="req-option-radio"
+            [checked]="nuevoRequisitoForm().subeAlumno"
+            (change)="setResponsableRequisito('estudiante')"
           />
           <div class="req-option-info">
-            <span class="req-option-title">Disponible para el estudiante</span>
-            <span class="req-option-desc"
-              >El postulante lo visualiza y lo entrega desde su portal estudiantil.</span
-            >
+            <span class="req-option-title">Carga el Estudiante (Postulante)</span>
+            <span class="req-option-desc">
+              El postulante visualiza el requisito en su portal y debe adjuntar obligatoriamente su
+              documento digital (PDF) para revisión del encargado de titulación.
+            </span>
           </div>
         </label>
 
-        <!-- Fila 4: Valida Colaborador / Secretaría -->
+        <!-- Fila 2: Valida Secretaría o Docente (Excluyente) -->
         <label class="req-option-row" [class.checked]="nuevoRequisitoForm().subeColaborador">
           <input
-            type="checkbox"
-            class="req-option-checkbox"
-            [(ngModel)]="nuevoRequisitoForm().subeColaborador"
+            type="radio"
+            name="responsableRequisito"
+            class="req-option-radio"
+            [checked]="nuevoRequisitoForm().subeColaborador"
+            (change)="setResponsableRequisito('colaborador')"
           />
           <div class="req-option-info">
-            <span class="req-option-title">Validado por secretaría o docente</span>
-            <span class="req-option-desc"
-              >El personal administrativo o docente asignado evalúa y aprueba el requisito.</span
-            >
+            <span class="req-option-title">Validado por Secretaría Académica o Docente</span>
+            <span class="req-option-desc">
+              El estudiante NO sube archivo; el personal administrativo o los docentes evaluadores
+              asignados certifican el cumplimiento en su panel institucional.
+            </span>
           </div>
         </label>
+
+        <span class="req-options-header" style="margin-top: 8px"
+          >MODALIDAD DE ENTREGA Y VALIDACIÓN</span
+        >
+
+        @if (nuevoRequisitoForm().subeAlumno) {
+          <!-- Cuando carga el estudiante: siempre es PDF -->
+          <div class="req-option-row checked" style="cursor: default">
+            <input
+              type="radio"
+              name="modalidadEntrega"
+              class="req-option-radio"
+              [checked]="true"
+              disabled
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Archivo Digital Adjunto (PDF)</span>
+              <span class="req-option-desc">
+                Requerido automáticamente porque la entrega la realiza el alumno desde su portal.
+              </span>
+            </div>
+          </div>
+        } @else {
+          <!-- Cuando valida secretaría o docente: puede ser PDF o Validación Booleana -->
+          <!-- Opción A: Archivo Adjunto -->
+          <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esAdjunto">
+            <input
+              type="radio"
+              name="modalidadEntrega"
+              class="req-option-radio"
+              [checked]="nuevoRequisitoForm().esAdjunto"
+              (change)="setModalidadEntregaRequisito('adjunto')"
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Requiere adjuntar documento o acta (PDF)</span>
+              <span class="req-option-desc">
+                El docente o secretaría adjunta un archivo o acta digital al emitir la validación.
+              </span>
+            </div>
+          </label>
+
+          <!-- Opción B: Validación Directa Booleana -->
+          <label class="req-option-row" [class.checked]="nuevoRequisitoForm().esBool">
+            <input
+              type="radio"
+              name="modalidadEntrega"
+              class="req-option-radio"
+              [checked]="nuevoRequisitoForm().esBool"
+              (change)="setModalidadEntregaRequisito('bool')"
+            />
+            <div class="req-option-info">
+              <span class="req-option-title"
+                >Validación directa de estado (Cumple / No adeuda)</span
+              >
+              <span class="req-option-desc">
+                Sin archivo; el docente o secretaría registra directamente si el postulante está
+                Apto, Exonerado o Pendiente.
+              </span>
+            </div>
+          </label>
+        }
       </div>
     </div>
 
@@ -846,10 +1236,13 @@
   <app-drawer
     [isOpen]="nuevaModalidadModalVisible()"
     title="Crear Modalidad Maestra"
-    subtitle="Configure una nueva opción de grado institucional y sus reglas"
+    subtitle="Configure una nueva opción de grado institucional y sus requisitos iniciales"
     eyebrow="CATÁLOGO INSTITUCIONAL"
-    size="sm"
-    [hasDirtyData]="nuevaModalidadForm().modalidadTitulacion.trim().length > 0"
+    size="md"
+    [hasDirtyData]="
+      nuevaModalidadForm().modalidadTitulacion.trim().length > 0 ||
+      nuevaModalidadForm().idsRequisitos.length > 0
+    "
     (closed)="nuevaModalidadModalVisible.set(false)"
     (discardConfirmed)="resetNuevaModalidadForm()"
   >
@@ -950,6 +1343,205 @@
             >
           </div>
         </label>
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- SECCIÓN DE ASIGNACIÓN INMEDIATA DE REQUISITOS -->
+      <div class="req-modalidad-requirements-section">
+        <div class="req-section-title-row">
+          <div>
+            <span class="req-options-header">REQUISITOS ASOCIADOS A ESTA MODALIDAD</span>
+            <p class="req-section-subtitle">
+              Seleccione los requisitos obligatorios para esta modalidad o cree uno nuevo en caso de
+              ser necesario.
+            </p>
+          </div>
+          <span class="req-selection-badge">
+            {{ nuevaModalidadForm().idsRequisitos.length }} seleccionado(s)
+          </span>
+        </div>
+
+        <!-- Barra de herramientas: Búsqueda y Botón para Crear Requisito al Vuelo -->
+        <div class="req-tools-bar">
+          <div class="search-box-compact">
+            <input
+              type="text"
+              class="fluent-input"
+              placeholder="Buscar requisitos existentes..."
+              [ngModel]="filtroBusquedaRequisitosModalidad()"
+              (ngModelChange)="filtroBusquedaRequisitosModalidad.set($event)"
+            />
+          </div>
+          <div class="req-tools-actions">
+            <button
+              type="button"
+              class="btn-tool-action"
+              (click)="seleccionarTodosRequisitosNuevaModalidad()"
+              title="Marcar todos los requisitos disponibles"
+            >
+              Marcar Todos
+            </button>
+            <button
+              type="button"
+              class="btn-tool-action"
+              (click)="deseleccionarTodosRequisitosNuevaModalidad()"
+              title="Limpiar selección"
+            >
+              Limpiar
+            </button>
+            <button
+              type="button"
+              class="btn-create-inline-toggle"
+              [class.active]="mostrandoCrearRequisitoInline()"
+              (click)="mostrandoCrearRequisitoInline.set(!mostrandoCrearRequisitoInline())"
+            >
+              {{
+                mostrandoCrearRequisitoInline() ? 'Cerrar Formulario' : '+ Crear Nuevo Requisito'
+              }}
+            </button>
+          </div>
+        </div>
+
+        <!-- FORMULARIO INLINE PARA CREAR NUEVO REQUISITO AL VUELO -->
+        @if (mostrandoCrearRequisitoInline()) {
+          <div class="inline-create-req-panel">
+            <div class="inline-panel-header">
+              <span class="inline-panel-title">Nuevo Requisito Institucional</span>
+              <span class="inline-panel-tag"
+                >Se registrará en el catálogo y se asociará a esta modalidad</span
+              >
+            </div>
+
+            <div class="req-form-group" style="margin-bottom: 10px">
+              <label class="req-form-label" for="inputInlineReqNombre">
+                Nombre del Requisito
+                <span class="req-required-dot">*</span>
+              </label>
+              <input
+                id="inputInlineReqNombre"
+                type="text"
+                class="fluent-input"
+                [(ngModel)]="nuevoRequisitoInlineForm().requisito"
+                placeholder="Ej: Certificado de Prácticas Preprofesionales"
+                maxlength="150"
+              />
+            </div>
+
+            <div class="inline-options-grid" style="margin-bottom: 8px">
+              <label
+                class="inline-option-chip"
+                [class.selected]="nuevoRequisitoInlineForm().subeAlumno"
+              >
+                <input
+                  type="radio"
+                  name="inlineResp"
+                  [checked]="nuevoRequisitoInlineForm().subeAlumno"
+                  (change)="setInlineResponsable('alumno')"
+                />
+                <span>Carga Alumno (PDF)</span>
+              </label>
+              <label
+                class="inline-option-chip"
+                [class.selected]="nuevoRequisitoInlineForm().subeColaborador"
+              >
+                <input
+                  type="radio"
+                  name="inlineResp"
+                  [checked]="nuevoRequisitoInlineForm().subeColaborador"
+                  (change)="setInlineResponsable('colaborador')"
+                />
+                <span>Valida Secretaría / Docente</span>
+              </label>
+            </div>
+
+            @if (nuevoRequisitoInlineForm().subeColaborador) {
+              <div class="inline-options-grid" style="margin-bottom: 8px">
+                <label
+                  class="inline-option-chip"
+                  [class.selected]="nuevoRequisitoInlineForm().esBool"
+                >
+                  <input
+                    type="radio"
+                    name="inlineTipoVal"
+                    [checked]="nuevoRequisitoInlineForm().esBool"
+                    (change)="setInlineTipoValidacion('bool')"
+                  />
+                  <span>Validación Directa (SÍ / NO)</span>
+                </label>
+                <label
+                  class="inline-option-chip"
+                  [class.selected]="nuevoRequisitoInlineForm().esAdjunto"
+                >
+                  <input
+                    type="radio"
+                    name="inlineTipoVal"
+                    [checked]="nuevoRequisitoInlineForm().esAdjunto"
+                    (change)="setInlineTipoValidacion('adjunto')"
+                  />
+                  <span>Archivo / Acta (PDF)</span>
+                </label>
+              </div>
+            }
+
+            <div class="inline-panel-footer">
+              <button
+                type="button"
+                class="btn-inline-cancel"
+                (click)="mostrandoCrearRequisitoInline.set(false)"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="btn-inline-save"
+                [disabled]="
+                  !nuevoRequisitoInlineForm().requisito.trim() || creandoRequisitoInline()
+                "
+                (click)="crearRequisitoInline()"
+              >
+                {{ creandoRequisitoInline() ? 'Creando...' : 'Crear y Añadir a la Modalidad' }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- LISTA DE REQUISITOS DISPONIBLES CON CHECKBOX -->
+        <div class="req-catalog-checklist">
+          @if (requisitosDisponiblesParaNuevaModalidad().length === 0) {
+            <div class="empty-state-card" style="padding: 14px">
+              <p style="margin: 0; font-size: 0.8125rem; color: var(--text-muted)">
+                No hay requisitos disponibles que coincidan con la búsqueda.
+              </p>
+            </div>
+          } @else {
+            @for (r of requisitosDisponiblesParaNuevaModalidad(); track r.idRequisitos) {
+              <label
+                class="req-check-item"
+                [class.checked]="nuevaModalidadForm().idsRequisitos.includes(r.idRequisitos)"
+              >
+                <input
+                  type="checkbox"
+                  class="req-check-input"
+                  [checked]="nuevaModalidadForm().idsRequisitos.includes(r.idRequisitos)"
+                  (change)="toggleRequisitoEnNuevaModalidad(r.idRequisitos)"
+                />
+                <div class="req-check-details">
+                  <span class="req-check-title">{{ r.requisito }}</span>
+                  <div class="req-check-meta">
+                    <span class="meta-tag">{{
+                      r.esAdjunto ? 'Requiere PDF' : 'Validación directa'
+                    }}</span>
+                    <span class="meta-dot">·</span>
+                    <span class="meta-resp">{{
+                      r.subeAlumno ? 'Carga Alumno' : 'Valida Secretaría/Docente'
+                    }}</span>
+                  </div>
+                </div>
+              </label>
+            }
+          }
+        </div>
       </div>
     </div>
 
@@ -1101,6 +1693,41 @@
           </span>
         </div>
 
+        @if (requisitosAsignadosMatriz().length > 3) {
+          <div class="search-filter-box" style="margin-top: 4px; margin-bottom: 6px">
+            <svg
+              class="search-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              class="fluent-input req-styled-input-search"
+              placeholder="Filtrar requisitos asociados..."
+              [ngModel]="filtroAsignadosMatriz()"
+              (ngModelChange)="filtroAsignadosMatriz.set($event)"
+            />
+            @if (filtroAsignadosMatriz()) {
+              <button
+                type="button"
+                class="btn-clear-search"
+                (click)="filtroAsignadosMatriz.set('')"
+                title="Limpiar filtro"
+              >
+                &times;
+              </button>
+            }
+          </div>
+        }
+
         @if (requisitosAsignadosMatriz().length === 0) {
           <div class="empty-state-card" style="padding: 24px 16px">
             <p
@@ -1111,6 +1738,12 @@
             <span style="font-size: 0.71875rem; color: var(--text-muted)">
               Busque un requisito en la caja superior y haga clic para asociarlo automáticamente.
             </span>
+          </div>
+        } @else if (requisitosAsignadosMatrizFiltrados().length === 0 && filtroAsignadosMatriz()) {
+          <div class="empty-state-card" style="padding: 16px">
+            <p style="margin: 0; font-size: 0.8125rem; color: var(--text-muted)">
+              No hay requisitos asignados que coincidan con "{{ filtroAsignadosMatriz() }}"
+            </p>
           </div>
         } @else {
           <div class="req-assigned-stack">
@@ -1158,4 +1791,334 @@
     (cerrar)="responsablesModalVisible.set(false)"
     (cambioAsignaciones)="cargarConfiguracionesMaestras()"
   />
+
+  <!-- 7. Drawer de Editar Modalidad Maestra -->
+  <app-drawer
+    [isOpen]="editarModalidadModalVisible()"
+    title="Editar Modalidad de Titulación"
+    subtitle="Modifique el nombre oficial, cantidad mínima de integrantes y características de la modalidad"
+    eyebrow="CATÁLOGO INSTITUCIONAL"
+    size="md"
+    [hasDirtyData]="false"
+    (closed)="editarModalidadModalVisible.set(false)"
+  >
+    <div class="req-drawer-content">
+      <!-- Input Nombre de Modalidad -->
+      <div class="req-form-group">
+        <label class="req-form-label" for="inputEditNombreModalidad">
+          Nombre de la Modalidad
+          <span class="req-required-dot">*</span>
+        </label>
+        <input
+          id="inputEditNombreModalidad"
+          type="text"
+          class="fluent-input req-styled-input"
+          [(ngModel)]="editarModalidadForm().modalidadTitulacion"
+          placeholder="Ej: Examen Complexivo Teórico-Práctico"
+          maxlength="45"
+          autocomplete="off"
+        />
+        <span class="req-helper-text"
+          >Nombre oficial de la opción de titulación (máx. 45 caracteres).</span
+        >
+      </div>
+
+      <!-- Input Cantidad Mínima de Estudiantes -->
+      <div class="req-form-group">
+        <label class="req-form-label" for="inputEditCantidadMinima">
+          Integrantes Mínimos por Postulación
+          <span class="req-required-dot">*</span>
+        </label>
+        <input
+          id="inputEditCantidadMinima"
+          type="number"
+          class="fluent-input req-styled-input"
+          min="1"
+          max="10"
+          [(ngModel)]="editarModalidadForm().cantidadMinima"
+          placeholder="1"
+        />
+        <span class="req-helper-text">Número mínimo de estudiantes por grupo (mínimo 1).</span>
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Características en Filas Individuales -->
+      <div class="req-options-stack">
+        <span class="req-options-header">CARACTERÍSTICAS ACADÉMICAS</span>
+
+        <!-- Fila 1: Complexivo -->
+        <label class="req-option-row" [class.checked]="editarModalidadForm().esComplexivo === 'SI'">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="editarModalidadForm().esComplexivo === 'SI'"
+            (change)="
+              editarModalidadForm().esComplexivo = $any($event.target).checked ? 'SI' : 'NO'
+            "
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Examen Complexivo</span>
+            <span class="req-option-desc"
+              >Evalúa conocimientos mediante pruebas teóricas o prácticas de fin de carrera.</span
+            >
+          </div>
+        </label>
+
+        <!-- Fila 2: Artículo Científico -->
+        <label
+          class="req-option-row"
+          [class.checked]="editarModalidadForm().esArticuloCientifico === 'SI'"
+        >
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="editarModalidadForm().esArticuloCientifico === 'SI'"
+            (change)="
+              editarModalidadForm().esArticuloCientifico = $any($event.target).checked ? 'SI' : 'NO'
+            "
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Artículo o Publicación Científica</span>
+            <span class="req-option-desc"
+              >Requiere redacción, validación y publicación de artículo indexado.</span
+            >
+          </div>
+        </label>
+
+        <!-- Fila 3: Genera Tesis / TIC -->
+        <label class="req-option-row" [class.checked]="editarModalidadForm().generaTesis === 'SI'">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="editarModalidadForm().generaTesis === 'SI'"
+            (change)="editarModalidadForm().generaTesis = $any($event.target).checked ? 'SI' : 'NO'"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Genera Proyecto de Grado o Tesis</span>
+            <span class="req-option-desc"
+              >Requiere entrega de memoria técnica, informe escrito y defensa ante tribunal.</span
+            >
+          </div>
+        </label>
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Estado Activo/Inactivo -->
+      <div class="req-options-stack">
+        <span class="req-options-header">DISPONIBILIDAD EN EL SISTEMA</span>
+        <label class="req-option-row" [class.checked]="editarModalidadForm().esActivo">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="editarModalidadForm().esActivo"
+            (change)="editarModalidadForm().esActivo = $any($event.target).checked"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Modalidad Activa y Visible</span>
+            <span class="req-option-desc"
+              >Habilita la modalidad para que los estudiantes puedan postularse a ella en
+              convocatorias activas.</span
+            >
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div drawer-footer>
+      <button
+        type="button"
+        class="fluent-btn-secondary"
+        (click)="editarModalidadModalVisible.set(false)"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="fluent-btn-primary"
+        [disabled]="!editarModalidadForm().modalidadTitulacion.trim() || guardandoEditarModalidad()"
+        (click)="guardarEdicionModalidad()"
+      >
+        {{ guardandoEditarModalidad() ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </app-drawer>
+
+  <!-- 8. Drawer de Editar Requisito Maestro -->
+  <app-drawer
+    [isOpen]="editarRequisitoModalVisible()"
+    title="Editar Requisito Maestro"
+    subtitle="Modifique el nombre y los parámetros de validación del requisito"
+    eyebrow="CATÁLOGO INSTITUCIONAL"
+    size="md"
+    [hasDirtyData]="false"
+    (closed)="editarRequisitoModalVisible.set(false)"
+  >
+    <div class="req-drawer-content">
+      <!-- Input Nombre de Requisito -->
+      <div class="req-form-group">
+        <label class="req-form-label" for="inputEditNombreRequisito">
+          Nombre Oficial del Requisito
+          <span class="req-required-dot">*</span>
+        </label>
+        <input
+          id="inputEditNombreRequisito"
+          type="text"
+          class="fluent-input req-styled-input"
+          [(ngModel)]="editarRequisitoForm().requisito"
+          placeholder="Ej: Certificado de no adeudar a la institución"
+          maxlength="150"
+          autocomplete="off"
+        />
+        <span class="req-helper-text"
+          >Nombre descriptivo visible para estudiantes y secretaría (máx. 150 caracteres).</span
+        >
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Configuración de Validación -->
+      <div class="req-options-stack">
+        <span class="req-options-header">RESPONSABLE DE CARGA / VALIDACIÓN</span>
+
+        <!-- Opción 1: Sube el Alumno -->
+        <label class="req-option-row" [class.checked]="editarRequisitoForm().subeAlumno">
+          <input
+            type="radio"
+            name="editResponsableRequisito"
+            class="req-option-radio"
+            [checked]="editarRequisitoForm().subeAlumno"
+            (change)="setEditarResponsableRequisito('alumno')"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Cargado por el Estudiante</span>
+            <span class="req-option-desc">
+              El estudiante debe subir un documento digital (PDF) desde su portal individual al
+              momento de postularse.
+            </span>
+          </div>
+        </label>
+
+        <!-- Opción 2: Valida Secretaría o Docente -->
+        <label class="req-option-row" [class.checked]="editarRequisitoForm().subeColaborador">
+          <input
+            type="radio"
+            name="editResponsableRequisito"
+            class="req-option-radio"
+            [checked]="editarRequisitoForm().subeColaborador"
+            (change)="setEditarResponsableRequisito('colaborador')"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Validado por Secretaría Académica o Docente</span>
+            <span class="req-option-desc">
+              El estudiante NO sube archivo; el personal administrativo o los docentes evaluadores
+              certifican el cumplimiento en su panel institucional.
+            </span>
+          </div>
+        </label>
+
+        <span class="req-options-header" style="margin-top: 8px"
+          >MODALIDAD DE ENTREGA Y VALIDACIÓN</span
+        >
+
+        @if (editarRequisitoForm().subeAlumno) {
+          <!-- Cuando carga el estudiante: siempre es PDF -->
+          <div class="req-option-row checked" style="cursor: default">
+            <input
+              type="radio"
+              name="editModalidadEntrega"
+              class="req-option-radio"
+              [checked]="true"
+              disabled
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Archivo Digital Adjunto (PDF)</span>
+              <span class="req-option-desc">
+                Requerido automáticamente porque la entrega la realiza el alumno desde su portal.
+              </span>
+            </div>
+          </div>
+        } @else {
+          <!-- Cuando valida secretaría o docente: puede ser PDF o Validación Booleana -->
+          <!-- Opción A: Archivo Adjunto -->
+          <label class="req-option-row" [class.checked]="editarRequisitoForm().esAdjunto">
+            <input
+              type="radio"
+              name="editModalidadEntrega"
+              class="req-option-radio"
+              [checked]="editarRequisitoForm().esAdjunto"
+              (change)="setEditarModalidadEntregaRequisito('adjunto')"
+            />
+            <div class="req-option-info">
+              <span class="req-option-title">Requiere adjuntar documento o acta (PDF)</span>
+              <span class="req-option-desc">
+                El docente o secretaría adjunta un archivo o acta digital al emitir la validación.
+              </span>
+            </div>
+          </label>
+
+          <!-- Opción B: Validación Directa Booleana -->
+          <label class="req-option-row" [class.checked]="editarRequisitoForm().esBool">
+            <input
+              type="radio"
+              name="editModalidadEntrega"
+              class="req-option-radio"
+              [checked]="editarRequisitoForm().esBool"
+              (change)="setEditarModalidadEntregaRequisito('bool')"
+            />
+            <div class="req-option-info">
+              <span class="req-option-title"
+                >Validación directa de estado (Cumple / No adeuda)</span
+              >
+              <span class="req-option-desc">
+                Sin archivo; el docente o secretaría registra directamente si el postulante está
+                Apto, Exonerado o Pendiente.
+              </span>
+            </div>
+          </label>
+        }
+      </div>
+
+      <div class="req-section-divider"></div>
+
+      <!-- Estado Activo/Inactivo -->
+      <div class="req-options-stack">
+        <span class="req-options-header">DISPONIBILIDAD EN EL CATÁLOGO</span>
+        <label class="req-option-row" [class.checked]="editarRequisitoForm().esActivo">
+          <input
+            type="checkbox"
+            class="req-option-checkbox"
+            [checked]="editarRequisitoForm().esActivo"
+            (change)="editarRequisitoForm().esActivo = $any($event.target).checked"
+          />
+          <div class="req-option-info">
+            <span class="req-option-title">Requisito Activo</span>
+            <span class="req-option-desc"
+              >Permite asociar este requisito a modalidades y evaluarlo en convocatorias
+              activas.</span
+            >
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div drawer-footer>
+      <button
+        type="button"
+        class="fluent-btn-secondary"
+        (click)="editarRequisitoModalVisible.set(false)"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="fluent-btn-primary"
+        [disabled]="!editarRequisitoForm().requisito.trim() || guardandoEditarRequisito()"
+        (click)="guardarEdicionRequisito()"
+      >
+        {{ guardandoEditarRequisito() ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </app-drawer>
 </div>
