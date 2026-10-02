@@ -822,4 +822,14 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
             financieroDto
         );
     }
+
+    private static bool EsMateriaIntegracionOTitulacion(string? nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre)) return false;
+        var n = nombre.ToUpperInvariant();
+        return n.Contains("INTEGRACION CURRICULAR") || n.Contains("INTEGRACIÓN CURRICULAR") ||
+               n.Contains("TITULACION") || n.Contains("TITULACIÓN") ||
+               n.Contains("COMPLEXIVO") || n.Contains("PROYECTO DE GRADO") ||
+               n.Contains("UNIDAD DE INTEGRACION") || n.Contains("UNIDAD DE INTEGRACIÓN");
+    }
 }
