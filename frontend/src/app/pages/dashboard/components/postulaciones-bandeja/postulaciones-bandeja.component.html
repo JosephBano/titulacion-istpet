@@ -916,7 +916,15 @@
                         track a.idAsignatura + '-' + (a.idPeriodo || '') + '-' + $index
                       ) {
                         <tr
-                          [class.row-reprobado]="!a.aprobado && a.idPeriodo"
+                          [class.row-reprobado]="
+                            !a.aprobado &&
+                            a.idPeriodo &&
+                            ((a.notaFinal && a.notaFinal > 0) ||
+                              (a.promedioFinal && a.promedioFinal > 0) ||
+                              (a.nota1 && a.nota1 > 0) ||
+                              (a.nota2 && a.nota2 > 0) ||
+                              (a.examen && a.examen > 0))
+                          "
                           [class.row-pendiente]="
                             !a.aprobado &&
                             !a.idPeriodo &&
@@ -924,9 +932,10 @@
                           "
                           [class.row-no-impartida]="
                             !a.aprobado &&
-                            !a.idPeriodo &&
                             a.observacion &&
-                            a.observacion.includes('no impartida')
+                            (a.observacion.includes('no impartida') ||
+                              a.observacion.includes('Optativa') ||
+                              a.observacion.includes('Integración'))
                           "
                         >
                           <td>{{ a.nombreNivel || (a.nivel ? 'Nivel ' + a.nivel : '-') }}</td>
@@ -934,30 +943,40 @@
                           <td class="font-mono">{{ a.idPeriodo || '-' }}</td>
                           <td>
                             {{
-                              a.nota1 !== null && a.nota1 !== undefined
+                              a.nota1 !== null &&
+                              a.nota1 !== undefined &&
+                              (a.nota1 > 0 || a.aprobado)
                                 ? (a.nota1 | number: '1.2-2')
                                 : '-'
                             }}
                           </td>
                           <td>
                             {{
-                              a.nota2 !== null && a.nota2 !== undefined
+                              a.nota2 !== null &&
+                              a.nota2 !== undefined &&
+                              (a.nota2 > 0 || a.aprobado)
                                 ? (a.nota2 | number: '1.2-2')
                                 : '-'
                             }}
                           </td>
                           <td>
                             {{
-                              a.examen !== null && a.examen !== undefined
+                              a.examen !== null &&
+                              a.examen !== undefined &&
+                              (a.examen > 0 || a.aprobado)
                                 ? (a.examen | number: '1.2-2')
                                 : '-'
                             }}
                           </td>
                           <td class="font-bold">
                             {{
-                              a.notaFinal !== null && a.notaFinal !== undefined
+                              a.notaFinal !== null &&
+                              a.notaFinal !== undefined &&
+                              (a.notaFinal > 0 || a.aprobado)
                                 ? (a.notaFinal | number: '1.2-2')
-                                : a.promedioFinal !== null && a.promedioFinal !== undefined
+                                : a.promedioFinal !== null &&
+                                    a.promedioFinal !== undefined &&
+                                    (a.promedioFinal > 0 || a.aprobado)
                                   ? (a.promedioFinal | number: '1.2-2')
                                   : '-'
                             }}
@@ -965,11 +984,31 @@
                           <td>
                             @if (a.aprobado) {
                               <span class="badge-aprobado">Aprobado</span>
-                            } @else if (a.idPeriodo) {
+                            } @else if (
+                              a.observacion &&
+                              (a.observacion.includes('Optativa') ||
+                                a.observacion.includes('Integración') ||
+                                a.observacion.includes('Titulación'))
+                            ) {
+                              <span class="badge-opcional" [title]="a.observacion">
+                                {{
+                                  a.observacion.includes('Integración')
+                                    ? 'Integración Curricular'
+                                    : 'Optativa / No Cursada'
+                                }}
+                              </span>
+                            } @else if (
+                              a.idPeriodo &&
+                              ((a.notaFinal && a.notaFinal > 0) ||
+                                (a.promedioFinal && a.promedioFinal > 0) ||
+                                (a.nota1 && a.nota1 > 0) ||
+                                (a.nota2 && a.nota2 > 0) ||
+                                (a.examen && a.examen > 0))
+                            ) {
                               <span class="badge-reprobado">No Aprobado</span>
                             } @else if (a.observacion && a.observacion.includes('no impartida')) {
                               <span class="badge-no-impartida" [title]="a.observacion">
-                                ⚠️ No Ofertada / Pendiente
+                                No Ofertada / Pendiente
                               </span>
                             } @else {
                               <span class="badge-pendiente">Pendiente</span>

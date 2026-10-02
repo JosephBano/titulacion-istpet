@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
+/**
+ * Componente de inicio de sesión con soporte de modo claro/oscuro y validación institucional ISTPET.
+ */
 @Component({
   selector: 'app-login',
   standalone: true,

@@ -841,24 +841,25 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
             var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
             if (reqs.Count > 0)
             {
-                // Solo se exige la aprobación inmediata de los requisitos habilitantes iniciales.
-                // Los requisitos marcados como 'EsRequistoFinal' (ej. Suficiencia de Inglés) se pueden cumplir y entregar durante el proceso de titulación.
-                var reqsHabilitantes = reqs.Where(r => r.IdRequisitoModalidadNavigation?.EsRequisitoFinal != true).ToList();
-
-                var pendientes = reqsHabilitantes.Where(r =>
+                // Para aprobar la postulación únicamente se exige la aprobación obligatoria de Vinculación con la Sociedad
+                var reqVinculacion = reqs.FirstOrDefault(r =>
                 {
-                    var ultEvidencia = r.TitulResponsableEvidencia?
+                    var nombre = r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito?.Trim();
+                    return nombre != null && (nombre.Contains("vinculaci", StringComparison.OrdinalIgnoreCase) || nombre.Contains("sociedad", StringComparison.OrdinalIgnoreCase));
+                });
+
+                if (reqVinculacion != null)
+                {
+                    var ultEvidencia = reqVinculacion.TitulResponsableEvidencia?
                         .OrderByDescending(e => e.Actualizado ?? e.Creado)
                         .FirstOrDefault();
 
-                    bool aprobado = ultEvidencia?.Estado == "APROBADO" || r.ValorBool == true;
-                    return !aprobado;
-                }).ToList();
-
-                if (pendientes.Count > 0)
-                {
-                    var nombresPendientes = string.Join(", ", pendientes.Select(p => p.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito"));
-                    throw new DominioException($"No se puede aprobar la postulación: faltan requisitos habilitantes iniciales por ser aprobados por los docentes responsables ({nombresPendientes}).");
+                    bool aprobado = ultEvidencia?.Estado == "APROBADO" || reqVinculacion.ValorBool == true;
+                    if (!aprobado)
+                    {
+                        var nombreReq = reqVinculacion.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Vinculación con la Sociedad";
+                        throw new DominioException($"No se puede aprobar la postulación: el estudiante debe tener aprobado el requisito obligatorio de {nombreReq}.");
+                    }
                 }
             }
         }
@@ -985,29 +986,28 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context) : IReposit
         if (comando.Decision.Equals("APROBAR", StringComparison.OrdinalIgnoreCase))
         {
             var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
-            if (reqs.Count == 0)
+            if (reqs.Count > 0)
             {
-                throw new DominioException("La postulación no cuenta con requisitos configurados para ser evaluados.");
-            }
+                // Para aprobar la postulación únicamente se exige la aprobación obligatoria de Vinculación con la Sociedad
+                var reqVinculacion = reqs.FirstOrDefault(r =>
+                {
+                    var nombre = r.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito?.Trim();
+                    return nombre != null && (nombre.Contains("vinculaci", StringComparison.OrdinalIgnoreCase) || nombre.Contains("sociedad", StringComparison.OrdinalIgnoreCase));
+                });
 
-            // Solo se exige la aprobación inmediata de los requisitos habilitantes iniciales.
-            // Los requisitos marcados como 'EsRequistoFinal' (ej. Suficiencia de Inglés) se pueden cumplir y entregar durante el proceso de titulación.
-            var reqsHabilitantes = reqs.Where(r => r.IdRequisitoModalidadNavigation?.EsRequisitoFinal != true).ToList();
+                if (reqVinculacion != null)
+                {
+                    var ultEvidencia = reqVinculacion.TitulResponsableEvidencia?
+                        .OrderByDescending(e => e.Actualizado ?? e.Creado)
+                        .FirstOrDefault();
 
-            var pendientes = reqsHabilitantes.Where(r =>
-            {
-                var ultEvidencia = r.TitulResponsableEvidencia?
-                    .OrderByDescending(e => e.Actualizado ?? e.Creado)
-                    .FirstOrDefault();
-
-                bool aprobado = ultEvidencia?.Estado == "APROBADO" || r.ValorBool == true;
-                return !aprobado;
-            }).ToList();
-
-            if (pendientes.Count > 0)
-            {
-                var nombresPendientes = string.Join(", ", pendientes.Select(p => p.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito"));
-                throw new DominioException($"No se puede aprobar la postulación: faltan requisitos habilitantes iniciales por ser aprobados por los docentes responsables ({nombresPendientes}).");
+                    bool aprobado = ultEvidencia?.Estado == "APROBADO" || reqVinculacion.ValorBool == true;
+                    if (!aprobado)
+                    {
+                        var nombreReq = reqVinculacion.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Vinculación con la Sociedad";
+                        throw new DominioException($"No se puede aprobar la postulación: el estudiante debe tener aprobado el requisito obligatorio de {nombreReq}.");
+                    }
+                }
             }
         }
 

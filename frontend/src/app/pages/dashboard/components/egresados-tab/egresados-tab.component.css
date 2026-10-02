@@ -1060,6 +1060,25 @@
   border-color: rgba(234, 179, 8, 0.35);
 }
 
+.badge-opcional {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+:host-context([data-theme="dark"]) .badge-opcional {
+  background: rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
 .progress-badge--full .progress-val {
   color: #107c10;
 }
