@@ -97,6 +97,23 @@ export class DashboardComponent implements OnInit {
   isSidebarCollapsed = signal(typeof window !== 'undefined' && window.innerWidth < 900);
   activeTab = signal('resumen');
 
+  userInitial = computed(() => {
+    const nombre = this.currentUser()?.nombre;
+    return nombre ? nombre.charAt(0).toUpperCase() : 'U';
+  });
+
+  fechaHoyTexto = computed(() => {
+    const ahora = new Date();
+    const opciones: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    };
+    const texto = ahora.toLocaleDateString('es-EC', opciones);
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  });
+
   // Estado de Red y Resiliencia Offline
   isOnline = this.networkService.isOnline;
   isLowBandwidth = this.networkService.isLowBandwidth;
@@ -397,9 +414,51 @@ export class DashboardComponent implements OnInit {
   aperturaModalVisible = signal<boolean>(false);
   nuevoRequisitoModalVisible = signal<boolean>(false);
   nuevaModalidadModalVisible = signal<boolean>(false);
+  editarModalidadModalVisible = signal<boolean>(false);
+  editarRequisitoModalVisible = signal<boolean>(false);
   matrizModalVisible = signal<boolean>(false);
   responsablesModalVisible = signal<boolean>(false);
   requisitoParaResponsables = signal<RequisitoMaestro | null>(null);
+
+  // Formulario y Estado de Edición de Modalidad
+  editarModalidadForm = signal<{
+    idModalidadTitulacion: number;
+    modalidadTitulacion: string;
+    esComplexivo: string;
+    esArticuloCientifico: string;
+    generaTesis: string;
+    cantidadMinima: number;
+    esActivo: boolean;
+  }>({
+    idModalidadTitulacion: 0,
+    modalidadTitulacion: '',
+    esComplexivo: 'NO',
+    esArticuloCientifico: 'NO',
+    generaTesis: 'NO',
+    cantidadMinima: 1,
+    esActivo: true,
+  });
+  guardandoEditarModalidad = signal<boolean>(false);
+
+  // Formulario y Estado de Edición de Requisito
+  editarRequisitoForm = signal<{
+    idRequisitos: number;
+    requisito: string;
+    esAdjunto: boolean;
+    esBool: boolean;
+    subeAlumno: boolean;
+    subeColaborador: boolean;
+    esActivo: boolean;
+  }>({
+    idRequisitos: 0,
+    requisito: '',
+    esAdjunto: true,
+    esBool: false,
+    subeAlumno: true,
+    subeColaborador: false,
+    esActivo: true,
+  });
+  guardandoEditarRequisito = signal<boolean>(false);
 
   // Estado del Docente Evaluador
   requisitosDocentePendientes = signal<RequisitoEvaluacionDocente[]>([]);
@@ -914,6 +973,8 @@ export class DashboardComponent implements OnInit {
         ...f,
         subeAlumno: false,
         subeColaborador: true,
+        esBool: true,
+        esAdjunto: false,
       }));
     }
   }
@@ -930,6 +991,42 @@ export class DashboardComponent implements OnInit {
         ...f,
         esAdjunto: false,
         esBool: true,
+      }));
+    }
+  }
+
+  setInlineResponsable(tipo: 'alumno' | 'colaborador'): void {
+    if (tipo === 'alumno') {
+      this.nuevoRequisitoInlineForm.update((f) => ({
+        ...f,
+        subeAlumno: true,
+        subeColaborador: false,
+        esAdjunto: true,
+        esBool: false,
+      }));
+    } else {
+      this.nuevoRequisitoInlineForm.update((f) => ({
+        ...f,
+        subeAlumno: false,
+        subeColaborador: true,
+        esBool: true,
+        esAdjunto: false,
+      }));
+    }
+  }
+
+  setInlineTipoValidacion(tipo: 'bool' | 'adjunto'): void {
+    if (tipo === 'bool') {
+      this.nuevoRequisitoInlineForm.update((f) => ({
+        ...f,
+        esBool: true,
+        esAdjunto: false,
+      }));
+    } else {
+      this.nuevoRequisitoInlineForm.update((f) => ({
+        ...f,
+        esBool: false,
+        esAdjunto: true,
       }));
     }
   }
@@ -1061,6 +1158,127 @@ export class DashboardComponent implements OnInit {
       error: (err) =>
         this.mostrarMensaje('error', err.error?.message || 'Error al crear requisito.'),
     });
+  }
+
+  // ----------------------------------------------------
+  // Edición de Modalidades y Requisitos
+  // ----------------------------------------------------
+  abrirEditarModalidad(m: ModalidadMaestra): void {
+    this.editarModalidadForm.set({
+      idModalidadTitulacion: m.idModalidadTitulacion,
+      modalidadTitulacion: m.modalidadTitulacion,
+      esComplexivo: m.esComplexivo || 'NO',
+      esArticuloCientifico: m.esArticuloCientifico || 'NO',
+      generaTesis: m.generaTesis || 'NO',
+      cantidadMinima: m.cantidadMinima ?? 1,
+      esActivo: m.esActivo !== false,
+    });
+    this.editarModalidadModalVisible.set(true);
+  }
+
+  guardarEdicionModalidad(): void {
+    const f = this.editarModalidadForm();
+    if (!f.modalidadTitulacion.trim()) {
+      this.mostrarMensaje('error', 'El nombre de la modalidad es obligatorio.');
+      return;
+    }
+    this.guardandoEditarModalidad.set(true);
+    this.titulacionService
+      .actualizarModalidadMaestra(f.idModalidadTitulacion, {
+        idModalidadTitulacion: f.idModalidadTitulacion,
+        modalidadTitulacion: f.modalidadTitulacion.trim(),
+        esComplexivo: f.esComplexivo,
+        esArticuloCientifico: f.esArticuloCientifico,
+        generaTesis: f.generaTesis,
+        cantidadMinima: f.cantidadMinima,
+        esActivo: f.esActivo,
+      })
+      .subscribe({
+        next: () => {
+          this.guardandoEditarModalidad.set(false);
+          this.mostrarMensaje('exito', 'Modalidad de titulación actualizada correctamente.');
+          this.editarModalidadModalVisible.set(false);
+          this.cargarConfiguracionesMaestras();
+        },
+        error: (err) => {
+          this.guardandoEditarModalidad.set(false);
+          this.mostrarMensaje('error', err.error?.message || 'Error al actualizar la modalidad.');
+        },
+      });
+  }
+
+  abrirEditarRequisito(r: RequisitoMaestro): void {
+    this.editarRequisitoForm.set({
+      idRequisitos: r.idRequisitos,
+      requisito: r.requisito,
+      esAdjunto: r.esAdjunto ?? true,
+      esBool: r.esBool ?? false,
+      subeAlumno: r.subeAlumno ?? true,
+      subeColaborador: r.subeColaborador ?? false,
+      esActivo: r.esActivo !== false,
+    });
+    this.editarRequisitoModalVisible.set(true);
+  }
+
+  setEditarResponsableRequisito(tipo: 'alumno' | 'colaborador'): void {
+    this.editarRequisitoForm.update((f) => {
+      if (tipo === 'alumno') {
+        return {
+          ...f,
+          subeAlumno: true,
+          subeColaborador: false,
+          esAdjunto: true,
+          esBool: false,
+        };
+      } else {
+        return {
+          ...f,
+          subeAlumno: false,
+          subeColaborador: true,
+          esAdjunto: true,
+          esBool: false,
+        };
+      }
+    });
+  }
+
+  setEditarModalidadEntregaRequisito(tipo: 'adjunto' | 'bool'): void {
+    this.editarRequisitoForm.update((f) => ({
+      ...f,
+      esAdjunto: tipo === 'adjunto',
+      esBool: tipo === 'bool',
+    }));
+  }
+
+  guardarEdicionRequisito(): void {
+    const f = this.editarRequisitoForm();
+    if (!f.requisito.trim()) {
+      this.mostrarMensaje('error', 'El nombre del requisito es obligatorio.');
+      return;
+    }
+    this.guardandoEditarRequisito.set(true);
+    this.titulacionService
+      .actualizarRequisitoMaestro(f.idRequisitos, {
+        idRequisitos: f.idRequisitos,
+        requisito: f.requisito.trim(),
+        esAdjunto: f.esAdjunto,
+        esBool: f.esBool,
+        subeAlumno: f.subeAlumno,
+        subeColaborador: f.subeColaborador,
+        esActivo: f.esActivo,
+      })
+      .subscribe({
+        next: () => {
+          this.guardandoEditarRequisito.set(false);
+          this.mostrarMensaje('exito', 'Requisito maestro actualizado correctamente.');
+          this.editarRequisitoModalVisible.set(false);
+          this.cargarConfiguracionesMaestras();
+        },
+        error: (err) => {
+          this.guardandoEditarRequisito.set(false);
+          this.mostrarMensaje('error', err.error?.message || 'Error al actualizar el requisito.');
+        },
+      });
   }
 
   abrirMatriz(m: ModalidadMaestra): void {

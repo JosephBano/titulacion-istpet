@@ -1,8 +1,17 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PostulacionResumen, EstadoPostulacion } from '../../../../core/models/titulacion.models';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import {
+  PostulacionResumen,
+  EstadoPostulacion,
+  PostulacionDetalle,
+} from '../../../../core/models/titulacion.models';
+import { ExpedienteAcademico } from '../../../../core/models/egresados.models';
 import { CarreraUsuarioItem } from '../../../../core/services/carreras.service';
+import { EgresadosService } from '../../../../core/services/egresados.service';
+import { TitulacionService } from '../../../../core/services/titulacion.service';
 
 export interface DictamenEvento {
   idPostulacion: number;
@@ -17,6 +26,9 @@ export interface DictamenEvento {
   styleUrls: ['./postulaciones-bandeja.component.css'],
 })
 export class PostulacionesBandejaComponent {
+  private readonly egresadosService = inject(EgresadosService);
+  private readonly titulacionService = inject(TitulacionService);
+
   readonly skeletonItems = Array.from({ length: 6 }, (_, i) => i);
 
   postulaciones = input<PostulacionResumen[]>([]);
@@ -38,6 +50,16 @@ export class PostulacionesBandejaComponent {
   tamanoPaginaChange = output<number>();
   refrescar = output<void>();
   dictamen = output<DictamenEvento>();
+
+  // Estado del Modal / Drawer de Examen Integral
+  mostrarExamenModal = signal<boolean>(false);
+  cargandoExamen = signal<boolean>(false);
+  errorExamen = signal<string | null>(null);
+  postulacionResumenSeleccionada = signal<PostulacionResumen | null>(null);
+  postulacionDetalleSeleccionada = signal<PostulacionDetalle | null>(null);
+  expedienteSeleccionado = signal<ExpedienteAcademico | null>(null);
+  seccionExamen = signal<'academico' | 'requisitos' | 'pagos'>('academico');
+  semestreExpandido = signal<number | null>(null);
 
   totalPaginas = computed(() => {
     const t = this.total();
@@ -141,5 +163,73 @@ export class PostulacionesBandejaComponent {
   getPorcentajeRequisitos(completados: number, total: number): number {
     if (!total || total === 0) return 0;
     return Math.min(100, Math.round((completados / total) * 100));
+  }
+
+  // ----------------------------------------------------
+  // Examen Integral de Postulación y Expediente Académico
+  // ----------------------------------------------------
+  examinarPostulacion(p: PostulacionResumen): void {
+    this.postulacionResumenSeleccionada.set(p);
+    this.postulacionDetalleSeleccionada.set(null);
+    this.expedienteSeleccionado.set(null);
+    this.errorExamen.set(null);
+    this.cargandoExamen.set(true);
+    this.mostrarExamenModal.set(true);
+    this.seccionExamen.set('academico');
+    this.semestreExpandido.set(null);
+
+    // Cargar en paralelo tanto el detalle de la postulación (requisitos/evidencias) como el expediente académico curricular (malla y materias)
+    forkJoin({
+      postulacion: this.titulacionService.getPostulacionPorId(p.idPostulacionAlumnos).pipe(
+        catchError((err) => {
+          console.warn('No se pudo cargar el detalle de postulación:', err);
+          return of(null);
+        })
+      ),
+      expediente: this.egresadosService.getExpedienteAcademico(p.idAlumno, p.idCarrera).pipe(
+        catchError((err) => {
+          console.warn('No se pudo cargar el expediente académico curricular:', err);
+          return of(null);
+        })
+      ),
+    }).subscribe({
+      next: ({ postulacion, expediente }) => {
+        this.postulacionDetalleSeleccionada.set(postulacion);
+        this.expedienteSeleccionado.set(expediente);
+        this.cargandoExamen.set(false);
+      },
+      error: () => {
+        this.errorExamen.set('No se pudo obtener la información completa del estudiante.');
+        this.cargandoExamen.set(false);
+      },
+    });
+  }
+
+  cerrarExamenModal(): void {
+    this.mostrarExamenModal.set(false);
+    this.postulacionResumenSeleccionada.set(null);
+    this.postulacionDetalleSeleccionada.set(null);
+    this.expedienteSeleccionado.set(null);
+    this.seccionExamen.set('academico');
+    this.semestreExpandido.set(null);
+    this.errorExamen.set(null);
+  }
+
+  cambiarSeccionExamen(seccion: 'academico' | 'requisitos' | 'pagos'): void {
+    this.seccionExamen.set(seccion);
+  }
+
+  toggleSemestre(idMatricula: number): void {
+    this.semestreExpandido.update((curr) => (curr === idMatricula ? null : idMatricula));
+  }
+
+  imprimirExpediente(): void {
+    window.print();
+  }
+
+  dictaminarDesdeExamen(decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR'): void {
+    const resumen = this.postulacionResumenSeleccionada();
+    if (!resumen) return;
+    this.emitirDictamen(resumen.idPostulacionAlumnos, decision);
   }
 }

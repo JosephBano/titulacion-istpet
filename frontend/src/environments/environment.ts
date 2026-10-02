@@ -1,8 +1,10 @@
 /**
- * Configuracion NO secreta de build. Los secretos jamas viven en el bundle del
- * navegador: cualquier usuario puede leerlos. Lo sensible se queda en el backend.
+ * Configuración de entorno.
+ * Configuración activa: Desarrollo local (localhost).
  */
 export const environment = {
   produccion: false,
-  apiBaseUrl: 'http://localhost:5192',
+  apiBaseUrl: 'http://localhost:5192', // Backend local .NET 8
 } as const;
+
+

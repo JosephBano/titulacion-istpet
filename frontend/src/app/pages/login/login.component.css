@@ -428,7 +428,8 @@ html[data-theme='dark'] .ocr-input:focus {
 }
 
 .ocr-input-pass {
-  padding-right: 42px !important;
+  padding-left: 42px;
+  padding-right: 42px;
   text-align: center;
 }
 

@@ -32,12 +32,10 @@ CROSS JOIN `rbac_operaciones` o
 WHERE m.`id_sistema` = @id_sistema_titulacion
   AND o.`NombreOperacion` IN ('ver', 'crear', 'editar', 'eliminar');
 
--- 4. Asegurar Roles Específicos del Subsistema de Titulación
+-- 4. Asegurar Rol de Administrador General de Titulación (si no existe)
 INSERT INTO `rbac_rol` (`codigo_rol`, `Nombre`, `esActivo`)
 VALUES
-('TITULACION_ADMIN', 'Administrador General de Titulación', 1),
-('TITULACION_DOCENTE', 'Docente Tutor y Evaluador de Titulación', 1),
-('TITULACION_ESTUDIANTE', 'Estudiante Postulante de Titulación', 1)
+('TITULACION_ADMIN', 'Administrador General de Titulación', 1)
 ON DUPLICATE KEY UPDATE `esActivo` = 1;
 
 -- 5. Matriz de Permisos (rbac_rol_modulo_operacion)
@@ -51,25 +49,25 @@ JOIN `rbac_modulos` m ON mo.`idModulos` = m.`idModulos`
 WHERE r.`codigo_rol` IN ('TITULACION_ADMIN', 'ADMINISTRADOR', 'ADMIN_SIST')
   AND m.`id_sistema` = @id_sistema_titulacion;
 
--- 5.2 Rol Docente de Titulación -> Operaciones ver, editar y crear en módulos académicos
+-- 5.2 Rol Docente Institucional -> Operaciones ver, editar y crear en módulos académicos
 INSERT IGNORE INTO `rbac_rol_modulo_operacion` (`idRol`, `idModulosOperaciones`, `esActivo`, `fecha_asignacion`)
 SELECT r.`idRol`, mo.`idModulosOperaciones`, 1, CURDATE()
 FROM `rbac_rol` r
 JOIN `rbac_modulos_operaciones` mo ON 1=1
 JOIN `rbac_modulos` m ON mo.`idModulos` = m.`idModulos`
 JOIN `rbac_operaciones` o ON mo.`idOperaciones` = o.`idOperaciones`
-WHERE r.`codigo_rol` IN ('TITULACION_DOCENTE', 'DOCENTE', 'PROFESOR')
+WHERE r.`codigo_rol` IN ('docente', 'DOCENTE', 'profesor', 'PROFESOR')
   AND m.`id_sistema` = @id_sistema_titulacion
   AND o.`NombreOperacion` IN ('ver', 'editar', 'crear');
 
--- 5.3 Rol Estudiante de Titulación -> Operaciones ver y crear en postulaciones
+-- 5.3 Rol Alumno Institucional -> Operaciones ver y crear en postulaciones
 INSERT IGNORE INTO `rbac_rol_modulo_operacion` (`idRol`, `idModulosOperaciones`, `esActivo`, `fecha_asignacion`)
 SELECT r.`idRol`, mo.`idModulosOperaciones`, 1, CURDATE()
 FROM `rbac_rol` r
 JOIN `rbac_modulos_operaciones` mo ON 1=1
 JOIN `rbac_modulos` m ON mo.`idModulos` = m.`idModulos`
 JOIN `rbac_operaciones` o ON mo.`idOperaciones` = o.`idOperaciones`
-WHERE r.`codigo_rol` IN ('TITULACION_ESTUDIANTE', 'ESTUDIANTE', 'ALUMNO')
+WHERE r.`codigo_rol` IN ('alumno', 'ALUMNO', 'estudiante', 'ESTUDIANTE')
   AND m.`id_sistema` = @id_sistema_titulacion
   AND o.`NombreOperacion` IN ('ver', 'crear');
 

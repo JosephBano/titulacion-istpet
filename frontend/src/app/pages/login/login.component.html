@@ -88,14 +88,14 @@
 
     <form (ngSubmit)="onSubmit()" class="ocr-form" novalidate>
       <div class="ocr-field">
-        <label for="f-username" class="ocr-label">Usuario o Correo Institucional</label>
+        <label for="f-username" class="ocr-label">Documento de Identidad</label>
         <input
           id="f-username"
           type="text"
           name="username"
           class="ocr-input"
           [(ngModel)]="usernameOrEmail"
-          placeholder="usuario@istpet.edu.ec"
+          placeholder="Documento de identidad"
           autocomplete="username"
           required
         />

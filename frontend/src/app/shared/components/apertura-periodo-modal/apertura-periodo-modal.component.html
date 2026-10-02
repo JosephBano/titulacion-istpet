@@ -156,18 +156,18 @@
             <label for="detalle-input" class="fluent-field-label">
               Título de la Convocatoria:
             </label>
-            <span class="char-counter" [class.warning]="form().detalleConvocatoria.length > 40">
-              {{ form().detalleConvocatoria.length }} / 45 caracteres
+            <span class="char-counter" [class.warning]="form().detalleConvocatoria.length > 45">
+              {{ form().detalleConvocatoria.length }} / 50 caracteres
             </span>
           </div>
 
           <input
             id="detalle-input"
             type="text"
-            maxlength="45"
+            maxlength="50"
             class="fluent-input fluent-input-lg"
             [(ngModel)]="form().detalleConvocatoria"
-            placeholder="Ej: Convocatoria Ordinaria ABR2026"
+            [placeholder]="'Ej: Convocatoria ' + periodoSeleccionadoNombre()"
           />
 
           <div class="suggestions-group">
@@ -176,23 +176,23 @@
               <button
                 type="button"
                 class="suggestion-chip"
+                (click)="onPeriodoSelect(form().idPeriodo)"
+              >
+                Convocatoria {{ periodoSeleccionadoNombre() }}
+              </button>
+              <button
+                type="button"
+                class="suggestion-chip"
                 (click)="aplicarSugerenciaDetalle('Ordinaria')"
               >
-                Convocatoria Ordinaria {{ form().idPeriodo }}
+                Convocatoria Ordinaria {{ periodoSeleccionadoNombre() }}
               </button>
               <button
                 type="button"
                 class="suggestion-chip"
                 (click)="aplicarSugerenciaDetalle('Extraordinaria')"
               >
-                Convocatoria Extraordinaria {{ form().idPeriodo }}
-              </button>
-              <button
-                type="button"
-                class="suggestion-chip"
-                (click)="aplicarSugerenciaDetalle('Especial')"
-              >
-                Cohorte Especial {{ form().idPeriodo }}
+                Convocatoria Extraordinaria {{ periodoSeleccionadoNombre() }}
               </button>
             </div>
           </div>

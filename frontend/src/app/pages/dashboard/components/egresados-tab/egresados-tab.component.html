@@ -86,18 +86,14 @@
 
   <!-- Estado de Carga / Error -->
   @if (cargando()) {
-    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Analizando expedientes académicos">
+    <div class="fluent-table-wrapper table-skeleton-box" aria-busy="true" aria-label="Buscando alumnos">
       <table class="fluent-table">
         <thead>
           <tr>
             <th>Cédula</th>
             <th>Estudiante</th>
             <th>Carrera y Malla</th>
-            <th>Niveles</th>
-            <th>Asignaturas</th>
-            <th>Promedio</th>
             <th>Estado Titulación</th>
-            <th>Matrículas / Deuda</th>
             <th class="text-right">Acción</th>
           </tr>
         </thead>
@@ -107,11 +103,7 @@
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td><span class="skeleton-line skeleton-w-lg"></span></td>
               <td><span class="skeleton-line skeleton-w-md"></span></td>
-              <td><span class="skeleton-line skeleton-w-sm"></span></td>
-              <td><span class="skeleton-line skeleton-w-sm"></span></td>
-              <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td><span class="skeleton-line skeleton-w-md"></span></td>
-              <td><span class="skeleton-line skeleton-w-sm"></span></td>
               <td class="text-right"><span class="skeleton-line skeleton-w-sm skeleton-right"></span></td>
             </tr>
           }
@@ -127,10 +119,9 @@
     </div>
   } @else if (estudiantes().length === 0) {
     <div class="state-container empty-state">
-      <h3 class="empty-title">No se encontraron alumnos pendientes</h3>
+      <h3 class="empty-title">No se encontraron alumnos</h3>
       <p class="empty-desc">
-        No hay registros que cumplan con la condición de malla completa sin titulación para los
-        filtros seleccionados.
+        No hay registros que coincidan con los filtros de búsqueda seleccionados.
       </p>
     </div>
   } @else {
@@ -142,11 +133,7 @@
             <th>Cédula</th>
             <th>Estudiante</th>
             <th>Carrera y Malla</th>
-            <th>Niveles</th>
-            <th>Asignaturas</th>
-            <th>Promedio</th>
             <th>Estado Titulación</th>
-            <th>Matrículas / Deuda</th>
             <th class="text-right">Acción</th>
           </tr>
         </thead>
@@ -165,25 +152,6 @@
                 <div class="malla-desc">{{ est.malla }} &bull; {{ est.modalidad }}</div>
               </td>
               <td>
-                <div class="progress-badge">
-                  <span class="progress-val"
-                    >{{ est.nivelesAprobados }} / {{ est.totalNivelesMalla }}</span
-                  >
-                  <span class="progress-label">niveles</span>
-                </div>
-              </td>
-              <td>
-                <div class="progress-badge">
-                  <span class="progress-val"
-                    >{{ est.materiasAprobadas }} / {{ est.totalMateriasMalla }}</span
-                  >
-                  <span class="progress-label">materias</span>
-                </div>
-              </td>
-              <td>
-                <span class="grade-score">{{ est.promedioGeneral | number: '1.2-2' }}</span>
-              </td>
-              <td>
                 <div class="titulacion-status-cell">
                   @if (est.esEgresadoTitulado) {
                     <span class="status-badge egresado">Egresado</span>
@@ -196,59 +164,6 @@
                     </div>
                   }
                 </div>
-              </td>
-              <td>
-                @if (est.noAdeuda === true) {
-                  <span
-                    class="status-badge financas-al-dia"
-                    title="No registra deudas de matrículas ni restricciones en SIGAFI"
-                  >
-                    <svg
-                      class="badge-icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="11"
-                      height="11"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="3"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Al Día
-                  </span>
-                } @else if (est.noAdeuda === false) {
-                  <span
-                    class="status-badge financas-deuda"
-                    [title]="
-                      'Saldo pendiente: $' +
-                      (est.saldoPendiente | number: '1.2-2') +
-                      (est.tieneRestricciones ? ' (con restricciones activas)' : '')
-                    "
-                  >
-                    <svg
-                      class="badge-icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="11"
-                      height="11"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="12" y1="8" x2="12" y2="12"></line>
-                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    @if (est.saldoPendiente && est.saldoPendiente > 0) {
-                      Adeuda ${{ est.saldoPendiente | number: '1.2-2' }}
-                    } @else {
-                      Restricción
-                    }
-                  </span>
-                } @else {
-                  <span class="status-badge financas-pendiente">Pendiente</span>
-                }
               </td>
               <td class="text-right">
                 <button
@@ -554,6 +469,32 @@
               </div>
             </div>
 
+            <!-- Alerta de Auditoría de Malla (Casos de materias no dictadas / pendientes) -->
+            @if (exp.materiasAprobadas < exp.totalMateriasMalla) {
+              <div class="malla-alert-box" [class.malla-alert-box--special]="exp.totalMateriasMalla - exp.materiasAprobadas <= 2">
+                <div class="malla-alert-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                </div>
+                <div class="malla-alert-content">
+                  <div class="malla-alert-title">
+                    Auditoría Curricular: {{ exp.totalMateriasMalla - exp.materiasAprobadas }} asignatura(s) pendiente(s) en catálogo de malla
+                  </div>
+                  <p class="malla-alert-desc">
+                    El estudiante registra {{ exp.materiasAprobadas }} de {{ exp.totalMateriasMalla }} materias cursadas en la malla <strong>{{ exp.malla }}</strong>.
+                    @if (exp.totalMateriasMalla - exp.materiasAprobadas <= 2) {
+                      <span>
+                        Al haber cursado los semestres superiores, si esta asignatura corresponde a una materia histórica que <strong>no fue dictada a la cohorte</strong>, procede la verificación institucional para habilitar la titulación.
+                      </span>
+                    }
+                  </p>
+                </div>
+              </div>
+            }
+
             <!-- Tabla de Matrículas / Periodos -->
             <div class="subtable-section">
               <h4 class="subtable-title">Periodos Académicos Cursados</h4>
@@ -612,7 +553,8 @@
                     ) {
                       <tr
                         [class.row-reprobado]="!a.aprobado && a.idPeriodo"
-                        [class.row-pendiente]="!a.aprobado && !a.idPeriodo"
+                        [class.row-pendiente]="!a.aprobado && !a.idPeriodo && (!a.observacion || !a.observacion.includes('no impartida'))"
+                        [class.row-no-impartida]="!a.aprobado && !a.idPeriodo && a.observacion && a.observacion.includes('no impartida')"
                       >
                         <td>{{ a.nombreNivel || (a.nivel ? 'Nivel ' + a.nivel : '-') }}</td>
                         <td>{{ a.nombreAsignatura }}</td>
@@ -652,6 +594,10 @@
                             <span class="badge-aprobado">Aprobado</span>
                           } @else if (a.idPeriodo) {
                             <span class="badge-reprobado">No Aprobado</span>
+                          } @else if (a.observacion && a.observacion.includes('no impartida')) {
+                            <span class="badge-no-impartida" [title]="a.observacion">
+                              ⚠️ No Ofertada / Pendiente
+                            </span>
                           } @else {
                             <span class="badge-pendiente">Pendiente</span>
                           }

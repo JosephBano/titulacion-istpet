@@ -9,10 +9,12 @@ import { ESTUDIANTE_REPOSITORY } from './domain/repositories/estudiante.reposito
 import { EstudianteHttpRepository } from './infrastructure/http/estudiante-http.repository';
 import { routes } from './app.routes';
 
+import { environment } from '../environments/environment';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    { provide: APP_BASE_HREF, useValue: '/appTitulacion/' },
+    { provide: APP_BASE_HREF, useValue: environment.produccion ? '/appTitulacion/' : '/' },
     provideRouter(routes, withComponentInputBinding(), withHashLocation()),
     provideHttpClient(withInterceptors([jwtInterceptor, errorApiInterceptor])),
     provideAnimationsAsync(),

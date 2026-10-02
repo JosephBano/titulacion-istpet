@@ -34,14 +34,14 @@ export interface EstudiantePendienteEgreso {
   idModalidad?: number;
   modalidad?: string;
   ultimoPeriodo: string;
+  esEgresadoTitulado: boolean;
+  tienePostulacionTitulacion: boolean;
+  estadoPostulacion?: string;
   nivelesAprobados: number;
   totalNivelesMalla: number;
   materiasAprobadas: number;
   totalMateriasMalla: number;
   promedioGeneral: number;
-  esEgresadoTitulado: boolean;
-  tienePostulacionTitulacion: boolean;
-  estadoPostulacion?: string;
   noAdeuda?: boolean;
   saldoPendiente?: number;
   tieneRestricciones?: boolean;

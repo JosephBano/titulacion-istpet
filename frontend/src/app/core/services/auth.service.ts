@@ -32,6 +32,29 @@ export class AuthService {
     return data ? JSON.parse(data) : null;
   }
 
+  public isTokenExpired(token?: string | null): boolean {
+    const tokenToCheck = token ?? this.getAccessToken();
+    if (!tokenToCheck) return true;
+
+    try {
+      const parts = tokenToCheck.split('.');
+      if (parts.length !== 3) return true;
+      const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payloadJson = decodeURIComponent(
+        atob(payloadBase64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(payloadJson);
+      if (!payload.exp) return false;
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+      return payload.exp < nowInSeconds;
+    } catch {
+      return true;
+    }
+  }
+
   public getAccessToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
@@ -67,7 +90,11 @@ export class AuthService {
   public logout(): void {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
-      this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe();
+      this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe({
+        error: () => {
+          // Ignorar fallo de red al invalidar token expirado
+        },
+      });
     }
 
     localStorage.removeItem(this.TOKEN_KEY);

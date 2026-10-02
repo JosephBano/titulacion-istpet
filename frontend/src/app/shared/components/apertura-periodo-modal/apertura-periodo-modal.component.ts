@@ -378,38 +378,20 @@ export class AperturaPeriodoModalComponent implements OnInit {
   cargarDatosBackend(): void {
     const tieneBorrador = this.recuperarBorrador();
 
-    // 1. Períodos académicos
-    this.titulacionService.getPeriodosAcademicos(true).subscribe({
+    // 1. Períodos académicos registrados en SIGAFI
+    this.titulacionService.getPeriodosAcademicos(false).subscribe({
       next: (data) => {
         if (data && data.length > 0) {
-          const currentYear = new Date().getFullYear();
-          const vigentesOFuturos = data.filter((p) => {
-            if (p.esActivo) return true;
-            if (p.fechaFinal) {
-              const dFin = new Date(p.fechaFinal);
-              if (dFin >= new Date(currentYear, new Date().getMonth() - 2, 1)) {
-                return true;
-              }
-            }
-            const match = p.idPeriodo.match(/\d{4}/);
-            if (match) {
-              const y = parseInt(match[0], 10);
-              return y >= currentYear;
-            }
-            return false;
-          });
-
-          const listaFinal = vigentesOFuturos.length > 0 ? vigentesOFuturos : data;
-          this.periodos.set(listaFinal);
+          this.periodos.set(data);
 
           if (!tieneBorrador) {
-            const activo = listaFinal.find((p) => p.esActivo);
-            const defaultPeriodo = activo ? activo.idPeriodo : listaFinal[0].idPeriodo;
+            const activo = data.find((p) => p.esActivo) || data[0];
+            const defaultPeriodo = activo ? activo.idPeriodo : data[0].idPeriodo;
 
             this.form.update((f) => ({
               ...f,
               idPeriodo: defaultPeriodo,
-              detalleConvocatoria: `Convocatoria Ordinaria ${defaultPeriodo}`.substring(0, 45),
+              detalleConvocatoria: this.generarTituloConvocatoria(defaultPeriodo),
             }));
           }
         }
@@ -526,12 +508,35 @@ export class AperturaPeriodoModalComponent implements OnInit {
   // ----------------------------------------------------
   // Métodos Paso 1: Período
   // ----------------------------------------------------
+  periodoSeleccionadoNombre = computed(() => {
+    const id = this.form().idPeriodo;
+    const p = this.periodos().find((x) => x.idPeriodo === id);
+    return p?.nombre || id || '';
+  });
+
+  generarTituloConvocatoria(
+    idPeriodo: string,
+    tipo?: 'Ordinaria' | 'Extraordinaria' | 'Especial',
+  ): string {
+    const p = this.periodos().find((x) => x.idPeriodo === idPeriodo);
+    const detallePeriodo = p?.nombre || idPeriodo;
+
+    let titulo = tipo
+      ? `Convocatoria ${tipo} ${detallePeriodo}`
+      : `Convocatoria ${detallePeriodo}`;
+
+    if (titulo.length > 50) {
+      titulo = `Convocatoria ${detallePeriodo}`;
+    }
+    return titulo.substring(0, 50);
+  }
+
   onPeriodoSelect(idPeriodo: string): void {
-    const detalleCorto = `Convocatoria Ordinaria ${idPeriodo}`.substring(0, 45);
+    const detalle = this.generarTituloConvocatoria(idPeriodo);
     this.form.update((f) => ({
       ...f,
       idPeriodo,
-      detalleConvocatoria: detalleCorto,
+      detalleConvocatoria: detalle,
     }));
     this.guardarBorrador();
   }
@@ -541,7 +546,7 @@ export class AperturaPeriodoModalComponent implements OnInit {
   // ----------------------------------------------------
   aplicarSugerenciaDetalle(tipo: 'Ordinaria' | 'Extraordinaria' | 'Especial'): void {
     const id = this.form().idPeriodo || 'ACTUAL';
-    const nuevo = `Convocatoria ${tipo} ${id}`.substring(0, 45);
+    const nuevo = this.generarTituloConvocatoria(id, tipo);
     this.form.update((f) => ({ ...f, detalleConvocatoria: nuevo }));
     this.guardarBorrador();
   }

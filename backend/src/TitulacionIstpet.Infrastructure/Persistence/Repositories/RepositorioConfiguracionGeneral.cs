@@ -24,35 +24,36 @@ public sealed class RepositorioConfiguracionGeneral(SigafiDbContext context) : I
             query = query.Where(m => m.EsActivo == true);
         }
 
-        return await query
+        var entidades = await query
             .OrderBy(m => m.ModalidadTitulacion)
-            .Select(m => new ModalidadMaestraDto(
-                m.IdModalidadTitulacion,
-                m.ModalidadTitulacion ?? string.Empty,
-                m.EsComplexivo,
-                m.EsArticuloCientifico,
-                m.GeneraTesis,
-                m.CantidadMinima,
-                m.EsActivo ?? false,
-                m.TitulRequisitoModalidad.Count(r => r.EsActivo),
-                m.TitulRequisitoModalidad
-                    .Where(r => r.EsActivo)
-                    .Select(rm => new RequisitoModalidadMatrizDto(
-                        rm.IdRequisitoModalidad,
-                        rm.IdModalidadTitulacion,
-                        m.ModalidadTitulacion ?? string.Empty,
-                        rm.IdRequisitos,
-                        rm.IdRequisitosNavigation.Requisito ?? string.Empty,
-                        rm.IdRequisitosNavigation.EsAdjunto ?? false,
-                        rm.IdRequisitosNavigation.EsBool ?? false,
-                        rm.IdRequisitosNavigation.SubeAlumno ?? false,
-                        rm.IdRequisitosNavigation.SubeColaborador ?? false,
-                        rm.EsRequisitoFinal ?? false,
-                        rm.EsActivo
-                    ))
-                    .ToList()
-            ))
             .ToListAsync(ct);
+
+        return entidades.Select(m => new ModalidadMaestraDto(
+            m.IdModalidadTitulacion,
+            m.ModalidadTitulacion ?? string.Empty,
+            m.EsComplexivo,
+            m.EsArticuloCientifico,
+            m.GeneraTesis,
+            m.CantidadMinima,
+            m.EsActivo ?? false,
+            m.TitulRequisitoModalidad.Count(r => r.EsActivo == true),
+            m.TitulRequisitoModalidad
+                .Where(r => r.EsActivo == true)
+                .Select(rm => new RequisitoModalidadMatrizDto(
+                    rm.IdRequisitoModalidad,
+                    rm.IdModalidadTitulacion,
+                    m.ModalidadTitulacion ?? string.Empty,
+                    rm.IdRequisitos,
+                    rm.IdRequisitosNavigation?.Requisito ?? string.Empty,
+                    rm.IdRequisitosNavigation?.EsAdjunto ?? false,
+                    rm.IdRequisitosNavigation?.EsBool ?? false,
+                    rm.IdRequisitosNavigation?.SubeAlumno ?? false,
+                    rm.IdRequisitosNavigation?.SubeColaborador ?? false,
+                    rm.EsRequisitoFinal ?? false,
+                    rm.EsActivo
+                ))
+                .ToList()
+        )).ToList();
     }
 
     public async Task<ModalidadMaestraDto?> ObtenerModalidadPorIdAsync(int idModalidad, CancellationToken ct = default)

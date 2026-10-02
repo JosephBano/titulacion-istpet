@@ -185,6 +185,16 @@ export class TitulacionService {
     return this.http.post<number>(`${this.API_URL}/configuracion/modalidades`, modalidad);
   }
 
+  public actualizarModalidadMaestra(
+    idModalidad: number,
+    modalidad: Partial<ModalidadMaestra>,
+  ): Observable<void> {
+    return this.http.put<void>(
+      `${this.API_URL}/configuracion/modalidades/${idModalidad}`,
+      modalidad,
+    );
+  }
+
   public cambiarEstadoModalidad(idModalidad: number, activo: boolean): Observable<void> {
     const params = new HttpParams().set('activo', activo.toString());
     return this.http.patch<void>(
@@ -203,6 +213,16 @@ export class TitulacionService {
 
   public crearRequisitoMaestro(requisito: Partial<RequisitoMaestro>): Observable<number> {
     return this.http.post<number>(`${this.API_URL}/configuracion/requisitos`, requisito);
+  }
+
+  public actualizarRequisitoMaestro(
+    idRequisito: number,
+    requisito: Partial<RequisitoMaestro>,
+  ): Observable<void> {
+    return this.http.put<void>(
+      `${this.API_URL}/configuracion/requisitos/${idRequisito}`,
+      requisito,
+    );
   }
 
   public cambiarEstadoRequisito(idRequisito: number, activo: boolean): Observable<void> {

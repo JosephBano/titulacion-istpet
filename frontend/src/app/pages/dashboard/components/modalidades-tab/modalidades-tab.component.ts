@@ -17,6 +17,7 @@ export class ModalidadesTabComponent {
   loading = input<boolean>(false);
 
   nuevaModalidad = output<void>();
+  editarModalidad = output<ModalidadMaestra>();
   abrirMatriz = output<ModalidadMaestra>();
   toggleEstado = output<ModalidadMaestra>();
 

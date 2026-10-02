@@ -144,9 +144,9 @@ public class AuthService : IAuthService
                 _context.Usuarios.Add(user);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                // Asignar rol TITULACION_ESTUDIANTE o alumno
+                // Asignar rol institucional de alumno (Id 15)
                 var rolEstudiante = await _context.RbacRol
-                    .FirstOrDefaultAsync(r => r.CodigoRol == "TITULACION_ESTUDIANTE" || r.CodigoRol == "alumno" || r.IdRol == 15, cancellationToken);
+                    .FirstOrDefaultAsync(r => r.CodigoRol == "alumno" || r.IdRol == 15 || r.CodigoRol == "ESTUDIANTE", cancellationToken);
 
                 if (rolEstudiante != null)
                 {
@@ -202,8 +202,9 @@ public class AuthService : IAuthService
                     _context.Usuarios.Add(user);
                     await _context.SaveChangesAsync(cancellationToken);
 
+                    // Asignar rol institucional de docente (Id 25)
                     var rolDocente = await _context.RbacRol
-                        .FirstOrDefaultAsync(r => r.CodigoRol == "TITULACION_DOCENTE" || r.CodigoRol == "docente" || r.IdRol == 25, cancellationToken);
+                        .FirstOrDefaultAsync(r => r.CodigoRol == "docente" || r.IdRol == 25 || r.CodigoRol == "PROFESOR" || r.CodigoRol == "DOCENTE", cancellationToken);
 
                     if (rolDocente != null)
                     {

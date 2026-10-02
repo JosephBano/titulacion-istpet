@@ -47,7 +47,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.usernameOrEmail || !this.password) {
-      this.errorMessage.set('Por favor, ingresa tu usuario y contraseña.');
+      this.errorMessage.set('Por favor, ingresa tu documento de identidad y contraseña.');
       return;
     }
 

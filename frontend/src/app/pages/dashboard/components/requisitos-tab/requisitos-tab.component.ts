@@ -17,6 +17,7 @@ export class RequisitosTabComponent {
   loading = input<boolean>(false);
 
   nuevoRequisito = output<void>();
+  editarRequisito = output<RequisitoMaestro>();
   toggleEstado = output<RequisitoMaestro>();
   gestionarResponsables = output<RequisitoMaestro>();
 
