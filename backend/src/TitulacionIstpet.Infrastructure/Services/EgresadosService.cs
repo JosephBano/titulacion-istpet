@@ -825,7 +825,11 @@ public sealed class EgresadosService(SigafiDbContext context, IMemoryCache cache
 
     private static bool EsMateriaIntegracionOTitulacion(string? nombre)
     {
-        if (string.IsNullOrWhiteSpace(nombre)) return false;
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            return false;
+        }
+
         var n = nombre.ToUpperInvariant();
         return n.Contains("INTEGRACION CURRICULAR") || n.Contains("INTEGRACIÓN CURRICULAR") ||
                n.Contains("TITULACION") || n.Contains("TITULACIÓN") ||
