@@ -110,7 +110,7 @@ export class ReportesTabComponent implements OnInit {
           this.periodoSeleccionado.set(data[0].idPeriodo);
         }
       },
-      error: () => {},
+      error: () => this.periodos.set([]),
     });
 
     this.egresadosService.getCarreras().subscribe({

@@ -356,7 +356,9 @@ export class AperturaPeriodoModalComponent implements OnInit {
   limpiarBorrador(): void {
     try {
       sessionStorage.removeItem(DRAFT_STORAGE_KEY);
-    } catch {}
+    } catch {
+      // Ignorar error si sessionStorage no está disponible
+    }
   }
 
   private resetFormulario(): void {
