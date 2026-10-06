@@ -1,0 +1,761 @@
+<section class="feature-intro">
+  <div>
+    <span class="eyebrow">PLANIFICACIÓN ACADÉMICA</span>
+    <h2>Curso de preparación del examen complexivo</h2>
+    <p>Organiza los módulos, contenidos, docentes y horarios de cada cohorte y carrera.</p>
+  </div>
+  @if (store.contexto() && !store.cargando()) {
+    <div class="toolbar-actions">
+      <button
+        type="button"
+        class="button-secondary"
+        (click)="imprimir(documento)"
+        [disabled]="!modulosActivos().length || store.guardando()"
+      >
+        Imprimir planificación
+      </button>
+      @if (store.contexto()?.esActivo && vacantesRequeridas() > 0) {
+        <button
+          type="button"
+          class="button-secondary"
+          (click)="solicitarPersonal()"
+          [disabled]="!!editor || store.guardando()"
+          [attr.title]="'Precargar una requisición con ' + vacantesRequeridas() + ' vacantes'"
+        >
+          Solicitar requisición de personal
+        </button>
+      }
+      @if (puedeCrear()) {
+        <button
+          type="button"
+          class="button-primary"
+          (click)="nuevo()"
+          [disabled]="!!editor || store.guardando()"
+        >
+          Nuevo módulo
+        </button>
+      }
+    </div>
+  }
+</section>
+
+<div class="feature-card context-selector">
+  <div class="form-field">
+    <label for="complexivo-cohorte">Cohorte / período académico</label
+    ><select
+      id="complexivo-cohorte"
+      [ngModel]="idCohorte()"
+      (ngModelChange)="cambiarCohorte($event)"
+      [disabled]="store.cargando() || store.guardando() || !!editor"
+    >
+      <option [ngValue]="null" disabled>Selecciona una cohorte</option>
+      @for (cohorte of cohortes(); track cohorte.idCohorte) {
+        <option [ngValue]="cohorte.idCohorte">{{ cohorte.cohorte }} · {{ cohorte.periodo }}</option>
+      }
+    </select>
+  </div>
+  <div class="form-field">
+    <label for="complexivo-carrera">Carrera / modalidad de estudio</label
+    ><select
+      id="complexivo-carrera"
+      [ngModel]="store.contexto()?.idCohorteCarrera"
+      (ngModelChange)="seleccionarCarrera($event)"
+      [disabled]="store.cargando() || store.guardando() || !!editor"
+    >
+      <option [ngValue]="null" disabled>Selecciona una carrera</option>
+      @for (carrera of carreras(); track carrera.idCohorteCarrera) {
+        <option [ngValue]="carrera.idCohorteCarrera">
+          {{ carrera.carrera }} · {{ carrera.modalidadEstudio
+          }}{{ !carrera.esActivo ? ' (histórico)' : '' }}
+        </option>
+      }
+    </select>
+  </div>
+</div>
+
+@if (store.error() && !editor) {
+  <div class="notice notice-error" role="alert">
+    {{ store.error() }}
+    <button type="button" class="button-secondary" (click)="ngOnInit()">Reintentar</button>
+  </div>
+}
+@if (mensaje()) {
+  <div class="notice notice-success" role="status">{{ mensaje() }}</div>
+}
+@if (store.cargando()) {
+  <div class="feature-card empty-state" role="status">Cargando planificación académica…</div>
+} @else if (!store.cohortesCarreras().length && !store.error()) {
+  <div class="feature-card empty-state">
+    <h3>Aún no hay cohortes con carreras</h3>
+    <p>Configura primero una convocatoria y sus carreras en «Convocatorias y Cortes».</p>
+  </div>
+} @else if (store.contexto()) {
+  <div class="summary-grid">
+    <div class="summary-item">
+      <span>Módulos activos</span><strong>{{ modulosActivos().length }}</strong>
+    </div>
+    <div class="summary-item">
+      <span>Horas planificadas</span><strong>{{ store.totalHoras() }}</strong>
+    </div>
+    <div class="summary-item">
+      <span>Asignaturas disponibles</span><strong>{{ store.asignaturas().length }}</strong>
+    </div>
+  </div>
+  @if (!store.malla().length && !store.error()) {
+    <div class="feature-card empty-state">
+      <h3>Planifica el primer módulo</h3>
+      <p>Esta carrera aún no tiene un curso configurado para la cohorte seleccionada.</p>
+      @if (puedeCrear()) {
+        <button
+          type="button"
+          class="button-primary"
+          (click)="nuevo()"
+          [disabled]="store.guardando()"
+        >
+          Crear módulo
+        </button>
+      }
+    </div>
+  }
+  @for (modulo of store.malla(); track modulo.idMallaComplexivo) {
+    <article class="feature-card module-card">
+      <header class="module-header">
+        <div>
+          <span class="eyebrow">{{ modulo.modalidad }}</span>
+          <h3>{{ modulo.detalle }}</h3>
+          <p>{{ modulo.detalleModulo }}</p>
+          <span class="field-help"
+            >{{ modulo.fechaInicio | date: 'dd/MM/yyyy' }} —
+            {{ modulo.fechaFin | date: 'dd/MM/yyyy' }}</span
+          >
+        </div>
+        <div class="toolbar-actions">
+          <span class="status-chip" [class.status-inactive]="!modulo.esActivo">{{
+            modulo.esActivo ? 'Activo' : 'Inactivo'
+          }}</span>
+          @if (puedeEditar()) {
+            <button
+              type="button"
+              class="button-secondary"
+              (click)="editar(modulo)"
+              [disabled]="store.guardando()"
+            >
+              Editar módulo
+            </button>
+          }
+        </div>
+      </header>
+      <div class="module-total">
+        <span>Total de horas del módulo</span>
+        <strong>{{ modulo.totalHoras }} <small>horas</small></strong>
+      </div>
+      <div class="table-scroll">
+        <table class="feature-table">
+          <caption class="sr-only">
+            Contenidos de
+            {{
+              modulo.detalle
+            }}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Asignatura</th>
+              <th scope="col">Temas / contenidos</th>
+              <th scope="col" class="hours-cell">Horas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tema of modulo.temas; track tema.idTemas) {
+              <tr>
+                <td>{{ asignatura(tema.idAsignatura) }}</td>
+                <td class="preserve-lines">{{ tema.detalle }}</td>
+                <td class="hours-cell">{{ tema.horasPorTema }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="assignment-list">
+        <h4>Docentes y horarios</h4>
+        <div class="planning-status" role="status">
+          @if (!tieneDocentes(modulo)) {
+            <p>No hay docentes activos asignados. Puedes asignarlos después.</p>
+          }
+          @if (!tieneHorarios(modulo)) {
+            <p>No hay horarios configurados en asignaciones activas.</p>
+          }
+        </div>
+        @for (docente of modulo.docentes; track docente.idMallaDocenteComplexivo) {
+          <div class="assignment">
+            <div class="assignment-heading">
+              <strong>{{ profesor(docente.idProfesor) }}</strong
+              ><span class="field-help"
+                >{{ docente.codigoAsignacion
+                }}{{ !docente.esActivo ? ' · Asignación inactiva' : '' }}</span
+              >
+            </div>
+            @for (horario of docente.horarios; track horario.idModulosHorarios) {
+              <p class="preserve-lines">
+                <span class="schedule-label">{{ horario.dias }}</span> · {{ horario.franjaHoraria }}
+              </p>
+            }
+            @if (!docente.horarios.length) {
+              <p class="field-help">Horario por definir</p>
+            }
+          </div>
+        }
+      </div>
+    </article>
+  }
+}
+
+<app-drawer
+  [isOpen]="!!editor"
+  [title]="idEdicion === null ? 'Nuevo módulo' : 'Editar módulo'"
+  [subtitle]="store.contexto()?.carrera || ''"
+  eyebrow="EXAMEN COMPLEXIVO"
+  size="xl"
+  [hasDirtyData]="hayCambios()"
+  [closeOnBackdrop]="!store.guardando()"
+  [closeOnEscape]="!store.guardando()"
+  (closed)="cerrarEditor()"
+>
+  @if (editor; as borrador) {
+    <form
+      #formulario="ngForm"
+      #elementoFormulario
+      (ngSubmit)="guardar(formulario, elementoFormulario)"
+      class="feature-form editor-form"
+    >
+      <fieldset [disabled]="store.guardando()" class="editor-fieldset">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="modulo-nombre">Nombre / número del módulo *</label
+            ><input
+              id="modulo-nombre"
+              name="detalle"
+              [(ngModel)]="borrador.detalle"
+              required
+              maxlength="150"
+            />
+          </div>
+          <div class="form-field">
+            <label for="modulo-modalidad">Modalidad del curso *</label
+            ><input
+              id="modulo-modalidad"
+              name="modalidad"
+              [(ngModel)]="borrador.modalidad"
+              required
+              maxlength="500"
+              placeholder="Virtual, presencial o mixta"
+            />
+          </div>
+          <div class="form-field full-width">
+            <label for="modulo-detalle">Descripción del módulo *</label
+            ><textarea
+              id="modulo-detalle"
+              name="detalleModulo"
+              [(ngModel)]="borrador.detalleModulo"
+              required
+              maxlength="500"
+              rows="2"
+            ></textarea>
+          </div>
+          <div class="form-field">
+            <label for="modulo-inicio">Fecha de inicio *</label
+            ><app-date-field
+              inputId="modulo-inicio"
+              name="fechaInicio"
+              [value]="borrador.fechaInicio"
+              (valueChange)="borrador.fechaInicio = $event || ''"
+              [required]="true"
+              [disabled]="store.guardando()"
+            />
+          </div>
+          <div class="form-field">
+            <label for="modulo-fin">Fecha final *</label
+            ><app-date-field
+              inputId="modulo-fin"
+              name="fechaFin"
+              [value]="borrador.fechaFin"
+              (valueChange)="borrador.fechaFin = $event || ''"
+              [min]="borrador.fechaInicio"
+              [required]="true"
+              [disabled]="store.guardando()"
+            />
+          </div>
+          <div class="form-field">
+            <label for="modulo-horas">Total de horas del módulo *</label
+            ><input
+              id="modulo-horas"
+              name="totalHoras"
+              type="number"
+              [(ngModel)]="borrador.totalHoras"
+              required
+              min="1"
+              step="1"
+              pattern="[0-9]+"
+            />
+          </div>
+          <label class="check-option"
+            ><input name="esActivo" type="checkbox" [(ngModel)]="borrador.esActivo" />Módulo
+            activo</label
+          >
+        </div>
+
+        <section class="editor-section">
+          <div class="section-toolbar">
+            <h3>Temas y asignaturas</h3>
+            <button type="button" class="button-secondary" (click)="agregarTema()">
+              Agregar tema
+            </button>
+          </div>
+          <p class="field-help">
+            Agrupa los contenidos de cada asignatura e indica sus horas. La suma debe coincidir con
+            el total del módulo.
+          </p>
+          @if (!store.asignaturas().length) {
+            <p class="notice notice-error">
+              La carrera no tiene asignaturas disponibles en su malla académica.
+            </p>
+          }
+          @for (tema of borrador.temas; track tema; let i = $index) {
+            <div class="editor-row">
+              <div class="row-toolbar">
+                <strong>Tema {{ i + 1 }}</strong
+                ><button
+                  type="button"
+                  class="button-text"
+                  (click)="borrador.temas.splice(i, 1)"
+                  [attr.aria-label]="'Quitar tema ' + (i + 1)"
+                >
+                  Quitar
+                </button>
+              </div>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label [for]="'asignatura-' + i">Asignatura *</label
+                  ><select
+                    [id]="'asignatura-' + i"
+                    [name]="'asignatura-' + i"
+                    [(ngModel)]="tema.idAsignatura"
+                    required
+                  >
+                    <option [ngValue]="0" disabled>Selecciona una asignatura</option>
+                    @for (asignatura of store.asignaturas(); track asignatura.idAsignatura) {
+                      <option [ngValue]="asignatura.idAsignatura">{{ asignatura.nombre }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label [for]="'tema-horas-' + i">Horas *</label
+                  ><input
+                    [id]="'tema-horas-' + i"
+                    [name]="'tema-horas-' + i"
+                    type="number"
+                    [(ngModel)]="tema.horasPorTema"
+                    required
+                    min="1"
+                    step="1"
+                    pattern="[0-9]+"
+                  />
+                </div>
+                <div class="form-field full-width">
+                  <label [for]="'tema-detalle-' + i">Contenidos *</label
+                  ><textarea
+                    [id]="'tema-detalle-' + i"
+                    [name]="'tema-detalle-' + i"
+                    [(ngModel)]="tema.detalle"
+                    required
+                    maxlength="500"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          }
+          <div
+            class="hours-summary"
+            [class.hours-mismatch]="sumarHoras() !== borrador.totalHoras"
+            role="status"
+          >
+            <div>
+              <span
+                >Horas de los temas:
+                <strong>{{ sumarHoras() }} / {{ borrador.totalHoras }}</strong></span
+              >
+              @if (diferenciaHoras(); as diferencia) {
+                <p>{{ diferencia }}</p>
+              }
+            </div>
+            @if (sumarHoras() > 0 && sumarHoras() !== borrador.totalHoras) {
+              <button type="button" class="button-secondary" (click)="usarHorasTemas()">
+                Usar {{ sumarHoras() }} horas como total
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="editor-section">
+          <div class="section-toolbar">
+            <h3>Docentes y horarios</h3>
+            <div class="toolbar-actions">
+              <button type="button" class="button-secondary" (click)="agregarHorario()">
+                Agregar horario
+              </button>
+              <button type="button" class="button-secondary" (click)="agregarDocente()">
+                Agregar asignación
+              </button>
+            </div>
+          </div>
+          <p class="field-help">
+            Agrega horarios sin seleccionar un docente y asígnalo después al editar el módulo.
+            Puedes definir varios horarios, fechas específicas y excepciones.
+          </p>
+          @for (docente of borrador.docentes; track docente; let d = $index) {
+            <div class="editor-row">
+              <div class="row-toolbar">
+                <strong>Asignación {{ d + 1 }}</strong
+                ><button
+                  type="button"
+                  class="button-text"
+                  (click)="borrador.docentes.splice(d, 1)"
+                  [attr.aria-label]="'Quitar asignación ' + (d + 1)"
+                >
+                  Quitar
+                </button>
+              </div>
+              <div class="form-grid">
+                <div class="form-field full-width">
+                  <label [for]="'docente-' + d">Docente</label>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <input
+                      matInput
+                      #busquedaDocente
+                      [id]="'docente-' + d"
+                      [name]="'docente-' + d"
+                      [(ngModel)]="docente.idProfesor"
+                      [matAutocomplete]="docentes"
+                      placeholder="Buscar por nombre o cédula"
+                      (input)="busquedasDocentes.set(docente, busquedaDocente.value)"
+                      (focus)="busquedasDocentes.set(docente, '')"
+                      [disabled]="store.guardando()"
+                    />
+                    <span matIconPrefix class="search-symbol" aria-hidden="true"
+                      ><svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                      >
+                        <circle cx="10.5" cy="10.5" r="6.5" />
+                        <path d="m16 16 5 5" /></svg
+                    ></span>
+                    <mat-autocomplete
+                      #docentes="matAutocomplete"
+                      [displayWith]="mostrarProfesor"
+                      [requireSelection]="true"
+                      class="complexivo-teachers"
+                      (optionSelected)="busquedasDocentes.delete(docente)"
+                    >
+                      <mat-option [value]="null">Pendiente de asignación</mat-option>
+                      @for (profesor of profesoresFiltrados(docente); track profesor.idProfesor) {
+                        <mat-option [value]="profesor.idProfesor">
+                          <span class="teacher-option">
+                            <span>{{ profesor.nombresCompletos }}</span>
+                            <small
+                              >{{ profesor.idProfesor
+                              }}{{ !profesor.activo ? ' · Inactivo' : '' }}</small
+                            >
+                          </span>
+                        </mat-option>
+                      } @empty {
+                        <mat-option disabled>No se encontraron docentes.</mat-option>
+                      }
+                      @if (docente.idProfesor && !profesorEnCatalogo(docente.idProfesor)) {
+                        <mat-option [value]="docente.idProfesor"
+                          >{{ docente.idProfesor }} · Asignación existente</mat-option
+                        >
+                      }
+                    </mat-autocomplete>
+                  </mat-form-field>
+                  <span class="field-help"
+                    >{{ profesor(docente.idProfesor) }} · Selecciona un resultado de la
+                    búsqueda.</span
+                  >
+                </div>
+                <div class="form-field">
+                  <label [for]="'asignacion-fecha-' + d">Fecha de asignación</label
+                  ><app-date-field
+                    [inputId]="'asignacion-fecha-' + d"
+                    [name]="'asignacion-fecha-' + d"
+                    [(value)]="docente.fechaAsignacion"
+                    [disabled]="store.guardando()"
+                  />
+                </div>
+                <div class="form-field">
+                  <label [for]="'asignacion-codigo-' + d">Código de asignación</label
+                  ><input
+                    [id]="'asignacion-codigo-' + d"
+                    [name]="'asignacion-codigo-' + d"
+                    [(ngModel)]="docente.codigoAsignacion"
+                    maxlength="10"
+                  />
+                </div>
+                <label class="check-option"
+                  ><input
+                    [name]="'asignacion-activo-' + d"
+                    type="checkbox"
+                    [(ngModel)]="docente.esActivo"
+                  />Asignación activa</label
+                >
+              </div>
+              @for (horario of docente.horarios; track horario; let h = $index) {
+                <div class="schedule-editor">
+                  <div class="form-field">
+                    <label [for]="'dias-' + d + '-' + h">Días / fechas *</label
+                    ><textarea
+                      [id]="'dias-' + d + '-' + h"
+                      [name]="'dias-' + d + '-' + h"
+                      [(ngModel)]="horario.dias"
+                      required
+                      maxlength="250"
+                      rows="2"
+                    ></textarea>
+                  </div>
+                  <div class="form-field">
+                    <label [for]="'franja-' + d + '-' + h">Franja horaria / modalidad *</label
+                    ><textarea
+                      [id]="'franja-' + d + '-' + h"
+                      [name]="'franja-' + d + '-' + h"
+                      [(ngModel)]="horario.franjaHoraria"
+                      required
+                      maxlength="150"
+                      rows="2"
+                    ></textarea>
+                  </div>
+                  <button
+                    type="button"
+                    class="button-text"
+                    (click)="docente.horarios.splice(h, 1)"
+                    [attr.aria-label]="'Quitar horario ' + (h + 1) + ' de asignación ' + (d + 1)"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              }
+              <button type="button" class="button-secondary" (click)="agregarHorario(docente)">
+                Agregar horario
+              </button>
+            </div>
+          }
+        </section>
+      </fieldset>
+      @if (store.error()) {
+        <div class="notice notice-error" role="alert">{{ store.error() }}</div>
+      }
+      @if (intentoGuardar() && erroresValidacion(formulario).length) {
+        <div class="notice notice-error validation-summary" role="alert">
+          <strong>Revisa estos datos para guardar el módulo:</strong>
+          <ul>
+            @for (error of erroresValidacion(formulario); track error) {
+              <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      }
+      @if (borrador.fechaFin && borrador.fechaInicio && borrador.fechaFin < borrador.fechaInicio) {
+        <p class="notice notice-error" role="alert">
+          La fecha final debe ser igual o posterior a la fecha de inicio.
+        </p>
+      }
+      <div class="form-actions">
+        <span class="field-help">* Campos obligatorios</span
+        ><button type="submit" class="button-primary" [disabled]="store.guardando()">
+          {{ store.guardando() ? 'Guardando…' : 'Guardar módulo' }}
+        </button>
+      </div>
+    </form>
+  }
+</app-drawer>
+
+<article #documento class="print-document complexivo-planning" hidden>
+  <header class="planning-header">
+    <div class="planning-brand">
+      <img src="logo_istpet_color.webp" alt="ISTPET" />
+      <strong>UNIDAD DE<br />TITULACIÓN</strong>
+    </div>
+    <div class="planning-period">
+      <strong>Período académico de titulación</strong>
+      <p>{{ store.contexto()?.periodo }} · {{ store.contexto()?.cohorte }}</p>
+    </div>
+  </header>
+  <div class="planning-title">
+    <h1>MATERIAS Y HORARIOS DEL CURSO DEL EXAMEN COMPLEXIVO</h1>
+    <p>
+      <strong>{{ store.contexto()?.carrera }}</strong>
+    </p>
+    <p><strong>Modalidad de estudio:</strong> {{ store.contexto()?.modalidadEstudio }}</p>
+  </div>
+  <table class="curriculum-table" aria-label="Materias y contenidos del curso">
+    <colgroup>
+      <col class="col-module" />
+      <col class="col-topic" />
+      <col class="col-hours" />
+      <col class="col-subject" />
+      <col class="col-teacher" />
+      <col class="col-total" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th scope="col">MÓDULO</th>
+        <th scope="col">TEMA</th>
+        <th scope="col">HORAS POR TEMA</th>
+        <th scope="col">MATERIAS</th>
+        <th scope="col">DOCENTES</th>
+        <th scope="col">TOTAL DE HORAS</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (grupo of planificacion(); track grupo.modulo.idMallaComplexivo) {
+        @for (
+          materia of grupo.asignaturas;
+          track materia.idAsignatura;
+          let primeraMateria = $first
+        ) {
+          @for (tema of materia.temas; track tema.idTemas; let primerTema = $first) {
+            <tr [class]="'module-tone-' + grupo.color">
+              @if (primeraMateria && primerTema) {
+                <td [attr.rowspan]="grupo.modulo.temas.length" class="module-description">
+                  <strong class="module-highlight">{{ grupo.modulo.detalle }}</strong>
+                  <p class="preserve-lines">{{ grupo.modulo.detalleModulo }}</p>
+                </td>
+              }
+              <td class="preserve-lines">{{ tema.detalle }}</td>
+              <td class="center-cell">{{ tema.horasPorTema }}</td>
+              @if (primerTema) {
+                <td [attr.rowspan]="materia.temas.length" class="center-cell">
+                  {{ asignatura(materia.idAsignatura) }}
+                </td>
+              }
+              @if (primeraMateria && primerTema) {
+                <td [attr.rowspan]="grupo.modulo.temas.length" class="center-cell">
+                  @for (docente of grupo.docentes; track docente.idMallaDocenteComplexivo) {
+                    <p>
+                      <span class="module-highlight">{{ profesor(docente.idProfesor) }}</span>
+                    </p>
+                  } @empty {
+                    <p>Sin docentes asignados</p>
+                  }
+                </td>
+                <td [attr.rowspan]="grupo.modulo.temas.length" class="center-cell module-hours">
+                  <strong>{{ grupo.modulo.totalHoras }}</strong
+                  ><br />HORAS
+                </td>
+              }
+            </tr>
+          }
+        } @empty {
+          <tr [class]="'module-tone-' + grupo.color">
+            <td class="module-description">
+              <strong class="module-highlight">{{ grupo.modulo.detalle }}</strong>
+              <p class="preserve-lines">{{ grupo.modulo.detalleModulo }}</p>
+            </td>
+            <td colspan="3">Sin temas configurados</td>
+            <td class="center-cell">
+              @for (docente of grupo.docentes; track docente.idMallaDocenteComplexivo) {
+                <p>{{ profesor(docente.idProfesor) }}</p>
+              } @empty {
+                Sin docentes asignados
+              }
+            </td>
+            <td class="center-cell module-hours">
+              <strong>{{ grupo.modulo.totalHoras }}</strong
+              ><br />HORAS
+            </td>
+          </tr>
+        }
+      }
+      <tr class="course-total">
+        <th colspan="5" scope="row">TOTAL DE HORAS DEL CURSO</th>
+        <td class="center-cell">
+          <strong>{{ store.totalHoras() }}</strong>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <section class="course-schedules">
+    <p>
+      <strong>PERÍODO DE TIEMPO DEL CURSO:</strong>
+      {{ periodoCurso().inicio | date: 'dd/MM/yyyy' }} al
+      {{ periodoCurso().fin | date: 'dd/MM/yyyy' }}.
+    </p>
+    <p><strong>MODALIDAD DEL CURSO:</strong> {{ modalidadesCurso() }}.</p>
+    <table class="schedules-table" aria-label="Horarios por módulo">
+      <colgroup>
+        <col class="col-schedule-module" />
+        <col class="col-schedule-period" />
+        <col />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">MÓDULO</th>
+          <th scope="col">PERÍODO / FECHAS</th>
+          <th scope="col">HORARIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (grupo of planificacion(); track grupo.modulo.idMallaComplexivo) {
+          <tr [class]="'module-tone-' + grupo.color">
+            <th scope="row" class="schedule-module">
+              <span class="module-highlight">{{ grupo.modulo.detalle }}</span>
+            </th>
+            <td class="center-cell">
+              <strong class="module-highlight"
+                >{{ grupo.modulo.fechaInicio | date: 'dd/MM/yyyy' }}<br />al
+                {{ grupo.modulo.fechaFin | date: 'dd/MM/yyyy' }}</strong
+              >
+            </td>
+            <td>
+              @if (!tieneDocentes(grupo.modulo)) {
+                <p class="pending-note">Sin docentes asignados · Asignación pendiente</p>
+              }
+              @for (docente of grupo.docentes; track docente.idMallaDocenteComplexivo) {
+                <div class="schedule-assignment">
+                  @if (docente.idProfesor) {
+                    <p>
+                      <strong>{{ profesor(docente.idProfesor) }}</strong>
+                    </p>
+                  } @else if (tieneDocentes(grupo.modulo)) {
+                    <p>Docente pendiente de asignación</p>
+                  }
+                  @for (horario of docente.horarios; track horario.idModulosHorarios) {
+                    <p class="preserve-lines">{{ horario.dias }} · {{ horario.franjaHoraria }}</p>
+                  } @empty {
+                    @if (tieneHorarios(grupo.modulo)) {
+                      <p>Horario por definir para esta asignación</p>
+                    }
+                  }
+                </div>
+              }
+              @if (!tieneHorarios(grupo.modulo)) {
+                <p>No hay horarios configurados</p>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <h3>Observaciones:</h3>
+    <ul>
+      <li>Cada docente debe ajustarse a las fechas y horarios del módulo asignado.</li>
+      <li>
+        Los docentes pendientes pueden asignarse posteriormente sin modificar los horarios
+        planificados.
+      </li>
+    </ul>
+  </section>
+</article>

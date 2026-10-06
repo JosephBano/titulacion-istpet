@@ -1,0 +1,1007 @@
+/* ==========================================================================
+   REQUISICIÓN DE PERSONAL — SISTEMA DE DISEÑO EMIL KOWALSKI
+   Micro-interacciones fluidas, físicas de resorte y artesanía de interfaz
+   ========================================================================== */
+
+:host {
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-fast: 150ms var(--ease-spring);
+  --transition-normal: 220ms var(--ease-spring);
+  --transition-slow: 350ms var(--ease-spring);
+
+  --istpet-navy: #002855;
+  --istpet-navy-hover: #001f42;
+  --istpet-navy-subtle: rgba(0, 40, 85, 0.05);
+  --istpet-navy-border: rgba(0, 40, 85, 0.18);
+  --istpet-gold: #fcb813;
+  --istpet-gold-subtle: rgba(252, 184, 19, 0.12);
+
+  --card-bg: var(--bg-surface, #ffffff);
+  --card-border: var(--border-subtle, rgba(0, 0, 0, 0.08));
+  --card-border-focus: var(--istpet-navy);
+  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 6px 16px -4px rgba(15, 23, 42, 0.04);
+  --card-shadow-hover: 0 2px 6px rgba(15, 23, 42, 0.04), 0 10px 24px -4px rgba(15, 23, 42, 0.07);
+
+  display: block;
+  color: var(--text-primary, #0f172a);
+  font-family: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   1. HERO INTRODUCING HEADER
+   -------------------------------------------------------------------------- */
+.feature-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.intro-content {
+  flex: 1;
+  min-width: 280px;
+}
+
+.eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  background: var(--istpet-navy-subtle);
+  border: 1px solid var(--istpet-navy-border);
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--istpet-navy);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.eyebrow-badge i {
+  font-size: 0.8rem;
+  color: var(--istpet-gold);
+}
+
+.badge-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--istpet-navy);
+  opacity: 0.5;
+}
+
+.feature-intro h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary, #0f172a);
+  margin: 4px 0 8px;
+  line-height: 1.25;
+}
+
+.feature-intro p {
+  color: var(--text-secondary, #475569);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 680px;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-canvas, #f8fafc);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary, #475569);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.status-chip i {
+  color: #059669;
+  font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   2. PROGRESS TRACKER DOCK
+   -------------------------------------------------------------------------- */
+.progress-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: box-shadow var(--transition-normal);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.progress-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+}
+
+.progress-label i {
+  color: var(--istpet-navy);
+}
+
+.progress-stats {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary, #475569);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--istpet-navy) 0%, #1a56db 70%, var(--istpet-gold) 100%);
+  border-radius: 9999px;
+  transition: width var(--transition-slow);
+}
+
+.progress-nav {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.progress-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.progress-step-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted, #64748b);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: unset;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.progress-step-btn:hover {
+  background: #f1f5f9;
+  color: var(--text-primary, #0f172a);
+  transform: translateY(-1px);
+}
+
+.progress-step-btn:active {
+  transform: scale(0.97);
+}
+
+.progress-step-btn.is-complete {
+  color: #059669;
+}
+
+.progress-step-btn.is-complete i {
+  font-size: 0.78rem;
+}
+
+/* --------------------------------------------------------------------------
+   3. NOTICE BANNER (CONTEXTUAL INFO)
+   -------------------------------------------------------------------------- */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 0 0 22px;
+  background: #f0f7ff;
+  border: 1px solid #c8e1fd;
+  border-left: 4px solid var(--istpet-navy);
+  color: #1e3a8a;
+  animation: slideDownFade 240ms var(--ease-spring);
+}
+
+.notice i {
+  font-size: 1.15rem;
+  color: var(--istpet-navy);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.notice-text {
+  flex: 1;
+}
+
+.notice-pill {
+  display: inline-block;
+  padding: 1px 7px;
+  background: rgba(0, 40, 85, 0.1);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   4. SECTION CARDS (CRAFTED FORM CARDS)
+   -------------------------------------------------------------------------- */
+.feature-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feature-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 24px;
+  margin: 0;
+  min-width: 0;
+  box-shadow: var(--card-shadow);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.feature-card:hover {
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+.feature-card:focus-within {
+  border-color: var(--istpet-navy-border);
+  box-shadow: var(--card-shadow-hover);
+}
+
+fieldset.feature-card {
+  padding: 24px;
+  margin: 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: var(--text-secondary, #475569);
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  transition: all var(--transition-normal);
+}
+
+.section-badge.is-complete {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.section-badge.is-complete i {
+  font-size: 0.95rem;
+}
+
+.section-headings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.section-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.section-subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.4;
+}
+
+.section-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all var(--transition-normal);
+}
+
+.section-status-pill.is-complete {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+/* --------------------------------------------------------------------------
+   5. FORM GRIDS & FIELDS
+   -------------------------------------------------------------------------- */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+
+.form-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 2px;
+}
+
+label span[aria-hidden='true'] {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+input:not([type='checkbox']):not(.mat-mdc-input-element),
+select,
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--text-primary, #0f172a);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 9px 13px;
+  font: inherit;
+  font-size: 0.9rem;
+  min-height: 42px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+input:hover:not(:disabled),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) {
+  border-color: #94a3b8;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--istpet-navy);
+  box-shadow: 0 0 0 3px rgba(0, 40, 85, 0.12);
+  background: #ffffff;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--istpet-gold);
+  outline-offset: 2px;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 18px 18px;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.field-help {
+  color: var(--text-muted, #64748b);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.field-help i {
+  font-size: 0.8rem;
+  color: var(--istpet-navy);
+  opacity: 0.75;
+}
+
+.dynamic-field-wrapper {
+  animation: slideDownFade 220ms var(--ease-spring);
+}
+
+/* --------------------------------------------------------------------------
+   6. CALCULATION HELPER (DELIGHT FEATURE)
+   -------------------------------------------------------------------------- */
+.calc-helper-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 4px;
+  animation: slideDownFade 200ms var(--ease-spring);
+}
+
+.calc-helper-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary, #475569);
+}
+
+.calc-helper-text i {
+  color: var(--istpet-navy);
+  font-size: 0.95rem;
+}
+
+.calc-helper-text strong {
+  color: var(--istpet-navy);
+  font-weight: 700;
+}
+
+.calc-apply-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: var(--istpet-navy);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.calc-apply-btn:hover {
+  background: var(--istpet-navy-subtle);
+  border-color: var(--istpet-navy);
+  transform: translateY(-1px);
+}
+
+.calc-apply-btn:active {
+  transform: scale(0.96);
+}
+
+/* --------------------------------------------------------------------------
+   7. COMPETENCY CHIPS (EMIL KOWALSKI MICRO-INTERACTIONS)
+   -------------------------------------------------------------------------- */
+.competency-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 10px;
+}
+
+.competency-header h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  margin: 0;
+}
+
+.competency-count-pill {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  background: #f1f5f9;
+  border-radius: 9999px;
+  padding: 2px 8px;
+}
+
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.check-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 0;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-primary, #0f172a);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.check-option:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.check-option:active {
+  transform: scale(0.975);
+}
+
+.check-option input[type='checkbox'] {
+  accent-color: var(--istpet-navy);
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  margin: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.check-option:has(input:checked),
+.check-option.is-selected {
+  background: var(--istpet-navy-subtle);
+  border-color: var(--istpet-navy);
+  color: var(--istpet-navy);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 40, 85, 0.06);
+}
+
+.check-option:has(input:checked) input[type='checkbox'] {
+  transform: scale(1.08);
+}
+
+/* --------------------------------------------------------------------------
+   8. BUTTONS & ACTIONS
+   -------------------------------------------------------------------------- */
+button {
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 9px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  user-select: none;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button-primary {
+  background: var(--istpet-navy);
+  color: #ffffff;
+  border: 1px solid var(--istpet-navy);
+  box-shadow: 0 1px 3px rgba(0, 40, 85, 0.15), 0 2px 8px -2px rgba(0, 40, 85, 0.2);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: var(--istpet-navy-hover);
+  border-color: var(--istpet-navy-hover);
+  box-shadow: 0 4px 12px rgba(0, 40, 85, 0.25);
+  transform: translateY(-1px);
+}
+
+.button-secondary {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: var(--text-primary, #0f172a);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Button icons via ::before for exact textContent testing compatibility */
+.btn-cargar-ejemplo::before {
+  content: '\F473'; /* bi-stars / bi-magic */
+  font-family: 'bootstrap-icons';
+  font-style: normal;
+  font-size: 0.92rem;
+  color: var(--istpet-gold);
+}
+
+.btn-imprimir::before {
+  content: '\F500'; /* bi-printer */
+  font-family: 'bootstrap-icons';
+  font-style: normal;
+  font-size: 0.95rem;
+}
+
+.btn-vista-previa::before {
+  content: '\F33F'; /* bi-eye */
+  font-family: 'bootstrap-icons';
+  font-style: normal;
+  font-size: 0.92rem;
+  color: var(--istpet-navy);
+}
+
+.btn-close-preview::before {
+  content: '\F659'; /* bi-x-lg */
+  font-family: 'bootstrap-icons';
+  font-style: normal;
+  font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   9. STICKY ACTION DOCK (FLOATING FOOTER)
+   -------------------------------------------------------------------------- */
+.form-actions-dock {
+  position: sticky;
+  bottom: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-top: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-normal);
+}
+
+.dock-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.green {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  animation: pulseGlow 2.5s infinite;
+}
+
+.status-dot.amber {
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.status-ready {
+  color: #065f46;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pending {
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dock-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   10. DOCUMENT PREVIEW DIALOG (A4 POPUP)
+   -------------------------------------------------------------------------- */
+.document-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(1120px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  height: min(92dvh, 980px);
+  max-height: 92dvh;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--text-primary, #0f172a);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.document-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: modalPop 240ms var(--ease-spring) forwards;
+}
+
+.document-dialog::backdrop {
+  background: rgba(8, 17, 51, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 200ms ease forwards;
+}
+
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.toolbar-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.doc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--istpet-navy);
+  letter-spacing: 0.06em;
+}
+
+.doc-badge i {
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.preview-toolbar h2 {
+  font-size: 1.15rem;
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.dialog-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: #e8ebef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.document-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   11. ANIMATIONS & KEYFRAMES
+   -------------------------------------------------------------------------- */
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   12. ACCESSIBILITY & RESPONSIVE DESIGN
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .feature-intro {
+    flex-direction: column;
+  }
+
+  .form-grid,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .check-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions-dock {
+    flex-direction: column;
+    align-items: stretch;
+    bottom: 8px;
+    padding: 14px;
+  }
+
+  .dock-buttons {
+    justify-content: stretch;
+  }
+
+  .dock-buttons button {
+    flex: 1;
+  }
+
+  .document-dialog {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  .preview-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .preview-toolbar .toolbar-actions {
+    justify-content: space-between;
+  }
+}
