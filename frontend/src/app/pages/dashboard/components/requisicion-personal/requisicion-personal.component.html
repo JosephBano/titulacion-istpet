@@ -546,16 +546,27 @@
         <i class="bi bi-file-earmark-pdf-fill" aria-hidden="true"></i>
         <span>FORMATO INSTITUCIONAL · A4</span>
       </div>
-      <h2 id="preview-title">Requisición de personal</h2>
+      <h2 id="preview-title">{{ plantilla.documento.titulo }}</h2>
     </div>
     <div class="toolbar-actions">
+      <button
+        type="button"
+        class="button-secondary btn-descargar-modal"
+        [disabled]="formulario.invalid || generandoPdfDescarga()"
+        (click)="descargarPdfOficial()"
+        title="Descargar PDF vectorial oficial"
+      >
+        <i class="bi bi-download" aria-hidden="true"></i>
+        <span>{{ generandoPdfDescarga() ? 'Generando...' : 'Descargar PDF' }}</span>
+      </button>
       <button
         type="button"
         class="button-primary btn-imprimir"
         [disabled]="formulario.invalid"
         (click)="imprimir(documento)"
       >
-        Imprimir / Guardar PDF
+        <i class="bi bi-printer" aria-hidden="true"></i>
+        <span>Imprimir documento</span>
       </button>
       <button
         type="button"
@@ -578,110 +589,134 @@
 </dialog>
 
 <article #documento class="print-document" hidden>
-  <h1>FORMATO DE REQUISICIÓN DE PERSONAL</h1>
-  <h2>1. INFORMACIÓN GENERAL</h2>
+  <div class="document-header">
+    <div class="header-brand-row">
+      @if (logoDataUrl()) {
+        <img [src]="logoDataUrl()" alt="Logotipo institucional" class="header-logo-img" />
+      } @else if (plantilla.documento.logo.usarLogoInstitucional) {
+        <div class="header-logo-badge">
+          <span class="badge-istpet">ISTPET</span>
+          <span class="badge-sub">Instituto Tecnológico Superior Traversari</span>
+        </div>
+      }
+      <div class="header-titles">
+        <h1 class="document-title">{{ plantilla.documento.titulo }}</h1>
+        @if (plantilla.documento.subtitulo) {
+          <p class="document-subtitle">{{ plantilla.documento.subtitulo }}</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-header">{{ seccionTitulo('general', '1. INFORMACIÓN GENERAL') }}</h2>
   <dl class="document-fields">
     @for (campo of generales; track campo.clave) {
-      <dt>{{ campo.etiqueta }}</dt>
+      <dt>{{ etiquetaCampo(campo.clave, campo.etiqueta) }}</dt>
       <dd>
         {{ campo.tipo === 'date' ? (datos[campo.clave] | date: 'dd/MM/yyyy') : datos[campo.clave] }}
       </dd>
     }
   </dl>
-  <h2>2. INSTITUCIÓN SOLICITANTE</h2>
-  @for (institucion of instituciones; track institucion) {
-    <p>{{ datos.institucion === institucion ? '☑' : '☐' }} {{ institucion }}</p>
-  }
-  <h2>3. INFORMACIÓN DE LA VACANTE</h2>
+
+  <h2 class="section-header">{{ seccionTitulo('institucion', '2. INSTITUCIÓN SOLICITANTE') }}</h2>
+  <div class="document-options">
+    @for (institucion of instituciones; track institucion) {
+      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.institucion === institucion">{{ datos.institucion === institucion ? '☑' : '☐' }}</span> {{ institucion }}</span>
+    }
+  </div>
+
+  <h2 class="section-header">{{ seccionTitulo('vacante', '3. INFORMACIÓN DE LA VACANTE') }}</h2>
   <dl class="document-fields">
-    <dt>Cargo solicitado</dt>
+    <dt>{{ etiquetaCampo('cargo', 'Cargo solicitado') }}</dt>
     <dd>{{ datos.cargo }}</dd>
-    <dt>Número de vacantes</dt>
+    <dt>{{ etiquetaCampo('numeroVacantes', 'Número de vacantes') }}</dt>
     <dd>{{ numeroVacantes }}</dd>
-    <dt>Tipo de contratación</dt>
+    <dt>{{ etiquetaCampo('contratacion', 'Tipo de contratación') }}</dt>
     <dd>
       @for (tipo of contrataciones; track tipo) {
-        {{ datos.contratacion === tipo ? '☑' : '☐' }} {{ tipo }} &nbsp;
+        <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.contratacion === tipo">{{ datos.contratacion === tipo ? '☑' : '☐' }}</span> {{ tipo }} &nbsp;</span>
       }
     </dd>
-    <dt>Jornada laboral</dt>
+    <dt>{{ etiquetaCampo('jornada', 'Jornada laboral') }}</dt>
     <dd>
       @for (jornada of jornadas; track jornada) {
-        {{ datos.jornada === jornada ? '☑' : '☐' }} {{ jornada }} &nbsp;
+        <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.jornada === jornada">{{ datos.jornada === jornada ? '☑' : '☐' }}</span> {{ jornada }} &nbsp;</span>
       }
     </dd>
-    <dt>Remuneración</dt>
+    <dt>{{ etiquetaCampo('remuneracion', 'Remuneración') }}</dt>
     <dd>
-      {{ datos.remuneracion === 'Sueldo' ? '☑' : '☐' }} Sueldo:
-      {{
+      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Sueldo'">{{ datos.remuneracion === 'Sueldo' ? '☑' : '☐' }}</span> Sueldo: {{
         datos.remuneracion === 'Sueldo' && valorRemuneracion !== null
           ? (valorRemuneracion | number: '1.2-2')
           : '________'
-      }}
-      &nbsp; {{ datos.remuneracion === 'Factura' ? '☑' : '☐' }} Factura / valor hora:
-      {{
+      }}</span>
+      &nbsp;
+      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Factura'">{{ datos.remuneracion === 'Factura' ? '☑' : '☐' }}</span> Factura / valor hora: {{
         datos.remuneracion === 'Factura' && valorRemuneracion !== null
           ? (valorRemuneracion | number: '1.2-2')
           : '________'
-      }}
+      }}</span>
       &nbsp; Valor total: {{ valorTotal !== null ? (valorTotal | number: '1.2-2') : '________' }}
     </dd>
-    <dt>Horario requerido</dt>
+    <dt>{{ etiquetaCampo('horario', 'Horario requerido') }}</dt>
     <dd>{{ datos.horario }}</dd>
-    <dt>Lugar de trabajo</dt>
+    <dt>{{ etiquetaCampo('lugar', 'Lugar de trabajo') }}</dt>
     <dd>{{ datos.lugar }}</dd>
-    <dt>Fecha requerida de ingreso</dt>
+    <dt>{{ etiquetaCampo('fechaIngreso', 'Fecha requerida de ingreso') }}</dt>
     <dd>{{ datos.fechaIngreso }}</dd>
   </dl>
-  <h2>4. MOTIVO DE LA VACANTE</h2>
-  <div class="document-options">
+
+  <h2 class="section-header">{{ seccionTitulo('motivo', '4. MOTIVO DE LA VACANTE') }}</h2>
+  <div class="document-options-grid">
     @for (motivo of motivos; track motivo) {
-      <span
-        >{{ datos.motivo === motivo ? '☑' : '☐' }} {{ motivo
-        }}{{ motivo === 'Otro' && datos.motivo === 'Otro' ? ': ' + datos.otroMotivo : '' }}</span
-      >
+      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.motivo === motivo">{{ datos.motivo === motivo ? '☑' : '☐' }}</span> {{ motivo }}{{ motivo === 'Otro' && datos.motivo === 'Otro' ? ': ' + datos.otroMotivo : '' }}</span>
     }
   </div>
-  <p class="preserve-lines"><strong>Detalle del motivo: </strong>{{ datos.detalleMotivo }}</p>
-  <h2>5. PERFIL REQUERIDO</h2>
+  <p class="preserve-lines">
+    <strong>{{ etiquetaCampo('detalleMotivo', 'Detalle del motivo') }}: </strong>
+    {{ datos.detalleMotivo }}
+  </p>
+
+  <h2 class="section-header">{{ seccionTitulo('perfil', '5. PERFIL REQUERIDO') }}</h2>
   @for (campo of perfil; track campo.clave) {
     <p class="preserve-lines">
-      <strong>{{ campo.etiqueta }}: </strong>{{ datos[campo.clave] }}
+      <strong>{{ etiquetaCampo(campo.clave, campo.etiqueta) }}: </strong>{{ datos[campo.clave] }}
     </p>
   }
-  <h3>COMPETENCIAS REQUERIDAS</h3>
-  <div class="document-options">
+  <h3>{{ etiquetaCampo('competencias', 'COMPETENCIAS REQUERIDAS') }}</h3>
+  <div class="document-options-grid">
     @for (competencia of competencias; track competencia) {
-      <span
-        >{{ competenciasSeleccionadas.has(competencia) ? '☑' : '☐' }} {{ competencia
-        }}{{
-          competencia === 'Otro' && competenciasSeleccionadas.has('Otro')
-            ? ': ' + datos.otraCompetencia
-            : ''
-        }}</span
-      >
+      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="competenciasSeleccionadas.has(competencia)">{{ competenciasSeleccionadas.has(competencia) ? '☑' : '☐' }}</span> {{ competencia }}{{
+        competencia === 'Otro' && competenciasSeleccionadas.has('Otro')
+          ? ': ' + datos.otraCompetencia
+          : ''
+      }}</span>
     }
   </div>
-  <h2>6. OBSERVACIONES</h2>
-  <p class="preserve-lines">{{ datos.observaciones }}</p>
+
+  @if (datos.observaciones) {
+    <h2 class="section-header">{{ seccionTitulo('observaciones', '6. OBSERVACIONES') }}</h2>
+    <p class="preserve-lines">{{ datos.observaciones }}</p>
+  }
+
   <table class="signature-block">
     <tbody>
       <tr>
-        @for (titulo of ['REQUERIDO POR', 'APROBADO POR', 'RECIBIDO POR: RRHH']; track titulo) {
+        @for (firma of plantilla.firmas; track firma.id) {
           <td>
-            <strong>{{ titulo }}</strong>
+            <strong class="sig-title">{{ firma.titulo }}</strong>
             <div class="signature-line"></div>
-            <p>Firma</p>
-            <p>Nombre: _______________________</p>
-            <p>Cargo: ________________________</p>
+            <p>{{ firma.etiquetaFirma }}</p>
+            <p>{{ firma.etiquetaNombre }}</p>
+            <p>{{ firma.etiquetaCargo }}</p>
           </td>
         }
       </tr>
     </tbody>
   </table>
+
   <p class="document-note">
-    <strong>NOTA:</strong> Toda requisición de personal deberá contar con la aprobación de Rectorado
-    y disponibilidad presupuestaria previo al inicio del proceso de reclutamiento y selección.
+    {{ plantilla.documento.notaFinal }}
   </p>
 </article>
 

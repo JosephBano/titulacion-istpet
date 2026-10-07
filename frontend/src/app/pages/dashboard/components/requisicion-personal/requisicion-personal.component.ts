@@ -17,9 +17,13 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { EditorPlantillaComponent } from './editor-plantilla/editor-plantilla.component';
 import {
   DatosFormularioRequisicion,
+  PlantillaRequisicionDefinicion,
   resolverValoresIniciales,
 } from '../../../../domain/models/plantilla-requisicion.model';
-import { crearRequisicionPdf } from '../../../../shared/utils/requisicion-personal-pdf';
+import {
+  crearRequisicionPdf,
+  RecursosPdfPlantilla,
+} from '../../../../shared/utils/requisicion-personal-pdf';
 
 type CampoRequisicion =
   | 'fechaSolicitud'
@@ -67,6 +71,21 @@ export class RequisicionPersonalComponent implements OnInit {
 
   readonly modalEditorAbierto = signal<boolean>(false);
   readonly generandoPdfDescarga = signal<boolean>(false);
+  readonly recursosCache: RecursosPdfPlantilla = {};
+  readonly logoDataUrl = signal<string | null>(null);
+  readonly fondoDataUrl = signal<string | null>(null);
+
+  get plantilla(): PlantillaRequisicionDefinicion {
+    return this.plantillaStore.plantillaVigente();
+  }
+
+  seccionTitulo(id: string, fallback: string): string {
+    return this.plantilla.secciones.find((s) => s.id === id)?.titulo ?? fallback;
+  }
+
+  etiquetaCampo(clave: string, fallback: string): string {
+    return this.plantilla.campos[clave]?.etiqueta ?? fallback;
+  }
 
   readonly puedeEditarPlantilla = computed(() => {
     return (
@@ -241,9 +260,54 @@ export class RequisicionPersonalComponent implements OnInit {
       if (!this.datos.area && resueltos.area) {
         this.datos.area = resueltos.area;
       }
+      await this.cargarRecursosVisuales();
     } catch {
       // Si la carga falla se conservan los valores por defecto
     }
+  }
+
+  async cargarRecursosVisuales(): Promise<void> {
+    const p = this.plantilla;
+    if (p.documento.logo.idAdjuntosImagenes && !this.recursosCache.logoDataUrl) {
+      try {
+        const blob = await this.plantillaStore.obtenerImagenBlob(
+          p.documento.logo.idAdjuntosImagenes,
+        );
+        const dataUrl = await this.blobToDataUrl(blob);
+        this.recursosCache.logoDataUrl = dataUrl;
+        this.logoDataUrl.set(dataUrl);
+      } catch {
+        // Fallback silencioso si la imagen aún no está cargada
+      }
+    } else if (!p.documento.logo.idAdjuntosImagenes) {
+      this.recursosCache.logoDataUrl = undefined;
+      this.logoDataUrl.set(null);
+    }
+
+    if (p.documento.fondo.idAdjuntosImagenes && !this.recursosCache.fondoDataUrl) {
+      try {
+        const blob = await this.plantillaStore.obtenerImagenBlob(
+          p.documento.fondo.idAdjuntosImagenes,
+        );
+        const dataUrl = await this.blobToDataUrl(blob);
+        this.recursosCache.fondoDataUrl = dataUrl;
+        this.fondoDataUrl.set(dataUrl);
+      } catch {
+        // Fallback silencioso
+      }
+    } else if (!p.documento.fondo.idAdjuntosImagenes) {
+      this.recursosCache.fondoDataUrl = undefined;
+      this.fondoDataUrl.set(null);
+    }
+  }
+
+  private blobToDataUrl(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 
   abrirEditorPlantilla(): void {
@@ -255,7 +319,7 @@ export class RequisicionPersonalComponent implements OnInit {
   }
 
   onPlantillaGuardada(): void {
-    // Al guardar la plantilla no se sobreescriben respuestas ya editadas por el usuario
+    void this.cargarRecursosVisuales();
   }
 
   seleccionarCompetencia(competencia: string, seleccionada: boolean): void {
@@ -309,15 +373,25 @@ export class RequisicionPersonalComponent implements OnInit {
   }
 
   imprimir(documento: HTMLElement): void {
-    printDocument(documento, 'Requisición de personal — ISTPET');
+    printDocument(
+      documento,
+      `${this.plantilla.documento.titulo} — ISTPET`,
+      {
+        estilo: this.plantilla.documento.estilo,
+        pagina: this.plantilla.documento.pagina,
+        fondoDataUrl: this.fondoDataUrl() ?? undefined,
+        fondoConfig: this.plantilla.documento.fondo,
+      },
+    );
   }
 
   async descargarPdfOficial(): Promise<void> {
     this.generandoPdfDescarga.set(true);
     try {
       const pdf = await crearRequisicionPdf(
-        this.plantillaStore.plantillaVigente(),
+        this.plantilla,
         this.obtenerDatosFormulario(),
+        this.recursosCache,
       );
       pdf.save('requisicion-personal-istpet.pdf');
     } finally {
@@ -330,7 +404,17 @@ export class RequisicionPersonalComponent implements OnInit {
     frame: HTMLIFrameElement,
     documento: HTMLElement,
   ): void {
-    frame.srcdoc = documentHtml(documento, 'Requisición de personal — ISTPET', true);
+    frame.srcdoc = documentHtml(
+      documento,
+      `${this.plantilla.documento.titulo} — ISTPET`,
+      true,
+      {
+        estilo: this.plantilla.documento.estilo,
+        pagina: this.plantilla.documento.pagina,
+        fondoDataUrl: this.fondoDataUrl() ?? undefined,
+        fondoConfig: this.plantilla.documento.fondo,
+      },
+    );
     dialog.showModal();
   }
 
