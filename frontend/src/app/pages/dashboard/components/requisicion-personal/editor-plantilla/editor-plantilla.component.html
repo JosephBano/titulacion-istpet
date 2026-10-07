@@ -7,7 +7,8 @@
           <span class="eyebrow">ADMINISTRACIÓN DE FORMATOS</span>
           <h2 id="editor-titulo">Configuración de Plantilla de Requisición de Personal</h2>
           <p>
-            Personalice el formato oficial compartido. Los cambios guardados se aplicarán a todas las solicitudes de la institución.
+            Personalice el formato oficial compartido. Los cambios guardados se aplicarán a todas
+            las solicitudes de la institución.
             @if (store.revisionVigente() > 0) {
               <span class="revision-badge">Revisión actual: v{{ store.revisionVigente() }}</span>
             } @else {
@@ -28,9 +29,7 @@
       <!-- Mensajes de estado -->
       @if (store.error(); as err) {
         <div class="editor-alert error" role="alert">
-          <div class="alert-content">
-            <strong>Error:</strong> {{ err }}
-          </div>
+          <div class="alert-content"><strong>Error:</strong> {{ err }}</div>
           @if (store.conflicto()) {
             <button type="button" class="btn btn-sm btn-outline" (click)="store.cargarPlantilla()">
               Recargar versión vigente
@@ -40,9 +39,7 @@
       }
 
       @if (alertaExito(); as exito) {
-        <div class="editor-alert success" role="status">
-          <strong>Éxito:</strong> {{ exito }}
-        </div>
+        <div class="editor-alert success" role="status"><strong>Éxito:</strong> {{ exito }}</div>
       }
 
       <!-- Contenido en dos paneles -->
@@ -351,7 +348,9 @@
                       </div>
                       <div class="upload-action">
                         <label for="file-logo" class="btn btn-sm btn-outline">
-                          {{ subiendoLogo() ? 'Subiendo...' : 'Cargar logo personalizado (PNG/JPG)' }}
+                          {{
+                            subiendoLogo() ? 'Subiendo...' : 'Cargar logo personalizado (PNG/JPG)'
+                          }}
                         </label>
                         <input
                           id="file-logo"
@@ -359,10 +358,14 @@
                           accept="image/png,image/jpeg"
                           (change)="onArchivoLogoSeleccionado($event)"
                           [disabled]="subiendoLogo()"
-                          style="display:none;"
+                          style="display: none"
                         />
                         @if (b.documento.logo.idAdjuntosImagenes) {
-                          <button type="button" class="btn btn-sm btn-danger" (click)="quitarLogo()">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            (click)="quitarLogo()"
+                          >
                             Quitar logo
                           </button>
                         }
@@ -373,7 +376,9 @@
                     <div class="image-box">
                       <h4>Marca de Agua / Fondo</h4>
                       <div>
-                        <label for="opacidad-fondo">Opacidad ({{ b.documento.fondo.opacidad }})</label>
+                        <label for="opacidad-fondo"
+                          >Opacidad ({{ b.documento.fondo.opacidad }})</label
+                        >
                         <input
                           id="opacidad-fondo"
                           type="range"
@@ -405,10 +410,14 @@
                           accept="image/png,image/jpeg"
                           (change)="onArchivoFondoSeleccionado($event)"
                           [disabled]="subiendoFondo()"
-                          style="display:none;"
+                          style="display: none"
                         />
                         @if (b.documento.fondo.idAdjuntosImagenes) {
-                          <button type="button" class="btn btn-sm btn-danger" (click)="quitarFondo()">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            (click)="quitarFondo()"
+                          >
                             Quitar fondo
                           </button>
                         }
@@ -424,11 +433,9 @@
               <div class="tab-pane">
                 <div class="info-note">
                   <strong>Variables admitidas:</strong>
-                  <code>{{ '{{curso.carrera}}' }}</code>,
-                  <code>{{ '{{curso.cohorte}}' }}</code>,
+                  <code>{{ '{{curso.carrera}}' }}</code>, <code>{{ '{{curso.cohorte}}' }}</code>,
                   <code>{{ '{{curso.numeroVacantes}}' }}</code>,
-                  <code>{{ '{{solicitante.nombre}}' }}</code>,
-                  <code>{{ '{{fechaActual}}' }}</code>.
+                  <code>{{ '{{solicitante.nombre}}' }}</code>, <code>{{ '{{fechaActual}}' }}</code>.
                 </div>
 
                 <fieldset class="control-group">
@@ -556,13 +563,7 @@
         </button>
 
         <div class="footer-buttons">
-          <button
-            type="button"
-            class="btn btn-outline"
-            (click)="cancelar()"
-          >
-            Cancelar
-          </button>
+          <button type="button" class="btn btn-outline" (click)="cancelar()">Cancelar</button>
           <button
             type="button"
             class="btn btn-primary"

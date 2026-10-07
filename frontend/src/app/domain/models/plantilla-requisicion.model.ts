@@ -218,8 +218,7 @@ export const PLANTILLA_REQUISICION_BASE: PlantillaRequisicionDefinicion = {
     institucion: [
       {
         id: 'escuela_conduccion_istpet',
-        etiqueta:
-          'Escuela de Conducción del Instituto Superior Tecnológico Mayor Pedro Traversari',
+        etiqueta: 'Escuela de Conducción del Instituto Superior Tecnológico Mayor Pedro Traversari',
       },
       {
         id: 'istpet',
@@ -227,8 +226,7 @@ export const PLANTILLA_REQUISICION_BASE: PlantillaRequisicionDefinicion = {
       },
       {
         id: 'academia_miguel_iturralde',
-        etiqueta:
-          'Unidad Educativa Particular Bilingüe Academia Militar General Miguel Iturralde',
+        etiqueta: 'Unidad Educativa Particular Bilingüe Academia Militar General Miguel Iturralde',
       },
       {
         id: 'academia_miguel_iturralde_2',

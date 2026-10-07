@@ -15,7 +15,6 @@ export interface PlantillaRequisicionRepository {
   obtenerImagenBlob(idAdjuntosImagenes: number): Observable<Blob>;
 }
 
-export const PLANTILLA_REQUISICION_REPOSITORY =
-  new InjectionToken<PlantillaRequisicionRepository>(
-    'PlantillaRequisicionRepository',
-  );
+export const PLANTILLA_REQUISICION_REPOSITORY = new InjectionToken<PlantillaRequisicionRepository>(
+  'PlantillaRequisicionRepository',
+);

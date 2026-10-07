@@ -328,8 +328,7 @@ export class RequisicionPersonalComponent implements OnInit {
   }
 
   cargarEjemplo(): void {
-    const inst =
-      this.instituciones[1] || 'Instituto Superior Tecnológico Mayor Pedro Traversari';
+    const inst = this.instituciones[1] || 'Instituto Superior Tecnológico Mayor Pedro Traversari';
     const ejemplo: Record<CampoRequisicion, string> = {
       fechaSolicitud: '2026-10-05',
       area: 'Unidad de Titulación',
@@ -373,16 +372,12 @@ export class RequisicionPersonalComponent implements OnInit {
   }
 
   imprimir(documento: HTMLElement): void {
-    printDocument(
-      documento,
-      `${this.plantilla.documento.titulo} — ISTPET`,
-      {
-        estilo: this.plantilla.documento.estilo,
-        pagina: this.plantilla.documento.pagina,
-        fondoDataUrl: this.fondoDataUrl() ?? undefined,
-        fondoConfig: this.plantilla.documento.fondo,
-      },
-    );
+    printDocument(documento, `${this.plantilla.documento.titulo} — ISTPET`, {
+      estilo: this.plantilla.documento.estilo,
+      pagina: this.plantilla.documento.pagina,
+      fondoDataUrl: this.fondoDataUrl() ?? undefined,
+      fondoConfig: this.plantilla.documento.fondo,
+    });
   }
 
   async descargarPdfOficial(): Promise<void> {
@@ -404,17 +399,12 @@ export class RequisicionPersonalComponent implements OnInit {
     frame: HTMLIFrameElement,
     documento: HTMLElement,
   ): void {
-    frame.srcdoc = documentHtml(
-      documento,
-      `${this.plantilla.documento.titulo} — ISTPET`,
-      true,
-      {
-        estilo: this.plantilla.documento.estilo,
-        pagina: this.plantilla.documento.pagina,
-        fondoDataUrl: this.fondoDataUrl() ?? undefined,
-        fondoConfig: this.plantilla.documento.fondo,
-      },
-    );
+    frame.srcdoc = documentHtml(documento, `${this.plantilla.documento.titulo} — ISTPET`, true, {
+      estilo: this.plantilla.documento.estilo,
+      pagina: this.plantilla.documento.pagina,
+      fondoDataUrl: this.fondoDataUrl() ?? undefined,
+      fondoConfig: this.plantilla.documento.fondo,
+    });
     dialog.showModal();
   }
 
@@ -455,27 +445,27 @@ export class RequisicionPersonalComponent implements OnInit {
       case 3:
         return Boolean(
           this.numeroVacantes &&
-            this.numeroVacantes > 0 &&
-            this.datos.contratacion &&
-            this.datos.jornada &&
-            this.datos.cargo &&
-            this.datos.horario &&
-            this.datos.lugar &&
-            this.datos.fechaIngreso,
+          this.numeroVacantes > 0 &&
+          this.datos.contratacion &&
+          this.datos.jornada &&
+          this.datos.cargo &&
+          this.datos.horario &&
+          this.datos.lugar &&
+          this.datos.fechaIngreso,
         );
       case 4:
         return Boolean(
           this.datos.motivo &&
-            (this.datos.motivo !== 'Otro' || this.datos.otroMotivo) &&
-            this.datos.detalleMotivo,
+          (this.datos.motivo !== 'Otro' || this.datos.otroMotivo) &&
+          this.datos.detalleMotivo,
         );
       case 5:
         return Boolean(
           this.datos.formacion &&
-            this.datos.experiencia &&
-            this.datos.conocimientos &&
-            (!this.competenciasSeleccionadas.has('Otro') || this.datos.otraCompetencia) &&
-            this.competenciasSeleccionadas.size > 0,
+          this.datos.experiencia &&
+          this.datos.conocimientos &&
+          (!this.competenciasSeleccionadas.has('Otro') || this.datos.otraCompetencia) &&
+          this.competenciasSeleccionadas.size > 0,
         );
       case 6:
         return Boolean(this.datos.observaciones);

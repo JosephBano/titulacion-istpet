@@ -47,8 +47,7 @@ export class PlantillaRequisicionStore {
       this.esPredeterminada.set(res.esPredeterminada);
       this.fechaActualizacion.set(res.fechaActualizacion);
     } catch (err: unknown) {
-      const mensaje =
-        err instanceof Error ? err.message : 'Error al cargar la plantilla.';
+      const mensaje = err instanceof Error ? err.message : 'Error al cargar la plantilla.';
       this.error.set(mensaje);
       // Fallback seguro a la plantilla base
       this.plantillaVigente.set(structuredClone(PLANTILLA_REQUISICION_BASE));
@@ -112,9 +111,7 @@ export class PlantillaRequisicionStore {
         );
       } else {
         const mensaje =
-          err instanceof Error
-            ? err.message
-            : 'Error al guardar la plantilla en el servidor.';
+          err instanceof Error ? err.message : 'Error al guardar la plantilla en el servidor.';
         this.error.set(mensaje);
       }
       return false;
@@ -134,8 +131,6 @@ export class PlantillaRequisicionStore {
     if (!this.repository) {
       throw new Error('Repositorio no disponible.');
     }
-    return await firstValueFrom(
-      this.repository.obtenerImagenBlob(idAdjuntosImagenes),
-    );
+    return await firstValueFrom(this.repository.obtenerImagenBlob(idAdjuntosImagenes));
   }
 }

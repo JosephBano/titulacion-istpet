@@ -12,9 +12,7 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class PlantillaRequisicionHttpRepository
-  implements PlantillaRequisicionRepository
-{
+export class PlantillaRequisicionHttpRepository implements PlantillaRequisicionRepository {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
@@ -33,10 +31,7 @@ export class PlantillaRequisicionHttpRepository
   subirImagen(archivo: File): Observable<AdjuntoImagenPlantilla> {
     const formData = new FormData();
     formData.append('archivo', archivo);
-    return this.http.post<AdjuntoImagenPlantilla>(
-      `${this.endpoint}/imagenes`,
-      formData,
-    );
+    return this.http.post<AdjuntoImagenPlantilla>(`${this.endpoint}/imagenes`, formData);
   }
 
   obtenerImagenBlob(idAdjuntosImagenes: number): Observable<Blob> {

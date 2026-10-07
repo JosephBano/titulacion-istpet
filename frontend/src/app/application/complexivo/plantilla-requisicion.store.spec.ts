@@ -49,9 +49,7 @@ describe('PlantillaRequisicionStore', () => {
   it('cargarPlantilla actualiza la definición vigente y la revisión', async () => {
     await store.cargarPlantilla();
 
-    expect(store.plantillaVigente().documento.titulo).toBe(
-      'FORMATO MODIFICADO',
-    );
+    expect(store.plantillaVigente().documento.titulo).toBe('FORMATO MODIFICADO');
     expect(store.revisionVigente()).toBe(2);
     expect(store.esPredeterminada()).toBe(false);
   });
@@ -65,9 +63,7 @@ describe('PlantillaRequisicionStore', () => {
 
     // Modificar borrador no debe afectar plantillaVigente
     store.borrador()!.documento.titulo = 'TITULO EN EDICION';
-    expect(store.plantillaVigente().documento.titulo).toBe(
-      'FORMATO MODIFICADO',
-    );
+    expect(store.plantillaVigente().documento.titulo).toBe('FORMATO MODIFICADO');
   });
 
   it('restaurarBase carga la definición predeterminada en el borrador', () => {
@@ -75,9 +71,7 @@ describe('PlantillaRequisicionStore', () => {
     store.borrador()!.documento.titulo = 'ALGO';
     store.restaurarBase();
 
-    expect(store.borrador()?.documento.titulo).toBe(
-      PLANTILLA_REQUISICION_BASE.documento.titulo,
-    );
+    expect(store.borrador()?.documento.titulo).toBe(PLANTILLA_REQUISICION_BASE.documento.titulo);
   });
 
   it('guardarPlantilla exitoso actualiza estado y limpia borrador', async () => {
@@ -99,9 +93,7 @@ describe('PlantillaRequisicionStore', () => {
       status: 409,
       statusText: 'Conflict',
     });
-    repoMock.actualizarPlantilla = vi
-      .fn()
-      .mockReturnValue(throwError(() => error409));
+    repoMock.actualizarPlantilla = vi.fn().mockReturnValue(throwError(() => error409));
 
     const exito = await store.guardarPlantilla();
 

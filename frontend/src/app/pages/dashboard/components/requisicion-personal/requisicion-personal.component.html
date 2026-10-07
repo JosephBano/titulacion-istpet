@@ -46,7 +46,9 @@
       Progreso de la solicitud
     </span>
     <span class="progress-stats">
-      {{ progreso().completadas }} de {{ progreso().total }} secciones requeridas ({{ progreso().porcentaje }}%)
+      {{ progreso().completadas }} de {{ progreso().total }} secciones requeridas ({{
+        progreso().porcentaje
+      }}%)
     </span>
   </div>
   <div class="progress-track" aria-hidden="true">
@@ -59,7 +61,11 @@
       [class.is-complete]="esSeccionCompleta(1)"
       (click)="desplazarASeccion('sec-general')"
     >
-      <i class="bi" [class.bi-check-circle-fill]="esSeccionCompleta(1)" [class.bi-circle]="!esSeccionCompleta(1)"></i>
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(1)"
+        [class.bi-circle]="!esSeccionCompleta(1)"
+      ></i>
       General
     </button>
     <button
@@ -68,7 +74,11 @@
       [class.is-complete]="esSeccionCompleta(2)"
       (click)="desplazarASeccion('sec-institucion')"
     >
-      <i class="bi" [class.bi-check-circle-fill]="esSeccionCompleta(2)" [class.bi-circle]="!esSeccionCompleta(2)"></i>
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(2)"
+        [class.bi-circle]="!esSeccionCompleta(2)"
+      ></i>
       Institución
     </button>
     <button
@@ -77,7 +87,11 @@
       [class.is-complete]="esSeccionCompleta(3)"
       (click)="desplazarASeccion('sec-vacante')"
     >
-      <i class="bi" [class.bi-check-circle-fill]="esSeccionCompleta(3)" [class.bi-circle]="!esSeccionCompleta(3)"></i>
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(3)"
+        [class.bi-circle]="!esSeccionCompleta(3)"
+      ></i>
       Vacante
     </button>
     <button
@@ -86,7 +100,11 @@
       [class.is-complete]="esSeccionCompleta(4)"
       (click)="desplazarASeccion('sec-motivo')"
     >
-      <i class="bi" [class.bi-check-circle-fill]="esSeccionCompleta(4)" [class.bi-circle]="!esSeccionCompleta(4)"></i>
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(4)"
+        [class.bi-circle]="!esSeccionCompleta(4)"
+      ></i>
       Motivo
     </button>
     <button
@@ -95,7 +113,11 @@
       [class.is-complete]="esSeccionCompleta(5)"
       (click)="desplazarASeccion('sec-perfil')"
     >
-      <i class="bi" [class.bi-check-circle-fill]="esSeccionCompleta(5)" [class.bi-circle]="!esSeccionCompleta(5)"></i>
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(5)"
+        [class.bi-circle]="!esSeccionCompleta(5)"
+      ></i>
       Perfil
     </button>
     <button
@@ -104,7 +126,11 @@
       [class.is-complete]="esSeccionCompleta(6)"
       (click)="desplazarASeccion('sec-observaciones')"
     >
-      <i class="bi" [class.bi-check-circle-fill]="esSeccionCompleta(6)" [class.bi-circle]="!esSeccionCompleta(6)"></i>
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(6)"
+        [class.bi-circle]="!esSeccionCompleta(6)"
+      ></i>
       Observaciones
     </button>
   </nav>
@@ -135,7 +161,9 @@
         </span>
         <div class="section-headings">
           <span class="section-title">Información general</span>
-          <span class="section-subtitle">Identificación de la unidad solicitante y fecha de emisión</span>
+          <span class="section-subtitle"
+            >Identificación de la unidad solicitante y fecha de emisión</span
+          >
         </div>
       </div>
       <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(1)">
@@ -213,7 +241,9 @@
         </span>
         <div class="section-headings">
           <span class="section-title">Información de la vacante</span>
-          <span class="section-subtitle">Cargo, régimen, jornada laboral y condiciones de remuneración</span>
+          <span class="section-subtitle"
+            >Cargo, régimen, jornada laboral y condiciones de remuneración</span
+          >
         </div>
       </div>
       <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(3)">
@@ -304,14 +334,7 @@
       </div>
       <div class="form-field">
         <label for="total">Valor total (USD)</label>
-        <input
-          id="total"
-          name="total"
-          type="number"
-          [(ngModel)]="valorTotal"
-          min="0"
-          step="0.01"
-        />
+        <input id="total" name="total" type="number" [(ngModel)]="valorTotal" min="0" step="0.01" />
       </div>
 
       @if (datos.remuneracion === 'Factura' && valorRemuneracion && valorRemuneracion > 0) {
@@ -320,10 +343,10 @@
             <i class="bi bi-calculator" aria-hidden="true"></i>
             <span>
               Cálculo estimado: 96 horas de curso × USD {{ valorRemuneracion | number: '1.2-2' }} =
-              <strong>USD {{ (valorRemuneracion * 96) | number: '1.2-2' }}</strong>
+              <strong>USD {{ valorRemuneracion * 96 | number: '1.2-2' }}</strong>
             </span>
           </div>
-          @if (valorTotal !== (valorRemuneracion * 96)) {
+          @if (valorTotal !== valorRemuneracion * 96) {
             <button
               type="button"
               class="calc-apply-btn"
@@ -352,7 +375,9 @@
         </span>
         <div class="section-headings">
           <span class="section-title">Motivo de la vacante</span>
-          <span class="section-subtitle">Justificación institucional para Rectorado y Consejo Directivo</span>
+          <span class="section-subtitle"
+            >Justificación institucional para Rectorado y Consejo Directivo</span
+          >
         </div>
       </div>
       <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(4)">
@@ -408,7 +433,9 @@
         </span>
         <div class="section-headings">
           <span class="section-title">Perfil requerido</span>
-          <span class="section-subtitle">Formación académica, experiencia y competencias docentes</span>
+          <span class="section-subtitle"
+            >Formación académica, experiencia y competencias docentes</span
+          >
         </div>
       </div>
       <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(5)">
@@ -433,7 +460,9 @@
     <div class="competency-header">
       <h3>Competencias requeridas</h3>
       <span class="competency-count-pill">
-        {{ competenciasSeleccionadas.size }} seleccionada{{ competenciasSeleccionadas.size === 1 ? '' : 's' }}
+        {{ competenciasSeleccionadas.size }} seleccionada{{
+          competenciasSeleccionadas.size === 1 ? '' : 's'
+        }}
       </span>
     </div>
     <div class="check-grid">
@@ -479,12 +508,12 @@
         </span>
         <div class="section-headings">
           <span class="section-title">Observaciones</span>
-          <span class="section-subtitle">Instrucciones o especificaciones adicionales para Rectorado y RRHH</span>
+          <span class="section-subtitle"
+            >Instrucciones o especificaciones adicionales para Rectorado y RRHH</span
+          >
         </div>
       </div>
-      <span class="section-status-pill">
-        Opcional
-      </span>
+      <span class="section-status-pill"> Opcional </span>
     </div>
     <label class="sr-only" for="observaciones">Observaciones</label>
     <textarea
@@ -528,11 +557,7 @@
       >
         {{ generandoPdfDescarga() ? 'Generando...' : 'Descargar PDF' }}
       </button>
-      <button
-        type="submit"
-        class="button-primary btn-imprimir"
-        [disabled]="formulario.invalid"
-      >
+      <button type="submit" class="button-primary btn-imprimir" [disabled]="formulario.invalid">
         Imprimir / Guardar PDF
       </button>
     </div>
@@ -621,7 +646,12 @@
   <h2 class="section-header">{{ seccionTitulo('institucion', '2. INSTITUCIÓN SOLICITANTE') }}</h2>
   <div class="document-options">
     @for (institucion of instituciones; track institucion) {
-      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.institucion === institucion">{{ datos.institucion === institucion ? '☑' : '☐' }}</span> {{ institucion }}</span>
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.institucion === institucion">{{
+          datos.institucion === institucion ? '☑' : '☐'
+        }}</span>
+        {{ institucion }}</span
+      >
     }
   </div>
 
@@ -634,28 +664,50 @@
     <dt>{{ etiquetaCampo('contratacion', 'Tipo de contratación') }}</dt>
     <dd>
       @for (tipo of contrataciones; track tipo) {
-        <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.contratacion === tipo">{{ datos.contratacion === tipo ? '☑' : '☐' }}</span> {{ tipo }} &nbsp;</span>
+        <span class="doc-option-chip"
+          ><span class="doc-check-mark" [class.is-checked]="datos.contratacion === tipo">{{
+            datos.contratacion === tipo ? '☑' : '☐'
+          }}</span>
+          {{ tipo }} &nbsp;</span
+        >
       }
     </dd>
     <dt>{{ etiquetaCampo('jornada', 'Jornada laboral') }}</dt>
     <dd>
       @for (jornada of jornadas; track jornada) {
-        <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.jornada === jornada">{{ datos.jornada === jornada ? '☑' : '☐' }}</span> {{ jornada }} &nbsp;</span>
+        <span class="doc-option-chip"
+          ><span class="doc-check-mark" [class.is-checked]="datos.jornada === jornada">{{
+            datos.jornada === jornada ? '☑' : '☐'
+          }}</span>
+          {{ jornada }} &nbsp;</span
+        >
       }
     </dd>
     <dt>{{ etiquetaCampo('remuneracion', 'Remuneración') }}</dt>
     <dd>
-      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Sueldo'">{{ datos.remuneracion === 'Sueldo' ? '☑' : '☐' }}</span> Sueldo: {{
-        datos.remuneracion === 'Sueldo' && valorRemuneracion !== null
-          ? (valorRemuneracion | number: '1.2-2')
-          : '________'
-      }}</span>
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Sueldo'">{{
+          datos.remuneracion === 'Sueldo' ? '☑' : '☐'
+        }}</span>
+        Sueldo:
+        {{
+          datos.remuneracion === 'Sueldo' && valorRemuneracion !== null
+            ? (valorRemuneracion | number: '1.2-2')
+            : '________'
+        }}</span
+      >
       &nbsp;
-      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Factura'">{{ datos.remuneracion === 'Factura' ? '☑' : '☐' }}</span> Factura / valor hora: {{
-        datos.remuneracion === 'Factura' && valorRemuneracion !== null
-          ? (valorRemuneracion | number: '1.2-2')
-          : '________'
-      }}</span>
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Factura'">{{
+          datos.remuneracion === 'Factura' ? '☑' : '☐'
+        }}</span>
+        Factura / valor hora:
+        {{
+          datos.remuneracion === 'Factura' && valorRemuneracion !== null
+            ? (valorRemuneracion | number: '1.2-2')
+            : '________'
+        }}</span
+      >
       &nbsp; Valor total: {{ valorTotal !== null ? (valorTotal | number: '1.2-2') : '________' }}
     </dd>
     <dt>{{ etiquetaCampo('horario', 'Horario requerido') }}</dt>
@@ -669,7 +721,13 @@
   <h2 class="section-header">{{ seccionTitulo('motivo', '4. MOTIVO DE LA VACANTE') }}</h2>
   <div class="document-options-grid">
     @for (motivo of motivos; track motivo) {
-      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="datos.motivo === motivo">{{ datos.motivo === motivo ? '☑' : '☐' }}</span> {{ motivo }}{{ motivo === 'Otro' && datos.motivo === 'Otro' ? ': ' + datos.otroMotivo : '' }}</span>
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.motivo === motivo">{{
+          datos.motivo === motivo ? '☑' : '☐'
+        }}</span>
+        {{ motivo
+        }}{{ motivo === 'Otro' && datos.motivo === 'Otro' ? ': ' + datos.otroMotivo : '' }}</span
+      >
     }
   </div>
   <p class="preserve-lines">
@@ -686,11 +744,19 @@
   <h3>{{ etiquetaCampo('competencias', 'COMPETENCIAS REQUERIDAS') }}</h3>
   <div class="document-options-grid">
     @for (competencia of competencias; track competencia) {
-      <span class="doc-option-chip"><span class="doc-check-mark" [class.is-checked]="competenciasSeleccionadas.has(competencia)">{{ competenciasSeleccionadas.has(competencia) ? '☑' : '☐' }}</span> {{ competencia }}{{
-        competencia === 'Otro' && competenciasSeleccionadas.has('Otro')
-          ? ': ' + datos.otraCompetencia
-          : ''
-      }}</span>
+      <span class="doc-option-chip"
+        ><span
+          class="doc-check-mark"
+          [class.is-checked]="competenciasSeleccionadas.has(competencia)"
+          >{{ competenciasSeleccionadas.has(competencia) ? '☑' : '☐' }}</span
+        >
+        {{ competencia
+        }}{{
+          competencia === 'Otro' && competenciasSeleccionadas.has('Otro')
+            ? ': ' + datos.otraCompetencia
+            : ''
+        }}</span
+      >
     }
   </div>
 

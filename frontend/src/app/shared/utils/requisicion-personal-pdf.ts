@@ -71,7 +71,8 @@ export async function crearRequisicionPdf(
     if (recursos?.fondoDataUrl && docConfig.fondo.opacidad > 0) {
       try {
         const opacidad = Math.min(Math.max(docConfig.fondo.opacidad, 0), 1);
-        const GState = (pdf as unknown as { GState: new (options: { opacity: number }) => unknown }).GState;
+        const GState = (pdf as unknown as { GState: new (options: { opacity: number }) => unknown })
+          .GState;
         if (GState) {
           pdf.setGState(new GState({ opacity: opacidad }));
         }
@@ -157,7 +158,13 @@ export async function crearRequisicionPdf(
     y += 7.5;
   };
 
-  const dibujarCheckbox = (x: number, yPos: number, marcado: boolean, etiqueta: string, anchoMax: number) => {
+  const dibujarCheckbox = (
+    x: number,
+    yPos: number,
+    marcado: boolean,
+    etiqueta: string,
+    anchoMax: number,
+  ) => {
     const boxSize = 3.2;
     pdf.setDrawColor(...colorBorde);
     pdf.setLineWidth(0.25);
@@ -176,7 +183,11 @@ export async function crearRequisicionPdf(
     return Math.max(boxSize + 1, lineas.length * 4);
   };
 
-  const dibujarCampo = (etiqueta: string, valor: string | number | null | undefined, anchoTotal = anchoUtil) => {
+  const dibujarCampo = (
+    etiqueta: string,
+    valor: string | number | null | undefined,
+    anchoTotal = anchoUtil,
+  ) => {
     const textoValor = valor !== null && valor !== undefined ? String(valor) : '';
     pdf.setFont(fontName, 'bold');
     pdf.setFontSize(estilo.tamanoFuentePt);
@@ -200,42 +211,70 @@ export async function crearRequisicionPdf(
 
     pdf.setDrawColor(200, 200, 200);
     pdf.setLineWidth(0.2);
-    pdf.line(margenes.izquierdo + anchoEtiqueta + 2, y + alturaFila - 0.5, margenes.izquierdo + anchoTotal, y + alturaFila - 0.5);
+    pdf.line(
+      margenes.izquierdo + anchoEtiqueta + 2,
+      y + alturaFila - 0.5,
+      margenes.izquierdo + anchoTotal,
+      y + alturaFila - 0.5,
+    );
 
     y += alturaFila;
   };
 
   // 1. INFORMACIÓN GENERAL
-  const sec1 = definicion.secciones.find((s) => s.id === 'general')?.titulo ?? '1. INFORMACIÓN GENERAL';
+  const sec1 =
+    definicion.secciones.find((s) => s.id === 'general')?.titulo ?? '1. INFORMACIÓN GENERAL';
   dibujarTituloSeccion(sec1);
-  dibujarCampo(definicion.campos['fechaSolicitud']?.etiqueta ?? 'Fecha de solicitud', datos.fechaSolicitud);
+  dibujarCampo(
+    definicion.campos['fechaSolicitud']?.etiqueta ?? 'Fecha de solicitud',
+    datos.fechaSolicitud,
+  );
   dibujarCampo(definicion.campos['area']?.etiqueta ?? 'Área / Departamento', datos.area);
-  dibujarCampo(definicion.campos['solicitante']?.etiqueta ?? 'Nombre del solicitante', datos.solicitante);
+  dibujarCampo(
+    definicion.campos['solicitante']?.etiqueta ?? 'Nombre del solicitante',
+    datos.solicitante,
+  );
   y += 2;
 
   // 2. INSTITUCIÓN SOLICITANTE
-  const sec2 = definicion.secciones.find((s) => s.id === 'institucion')?.titulo ?? '2. INSTITUCIÓN SOLICITANTE';
+  const sec2 =
+    definicion.secciones.find((s) => s.id === 'institucion')?.titulo ??
+    '2. INSTITUCIÓN SOLICITANTE';
   dibujarTituloSeccion(sec2);
   const opcionesInst = definicion.opciones.institucion ?? [];
   for (const opt of opcionesInst) {
     asegurarEspacio(6);
     const marcada = datos.institucion === opt.id || datos.institucion === opt.etiqueta;
-    const salto = dibujarCheckbox(margenes.izquierdo + 3, y + 3, marcada, opt.etiqueta, anchoUtil - 6);
+    const salto = dibujarCheckbox(
+      margenes.izquierdo + 3,
+      y + 3,
+      marcada,
+      opt.etiqueta,
+      anchoUtil - 6,
+    );
     y += salto + 1.5;
   }
   y += 2;
 
   // 3. INFORMACIÓN DE LA VACANTE
-  const sec3 = definicion.secciones.find((s) => s.id === 'vacante')?.titulo ?? '3. INFORMACIÓN DE LA VACANTE';
+  const sec3 =
+    definicion.secciones.find((s) => s.id === 'vacante')?.titulo ?? '3. INFORMACIÓN DE LA VACANTE';
   dibujarTituloSeccion(sec3);
   dibujarCampo(definicion.campos['cargo']?.etiqueta ?? 'Cargo solicitado', datos.cargo);
-  dibujarCampo(definicion.campos['numeroVacantes']?.etiqueta ?? 'Número de vacantes', datos.numeroVacantes);
+  dibujarCampo(
+    definicion.campos['numeroVacantes']?.etiqueta ?? 'Número de vacantes',
+    datos.numeroVacantes,
+  );
 
   // Tipo de contratación
   asegurarEspacio(6);
   pdf.setFont(fontName, 'bold');
   pdf.setFontSize(estilo.tamanoFuentePt);
-  pdf.text((definicion.campos['contratacion']?.etiqueta ?? 'Tipo de contratación') + ':', margenes.izquierdo + 2, y + 3.5);
+  pdf.text(
+    (definicion.campos['contratacion']?.etiqueta ?? 'Tipo de contratación') + ':',
+    margenes.izquierdo + 2,
+    y + 3.5,
+  );
   let xOffset = margenes.izquierdo + 52;
   const opcionesCont = definicion.opciones.contratacion ?? [];
   for (const opt of opcionesCont) {
@@ -249,7 +288,11 @@ export async function crearRequisicionPdf(
   asegurarEspacio(6);
   pdf.setFont(fontName, 'bold');
   pdf.setFontSize(estilo.tamanoFuentePt);
-  pdf.text((definicion.campos['jornada']?.etiqueta ?? 'Jornada laboral') + ':', margenes.izquierdo + 2, y + 3.5);
+  pdf.text(
+    (definicion.campos['jornada']?.etiqueta ?? 'Jornada laboral') + ':',
+    margenes.izquierdo + 2,
+    y + 3.5,
+  );
   xOffset = margenes.izquierdo + 52;
   const opcionesJor = definicion.opciones.jornada ?? [];
   for (const opt of opcionesJor) {
@@ -263,7 +306,11 @@ export async function crearRequisicionPdf(
   asegurarEspacio(6);
   pdf.setFont(fontName, 'bold');
   pdf.setFontSize(estilo.tamanoFuentePt);
-  pdf.text((definicion.campos['remuneracion']?.etiqueta ?? 'Remuneración') + ':', margenes.izquierdo + 2, y + 3.5);
+  pdf.text(
+    (definicion.campos['remuneracion']?.etiqueta ?? 'Remuneración') + ':',
+    margenes.izquierdo + 2,
+    y + 3.5,
+  );
   xOffset = margenes.izquierdo + 52;
   const opcionesRem = definicion.opciones.remuneracion ?? [];
   for (const opt of opcionesRem) {
@@ -275,7 +322,9 @@ export async function crearRequisicionPdf(
 
   dibujarCampo(
     definicion.campos['valorRemuneracion']?.etiqueta ?? 'Sueldo / valor por hora',
-    datos.valorRemuneracion !== null && datos.valorRemuneracion !== undefined ? `$ ${datos.valorRemuneracion}` : '',
+    datos.valorRemuneracion !== null && datos.valorRemuneracion !== undefined
+      ? `$ ${datos.valorRemuneracion}`
+      : '',
   );
   dibujarCampo(
     definicion.campos['valorTotal']?.etiqueta ?? 'Valor total',
@@ -283,11 +332,15 @@ export async function crearRequisicionPdf(
   );
   dibujarCampo(definicion.campos['horario']?.etiqueta ?? 'Horario requerido', datos.horario);
   dibujarCampo(definicion.campos['lugar']?.etiqueta ?? 'Lugar de trabajo', datos.lugar);
-  dibujarCampo(definicion.campos['fechaIngreso']?.etiqueta ?? 'Fecha requerida de ingreso', datos.fechaIngreso);
+  dibujarCampo(
+    definicion.campos['fechaIngreso']?.etiqueta ?? 'Fecha requerida de ingreso',
+    datos.fechaIngreso,
+  );
   y += 2;
 
   // 4. MOTIVO DE LA VACANTE
-  const sec4 = definicion.secciones.find((s) => s.id === 'motivo')?.titulo ?? '4. MOTIVO DE LA VACANTE';
+  const sec4 =
+    definicion.secciones.find((s) => s.id === 'motivo')?.titulo ?? '4. MOTIVO DE LA VACANTE';
   dibujarTituloSeccion(sec4);
   const opcionesMotivo = definicion.opciones.motivo ?? [];
   const columnasMotivo = 2;
@@ -301,28 +354,47 @@ export async function crearRequisicionPdf(
     if (i + 1 < opcionesMotivo.length) {
       const m2 = opcionesMotivo[i + 1];
       const marcada2 = datos.motivo === m2.id || datos.motivo === m2.etiqueta;
-      dibujarCheckbox(margenes.izquierdo + anchoCol + 3, y + 3, marcada2, m2.etiqueta, anchoCol - 6);
+      dibujarCheckbox(
+        margenes.izquierdo + anchoCol + 3,
+        y + 3,
+        marcada2,
+        m2.etiqueta,
+        anchoCol - 6,
+      );
     }
     y += 5.5;
   }
   if (datos.otroMotivo) {
     dibujarCampo(definicion.campos['otroMotivo']?.etiqueta ?? 'Otro motivo', datos.otroMotivo);
   }
-  dibujarCampo(definicion.campos['detalleMotivo']?.etiqueta ?? 'Detalle del motivo', datos.detalleMotivo);
+  dibujarCampo(
+    definicion.campos['detalleMotivo']?.etiqueta ?? 'Detalle del motivo',
+    datos.detalleMotivo,
+  );
   y += 2;
 
   // 5. PERFIL REQUERIDO
   const sec5 = definicion.secciones.find((s) => s.id === 'perfil')?.titulo ?? '5. PERFIL REQUERIDO';
   dibujarTituloSeccion(sec5);
   dibujarCampo(definicion.campos['formacion']?.etiqueta ?? 'Formación académica', datos.formacion);
-  dibujarCampo(definicion.campos['experiencia']?.etiqueta ?? 'Experiencia requerida', datos.experiencia);
-  dibujarCampo(definicion.campos['conocimientos']?.etiqueta ?? 'Conocimientos específicos', datos.conocimientos);
+  dibujarCampo(
+    definicion.campos['experiencia']?.etiqueta ?? 'Experiencia requerida',
+    datos.experiencia,
+  );
+  dibujarCampo(
+    definicion.campos['conocimientos']?.etiqueta ?? 'Conocimientos específicos',
+    datos.conocimientos,
+  );
 
   // Competencias
   asegurarEspacio(8);
   pdf.setFont(fontName, 'bold');
   pdf.setFontSize(estilo.tamanoFuentePt);
-  pdf.text((definicion.campos['competencias']?.etiqueta ?? 'Competencias requeridas') + ':', margenes.izquierdo + 2, y + 3.5);
+  pdf.text(
+    (definicion.campos['competencias']?.etiqueta ?? 'Competencias requeridas') + ':',
+    margenes.izquierdo + 2,
+    y + 3.5,
+  );
   y += 5;
 
   const competenciasSeleccionadas = new Set(datos.competencias ?? []);
@@ -330,26 +402,41 @@ export async function crearRequisicionPdf(
   for (let i = 0; i < opcionesComp.length; i += columnasMotivo) {
     asegurarEspacio(5.5);
     const c1 = opcionesComp[i];
-    const marcada1 = competenciasSeleccionadas.has(c1.id) || competenciasSeleccionadas.has(c1.etiqueta);
+    const marcada1 =
+      competenciasSeleccionadas.has(c1.id) || competenciasSeleccionadas.has(c1.etiqueta);
     dibujarCheckbox(margenes.izquierdo + 3, y + 3, marcada1, c1.etiqueta, anchoCol - 6);
 
     if (i + 1 < opcionesComp.length) {
       const c2 = opcionesComp[i + 1];
-      const marcada2 = competenciasSeleccionadas.has(c2.id) || competenciasSeleccionadas.has(c2.etiqueta);
-      dibujarCheckbox(margenes.izquierdo + anchoCol + 3, y + 3, marcada2, c2.etiqueta, anchoCol - 6);
+      const marcada2 =
+        competenciasSeleccionadas.has(c2.id) || competenciasSeleccionadas.has(c2.etiqueta);
+      dibujarCheckbox(
+        margenes.izquierdo + anchoCol + 3,
+        y + 3,
+        marcada2,
+        c2.etiqueta,
+        anchoCol - 6,
+      );
     }
     y += 5.5;
   }
   if (datos.otraCompetencia) {
-    dibujarCampo(definicion.campos['otraCompetencia']?.etiqueta ?? 'Otra competencia', datos.otraCompetencia);
+    dibujarCampo(
+      definicion.campos['otraCompetencia']?.etiqueta ?? 'Otra competencia',
+      datos.otraCompetencia,
+    );
   }
   y += 2;
 
   // 6. OBSERVACIONES
   if (datos.observaciones) {
-    const sec6 = definicion.secciones.find((s) => s.id === 'observaciones')?.titulo ?? '6. OBSERVACIONES';
+    const sec6 =
+      definicion.secciones.find((s) => s.id === 'observaciones')?.titulo ?? '6. OBSERVACIONES';
     dibujarTituloSeccion(sec6);
-    dibujarCampo(definicion.campos['observaciones']?.etiqueta ?? 'Observaciones', datos.observaciones);
+    dibujarCampo(
+      definicion.campos['observaciones']?.etiqueta ?? 'Observaciones',
+      datos.observaciones,
+    );
     y += 2;
   }
 
