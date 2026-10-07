@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "codigo": "requisicion-personal",
+  "documento": {
+    "titulo": "FORMATO DE REQUISICIÓN DE PERSONAL",
+    "subtitulo": "",
+    "pagina": {
+      "formato": "A4",
+      "orientacion": "vertical",
+      "margenesMm": {
+        "superior": 14,
+        "derecho": 14,
+        "inferior": 14,
+        "izquierdo": 14
+      }
+    },
+    "estilo": {
+      "fuente": "sans",
+      "tamanoFuentePt": 9,
+      "colorTexto": "#171717",
+      "colorEncabezado": "#171717",
+      "colorDestacado": "#002855",
+      "colorFondo": "#FFFFFF",
+      "colorBorde": "#334155",
+      "grosorBordeMm": 0.35
+    },
+    "logo": {
+      "usarLogoInstitucional": false,
+      "idAdjuntosImagenes": null,
+      "anchoMm": 24
+    },
+    "fondo": {
+      "idAdjuntosImagenes": null,
+      "opacidad": 0.1,
+      "ajuste": "contain"
+    },
+    "notaFinal": "Toda requisición de personal deberá contar con la aprobación de Rectorado y disponibilidad presupuestaria previa al inicio del proceso de reclutamiento y selección."
+  },
+  "secciones": [
+    {
+      "id": "general",
+      "titulo": "1. INFORMACIÓN GENERAL"
+    },
+    {
+      "id": "institucion",
+      "titulo": "2. INSTITUCIÓN SOLICITANTE"
+    },
+    {
+      "id": "vacante",
+      "titulo": "3. INFORMACIÓN DE LA VACANTE"
+    },
+    {
+      "id": "motivo",
+      "titulo": "4. MOTIVO DE LA VACANTE"
+    },
+    {
+      "id": "perfil",
+      "titulo": "5. PERFIL REQUERIDO"
+    },
+    {
+      "id": "observaciones",
+      "titulo": "6. OBSERVACIONES"
+    }
+  ],
+  "campos": {
+    "fechaSolicitud": {
+      "etiqueta": "Fecha de solicitud",
+      "ayuda": ""
+    },
+    "area": {
+      "etiqueta": "Área / Departamento",
+      "ayuda": ""
+    },
+    "solicitante": {
+      "etiqueta": "Nombre del solicitante",
+      "ayuda": ""
+    },
+    "cargo": {
+      "etiqueta": "Cargo solicitado",
+      "ayuda": ""
+    },
+    "numeroVacantes": {
+      "etiqueta": "Número de vacantes",
+      "ayuda": ""
+    },
+    "institucion": {
+      "etiqueta": "Institución solicitante",
+      "ayuda": ""
+    },
+    "contratacion": {
+      "etiqueta": "Tipo de contratación",
+      "ayuda": ""
+    },
+    "jornada": {
+      "etiqueta": "Jornada laboral",
+      "ayuda": ""
+    },
+    "remuneracion": {
+      "etiqueta": "Remuneración",
+      "ayuda": ""
+    },
+    "valorRemuneracion": {
+      "etiqueta": "Sueldo / valor por hora",
+      "ayuda": ""
+    },
+    "valorTotal": {
+      "etiqueta": "Valor total",
+      "ayuda": ""
+    },
+    "horario": {
+      "etiqueta": "Horario requerido",
+      "ayuda": ""
+    },
+    "lugar": {
+      "etiqueta": "Lugar de trabajo",
+      "ayuda": ""
+    },
+    "fechaIngreso": {
+      "etiqueta": "Fecha requerida de ingreso",
+      "ayuda": ""
+    },
+    "motivo": {
+      "etiqueta": "Motivo de la vacante",
+      "ayuda": ""
+    },
+    "otroMotivo": {
+      "etiqueta": "Otro motivo",
+      "ayuda": ""
+    },
+    "detalleMotivo": {
+      "etiqueta": "Detalle del motivo",
+      "ayuda": ""
+    },
+    "formacion": {
+      "etiqueta": "Formación académica",
+      "ayuda": ""
+    },
+    "experiencia": {
+      "etiqueta": "Experiencia requerida",
+      "ayuda": ""
+    },
+    "conocimientos": {
+      "etiqueta": "Conocimientos específicos",
+      "ayuda": ""
+    },
+    "competencias": {
+      "etiqueta": "Competencias requeridas",
+      "ayuda": ""
+    },
+    "otraCompetencia": {
+      "etiqueta": "Otra competencia",
+      "ayuda": ""
+    },
+    "observaciones": {
+      "etiqueta": "Observaciones",
+      "ayuda": ""
+    }
+  },
+  "opciones": {
+    "institucion": [
+      {
+        "id": "escuela_conduccion_istpet",
+        "etiqueta": "Escuela de Conducción del Instituto Superior Tecnológico Mayor Pedro Traversari"
+      },
+      {
+        "id": "istpet",
+        "etiqueta": "Instituto Superior Tecnológico Mayor Pedro Traversari"
+      },
+      {
+        "id": "academia_miguel_iturralde",
+        "etiqueta": "Unidad Educativa Particular Bilingüe Academia Militar General Miguel Iturralde"
+      },
+      {
+        "id": "academia_miguel_iturralde_2",
+        "etiqueta": "Unidad Educativa Bilingüe Particular Academia Militar General Miguel Iturralde 2"
+      },
+      {
+        "id": "ecmi",
+        "etiqueta": "Escuela de Conducción No Profesionales ECMI"
+      },
+      {
+        "id": "club_miguel_iturralde",
+        "etiqueta": "Club Deportivo Miguel Iturralde"
+      }
+    ],
+    "contratacion": [
+      {
+        "id": "contrato",
+        "etiqueta": "Contrato"
+      },
+      {
+        "id": "nombramiento",
+        "etiqueta": "Nombramiento"
+      },
+      {
+        "id": "servicios_profesionales",
+        "etiqueta": "Servicios Profesionales"
+      }
+    ],
+    "jornada": [
+      {
+        "id": "tiempo_completo",
+        "etiqueta": "Tiempo completo"
+      },
+      {
+        "id": "medio_tiempo",
+        "etiqueta": "Medio tiempo"
+      },
+      {
+        "id": "horas",
+        "etiqueta": "Horas"
+      }
+    ],
+    "remuneracion": [
+      {
+        "id": "sueldo",
+        "etiqueta": "Sueldo"
+      },
+      {
+        "id": "factura",
+        "etiqueta": "Factura"
+      }
+    ],
+    "motivo": [
+      {
+        "id": "reemplazo",
+        "etiqueta": "Reemplazo"
+      },
+      {
+        "id": "renuncia",
+        "etiqueta": "Renuncia"
+      },
+      {
+        "id": "desvinculacion",
+        "etiqueta": "Desvinculación"
+      },
+      {
+        "id": "proyecto_temporal",
+        "etiqueta": "Proyecto temporal"
+      },
+      {
+        "id": "incremento_personal",
+        "etiqueta": "Incremento de personal"
+      },
+      {
+        "id": "licencia_maternidad",
+        "etiqueta": "Licencia / Maternidad"
+      },
+      {
+        "id": "nueva_creacion",
+        "etiqueta": "Nueva creación de cargo"
+      },
+      {
+        "id": "otro",
+        "etiqueta": "Otro"
+      }
+    ],
+    "competencias": [
+      {
+        "id": "liderazgo",
+        "etiqueta": "Liderazgo"
+      },
+      {
+        "id": "resultados",
+        "etiqueta": "Orientación a resultados"
+      },
+      {
+        "id": "conflictos",
+        "etiqueta": "Resolución de conflicto"
+      },
+      {
+        "id": "equipo",
+        "etiqueta": "Trabajo en equipo"
+      },
+      {
+        "id": "comunicacion",
+        "etiqueta": "Comunicación efectiva"
+      },
+      {
+        "id": "adaptabilidad",
+        "etiqueta": "Adaptabilidad"
+      },
+      {
+        "id": "organizacion",
+        "etiqueta": "Organización"
+      },
+      {
+        "id": "otro",
+        "etiqueta": "Otro"
+      }
+    ]
+  },
+  "valoresIniciales": {
+    "fechaSolicitud": {
+      "fuente": "contexto",
+      "clave": "fechaActual"
+    },
+    "solicitante": {
+      "fuente": "contexto",
+      "clave": "solicitante.nombre"
+    },
+    "area": {
+      "fuente": "literal",
+      "valor": "Unidad de Titulación"
+    },
+    "institucion": {
+      "fuente": "literal",
+      "valor": "istpet"
+    },
+    "cargo": {
+      "fuente": "texto",
+      "valor": "Docente para curso complexivo de la carrera de {{curso.carrera}}"
+    },
+    "numeroVacantes": {
+      "fuente": "contexto",
+      "clave": "curso.numeroVacantes"
+    },
+    "contratacion": {
+      "fuente": "literal",
+      "valor": "servicios_profesionales"
+    },
+    "jornada": {
+      "fuente": "literal",
+      "valor": "horas"
+    },
+    "remuneracion": {
+      "fuente": "literal",
+      "valor": "factura"
+    },
+    "motivo": {
+      "fuente": "literal",
+      "valor": "proyecto_temporal"
+    }
+  },
+  "firmas": [
+    {
+      "id": "requerido",
+      "titulo": "REQUERIDO POR:",
+      "etiquetaFirma": "Firma",
+      "etiquetaNombre": "Nombre",
+      "etiquetaCargo": "Cargo"
+    },
+    {
+      "id": "aprobado",
+      "titulo": "APROBADO POR:",
+      "etiquetaFirma": "Firma",
+      "etiquetaNombre": "Nombre",
+      "etiquetaCargo": "Cargo"
+    },
+    {
+      "id": "rrhh",
+      "titulo": "RECIBIDO POR: RRHH",
+      "etiquetaFirma": "Firma",
+      "etiquetaNombre": "Nombre",
+      "etiquetaCargo": "Cargo"
+    }
+  ]
+}

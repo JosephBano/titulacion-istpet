@@ -1,0 +1,579 @@
+@if (borrador; as b) {
+  <div class="editor-overlay" role="dialog" aria-modal="true" aria-labelledby="editor-titulo">
+    <div class="editor-dialog">
+      <!-- Encabezado del diálogo -->
+      <header class="editor-header">
+        <div class="editor-header-text">
+          <span class="eyebrow">ADMINISTRACIÓN DE FORMATOS</span>
+          <h2 id="editor-titulo">Configuración de Plantilla de Requisición de Personal</h2>
+          <p>
+            Personalice el formato oficial compartido. Los cambios guardados se aplicarán a todas
+            las solicitudes de la institución.
+            @if (store.revisionVigente() > 0) {
+              <span class="revision-badge">Revisión actual: v{{ store.revisionVigente() }}</span>
+            } @else {
+              <span class="revision-badge initial">Formato predeterminado</span>
+            }
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="cancelar()"
+          aria-label="Cerrar configurador"
+        >
+          ✕
+        </button>
+      </header>
+
+      <!-- Mensajes de estado -->
+      @if (store.error(); as err) {
+        <div class="editor-alert error" role="alert">
+          <div class="alert-content"><strong>Error:</strong> {{ err }}</div>
+          @if (store.conflicto()) {
+            <button type="button" class="btn btn-sm btn-outline" (click)="store.cargarPlantilla()">
+              Recargar versión vigente
+            </button>
+          }
+        </div>
+      }
+
+      @if (alertaExito(); as exito) {
+        <div class="editor-alert success" role="status"><strong>Éxito:</strong> {{ exito }}</div>
+      }
+
+      <!-- Contenido en dos paneles -->
+      <div class="editor-body">
+        <!-- Panel Izquierdo: Controles -->
+        <div class="editor-controls-panel">
+          <nav class="editor-tabs" role="tablist">
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="pestanaActiva() === 'contenido'"
+              (click)="cambiarPestana('contenido')"
+              role="tab"
+            >
+              Contenido
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="pestanaActiva() === 'apariencia'"
+              (click)="cambiarPestana('apariencia')"
+              role="tab"
+            >
+              Apariencia y Estilo
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="pestanaActiva() === 'valores'"
+              (click)="cambiarPestana('valores')"
+              role="tab"
+            >
+              Valores Iniciales
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="pestanaActiva() === 'firmas'"
+              (click)="cambiarPestana('firmas')"
+              role="tab"
+            >
+              Firmas y Secciones
+            </button>
+          </nav>
+
+          <div class="editor-tab-content">
+            <!-- PESTAÑA: CONTENIDO -->
+            @if (pestanaActiva() === 'contenido') {
+              <div class="tab-pane">
+                <fieldset class="control-group">
+                  <legend>Documento General</legend>
+                  <label for="doc-titulo">Título del documento *</label>
+                  <input
+                    id="doc-titulo"
+                    type="text"
+                    [(ngModel)]="b.documento.titulo"
+                    (ngModelChange)="notificarCambio()"
+                    maxlength="200"
+                  />
+
+                  <label for="doc-subtitulo">Subtítulo (opcional)</label>
+                  <input
+                    id="doc-subtitulo"
+                    type="text"
+                    [(ngModel)]="b.documento.subtitulo"
+                    (ngModelChange)="notificarCambio()"
+                    maxlength="200"
+                  />
+
+                  <label for="doc-nota">Nota institucional final *</label>
+                  <textarea
+                    id="doc-nota"
+                    rows="3"
+                    [(ngModel)]="b.documento.notaFinal"
+                    (ngModelChange)="notificarCambio()"
+                    maxlength="1000"
+                  ></textarea>
+                </fieldset>
+
+                <fieldset class="control-group">
+                  <legend>Etiquetas de Campos Principales</legend>
+                  <div class="fields-grid">
+                    <div>
+                      <label for="lbl-cargo">Campo: Cargo</label>
+                      <input
+                        id="lbl-cargo"
+                        type="text"
+                        [(ngModel)]="b.campos['cargo'].etiqueta"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="lbl-vacantes">Campo: Vacantes</label>
+                      <input
+                        id="lbl-vacantes"
+                        type="text"
+                        [(ngModel)]="b.campos['numeroVacantes'].etiqueta"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="lbl-solicitante">Campo: Solicitante</label>
+                      <input
+                        id="lbl-solicitante"
+                        type="text"
+                        [(ngModel)]="b.campos['solicitante'].etiqueta"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="lbl-area">Campo: Área / Depto</label>
+                      <input
+                        id="lbl-area"
+                        type="text"
+                        [(ngModel)]="b.campos['area'].etiqueta"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="lbl-remuneracion">Campo: Remuneración</label>
+                      <input
+                        id="lbl-remuneracion"
+                        type="text"
+                        [(ngModel)]="b.campos['remuneracion'].etiqueta"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="lbl-horario">Campo: Horario</label>
+                      <input
+                        id="lbl-horario"
+                        type="text"
+                        [(ngModel)]="b.campos['horario'].etiqueta"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            }
+
+            <!-- PESTAÑA: APARIENCIA -->
+            @if (pestanaActiva() === 'apariencia') {
+              <div class="tab-pane">
+                <fieldset class="control-group">
+                  <legend>Tipografía y Colores</legend>
+                  <div class="fields-grid">
+                    <div>
+                      <label for="estilo-fuente">Familia tipográfica</label>
+                      <select
+                        id="estilo-fuente"
+                        [(ngModel)]="b.documento.estilo.fuente"
+                        (ngModelChange)="notificarCambio()"
+                      >
+                        <option value="sans">Sans-serif (Helvetica / Segoe UI)</option>
+                        <option value="serif">Serif (Times New Roman)</option>
+                        <option value="mono">Monospace (Courier)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label for="estilo-tamano">Tamaño base (8 - 12 pt)</label>
+                      <input
+                        id="estilo-tamano"
+                        type="number"
+                        min="8"
+                        max="12"
+                        step="0.5"
+                        [(ngModel)]="b.documento.estilo.tamanoFuentePt"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+
+                    <div class="color-field">
+                      <label for="col-texto">Color texto</label>
+                      <input
+                        id="col-texto"
+                        type="color"
+                        [(ngModel)]="b.documento.estilo.colorTexto"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                      <code>{{ b.documento.estilo.colorTexto }}</code>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="col-encabezado">Color encabezado</label>
+                      <input
+                        id="col-encabezado"
+                        type="color"
+                        [(ngModel)]="b.documento.estilo.colorEncabezado"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                      <code>{{ b.documento.estilo.colorEncabezado }}</code>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="col-destacado">Color destacado (ISTPET)</label>
+                      <input
+                        id="col-destacado"
+                        type="color"
+                        [(ngModel)]="b.documento.estilo.colorDestacado"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                      <code>{{ b.documento.estilo.colorDestacado }}</code>
+                    </div>
+
+                    <div class="color-field">
+                      <label for="col-borde">Color de bordes</label>
+                      <input
+                        id="col-borde"
+                        type="color"
+                        [(ngModel)]="b.documento.estilo.colorBorde"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                      <code>{{ b.documento.estilo.colorBorde }}</code>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset class="control-group">
+                  <legend>Márgenes y Bordes de Página A4</legend>
+                  <div class="fields-grid margins">
+                    <div>
+                      <label for="m-sup">Margen Superior (mm)</label>
+                      <input
+                        id="m-sup"
+                        type="number"
+                        min="8"
+                        max="25"
+                        [(ngModel)]="b.documento.pagina.margenesMm.superior"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="m-der">Margen Derecho (mm)</label>
+                      <input
+                        id="m-der"
+                        type="number"
+                        min="8"
+                        max="25"
+                        [(ngModel)]="b.documento.pagina.margenesMm.derecho"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="m-inf">Margen Inferior (mm)</label>
+                      <input
+                        id="m-inf"
+                        type="number"
+                        min="8"
+                        max="25"
+                        [(ngModel)]="b.documento.pagina.margenesMm.inferior"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="m-izq">Margen Izquierdo (mm)</label>
+                      <input
+                        id="m-izq"
+                        type="number"
+                        min="8"
+                        max="25"
+                        [(ngModel)]="b.documento.pagina.margenesMm.izquierdo"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="grosor-borde">Grosor de bordes (0.2 - 1.0 mm)</label>
+                      <input
+                        id="grosor-borde"
+                        type="number"
+                        min="0.2"
+                        max="1.0"
+                        step="0.05"
+                        [(ngModel)]="b.documento.estilo.grosorBordeMm"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset class="control-group">
+                  <legend>Logotipo e Imagen de Fondo</legend>
+                  <div class="images-config-grid">
+                    <!-- Config Logo -->
+                    <div class="image-box">
+                      <h4>Logotipo</h4>
+                      <label class="checkbox-label">
+                        <input
+                          type="checkbox"
+                          [(ngModel)]="b.documento.logo.usarLogoInstitucional"
+                          (ngModelChange)="notificarCambio()"
+                        />
+                        Mostrar isotipo institucional por defecto
+                      </label>
+                      <div>
+                        <label for="ancho-logo">Ancho en PDF (mm)</label>
+                        <input
+                          id="ancho-logo"
+                          type="number"
+                          min="10"
+                          max="80"
+                          [(ngModel)]="b.documento.logo.anchoMm"
+                          (ngModelChange)="notificarCambio()"
+                        />
+                      </div>
+                      <div class="upload-action">
+                        <label for="file-logo" class="btn btn-sm btn-outline">
+                          {{
+                            subiendoLogo() ? 'Subiendo...' : 'Cargar logo personalizado (PNG/JPG)'
+                          }}
+                        </label>
+                        <input
+                          id="file-logo"
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          (change)="onArchivoLogoSeleccionado($event)"
+                          [disabled]="subiendoLogo()"
+                          style="display: none"
+                        />
+                        @if (b.documento.logo.idAdjuntosImagenes) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            (click)="quitarLogo()"
+                          >
+                            Quitar logo
+                          </button>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Config Fondo -->
+                    <div class="image-box">
+                      <h4>Marca de Agua / Fondo</h4>
+                      <div>
+                        <label for="opacidad-fondo"
+                          >Opacidad ({{ b.documento.fondo.opacidad }})</label
+                        >
+                        <input
+                          id="opacidad-fondo"
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.05"
+                          [(ngModel)]="b.documento.fondo.opacidad"
+                          (ngModelChange)="notificarCambio()"
+                        />
+                      </div>
+                      <div>
+                        <label for="ajuste-fondo">Ajuste</label>
+                        <select
+                          id="ajuste-fondo"
+                          [(ngModel)]="b.documento.fondo.ajuste"
+                          (ngModelChange)="notificarCambio()"
+                        >
+                          <option value="contain">Contener (centrado)</option>
+                          <option value="cover">Cubrir página completa</option>
+                        </select>
+                      </div>
+                      <div class="upload-action">
+                        <label for="file-fondo" class="btn btn-sm btn-outline">
+                          {{ subiendoFondo() ? 'Subiendo...' : 'Cargar imagen de fondo' }}
+                        </label>
+                        <input
+                          id="file-fondo"
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          (change)="onArchivoFondoSeleccionado($event)"
+                          [disabled]="subiendoFondo()"
+                          style="display: none"
+                        />
+                        @if (b.documento.fondo.idAdjuntosImagenes) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            (click)="quitarFondo()"
+                          >
+                            Quitar fondo
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            }
+
+            <!-- PESTAÑA: VALORES INICIALES -->
+            @if (pestanaActiva() === 'valores') {
+              <div class="tab-pane">
+                <div class="info-note">
+                  <strong>Variables admitidas:</strong>
+                  <code>{{ '{{curso.carrera}}' }}</code>, <code>{{ '{{curso.cohorte}}' }}</code>,
+                  <code>{{ '{{curso.numeroVacantes}}' }}</code>,
+                  <code>{{ '{{solicitante.nombre}}' }}</code>, <code>{{ '{{fechaActual}}' }}</code>.
+                </div>
+
+                <fieldset class="control-group">
+                  <legend>Reglas de Precarga</legend>
+                  <div class="rules-grid">
+                    <div>
+                      <label for="rule-cargo">Texto plantilla para Cargo:</label>
+                      <input
+                        id="rule-cargo"
+                        type="text"
+                        [(ngModel)]="b.valoresIniciales['cargo'].valor"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                    <div>
+                      <label for="rule-area">Área por defecto:</label>
+                      <input
+                        id="rule-area"
+                        type="text"
+                        [(ngModel)]="b.valoresIniciales['area'].valor"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            }
+
+            <!-- PESTAÑA: FIRMAS Y SECCIONES -->
+            @if (pestanaActiva() === 'firmas') {
+              <div class="tab-pane">
+                <fieldset class="control-group">
+                  <legend>Títulos de Secciones</legend>
+                  @for (sec of b.secciones; track sec.id) {
+                    <div class="sec-item">
+                      <label [for]="'sec-' + sec.id">Sección: {{ sec.id }}</label>
+                      <input
+                        [id]="'sec-' + sec.id"
+                        type="text"
+                        [(ngModel)]="sec.titulo"
+                        (ngModelChange)="notificarCambio()"
+                      />
+                    </div>
+                  }
+                </fieldset>
+
+                <fieldset class="control-group">
+                  <legend>Bloques de Firma Manual</legend>
+                  @for (firma of b.firmas; track firma.id) {
+                    <div class="firma-item">
+                      <h4>Firma: {{ firma.id | uppercase }}</h4>
+                      <div class="fields-grid">
+                        <div>
+                          <label [for]="'f-tit-' + firma.id">Título de firma</label>
+                          <input
+                            [id]="'f-tit-' + firma.id"
+                            type="text"
+                            [(ngModel)]="firma.titulo"
+                            (ngModelChange)="notificarCambio()"
+                          />
+                        </div>
+                        <div>
+                          <label [for]="'f-firm-' + firma.id">Etiqueta firma</label>
+                          <input
+                            [id]="'f-firm-' + firma.id"
+                            type="text"
+                            [(ngModel)]="firma.etiquetaFirma"
+                            (ngModelChange)="notificarCambio()"
+                          />
+                        </div>
+                        <div>
+                          <label [for]="'f-nom-' + firma.id">Etiqueta nombre</label>
+                          <input
+                            [id]="'f-nom-' + firma.id"
+                            type="text"
+                            [(ngModel)]="firma.etiquetaNombre"
+                            (ngModelChange)="notificarCambio()"
+                          />
+                        </div>
+                        <div>
+                          <label [for]="'f-car-' + firma.id">Etiqueta cargo</label>
+                          <input
+                            [id]="'f-car-' + firma.id"
+                            type="text"
+                            [(ngModel)]="firma.etiquetaCargo"
+                            (ngModelChange)="notificarCambio()"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </fieldset>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Panel Derecho: Vista Previa en Vivo -->
+        <div class="editor-preview-panel">
+          <div class="preview-header">
+            <h3>Vista Previa A4 en Vivo</h3>
+            @if (generandoPdf()) {
+              <span class="preview-loading">Actualizando render...</span>
+            }
+          </div>
+          <div class="preview-frame-container">
+            @if (pdfPreviewUrl(); as url) {
+              <iframe [src]="url" title="Vista previa A4 de la plantilla"></iframe>
+            } @else {
+              <div class="preview-placeholder">Generando vista preliminar...</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie de acciones -->
+      <footer class="editor-footer">
+        <button
+          type="button"
+          class="btn btn-ghost"
+          (click)="restaurarBase()"
+          title="Carga la configuración base en el borrador"
+        >
+          Restaurar formato base
+        </button>
+
+        <div class="footer-buttons">
+          <button type="button" class="btn btn-outline" (click)="cancelar()">Cancelar</button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="guardar()"
+            [disabled]="store.guardando()"
+          >
+            {{ store.guardando() ? 'Guardando en MySQL...' : 'Guardar plantilla institucional' }}
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+}

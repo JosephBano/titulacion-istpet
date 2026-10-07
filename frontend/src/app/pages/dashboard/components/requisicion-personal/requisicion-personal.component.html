@@ -1,0 +1,795 @@
+<section class="feature-intro">
+  <div class="intro-content">
+    <div class="eyebrow-badge">
+      <i class="bi bi-mortarboard-fill" aria-hidden="true"></i>
+      <span>EXAMEN COMPLEXIVO</span>
+      <span class="badge-dot" aria-hidden="true"></span>
+      <span>REQUISICIÓN DE PERSONAL</span>
+    </div>
+    <h2>Solicitud de personal docente</h2>
+    <p>
+      Completa el formato institucional y genera el documento para firma. Conserva el PDF antes de
+      salir de esta pantalla.
+    </p>
+  </div>
+  <div class="toolbar-actions">
+    @if (puedeEditarPlantilla()) {
+      <button
+        type="button"
+        class="button-secondary btn-configurar-plantilla"
+        (click)="abrirEditorPlantilla()"
+        title="Personalizar etiquetas, colores, logotipo y valores por defecto del formato"
+      >
+        <i class="bi bi-gear-fill" aria-hidden="true"></i>
+        Configurar plantilla
+      </button>
+    }
+    <button
+      type="button"
+      class="button-secondary btn-cargar-ejemplo"
+      (click)="cargarEjemplo()"
+      title="Reemplaza los campos del formulario con datos de ejemplo de Diseño Gráfico"
+    >
+      Cargar ejemplo
+    </button>
+    <span class="status-chip">
+      <i class="bi bi-shield-check" aria-hidden="true"></i>
+      Formato institucional
+    </span>
+  </div>
+</section>
+
+<div class="progress-card" role="region" aria-label="Progreso del formulario">
+  <div class="progress-header">
+    <span class="progress-label">
+      <i class="bi bi-list-check" aria-hidden="true"></i>
+      Progreso de la solicitud
+    </span>
+    <span class="progress-stats">
+      {{ progreso().completadas }} de {{ progreso().total }} secciones requeridas ({{
+        progreso().porcentaje
+      }}%)
+    </span>
+  </div>
+  <div class="progress-track" aria-hidden="true">
+    <div class="progress-fill" [style.width.%]="progreso().porcentaje"></div>
+  </div>
+  <nav class="progress-nav" aria-label="Acceso directo a secciones">
+    <button
+      type="button"
+      class="progress-step-btn"
+      [class.is-complete]="esSeccionCompleta(1)"
+      (click)="desplazarASeccion('sec-general')"
+    >
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(1)"
+        [class.bi-circle]="!esSeccionCompleta(1)"
+      ></i>
+      General
+    </button>
+    <button
+      type="button"
+      class="progress-step-btn"
+      [class.is-complete]="esSeccionCompleta(2)"
+      (click)="desplazarASeccion('sec-institucion')"
+    >
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(2)"
+        [class.bi-circle]="!esSeccionCompleta(2)"
+      ></i>
+      Institución
+    </button>
+    <button
+      type="button"
+      class="progress-step-btn"
+      [class.is-complete]="esSeccionCompleta(3)"
+      (click)="desplazarASeccion('sec-vacante')"
+    >
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(3)"
+        [class.bi-circle]="!esSeccionCompleta(3)"
+      ></i>
+      Vacante
+    </button>
+    <button
+      type="button"
+      class="progress-step-btn"
+      [class.is-complete]="esSeccionCompleta(4)"
+      (click)="desplazarASeccion('sec-motivo')"
+    >
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(4)"
+        [class.bi-circle]="!esSeccionCompleta(4)"
+      ></i>
+      Motivo
+    </button>
+    <button
+      type="button"
+      class="progress-step-btn"
+      [class.is-complete]="esSeccionCompleta(5)"
+      (click)="desplazarASeccion('sec-perfil')"
+    >
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(5)"
+        [class.bi-circle]="!esSeccionCompleta(5)"
+      ></i>
+      Perfil
+    </button>
+    <button
+      type="button"
+      class="progress-step-btn"
+      [class.is-complete]="esSeccionCompleta(6)"
+      (click)="desplazarASeccion('sec-observaciones')"
+    >
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="esSeccionCompleta(6)"
+        [class.bi-circle]="!esSeccionCompleta(6)"
+      ></i>
+      Observaciones
+    </button>
+  </nav>
+</div>
+
+@if (datosIniciales(); as iniciales) {
+  <div class="notice" role="status">
+    <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+    <div class="notice-text">
+      Cargo y vacantes precargados desde el curso de {{ iniciales.origen.carrera }} ·
+      {{ iniciales.origen.cohorte }}. Revisa los datos y completa el formulario antes de generar el
+      documento.
+    </div>
+  </div>
+}
+
+<form #formulario="ngForm" (ngSubmit)="imprimir(documento)" class="feature-form">
+  <fieldset id="sec-general" class="feature-card">
+    <legend class="sr-only">Información general</legend>
+    <div class="section-header">
+      <div class="section-title-group">
+        <span class="section-badge" [class.is-complete]="esSeccionCompleta(1)">
+          @if (esSeccionCompleta(1)) {
+            <i class="bi bi-check-lg" aria-hidden="true"></i>
+          } @else {
+            1
+          }
+        </span>
+        <div class="section-headings">
+          <span class="section-title">Información general</span>
+          <span class="section-subtitle"
+            >Identificación de la unidad solicitante y fecha de emisión</span
+          >
+        </div>
+      </div>
+      <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(1)">
+        {{ esSeccionCompleta(1) ? 'Completado' : 'Requerido' }}
+      </span>
+    </div>
+    <div class="form-grid">
+      @for (campo of generales; track campo.clave) {
+        <div class="form-field">
+          <label [for]="campo.clave">{{ campo.etiqueta }} <span aria-hidden="true">*</span></label>
+          @if (campo.tipo === 'date') {
+            <app-date-field
+              [inputId]="campo.clave"
+              [name]="campo.clave"
+              [value]="datos[campo.clave]"
+              (valueChange)="datos[campo.clave] = $event || ''"
+              [required]="true"
+            />
+          } @else {
+            <input
+              [id]="campo.clave"
+              [name]="campo.clave"
+              [type]="campo.tipo || 'text'"
+              [(ngModel)]="datos[campo.clave]"
+              required
+              maxlength="250"
+            />
+          }
+        </div>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset id="sec-institucion" class="feature-card">
+    <legend class="sr-only">Institución solicitante</legend>
+    <div class="section-header">
+      <div class="section-title-group">
+        <span class="section-badge" [class.is-complete]="esSeccionCompleta(2)">
+          @if (esSeccionCompleta(2)) {
+            <i class="bi bi-check-lg" aria-hidden="true"></i>
+          } @else {
+            2
+          }
+        </span>
+        <div class="section-headings">
+          <span class="section-title">Institución solicitante</span>
+          <span class="section-subtitle">Entidad educativa o unidad operativa requirente</span>
+        </div>
+      </div>
+      <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(2)">
+        {{ esSeccionCompleta(2) ? 'Completado' : 'Requerido' }}
+      </span>
+    </div>
+    <div class="form-field">
+      <label for="institucion">Institución <span aria-hidden="true">*</span></label>
+      <select id="institucion" name="institucion" [(ngModel)]="datos.institucion" required>
+        <option value="" disabled>Selecciona una institución</option>
+        @for (institucion of instituciones; track institucion) {
+          <option [value]="institucion">{{ institucion }}</option>
+        }
+      </select>
+    </div>
+  </fieldset>
+
+  <fieldset id="sec-vacante" class="feature-card">
+    <legend class="sr-only">Información de la vacante</legend>
+    <div class="section-header">
+      <div class="section-title-group">
+        <span class="section-badge" [class.is-complete]="esSeccionCompleta(3)">
+          @if (esSeccionCompleta(3)) {
+            <i class="bi bi-check-lg" aria-hidden="true"></i>
+          } @else {
+            3
+          }
+        </span>
+        <div class="section-headings">
+          <span class="section-title">Información de la vacante</span>
+          <span class="section-subtitle"
+            >Cargo, régimen, jornada laboral y condiciones de remuneración</span
+          >
+        </div>
+      </div>
+      <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(3)">
+        {{ esSeccionCompleta(3) ? 'Completado' : 'Requerido' }}
+      </span>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="vacantes">Número de vacantes <span aria-hidden="true">*</span></label>
+        <input
+          id="vacantes"
+          name="vacantes"
+          type="number"
+          [(ngModel)]="numeroVacantes"
+          required
+          min="1"
+          step="1"
+          pattern="[0-9]+"
+        />
+      </div>
+      <div class="form-field">
+        <label for="contratacion">Tipo de contratación <span aria-hidden="true">*</span></label>
+        <select id="contratacion" name="contratacion" [(ngModel)]="datos.contratacion" required>
+          <option value="" disabled>Selecciona una opción</option>
+          @for (tipo of contrataciones; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="jornada">Jornada laboral <span aria-hidden="true">*</span></label>
+        <select id="jornada" name="jornada" [(ngModel)]="datos.jornada" required>
+          <option value="" disabled>Selecciona una opción</option>
+          @for (jornada of jornadas; track jornada) {
+            <option [value]="jornada">{{ jornada }}</option>
+          }
+        </select>
+      </div>
+      @for (campo of vacante; track campo.clave) {
+        <div class="form-field" [class.full-width]="campo.multilinea">
+          <label [for]="campo.clave">{{ campo.etiqueta }} <span aria-hidden="true">*</span></label>
+          @if (campo.multilinea) {
+            <textarea
+              [id]="campo.clave"
+              [name]="campo.clave"
+              [(ngModel)]="datos[campo.clave]"
+              rows="2"
+              required
+              maxlength="1500"
+            ></textarea>
+          } @else {
+            <input
+              [id]="campo.clave"
+              [name]="campo.clave"
+              [(ngModel)]="datos[campo.clave]"
+              required
+              maxlength="500"
+            />
+          }
+          @if (campo.clave === 'fechaIngreso') {
+            <span class="field-help">
+              <i class="bi bi-calendar-event" aria-hidden="true"></i>
+              Puedes indicar una fecha de ingreso por módulo.
+            </span>
+          }
+        </div>
+      }
+      <div class="form-field">
+        <label for="remuneracion">Remuneración</label>
+        <select id="remuneracion" name="remuneracion" [(ngModel)]="datos.remuneracion">
+          <option value="">Por definir</option>
+          <option value="Sueldo">Sueldo</option>
+          <option value="Factura">Factura / valor por hora</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="valor">{{
+          datos.remuneracion === 'Factura' ? 'Valor por hora (USD)' : 'Valor de remuneración (USD)'
+        }}</label>
+        <input
+          id="valor"
+          name="valor"
+          type="number"
+          [(ngModel)]="valorRemuneracion"
+          min="0"
+          step="0.01"
+        />
+      </div>
+      <div class="form-field">
+        <label for="total">Valor total (USD)</label>
+        <input id="total" name="total" type="number" [(ngModel)]="valorTotal" min="0" step="0.01" />
+      </div>
+
+      @if (datos.remuneracion === 'Factura' && valorRemuneracion && valorRemuneracion > 0) {
+        <div class="calc-helper-card full-width">
+          <div class="calc-helper-text">
+            <i class="bi bi-calculator" aria-hidden="true"></i>
+            <span>
+              Cálculo estimado: 96 horas de curso × USD {{ valorRemuneracion | number: '1.2-2' }} =
+              <strong>USD {{ valorRemuneracion * 96 | number: '1.2-2' }}</strong>
+            </span>
+          </div>
+          @if (valorTotal !== valorRemuneracion * 96) {
+            <button
+              type="button"
+              class="calc-apply-btn"
+              (click)="aplicarTotalSugerido()"
+              title="Copiar valor sugerido al campo Valor total"
+            >
+              <i class="bi bi-arrow-down-left" aria-hidden="true"></i>
+              Aplicar al total
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset id="sec-motivo" class="feature-card">
+    <legend class="sr-only">Motivo de la vacante</legend>
+    <div class="section-header">
+      <div class="section-title-group">
+        <span class="section-badge" [class.is-complete]="esSeccionCompleta(4)">
+          @if (esSeccionCompleta(4)) {
+            <i class="bi bi-check-lg" aria-hidden="true"></i>
+          } @else {
+            4
+          }
+        </span>
+        <div class="section-headings">
+          <span class="section-title">Motivo de la vacante</span>
+          <span class="section-subtitle"
+            >Justificación institucional para Rectorado y Consejo Directivo</span
+          >
+        </div>
+      </div>
+      <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(4)">
+        {{ esSeccionCompleta(4) ? 'Completado' : 'Requerido' }}
+      </span>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="motivo">Motivo <span aria-hidden="true">*</span></label>
+        <select id="motivo" name="motivo" [(ngModel)]="datos.motivo" required>
+          <option value="" disabled>Selecciona una opción</option>
+          @for (motivo of motivos; track motivo) {
+            <option [value]="motivo">{{ motivo }}</option>
+          }
+        </select>
+      </div>
+      @if (datos.motivo === 'Otro') {
+        <div class="form-field dynamic-field-wrapper">
+          <label for="otroMotivo">Especifica el motivo <span aria-hidden="true">*</span></label>
+          <input
+            id="otroMotivo"
+            name="otroMotivo"
+            [(ngModel)]="datos.otroMotivo"
+            required
+            maxlength="250"
+          />
+        </div>
+      }
+      <div class="form-field full-width">
+        <label for="detalleMotivo">Detalle del motivo <span aria-hidden="true">*</span></label>
+        <textarea
+          id="detalleMotivo"
+          name="detalleMotivo"
+          [(ngModel)]="datos.detalleMotivo"
+          required
+          rows="3"
+          maxlength="2000"
+        ></textarea>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset id="sec-perfil" class="feature-card">
+    <legend class="sr-only">Perfil requerido</legend>
+    <div class="section-header">
+      <div class="section-title-group">
+        <span class="section-badge" [class.is-complete]="esSeccionCompleta(5)">
+          @if (esSeccionCompleta(5)) {
+            <i class="bi bi-check-lg" aria-hidden="true"></i>
+          } @else {
+            5
+          }
+        </span>
+        <div class="section-headings">
+          <span class="section-title">Perfil requerido</span>
+          <span class="section-subtitle"
+            >Formación académica, experiencia y competencias docentes</span
+          >
+        </div>
+      </div>
+      <span class="section-status-pill" [class.is-complete]="esSeccionCompleta(5)">
+        {{ esSeccionCompleta(5) ? 'Completado' : 'Requerido' }}
+      </span>
+    </div>
+    <div class="form-grid">
+      @for (campo of perfil; track campo.clave) {
+        <div class="form-field full-width">
+          <label [for]="campo.clave">{{ campo.etiqueta }} <span aria-hidden="true">*</span></label>
+          <textarea
+            [id]="campo.clave"
+            [name]="campo.clave"
+            [(ngModel)]="datos[campo.clave]"
+            required
+            rows="2"
+            maxlength="2000"
+          ></textarea>
+        </div>
+      }
+    </div>
+    <div class="competency-header">
+      <h3>Competencias requeridas</h3>
+      <span class="competency-count-pill">
+        {{ competenciasSeleccionadas.size }} seleccionada{{
+          competenciasSeleccionadas.size === 1 ? '' : 's'
+        }}
+      </span>
+    </div>
+    <div class="check-grid">
+      @for (competencia of competencias; track competencia) {
+        <label
+          class="check-option"
+          [class.is-selected]="competenciasSeleccionadas.has(competencia)"
+        >
+          <input
+            #competenciaInput
+            type="checkbox"
+            [checked]="competenciasSeleccionadas.has(competencia)"
+            (change)="seleccionarCompetencia(competencia, competenciaInput.checked)"
+          />
+          {{ competencia }}
+        </label>
+      }
+    </div>
+    @if (competenciasSeleccionadas.has('Otro')) {
+      <div class="form-field dynamic-field-wrapper">
+        <label for="otraCompetencia">Otra competencia <span aria-hidden="true">*</span></label>
+        <input
+          id="otraCompetencia"
+          name="otraCompetencia"
+          [(ngModel)]="datos.otraCompetencia"
+          required
+          maxlength="250"
+        />
+      </div>
+    }
+  </fieldset>
+
+  <fieldset id="sec-observaciones" class="feature-card">
+    <legend class="sr-only">Observaciones</legend>
+    <div class="section-header">
+      <div class="section-title-group">
+        <span class="section-badge" [class.is-complete]="esSeccionCompleta(6)">
+          @if (esSeccionCompleta(6)) {
+            <i class="bi bi-check-lg" aria-hidden="true"></i>
+          } @else {
+            6
+          }
+        </span>
+        <div class="section-headings">
+          <span class="section-title">Observaciones</span>
+          <span class="section-subtitle"
+            >Instrucciones o especificaciones adicionales para Rectorado y RRHH</span
+          >
+        </div>
+      </div>
+      <span class="section-status-pill"> Opcional </span>
+    </div>
+    <label class="sr-only" for="observaciones">Observaciones</label>
+    <textarea
+      id="observaciones"
+      name="observaciones"
+      [(ngModel)]="datos.observaciones"
+      rows="3"
+      maxlength="2000"
+      placeholder="Notas adicionales o consideraciones especiales para el proceso..."
+    ></textarea>
+  </fieldset>
+
+  <div class="form-actions form-actions-dock">
+    <div class="dock-status">
+      @if (formulario.valid) {
+        <span class="status-ready">
+          <span class="status-dot green"></span>
+          Formulario completo y listo para generar el PDF
+        </span>
+      } @else {
+        <span class="status-pending">
+          <span class="status-dot amber"></span>
+          Los campos marcados con * son obligatorios ({{ progreso().completadas }}/5 completas)
+        </span>
+      }
+    </div>
+    <div class="dock-buttons">
+      <button
+        type="button"
+        class="button-secondary btn-vista-previa"
+        (click)="abrirVistaPrevia(previewDialog, previewFrame, documento)"
+      >
+        Vista previa
+      </button>
+      <button
+        type="button"
+        class="button-secondary btn-descargar-pdf"
+        [disabled]="formulario.invalid || generandoPdfDescarga()"
+        (click)="descargarPdfOficial()"
+        title="Descargar PDF vectorial oficial"
+      >
+        {{ generandoPdfDescarga() ? 'Generando...' : 'Descargar PDF' }}
+      </button>
+      <button type="submit" class="button-primary btn-imprimir" [disabled]="formulario.invalid">
+        Imprimir / Guardar PDF
+      </button>
+    </div>
+  </div>
+</form>
+
+<dialog #previewDialog class="document-dialog" aria-labelledby="preview-title">
+  <header class="preview-toolbar">
+    <div class="toolbar-title-group">
+      <div class="doc-badge">
+        <i class="bi bi-file-earmark-pdf-fill" aria-hidden="true"></i>
+        <span>FORMATO INSTITUCIONAL · A4</span>
+      </div>
+      <h2 id="preview-title">{{ plantilla.documento.titulo }}</h2>
+    </div>
+    <div class="toolbar-actions">
+      <button
+        type="button"
+        class="button-secondary btn-descargar-modal"
+        [disabled]="formulario.invalid || generandoPdfDescarga()"
+        (click)="descargarPdfOficial()"
+        title="Descargar PDF vectorial oficial"
+      >
+        <i class="bi bi-download" aria-hidden="true"></i>
+        <span>{{ generandoPdfDescarga() ? 'Generando...' : 'Descargar PDF' }}</span>
+      </button>
+      <button
+        type="button"
+        class="button-primary btn-imprimir"
+        [disabled]="formulario.invalid"
+        (click)="imprimir(documento)"
+      >
+        <i class="bi bi-printer" aria-hidden="true"></i>
+        <span>Imprimir documento</span>
+      </button>
+      <button
+        type="button"
+        class="button-secondary btn-close-preview"
+        (click)="previewDialog.close()"
+        autofocus
+        aria-label="Cerrar vista previa"
+      >
+        Cerrar
+      </button>
+    </div>
+  </header>
+  <div class="dialog-body">
+    <iframe
+      #previewFrame
+      class="document-frame"
+      title="Vista previa de requisición de personal"
+    ></iframe>
+  </div>
+</dialog>
+
+<article #documento class="print-document" hidden>
+  <div class="document-header">
+    <div class="header-brand-row">
+      @if (logoDataUrl()) {
+        <img [src]="logoDataUrl()" alt="Logotipo institucional" class="header-logo-img" />
+      } @else if (plantilla.documento.logo.usarLogoInstitucional) {
+        <div class="header-logo-badge">
+          <span class="badge-istpet">ISTPET</span>
+          <span class="badge-sub">Instituto Tecnológico Superior Traversari</span>
+        </div>
+      }
+      <div class="header-titles">
+        <h1 class="document-title">{{ plantilla.documento.titulo }}</h1>
+        @if (plantilla.documento.subtitulo) {
+          <p class="document-subtitle">{{ plantilla.documento.subtitulo }}</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-header">{{ seccionTitulo('general', '1. INFORMACIÓN GENERAL') }}</h2>
+  <dl class="document-fields">
+    @for (campo of generales; track campo.clave) {
+      <dt>{{ etiquetaCampo(campo.clave, campo.etiqueta) }}</dt>
+      <dd>
+        {{ campo.tipo === 'date' ? (datos[campo.clave] | date: 'dd/MM/yyyy') : datos[campo.clave] }}
+      </dd>
+    }
+  </dl>
+
+  <h2 class="section-header">{{ seccionTitulo('institucion', '2. INSTITUCIÓN SOLICITANTE') }}</h2>
+  <div class="document-options">
+    @for (institucion of instituciones; track institucion) {
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.institucion === institucion">{{
+          datos.institucion === institucion ? '☑' : '☐'
+        }}</span>
+        {{ institucion }}</span
+      >
+    }
+  </div>
+
+  <h2 class="section-header">{{ seccionTitulo('vacante', '3. INFORMACIÓN DE LA VACANTE') }}</h2>
+  <dl class="document-fields">
+    <dt>{{ etiquetaCampo('cargo', 'Cargo solicitado') }}</dt>
+    <dd>{{ datos.cargo }}</dd>
+    <dt>{{ etiquetaCampo('numeroVacantes', 'Número de vacantes') }}</dt>
+    <dd>{{ numeroVacantes }}</dd>
+    <dt>{{ etiquetaCampo('contratacion', 'Tipo de contratación') }}</dt>
+    <dd>
+      @for (tipo of contrataciones; track tipo) {
+        <span class="doc-option-chip"
+          ><span class="doc-check-mark" [class.is-checked]="datos.contratacion === tipo">{{
+            datos.contratacion === tipo ? '☑' : '☐'
+          }}</span>
+          {{ tipo }} &nbsp;</span
+        >
+      }
+    </dd>
+    <dt>{{ etiquetaCampo('jornada', 'Jornada laboral') }}</dt>
+    <dd>
+      @for (jornada of jornadas; track jornada) {
+        <span class="doc-option-chip"
+          ><span class="doc-check-mark" [class.is-checked]="datos.jornada === jornada">{{
+            datos.jornada === jornada ? '☑' : '☐'
+          }}</span>
+          {{ jornada }} &nbsp;</span
+        >
+      }
+    </dd>
+    <dt>{{ etiquetaCampo('remuneracion', 'Remuneración') }}</dt>
+    <dd>
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Sueldo'">{{
+          datos.remuneracion === 'Sueldo' ? '☑' : '☐'
+        }}</span>
+        Sueldo:
+        {{
+          datos.remuneracion === 'Sueldo' && valorRemuneracion !== null
+            ? (valorRemuneracion | number: '1.2-2')
+            : '________'
+        }}</span
+      >
+      &nbsp;
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.remuneracion === 'Factura'">{{
+          datos.remuneracion === 'Factura' ? '☑' : '☐'
+        }}</span>
+        Factura / valor hora:
+        {{
+          datos.remuneracion === 'Factura' && valorRemuneracion !== null
+            ? (valorRemuneracion | number: '1.2-2')
+            : '________'
+        }}</span
+      >
+      &nbsp; Valor total: {{ valorTotal !== null ? (valorTotal | number: '1.2-2') : '________' }}
+    </dd>
+    <dt>{{ etiquetaCampo('horario', 'Horario requerido') }}</dt>
+    <dd>{{ datos.horario }}</dd>
+    <dt>{{ etiquetaCampo('lugar', 'Lugar de trabajo') }}</dt>
+    <dd>{{ datos.lugar }}</dd>
+    <dt>{{ etiquetaCampo('fechaIngreso', 'Fecha requerida de ingreso') }}</dt>
+    <dd>{{ datos.fechaIngreso }}</dd>
+  </dl>
+
+  <h2 class="section-header">{{ seccionTitulo('motivo', '4. MOTIVO DE LA VACANTE') }}</h2>
+  <div class="document-options-grid">
+    @for (motivo of motivos; track motivo) {
+      <span class="doc-option-chip"
+        ><span class="doc-check-mark" [class.is-checked]="datos.motivo === motivo">{{
+          datos.motivo === motivo ? '☑' : '☐'
+        }}</span>
+        {{ motivo
+        }}{{ motivo === 'Otro' && datos.motivo === 'Otro' ? ': ' + datos.otroMotivo : '' }}</span
+      >
+    }
+  </div>
+  <p class="preserve-lines">
+    <strong>{{ etiquetaCampo('detalleMotivo', 'Detalle del motivo') }}: </strong>
+    {{ datos.detalleMotivo }}
+  </p>
+
+  <h2 class="section-header">{{ seccionTitulo('perfil', '5. PERFIL REQUERIDO') }}</h2>
+  @for (campo of perfil; track campo.clave) {
+    <p class="preserve-lines">
+      <strong>{{ etiquetaCampo(campo.clave, campo.etiqueta) }}: </strong>{{ datos[campo.clave] }}
+    </p>
+  }
+  <h3>{{ etiquetaCampo('competencias', 'COMPETENCIAS REQUERIDAS') }}</h3>
+  <div class="document-options-grid">
+    @for (competencia of competencias; track competencia) {
+      <span class="doc-option-chip"
+        ><span
+          class="doc-check-mark"
+          [class.is-checked]="competenciasSeleccionadas.has(competencia)"
+          >{{ competenciasSeleccionadas.has(competencia) ? '☑' : '☐' }}</span
+        >
+        {{ competencia
+        }}{{
+          competencia === 'Otro' && competenciasSeleccionadas.has('Otro')
+            ? ': ' + datos.otraCompetencia
+            : ''
+        }}</span
+      >
+    }
+  </div>
+
+  @if (datos.observaciones) {
+    <h2 class="section-header">{{ seccionTitulo('observaciones', '6. OBSERVACIONES') }}</h2>
+    <p class="preserve-lines">{{ datos.observaciones }}</p>
+  }
+
+  <table class="signature-block">
+    <tbody>
+      <tr>
+        @for (firma of plantilla.firmas; track firma.id) {
+          <td>
+            <strong class="sig-title">{{ firma.titulo }}</strong>
+            <div class="signature-line"></div>
+            <p>{{ firma.etiquetaFirma }}</p>
+            <p>{{ firma.etiquetaNombre }}</p>
+            <p>{{ firma.etiquetaCargo }}</p>
+          </td>
+        }
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="document-note">
+    {{ plantilla.documento.notaFinal }}
+  </p>
+</article>
+
+@if (modalEditorAbierto()) {
+  <app-editor-plantilla
+    [datosEjemplo]="obtenerDatosFormulario()"
+    (cerrar)="cerrarEditorPlantilla()"
+    (guardado)="onPlantillaGuardada()"
+  ></app-editor-plantilla>
+}

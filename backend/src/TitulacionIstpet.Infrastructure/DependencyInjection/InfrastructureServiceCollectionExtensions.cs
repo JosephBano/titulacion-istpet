@@ -31,7 +31,7 @@ public static class InfrastructureServiceCollectionExtensions
         }
 
         // La version se fija explicitamente para evitar autodetect en CI sin MySQL levantado
-        var version = new MySqlServerVersion(new Version(5, 7, 44));
+        var version = new MySqlServerVersion(new Version(5, 7, 21));
 
         services.AddMemoryCache();
 
@@ -50,6 +50,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IRepositorioPostulaciones, RepositorioPostulaciones>();
         services.AddScoped<IRepositorioConfiguracionGeneral, RepositorioConfiguracionGeneral>();
         services.AddScoped<IRepositorioConvocatorias, RepositorioConvocatorias>();
+        services.AddScoped<Application.Features.Complexivo.IRepositorioComplexivo, RepositorioComplexivo>();
+        services.AddScoped<Application.Features.PlantillasRequisicion.IRepositorioPlantillaRequisicion, RepositorioPlantillaRequisicion>();
+        services.AddScoped<Application.Features.PlantillasRequisicion.IServicioImagenesPlantilla, ServicioImagenesPlantilla>();
         services.AddScoped<Application.Features.ResponsablesRequisitos.IRepositorioResponsablesRequisitos, RepositorioResponsablesRequisitos>();
 
         // Seguridad y Auth

@@ -54,6 +54,9 @@ import { ResponsablesModalComponent } from '../../shared/components/responsables
 import { DrawerComponent } from '../../shared/components/drawer/drawer.component';
 import { EgresadosTabComponent } from './components/egresados-tab/egresados-tab.component';
 import { ReportesTabComponent } from './components/reportes-tab/reportes-tab.component';
+import { RequisicionPersonalComponent } from './components/requisicion-personal/requisicion-personal.component';
+import { ConfiguracionComplexivoComponent } from './components/configuracion-complexivo/configuracion-complexivo.component';
+import { RequisicionPersonalInicial } from '../../domain/models/requisicion-personal.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -79,6 +82,8 @@ import { ReportesTabComponent } from './components/reportes-tab/reportes-tab.com
     DrawerComponent,
     EgresadosTabComponent,
     ReportesTabComponent,
+    RequisicionPersonalComponent,
+    ConfiguracionComplexivoComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -96,6 +101,7 @@ export class DashboardComponent implements OnInit {
   isDarkMode = signal(false);
   isSidebarCollapsed = signal(typeof window !== 'undefined' && window.innerWidth < 900);
   activeTab = signal('resumen');
+  readonly requisicionInicial = signal<RequisicionPersonalInicial | null>(null);
 
   userInitial = computed(() => {
     const nombre = this.currentUser()?.nombre;
@@ -597,6 +603,10 @@ export class DashboardComponent implements OnInit {
 
   hasPermission(moduleName: string, operationName: string): boolean {
     return this.authService.hasPermission(moduleName, operationName);
+  }
+
+  puedeVerComplexivo(): boolean {
+    return this.hasRole('TITULACION_ADMIN') && this.hasPermission('Examen Complexivo', 'ver');
   }
 
   ngOnInit(): void {
@@ -1577,6 +1587,12 @@ export class DashboardComponent implements OnInit {
   }
 
   setActiveTab(tab: string): void {
+    if (
+      (tab === 'requisicion-personal' || tab === 'configuracion-complexivo') &&
+      !this.puedeVerComplexivo()
+    )
+      return;
+    if (tab !== 'requisicion-personal') this.requisicionInicial.set(null);
     this.activeTab.set(tab);
     if (typeof window !== 'undefined' && window.innerWidth < 900) {
       this.isSidebarCollapsed.set(true);
@@ -1597,6 +1613,12 @@ export class DashboardComponent implements OnInit {
     } else if (tab === 'evaluacion') {
       this.cargarMisPendientesDocente();
     }
+  }
+
+  abrirRequisicionPersonal(datos: RequisicionPersonalInicial): void {
+    if (!this.puedeVerComplexivo()) return;
+    this.requisicionInicial.set(datos);
+    this.setActiveTab('requisicion-personal');
   }
 
   abrirAperturaModal(): void {

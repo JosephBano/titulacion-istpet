@@ -1,0 +1,226 @@
+{
+  "carrera": "Diseño Gráfico",
+  "modulos": [
+    {
+      "nombre": "[EJEMPLO] Módulo 1 — Comunicación y producción gráfica",
+      "descripcion": "Fundamentos de la comunicación en diseño gráfico/publicitario y de producción.",
+      "fechaInicio": "2026-10-05",
+      "fechaFin": "2026-10-24",
+      "totalHoras": 32,
+      "modalidad": "Mixta: virtual y presencial",
+      "docente": "Juan Carlos Valladares",
+      "temas": [
+        {
+          "asignaturas": ["Semiótica"],
+          "detalle": "Signos y símbolos.",
+          "horas": 4
+        },
+        {
+          "asignaturas": ["Semiótica"],
+          "detalle": "Semiótica y su influencia en la comunicación.",
+          "horas": 4
+        },
+        {
+          "asignaturas": ["Semiótica"],
+          "detalle": "Figuras retóricas en la comunicación y el diseño gráfico.",
+          "horas": 4
+        },
+        {
+          "asignaturas": ["Imagen corporativa", "Identidad corporativa"],
+          "detalle": "Introducción a la imagen corporativa.\nIdentidad corporativa vs. imagen corporativa.\nComunicación de la imagen corporativa.\nBranding digital y redes sociales.\nRelaciones públicas y gestión de la imagen corporativa.",
+          "horas": 12
+        },
+        {
+          "asignaturas": [
+            "Packaging",
+            "Diseño de empaques",
+            "Packaging (Diseño de Empaques)"
+          ],
+          "detalle": "Principios del diseño y packaging.\nFunciones del packaging e implicaciones de etiquetado.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Packaging",
+            "Diseño de empaques",
+            "Packaging (Diseño de Empaques)"
+          ],
+          "detalle": "Branding y packaging: implicaciones de una marca en el diseño del envase.",
+          "horas": 4
+        }
+      ],
+      "horarios": [
+        {
+          "dias": "Lunes a jueves, del 05 al 22 de octubre de 2026",
+          "franjaHoraria": "19:00 a 21:00 (virtual)"
+        },
+        {
+          "dias": "Sábados 10 y 17 de octubre de 2026",
+          "franjaHoraria": "08:00 a 11:00 (presencial)"
+        },
+        {
+          "dias": "Sábado 24 de octubre de 2026",
+          "franjaHoraria": "08:00 a 10:00 (presencial)"
+        }
+      ]
+    },
+    {
+      "nombre": "[EJEMPLO] Módulo 2 — Aplicaciones del diseño gráfico",
+      "descripcion": "Aplicaciones profesionales del diseño gráfico: herramientas digitales, fotografía y diseño web.",
+      "fechaInicio": "2026-10-26",
+      "fechaFin": "2026-11-17",
+      "totalHoras": 32,
+      "modalidad": "Mixta: virtual y presencial",
+      "docente": "Diego Mediavilla",
+      "temas": [
+        {
+          "asignaturas": [
+            "Digital I",
+            "Digital 1",
+            "Illustrator",
+            "Digital I Ilustrador"
+          ],
+          "detalle": "Vectores y composición.\nCreación de logotipos e iconos.\nExportación y preparación para impresión.\nIdentidad corporativa, publicidad impresa e infografías.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Digital II",
+            "Digital 2",
+            "Photoshop",
+            "Digital 2 Photoshop"
+          ],
+          "detalle": "Herramientas básicas.\nCorrección de color y ajustes básicos.\nHerramientas de retoque.\nFotomontaje creativo.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Digital III",
+            "Digital 3",
+            "InDesign",
+            "Digital 3 Indesign"
+          ],
+          "detalle": "Creación y configuración de documentos.\nMaquetación y distribución de elementos.\nRevistas y libros: cabeceras, pies de página, sangrados y marcas de corte.",
+          "horas": 4
+        },
+        {
+          "asignaturas": ["Fotografía", "Fotografía digital"],
+          "detalle": "Principios básicos de la fotografía.\nElemento fotográfico y planos.\nFotografía en el diseño gráfico.\nGéneros fotográficos.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Diseño web",
+            "Diseño de sitios web",
+            "Diseño de páginas web"
+          ],
+          "detalle": "Principios del diseño y usabilidad.\nFundamentos de HTML y CSS.\nPublicación de sitios web.\nWordPress.",
+          "horas": 8
+        },
+        {
+          "asignaturas": [
+            "Diseño web",
+            "Diseño de sitios web",
+            "Diseño de páginas web"
+          ],
+          "detalle": "Manejo de Elementor.\nArquitectura de la información.\nSitios web con comercio electrónico.\nTendencias actuales en diseño web.",
+          "horas": 8
+        }
+      ],
+      "horarios": [
+        {
+          "dias": "Lunes a jueves, del 26/10 al 17/11/2026; excepto 02 y 03 de noviembre",
+          "franjaHoraria": "19:00 a 21:00 (virtual)"
+        },
+        {
+          "dias": "Sábados 31/10 y 07/11/2026",
+          "franjaHoraria": "08:00 a 11:00 (presencial)"
+        },
+        {
+          "dias": "Sábado 14 de noviembre de 2026",
+          "franjaHoraria": "08:00 a 10:00 (presencial)"
+        }
+      ]
+    },
+    {
+      "nombre": "[EJEMPLO] Módulo 3 — Multimedia y visualización avanzada",
+      "descripcion": "Producción multimedia y visualización avanzada: animación, After Effects, modelado 3D e interfaces multimedia.",
+      "fechaInicio": "2026-11-18",
+      "fechaFin": "2026-12-08",
+      "totalHoras": 32,
+      "modalidad": "Mixta: virtual y presencial",
+      "docente": null,
+      "temas": [
+        {
+          "asignaturas": ["Animación", "Animación digital"],
+          "detalle": "Anticipación y seguimiento.\nFluidez de la animación.\nAceleración y desaceleración.\nAnticipación y reacción.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Multimedia II",
+            "Multimedia 2",
+            "After Effects",
+            "Multimedia 2 After Effects"
+          ],
+          "detalle": "Creación de personajes y escenarios.\nAnimación de personajes 2D y 3D.\nUso de efectos especiales.",
+          "horas": 4
+        },
+        {
+          "asignaturas": ["Modelado 3D", "Modelado tridimensional"],
+          "detalle": "Modelado de objetos simples.\nModificadores y texturización.\nIluminación y renderizado.\nModelado orgánico.\nEsculturas 3D.",
+          "horas": 8
+        },
+        {
+          "asignaturas": ["Modelado 3D", "Modelado tridimensional"],
+          "detalle": "Animación básica.\nOptimización de modelos.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Multimedia I",
+            "Multimedia 1",
+            "Multimedia I y II",
+            "Multimedia 1 y 2"
+          ],
+          "detalle": "Contexto multimedia actual.\nAccesibilidad en diseño multimedia.\nPrototipo de interfaz.\nIntegración de elementos multimedia.\nPruebas de usabilidad.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Multimedia II",
+            "Multimedia 2",
+            "After Effects",
+            "Multimedia 2 After Effects"
+          ],
+          "detalle": "Interfaz y herramientas.\nTransiciones y efectos básicos.\nCorrección de color.\nEfectos especiales, animación y contenido para redes sociales.",
+          "horas": 4
+        },
+        {
+          "asignaturas": [
+            "Multimedia II",
+            "Multimedia 2",
+            "After Effects",
+            "Multimedia 2 After Effects"
+          ],
+          "detalle": "Principios de animación en After Effects.\nAnimaciones clave.\nEfectos predefinidos.\nIntegración de audio en efectos animados.",
+          "horas": 4
+        }
+      ],
+      "horarios": [
+        {
+          "dias": "Lunes a jueves, del 18/11 al 08/12/2026",
+          "franjaHoraria": "19:00 a 21:00 (virtual)"
+        },
+        {
+          "dias": "Sábados 21 y 28 de noviembre de 2026",
+          "franjaHoraria": "08:00 a 11:00 (presencial)"
+        },
+        {
+          "dias": "Sábado 05 de diciembre de 2026",
+          "franjaHoraria": "08:00 a 10:00 (presencial)"
+        }
+      ]
+    }
+  ]
+}

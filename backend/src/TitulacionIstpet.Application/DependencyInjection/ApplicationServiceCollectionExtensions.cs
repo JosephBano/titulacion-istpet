@@ -52,6 +52,8 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<Features.ConfiguracionGeneral.CasosDeUso.AdministrarMatrizRequisitosModalidad>();
 
         // Feature: Convocatorias
+        services.AddScoped<Features.Complexivo.AdministrarComplexivo>();
+        services.AddScoped<Features.PlantillasRequisicion.AdministrarPlantillaRequisicion>();
         services.AddScoped<Features.Convocatorias.CasosDeUso.AperturarPeriodoConvocatoria>();
         services.AddScoped<Features.Convocatorias.CasosDeUso.ConsultarConvocatorias>();
         services.AddScoped<Features.Convocatorias.CasosDeUso.AdministrarConvocatoria>();

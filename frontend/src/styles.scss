@@ -479,6 +479,20 @@ body {
 }
 
 /* Densidad y forma de mat-form-field (formularios de modales) */
+/* Los calendarios y selectores deben quedar por encima de los drawers (9999). */
+.cdk-overlay-container {
+  z-index: 10010;
+}
+
+.complexivo-calendar .mat-datepicker-content,
+.complexivo-teachers.mat-mdc-autocomplete-panel {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+}
+
 .mat-mdc-form-field,
 .istpet-mat-field {
   width: 100%;

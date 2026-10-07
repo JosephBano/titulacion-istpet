@@ -222,6 +222,62 @@
         </div>
       }
 
+      @if (puedeVerComplexivo()) {
+        <div class="sidebar-group">
+          <h4 class="sidebar-eyebrow">Examen Complexivo</h4>
+          <nav class="sidebar-nav" aria-label="Examen Complexivo">
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'requisicion-personal'"
+              [attr.aria-current]="activeTab() === 'requisicion-personal' ? 'page' : null"
+              (click)="setActiveTab('requisicion-personal')"
+              title="Requisición de personal"
+            >
+              <span class="nav-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <path d="M14 2v6h6M8 13h8M8 17h6" /></svg
+              ></span>
+              <span class="nav-label">Requisición de personal</span>
+            </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'configuracion-complexivo'"
+              [attr.aria-current]="activeTab() === 'configuracion-complexivo' ? 'page' : null"
+              (click)="setActiveTab('configuracion-complexivo')"
+              title="Configuración examen complexivo"
+            >
+              <span class="nav-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h7" /></svg
+              ></span>
+              <span class="nav-label">Configuración examen complexivo</span>
+            </button>
+          </nav>
+        </div>
+      }
+
       @if (isDocente()) {
         <div class="sidebar-group">
           <h4 class="sidebar-eyebrow">Validación Docente</h4>
@@ -389,6 +445,12 @@
               @case ('cronograma') {
                 Cronograma Institucional
               }
+              @case ('requisicion-personal') {
+                Examen Complexivo / Requisición de personal
+              }
+              @case ('configuracion-complexivo') {
+                Examen Complexivo / Configuración
+              }
               @default {
                 Módulo Activo
               }
@@ -438,6 +500,12 @@
               @case ('cronograma') {
                 Calendario Académico {{ currentYear }}
               }
+              @case ('requisicion-personal') {
+                Requisición de personal
+              }
+              @case ('configuracion-complexivo') {
+                Configuración examen complexivo
+              }
               @default {
                 Titulación ISTPET
               }
@@ -479,6 +547,23 @@
       <!-- ============================================================ -->
 
       <!-- 1. PESTAÑA: VISTA GENERAL (PANEL INSTITUCIONAL DE GOBERNANZA Y CONTROL) -->
+      @if (puedeVerComplexivo()) {
+        @if (activeTab() === 'requisicion-personal') {
+          <app-requisicion-personal
+            [nombreSolicitante]="currentUser()?.nombre || ''"
+            [datosIniciales]="requisicionInicial()"
+          />
+        }
+        @if (activeTab() === 'configuracion-complexivo') {
+          <app-configuracion-complexivo
+            [puedeCrear]="hasPermission('Examen Complexivo', 'crear')"
+            [puedeEditar]="hasPermission('Examen Complexivo', 'editar')"
+            [idCarreraPredeterminada]="carreraSeleccionada()?.idCarrera || null"
+            (requisicionSolicitada)="abrirRequisicionPersonal($event)"
+          />
+        }
+      }
+
       @if (isAdmin() && activeTab() === 'resumen') {
         <!-- HERO / BANNER DE ESTADO DEL CICLO ACADÉMICO -->
         <section class="overview-hero-card">
