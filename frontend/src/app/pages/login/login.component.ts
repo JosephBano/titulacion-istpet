@@ -25,11 +25,206 @@ export class LoginComponent implements OnInit {
 
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+  loginSuccessMessage = signal<string | null>(null);
   isDarkMode = signal(false);
   showPassword = signal(false);
 
+  // Estado para el flujo de Recuperación de Clave
+  modoRecuperacion = signal(false);
+  pasoRecuperacion = signal<'documento' | 'fecha_nacimiento' | 'nueva_contrasena'>('documento');
+  recoveryDocumento = '';
+  recoveryFechaNacimiento = '';
+  recoveryNuevaContrasenia = '';
+  recoveryConfirmarContrasenia = '';
+  recoveryToken = signal<string | null>(null);
+  showRecoveryPassword = signal(false);
+  showRecoveryConfirmPassword = signal(false);
+  recoveryNombreUsuario = signal<string | null>(null);
+  recoveryLoading = signal(false);
+  recoveryError = signal<string | null>(null);
+  recoverySuccess = signal<string | null>(null);
+
   toggleShowPassword(): void {
     this.showPassword.set(!this.showPassword());
+  }
+
+  toggleShowRecoveryPassword(): void {
+    this.showRecoveryPassword.set(!this.showRecoveryPassword());
+  }
+
+  toggleShowRecoveryConfirmPassword(): void {
+    this.showRecoveryConfirmPassword.set(!this.showRecoveryConfirmPassword());
+  }
+
+  activarModoRecuperacion(): void {
+    this.errorMessage.set(null);
+    this.loginSuccessMessage.set(null);
+    this.recoveryError.set(null);
+    this.recoverySuccess.set(null);
+    this.recoveryDocumento = this.usernameOrEmail.trim();
+    this.recoveryFechaNacimiento = '';
+    this.recoveryNuevaContrasenia = '';
+    this.recoveryConfirmarContrasenia = '';
+    this.recoveryToken.set(null);
+    this.recoveryNombreUsuario.set(null);
+    this.pasoRecuperacion.set('documento');
+    this.modoRecuperacion.set(true);
+  }
+
+  cancelarRecuperacion(): void {
+    this.modoRecuperacion.set(false);
+    this.recoveryError.set(null);
+    this.recoverySuccess.set(null);
+    this.recoveryLoading.set(false);
+    this.recoveryNuevaContrasenia = '';
+    this.recoveryConfirmarContrasenia = '';
+    this.recoveryToken.set(null);
+    this.pasoRecuperacion.set('documento');
+  }
+
+  cambiarDocumentoRecuperacion(): void {
+    this.pasoRecuperacion.set('documento');
+    this.recoveryError.set(null);
+    this.recoverySuccess.set(null);
+    this.recoveryFechaNacimiento = '';
+    this.recoveryNuevaContrasenia = '';
+    this.recoveryConfirmarContrasenia = '';
+    this.recoveryToken.set(null);
+  }
+
+  onVerificarDocumento(): void {
+    if (!this.recoveryDocumento.trim()) {
+      this.recoveryError.set('Por favor, ingresa tu número de documento de identidad.');
+      return;
+    }
+
+    this.recoveryLoading.set(true);
+    this.recoveryError.set(null);
+    this.recoverySuccess.set(null);
+
+    this.authService.validarDocumentoRecuperacion(this.recoveryDocumento).subscribe({
+      next: (res) => {
+        this.recoveryLoading.set(false);
+        if (res.valido) {
+          this.recoveryNombreUsuario.set(res.nombreCompleto || null);
+          this.pasoRecuperacion.set('fecha_nacimiento');
+          const saludo = res.nombreCompleto ? `¡Hola, ${res.nombreCompleto}! ` : '';
+          this.recoverySuccess.set(
+            `${saludo}Documento validado para titulación. Ingresa tu fecha de nacimiento para continuar.`,
+          );
+        } else {
+          this.recoveryError.set(
+            res.mensaje || 'El documento no se encuentra habilitado para el sistema.',
+          );
+        }
+      },
+      error: (err) => {
+        this.recoveryLoading.set(false);
+        const msg =
+          err.error?.mensaje ||
+          err.error?.message ||
+          'Error de conexión al verificar el documento de identidad.';
+        this.recoveryError.set(msg);
+      },
+    });
+  }
+
+  onVerificarFechaNacimiento(): void {
+    if (!this.recoveryFechaNacimiento) {
+      this.recoveryError.set('Por favor, ingresa tu fecha de nacimiento.');
+      return;
+    }
+
+    this.recoveryLoading.set(true);
+    this.recoveryError.set(null);
+    this.recoverySuccess.set(null);
+
+    this.authService
+      .validarFechaNacimiento(this.recoveryDocumento, this.recoveryFechaNacimiento)
+      .subscribe({
+        next: (res) => {
+          this.recoveryLoading.set(false);
+          if (res.valido) {
+            this.recoveryToken.set(res.token || null);
+            this.pasoRecuperacion.set('nueva_contrasena');
+            this.recoverySuccess.set(
+              res.mensaje || 'Identidad validada con éxito. Por favor, define tu nueva contraseña.',
+            );
+          } else {
+            this.recoveryError.set(
+              res.mensaje || 'La fecha de nacimiento no coincide con los registros.',
+            );
+          }
+        },
+        error: (err) => {
+          this.recoveryLoading.set(false);
+          const msg =
+            err.error?.mensaje ||
+            err.error?.message ||
+            'Error de conexión al verificar la fecha de nacimiento.';
+          this.recoveryError.set(msg);
+        },
+      });
+  }
+
+  onRestablecerContrasena(): void {
+    if (!this.recoveryNuevaContrasenia || !this.recoveryConfirmarContrasenia) {
+      this.recoveryError.set('Por favor, completa ambos campos de contraseña.');
+      return;
+    }
+
+    if (this.recoveryNuevaContrasenia !== this.recoveryConfirmarContrasenia) {
+      this.recoveryError.set('Las contraseñas no coinciden.');
+      return;
+    }
+
+    if (this.recoveryNuevaContrasenia.length < 6) {
+      this.recoveryError.set('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (!this.recoveryToken()) {
+      this.recoveryError.set(
+        'Token de verificación no disponible o expirado. Por favor, reinicia el proceso.',
+      );
+      return;
+    }
+
+    this.recoveryLoading.set(true);
+    this.recoveryError.set(null);
+    this.recoverySuccess.set(null);
+
+    this.authService
+      .restablecerContrasena({
+        numeroDocumento: this.recoveryDocumento,
+        token: this.recoveryToken()!,
+        nuevaContrasenia: this.recoveryNuevaContrasenia,
+        confirmarContrasenia: this.recoveryConfirmarContrasenia,
+      })
+      .subscribe({
+        next: (res) => {
+          this.recoveryLoading.set(false);
+          if (res.exito) {
+            this.modoRecuperacion.set(false);
+            this.pasoRecuperacion.set('documento');
+            this.usernameOrEmail = this.recoveryDocumento;
+            this.password = '';
+            this.loginSuccessMessage.set(
+              res.mensaje || 'Contraseña restablecida con éxito. Inicia sesión con tu nueva clave.',
+            );
+          } else {
+            this.recoveryError.set(res.mensaje || 'No se pudo restablecer la contraseña.');
+          }
+        },
+        error: (err) => {
+          this.recoveryLoading.set(false);
+          const msg =
+            err.error?.mensaje ||
+            err.error?.message ||
+            'Error al restablecer la contraseña. Inténtalo de nuevo.';
+          this.recoveryError.set(msg);
+        },
+      });
   }
 
   ngOnInit(): void {

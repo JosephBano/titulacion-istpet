@@ -49,7 +49,7 @@ html[data-theme='dark'] .ocr-auth-shell {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     linear-gradient(135deg, rgba(13, 27, 76, 0.05) 1px, transparent 1px),
     linear-gradient(45deg, rgba(197, 155, 39, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
@@ -58,7 +58,7 @@ html[data-theme='dark'] .ocr-auth-shell {
 
 .ocr-auth-shell[data-theme='dark'] .ocr-bg-shapes::before,
 html[data-theme='dark'] .ocr-bg-shapes::before {
-  background-image: 
+  background-image:
     linear-gradient(135deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
     linear-gradient(45deg, rgba(197, 155, 39, 0.06) 1px, transparent 1px);
   opacity: 1;
@@ -67,7 +67,9 @@ html[data-theme='dark'] .ocr-bg-shapes::before {
 .ocr-shape {
   position: absolute;
   border-radius: 0;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 /* Modo Claro: Formas visibles con tonos institucionales */
@@ -78,7 +80,7 @@ html[data-theme='dark'] .ocr-bg-shapes::before {
   left: -80px;
   transform: rotate(22deg);
   background: rgba(13, 27, 76, 0.07);
-  border: 1px solid rgba(13, 27, 76, 0.10);
+  border: 1px solid rgba(13, 27, 76, 0.1);
 }
 
 .shape-2 {
@@ -107,7 +109,7 @@ html[data-theme='dark'] .ocr-bg-shapes::before {
   top: 20%;
   right: -240px;
   transform: rotate(-12deg);
-  background: rgba(197, 155, 39, 0.10);
+  background: rgba(197, 155, 39, 0.1);
   border: 1px solid rgba(197, 155, 39, 0.14);
 }
 
@@ -120,13 +122,13 @@ html[data-theme='dark'] .shape-1 {
 
 .ocr-auth-shell[data-theme='dark'] .shape-2,
 html[data-theme='dark'] .shape-2 {
-  background: rgba(197, 155, 39, 0.20);
+  background: rgba(197, 155, 39, 0.2);
   border: 1px solid rgba(197, 155, 39, 0.35);
 }
 
 .ocr-auth-shell[data-theme='dark'] .shape-3,
 html[data-theme='dark'] .shape-3 {
-  background: rgba(13, 27, 76, 0.50);
+  background: rgba(13, 27, 76, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -155,7 +157,11 @@ html[data-theme='dark'] .shape-4 {
   color: #0d1b4c;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(13, 27, 76, 0.1);
-  transition: background 167ms ease, border-color 167ms ease, color 167ms ease, transform 100ms ease;
+  transition:
+    background 167ms ease,
+    border-color 167ms ease,
+    color 167ms ease,
+    transform 100ms ease;
 }
 
 .theme-toggle-btn:hover {
@@ -192,7 +198,9 @@ html[data-theme='dark'] .theme-toggle-btn:hover {
   border: 1px solid rgba(13, 27, 76, 0.15);
   border-radius: 4px;
   padding: 44px 44px 36px;
-  box-shadow: 0 4px 20px rgba(13, 27, 76, 0.08), 0 12px 36px rgba(13, 27, 76, 0.06);
+  box-shadow:
+    0 4px 20px rgba(13, 27, 76, 0.08),
+    0 12px 36px rgba(13, 27, 76, 0.06);
   text-align: center;
   box-sizing: border-box;
   animation: ocr-card-fade-in 250ms ease-out;
@@ -202,7 +210,9 @@ html[data-theme='dark'] .theme-toggle-btn:hover {
 html[data-theme='dark'] .ocr-login-card {
   background: #151d2a;
   border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 20px 50px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 20px 50px rgba(0, 0, 0, 0.6);
 }
 
 @keyframes ocr-card-fade-in {
@@ -333,6 +343,117 @@ html[data-theme='dark'] .ocr-error-alert {
 }
 
 /* ---------------------------------------------------------- */
+/* Alerta de Éxito / Validación Informativa                   */
+/* ---------------------------------------------------------- */
+.ocr-success-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  background: #ecfdf5;
+  border: 1px solid #059669;
+  border-left: 4px solid #059669;
+  border-radius: 2px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #065f46;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.ocr-auth-shell[data-theme='dark'] .ocr-success-alert,
+html[data-theme='dark'] .ocr-success-alert {
+  background: #064e3b;
+  border-color: #6ee7b7;
+  border-left-color: #10b981;
+  color: #d1fae5;
+}
+
+/* ---------------------------------------------------------- */
+/* Fila de Ayuda y Enlaces Secundarios                         */
+/* ---------------------------------------------------------- */
+.ocr-form-helper-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -6px;
+  margin-bottom: 2px;
+}
+
+.ocr-field-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.ocr-link-btn {
+  background: transparent;
+  border: none;
+  color: #0d1b4c;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition:
+    color 150ms ease,
+    text-decoration 150ms ease;
+}
+
+.ocr-link-btn:hover {
+  text-decoration: underline;
+  color: #c59b27;
+}
+
+.ocr-auth-shell[data-theme='dark'] .ocr-link-btn,
+html[data-theme='dark'] .ocr-link-btn {
+  color: #93c5fd;
+}
+
+.ocr-auth-shell[data-theme='dark'] .ocr-link-btn:hover,
+html[data-theme='dark'] .ocr-link-btn:hover {
+  color: #fbbf24;
+}
+
+.ocr-link-btn-sm {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: transparent;
+  border: none;
+  color: #0d1b4c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 6px;
+  text-decoration: underline;
+}
+
+.ocr-auth-shell[data-theme='dark'] .ocr-link-btn-sm,
+html[data-theme='dark'] .ocr-link-btn-sm {
+  color: #fbbf24;
+}
+
+.ocr-link-back {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-top: 8px;
+}
+
+.ocr-auth-shell[data-theme='dark'] .ocr-link-back,
+html[data-theme='dark'] .ocr-link-back {
+  color: #cbd5e1;
+}
+
+/* ---------------------------------------------------------- */
 /* Formulario y Campos                                         */
 /* ---------------------------------------------------------- */
 .ocr-form {
@@ -375,7 +496,9 @@ html[data-theme='dark'] .ocr-label {
   outline: none;
   text-align: center;
   box-sizing: border-box;
-  transition: border-color 100ms ease, box-shadow 100ms ease;
+  transition:
+    border-color 100ms ease,
+    box-shadow 100ms ease;
 }
 
 .ocr-input::placeholder {
@@ -448,7 +571,9 @@ html[data-theme='dark'] .ocr-input:focus {
   color: #4b5563;
   cursor: pointer;
   border-radius: 2px;
-  transition: color 150ms ease, background-color 150ms ease;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
 }
 
 .ocr-password-toggle-btn:hover {
@@ -488,7 +613,10 @@ html[data-theme='dark'] .ocr-password-toggle-btn:hover {
   cursor: pointer;
   text-align: center;
   box-shadow: 0 2px 6px rgba(13, 27, 76, 0.2);
-  transition: background 167ms ease, transform 80ms ease, box-shadow 167ms ease;
+  transition:
+    background 167ms ease,
+    transform 80ms ease,
+    box-shadow 167ms ease;
 }
 
 .ocr-btn-primary:hover:not(:disabled) {

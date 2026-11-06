@@ -103,4 +103,98 @@ Retorna los datos del usuario autenticado, sus roles activos y su matriz de perm
 }
 ```
 
+---
+
+## 4. Flujo de Recuperación de Acceso Institucional
+
+Mecanismo autónomo de 3 pasos para la verificación y restablecimiento de credenciales sin dependencia de soporte técnico manual.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Usuario
+    participant Frontend
+    participant API as AuthController
+    participant DB as SIGAFI (Alumnos/Profesores/Usuarios)
+
+    Usuario->>Frontend: Ingresa Cédula/Documento
+    Frontend->>API: POST /api/v1/auth/recuperacion/validar-documento
+    API->>DB: Verifica existencia y aptitud para titulación (último nivel/egresado)
+    API-->>Frontend: 200 OK (Valido, NombreCompleto)
+
+    Usuario->>Frontend: Ingresa Fecha de Nacimiento
+    Frontend->>API: POST /api/v1/auth/recuperacion/validar-fecha-nacimiento
+    API->>DB: Comprueba coincidencia con fecha registrada
+    API-->>Frontend: 200 OK (Valido, Token firmado temporal HMAC-SHA256 de 15 min)
+
+    Usuario->>Frontend: Ingresa Nueva Contraseña y Confirmación
+    Frontend->>API: POST /api/v1/auth/recuperacion/restablecer-contrasena (Documento, Token, NuevaClave)
+    API->>API: Valida firma de token y expiración
+    API->>DB: Hashea contraseña con BCrypt y actualiza en Usuarios/Alumnos/Profesores
+    API-->>Frontend: 200 OK (Exito: true)
+    Frontend-->>Usuario: Muestra confirmación y permite inicio de sesión inmediato
+```
+
+### 4.1. `POST /api/v1/auth/recuperacion/validar-documento`
+Comprueba si el número de cédula o documento corresponde a un estudiante o docente habilitado para el sistema de titulación.
+
+- **Autorización:** `[AllowAnonymous]`
+- **Cuerpo (`ValidarDocumentoRecuperacionRequestDto`):**
+```json
+{
+  "numeroDocumento": "1725555377"
+}
+```
+- **Respuesta (`200 OK`):**
+```json
+{
+  "valido": true,
+  "mensaje": "Documento verificado correctamente.",
+  "nombreCompleto": "Alexander Rafael Martinez Morillo",
+  "requiereFechaNacimiento": true
+}
+```
+
+### 4.2. `POST /api/v1/auth/recuperacion/validar-fecha-nacimiento`
+Comprueba la fecha de nacimiento contra los registros institucionales de SIGAFI y emite un token de recuperación temporal firmado con HMAC-SHA256 (válido por 15 minutos).
+
+- **Autorización:** `[AllowAnonymous]`
+- **Cuerpo (`ValidarFechaNacimientoRequestDto`):**
+```json
+{
+  "numeroDocumento": "1725555377",
+  "fechaNacimiento": "2003-02-22"
+}
+```
+- **Respuesta (`200 OK`):**
+```json
+{
+  "valido": true,
+  "mensaje": "Identidad validada exitosamente.",
+  "token": "MTcyNTU1NTM3NzoxNzk2NzA...=="
+}
+```
+
+### 4.3. `POST /api/v1/auth/recuperacion/restablecer-contrasena`
+Verifica el token temporal, valida que las contraseñas coincidan y tengan al menos 6 caracteres, y actualiza el hash de la contraseña en las entidades correspondientes.
+
+- **Autorización:** `[AllowAnonymous]`
+- **Cuerpo (`RestablecerContrasenaRequestDto`):**
+```json
+{
+  "numeroDocumento": "1725555377",
+  "token": "MTcyNTU1NTM3NzoxNzk2NzA...==",
+  "nuevaContrasenia": "NuevaClave2026*",
+  "confirmarContrasenia": "NuevaClave2026*"
+}
+```
+- **Respuesta (`200 OK`):**
+```json
+{
+  "exito": true,
+  "mensaje": "Contraseña restablecida exitosamente. Ya puedes iniciar sesión con tu nueva contraseña."
+}
+```
+
+
 
