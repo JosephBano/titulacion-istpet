@@ -832,7 +832,7 @@ public class AuthService : IAuthService
         var newHashedPassword = _passwordHasher.HashPassword(request.NuevaContrasenia);
         bool actualizado = false;
 
-        // 1. Actualizar en Usuarios si existe
+        // 1. Buscar o actualizar en Usuarios
         var user = await _context.Usuarios
             .FirstOrDefaultAsync(u =>
                 u.IdSigafi == cleanInput ||
@@ -840,13 +840,6 @@ public class AuthService : IAuthService
                 (u.Nombre != null && u.Nombre == cleanInput),
                 cancellationToken);
 
-        if (user != null)
-        {
-            user.Contrasenia = newHashedPassword;
-            actualizado = true;
-        }
-
-        // 2. Actualizar en Alumnos si existe
         var alumno = await _context.Alumnos
             .FirstOrDefaultAsync(a =>
                 a.IdAlumno == cleanInput ||
@@ -855,13 +848,6 @@ public class AuthService : IAuthService
                 (a.Email != null && a.Email == cleanInput),
                 cancellationToken);
 
-        if (alumno != null)
-        {
-            alumno.Password = newHashedPassword;
-            actualizado = true;
-        }
-
-        // 3. Actualizar en Profesores si existe
         var profesor = await _context.Profesores
             .FirstOrDefaultAsync(p =>
                 p.IdProfesor == cleanInput ||
@@ -869,10 +855,105 @@ public class AuthService : IAuthService
                 (p.Email != null && p.Email == cleanInput),
                 cancellationToken);
 
-        if (profesor != null)
+        if (user != null)
         {
-            profesor.Clave = newHashedPassword;
+            user.Contrasenia = newHashedPassword;
             actualizado = true;
+        }
+        else if (alumno != null)
+        {
+            var nombreCompleto = $"{alumno.PrimerNombre} {alumno.ApellidoPaterno}".Trim();
+            if (string.IsNullOrWhiteSpace(nombreCompleto))
+            {
+                nombreCompleto = alumno.UserAlumno ?? alumno.IdAlumno;
+            }
+
+            var emailInst = !string.IsNullOrWhiteSpace(alumno.EmailInstitucional)
+                ? alumno.EmailInstitucional
+                : (!string.IsNullOrWhiteSpace(alumno.Email) ? alumno.Email : $"{alumno.IdAlumno}@istpet.edu.ec");
+
+            user = new Usuarios
+            {
+                IdSigafi = alumno.IdAlumno,
+                TablaSigafi = "alumno",
+                Nombre = nombreCompleto,
+                Contrasenia = newHashedPassword,
+                Activo = true,
+                Administrador = false,
+                EmailInstitucional = emailInst,
+                EmailValidado = true
+            };
+
+            _context.Usuarios.Add(user);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var rolEstudiante = await _context.RbacRol
+                .FirstOrDefaultAsync(r => r.CodigoRol == "alumno" || r.IdRol == 15 || r.CodigoRol == "ESTUDIANTE", cancellationToken);
+
+            if (rolEstudiante != null)
+            {
+                _context.RbacUsuarioRol.Add(new RbacUsuarioRol
+                {
+                    IdUsuario = user.IdUsuario,
+                    IdRol = rolEstudiante.IdRol,
+                    EsActivo = true,
+                    FechaCreacion = DateOnly.FromDateTime(DateTime.UtcNow)
+                });
+            }
+            actualizado = true;
+        }
+        else if (profesor != null)
+        {
+            var nombreCompleto = $"{profesor.PrimerNombre} {profesor.Apellidos}".Trim();
+            if (string.IsNullOrWhiteSpace(nombreCompleto))
+            {
+                nombreCompleto = profesor.Nombres ?? profesor.IdProfesor;
+            }
+
+            var emailInst = !string.IsNullOrWhiteSpace(profesor.EmailInstitucional)
+                ? profesor.EmailInstitucional
+                : (!string.IsNullOrWhiteSpace(profesor.Email) ? profesor.Email : $"{profesor.IdProfesor}@istpet.edu.ec");
+
+            user = new Usuarios
+            {
+                IdSigafi = profesor.IdProfesor,
+                TablaSigafi = "profesor",
+                Nombre = nombreCompleto,
+                Contrasenia = newHashedPassword,
+                Activo = true,
+                Administrador = false,
+                EmailInstitucional = emailInst,
+                EmailValidado = true
+            };
+
+            _context.Usuarios.Add(user);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var rolDocente = await _context.RbacRol
+                .FirstOrDefaultAsync(r => r.CodigoRol == "docente" || r.IdRol == 25 || r.CodigoRol == "PROFESOR" || r.CodigoRol == "DOCENTE", cancellationToken);
+
+            if (rolDocente != null)
+            {
+                _context.RbacUsuarioRol.Add(new RbacUsuarioRol
+                {
+                    IdUsuario = user.IdUsuario,
+                    IdRol = rolDocente.IdRol,
+                    EsActivo = true,
+                    FechaCreacion = DateOnly.FromDateTime(DateTime.UtcNow)
+                });
+            }
+            actualizado = true;
+        }
+
+        // Actualizar clave en tablas legacy SIGAFI solo si cabe en el campo varchar(20)
+        if (alumno != null && request.NuevaContrasenia.Length <= 20)
+        {
+            alumno.Password = request.NuevaContrasenia;
+        }
+
+        if (profesor != null && request.NuevaContrasenia.Length <= 20)
+        {
+            profesor.Clave = request.NuevaContrasenia;
         }
 
         if (!actualizado)
