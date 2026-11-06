@@ -178,8 +178,11 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    if (this.recoveryNuevaContrasenia.length < 6) {
-      this.recoveryError.set('La nueva contraseña debe tener al menos 6 caracteres.');
+    if (
+      this.recoveryNuevaContrasenia.length < 6 ||
+      this.recoveryNuevaContrasenia.length > 20
+    ) {
+      this.recoveryError.set('La nueva contraseña debe tener entre 6 y 20 caracteres.');
       return;
     }
 

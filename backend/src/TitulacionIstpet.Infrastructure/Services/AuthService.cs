@@ -820,12 +820,12 @@ public class AuthService : IAuthService
             };
         }
 
-        if (request.NuevaContrasenia.Length < 6)
+        if (request.NuevaContrasenia.Length < 6 || request.NuevaContrasenia.Length > 20)
         {
             return new RestablecerContrasenaResponseDto
             {
                 Exito = false,
-                Mensaje = "La nueva contraseña debe tener al menos 6 caracteres."
+                Mensaje = "La nueva contraseña debe tener entre 6 y 20 caracteres."
             };
         }
 
@@ -945,13 +945,13 @@ public class AuthService : IAuthService
             actualizado = true;
         }
 
-        // Actualizar clave en tablas legacy SIGAFI solo si cabe en el campo varchar(20)
-        if (alumno != null && request.NuevaContrasenia.Length <= 20)
+        // En Alumnos y Profesores (SIGAFI institucional) se almacena estrictamente en texto plano
+        if (alumno != null)
         {
             alumno.Password = request.NuevaContrasenia;
         }
 
-        if (profesor != null && request.NuevaContrasenia.Length <= 20)
+        if (profesor != null)
         {
             profesor.Clave = request.NuevaContrasenia;
         }

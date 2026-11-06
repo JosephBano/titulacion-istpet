@@ -151,7 +151,7 @@ describe('LoginComponent - Flujo de Recuperación de Clave', () => {
     expect(component.recoveryError()).toContain('no coincide');
   });
 
-  it('valida que las contraseñas coincidan y tengan mínimo 6 caracteres', () => {
+  it('valida que las contraseñas coincidan y tengan entre 6 y 20 caracteres', () => {
     component.activarModoRecuperacion();
     component.pasoRecuperacion.set('nueva_contrasena');
     component.recoveryToken.set('token-abc');
@@ -159,7 +159,12 @@ describe('LoginComponent - Flujo de Recuperación de Clave', () => {
     component.recoveryNuevaContrasenia = '123';
     component.recoveryConfirmarContrasenia = '123';
     component.onRestablecerContrasena();
-    expect(component.recoveryError()).toContain('al menos 6 caracteres');
+    expect(component.recoveryError()).toContain('entre 6 y 20 caracteres');
+
+    component.recoveryNuevaContrasenia = '123456789012345678901';
+    component.recoveryConfirmarContrasenia = '123456789012345678901';
+    component.onRestablecerContrasena();
+    expect(component.recoveryError()).toContain('entre 6 y 20 caracteres');
 
     component.recoveryNuevaContrasenia = '123456';
     component.recoveryConfirmarContrasenia = '654321';

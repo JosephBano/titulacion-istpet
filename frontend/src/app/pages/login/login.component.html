@@ -343,7 +343,8 @@
                 name="recoveryNuevaContrasenia"
                 class="ocr-input ocr-input-pass"
                 [(ngModel)]="recoveryNuevaContrasenia"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Entre 6 y 20 caracteres"
+                maxlength="20"
                 autocomplete="new-password"
                 [disabled]="recoveryLoading()"
                 required
@@ -398,6 +399,7 @@
                 class="ocr-input ocr-input-pass"
                 [(ngModel)]="recoveryConfirmarContrasenia"
                 placeholder="Repite la nueva contraseña"
+                maxlength="20"
                 autocomplete="new-password"
                 [disabled]="recoveryLoading()"
                 required
