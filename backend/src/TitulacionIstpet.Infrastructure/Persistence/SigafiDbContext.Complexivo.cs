@@ -82,5 +82,6 @@ public partial class SigafiDbContext
         });
 
         ConfigurarPlantillasDocumentos(modelBuilder);
+        ConfigurarPagosTitulacion(modelBuilder);
     }
 }

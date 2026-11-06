@@ -278,6 +278,38 @@
         </div>
       }
 
+      @if (puedeVerPagos()) {
+        <div class="sidebar-group">
+          <h4 class="sidebar-eyebrow">Gestión Financiera</h4>
+          <nav class="sidebar-nav">
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'pagos'"
+              [attr.aria-current]="activeTab() === 'pagos' ? 'page' : null"
+              (click)="setActiveTab('pagos')"
+              title="Pagos de Titulación"
+            >
+              <span class="nav-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <line x1="2" y1="10" x2="22" y2="10" /></svg
+              ></span>
+              <span class="nav-label">Pagos de Titulación</span>
+            </button>
+          </nav>
+        </div>
+      }
+
       @if (isDocente()) {
         <div class="sidebar-group">
           <h4 class="sidebar-eyebrow">Validación Docente</h4>
@@ -451,6 +483,9 @@
               @case ('configuracion-complexivo') {
                 Examen Complexivo / Configuración
               }
+              @case ('pagos') {
+                Gestión Financiera / Pagos de Titulación
+              }
               @default {
                 Módulo Activo
               }
@@ -461,6 +496,10 @@
               @case ('resumen') {
                 Bienvenido(a), {{ currentUser()?.nombre }}
                 <span class="page-header-badge">{{ userRolesFormatted() }}</span>
+              }
+              @case ('pagos') {
+                Control y Aprobación de Pagos de Titulación
+                <span class="page-header-badge">Gestión Financiera</span>
               }
               @case ('postulaciones') {
                 Bandeja de Postulaciones
@@ -843,6 +882,11 @@
           (abrirMatriz)="abrirMatriz($event)"
           (toggleEstado)="toggleModalidadEstado($event)"
         />
+      }
+
+      <!-- 6. PESTAÑA: GESTIÓN DE PAGOS Y CONTROL FINANCIERO -->
+      @if (puedeVerPagos() && activeTab() === 'pagos') {
+        <app-pagos-tab />
       }
 
       <!-- ============================================================ -->

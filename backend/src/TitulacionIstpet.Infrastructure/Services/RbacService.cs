@@ -77,6 +77,8 @@ public class RbacService : IRbacService
                     "ADMINISTRADOR" or "ADMIN_SIST" or "TITULACION_ADMIN" => "TITULACION_ADMIN",
                     "DOCENTE" or "PROFESOR" or "TITULACION_DOCENTE" => "TITULACION_DOCENTE",
                     "ESTUDIANTE" or "ALUMNO" or "TITULACION_ESTUDIANTE" => "TITULACION_ESTUDIANTE",
+                    "SECRETARIA" or "SECRETARIO" or "TITULACION_SECRETARIA" => "SECRETARIA",
+                    "CONTABILIDAD" or "COLECTURIA" or "TITULACION_CONTABILIDAD" => "CONTABILIDAD",
                     _ => code
                 };
             })
