@@ -26,10 +26,27 @@ describe('PagosTabComponent', () => {
   let component: PagosTabComponent;
   let fixture: ComponentFixture<PagosTabComponent>;
 
-  let pagosServiceMock: Partial<Record<keyof PagosTitulacionService, ReturnType<typeof vi.fn>>>;
-  let titulacionServiceMock: Partial<Record<keyof TitulacionService, ReturnType<typeof vi.fn>>>;
-  let notificationServiceMock: Partial<Record<keyof NotificationService, ReturnType<typeof vi.fn>>>;
-  let authServiceMock: Partial<Record<keyof AuthService, ReturnType<typeof vi.fn>>>;
+  let pagosServiceMock: {
+    getBandejaContabilidad: ReturnType<typeof vi.fn>;
+    procesarRevisionContabilidad: ReturnType<typeof vi.fn>;
+    getResumenFinanciero: ReturnType<typeof vi.fn>;
+    registrarPago: ReturnType<typeof vi.fn>;
+    getConfiguraciones: ReturnType<typeof vi.fn>;
+    guardarConfiguracion: ReturnType<typeof vi.fn>;
+    getHistorial: ReturnType<typeof vi.fn>;
+  };
+  let titulacionServiceMock: {
+    getPostulaciones: ReturnType<typeof vi.fn>;
+  };
+  let notificationServiceMock: {
+    success: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+    warning: ReturnType<typeof vi.fn>;
+    info: ReturnType<typeof vi.fn>;
+  };
+  let authServiceMock: {
+    hasRole: ReturnType<typeof vi.fn>;
+  };
 
   const mockPagos: PagoTitulacion[] = [
     {
