@@ -165,9 +165,9 @@ describe('PagosTabComponent', () => {
     };
 
     titulacionServiceMock = {
-      getPostulaciones: vi.fn().mockReturnValue(
-        of({ items: [], total: 0, pagina: 1, tamanoPagina: 20, totalPaginas: 1 }),
-      ),
+      getPostulaciones: vi
+        .fn()
+        .mockReturnValue(of({ items: [], total: 0, pagina: 1, tamanoPagina: 20, totalPaginas: 1 })),
     };
 
     notificationServiceMock = {
@@ -300,7 +300,9 @@ describe('PagosTabComponent', () => {
     component.editValorBase.set(450);
     component.editMaximoInversion.set(250);
     component.onEditValoresChange();
-    expect(component.errorConfiguracion()).toContain('no puede superar el tope normativo de $200.00');
+    expect(component.errorConfiguracion()).toContain(
+      'no puede superar el tope normativo de $200.00',
+    );
 
     // Caso inválido: suma != 700
     component.editValorBase.set(500);

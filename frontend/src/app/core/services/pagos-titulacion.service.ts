@@ -25,7 +25,9 @@ export class PagosTitulacionService {
     if (idPeriodo) {
       params = params.set('idPeriodo', idPeriodo);
     }
-    return this.http.get<ConfiguracionPagoModalidad[]>(`${this.baseUrl}/configuraciones`, { params });
+    return this.http.get<ConfiguracionPagoModalidad[]>(`${this.baseUrl}/configuraciones`, {
+      params,
+    });
   }
 
   getConfiguracionPorModalidad(
@@ -77,6 +79,8 @@ export class PagosTitulacionService {
   }
 
   getHistorial(idPagoTitulacion: number): Observable<HistorialCambioEstadoPago[]> {
-    return this.http.get<HistorialCambioEstadoPago[]>(`${this.baseUrl}/${idPagoTitulacion}/historial`);
+    return this.http.get<HistorialCambioEstadoPago[]>(
+      `${this.baseUrl}/${idPagoTitulacion}/historial`,
+    );
   }
 }

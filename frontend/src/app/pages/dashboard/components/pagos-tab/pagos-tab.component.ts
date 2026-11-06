@@ -168,11 +168,17 @@ export class PagosTabComponent implements OnInit {
 
   aprobarPago(pago: PagoTitulacion): void {
     if (!this.puedeAprobarRechazar()) {
-      this.notificationService.error('Solo personal de Contabilidad puede aprobar o rechazar pagos.');
+      this.notificationService.error(
+        'Solo personal de Contabilidad puede aprobar o rechazar pagos.',
+      );
       return;
     }
 
-    if (!confirm(`¿Confirma la aprobación del pago de $${pago.valor} (Factura: ${pago.numeroFactura})?`)) {
+    if (
+      !confirm(
+        `¿Confirma la aprobación del pago de $${pago.valor} (Factura: ${pago.numeroFactura})?`,
+      )
+    ) {
       return;
     }
 
@@ -198,7 +204,9 @@ export class PagosTabComponent implements OnInit {
 
   abrirModalRechazo(pago: PagoTitulacion): void {
     if (!this.puedeAprobarRechazar()) {
-      this.notificationService.error('Solo personal de Contabilidad puede aprobar o rechazar pagos.');
+      this.notificationService.error(
+        'Solo personal de Contabilidad puede aprobar o rechazar pagos.',
+      );
       return;
     }
     this.pagoParaRechazar.set(pago);
@@ -216,7 +224,9 @@ export class PagosTabComponent implements OnInit {
 
     if (!pago) return;
     if (!motivo || motivo.length < 5) {
-      this.notificationService.warning('El motivo de rechazo es obligatorio (mínimo 5 caracteres).');
+      this.notificationService.warning(
+        'El motivo de rechazo es obligatorio (mínimo 5 caracteres).',
+      );
       return;
     }
 

@@ -11,7 +11,15 @@
         [attr.aria-selected]="subTabActiva() === 'bandeja'"
       >
         <span class="subtab-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <rect x="2" y="5" width="20" height="14" rx="2" />
             <line x1="2" y1="10" x2="22" y2="10" />
           </svg>
@@ -30,7 +38,15 @@
           [attr.aria-selected]="subTabActiva() === 'registro'"
         >
           <span class="subtab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M12 5v14M5 12h14" />
             </svg>
           </span>
@@ -48,9 +64,19 @@
           [attr.aria-selected]="subTabActiva() === 'configuracion'"
         >
           <span class="subtab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+              />
             </svg>
           </span>
           Topes por Modalidad
@@ -118,7 +144,15 @@
           (click)="cargarBandeja()"
           title="Actualizar bandeja"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
           </svg>
           Actualizar
@@ -128,12 +162,24 @@
       <!-- Alerta informativa de rol -->
       @if (!puedeAprobarRechazar()) {
         <div class="info-banner" role="status">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
-          <span>Visualización informativa: Los pagos registrados se reflejan como pagados de inmediato. Solo el personal de <strong>Contabilidad</strong> cuenta con atribuciones para aprobar o rechazar pagos.</span>
+          <span
+            >Visualización informativa: Los pagos registrados se reflejan como pagados de inmediato.
+            Solo el personal de <strong>Contabilidad</strong> cuenta con atribuciones para aprobar o
+            rechazar pagos.</span
+          >
         </div>
       }
 
@@ -164,13 +210,17 @@
             } @else if (pagosFiltrados().length === 0) {
               <tr>
                 <td colspan="10" class="empty-state-cell">
-                  <p class="empty-state-text">No se encontraron pagos con los filtros seleccionados.</p>
+                  <p class="empty-state-text">
+                    No se encontraron pagos con los filtros seleccionados.
+                  </p>
                 </td>
               </tr>
             } @else {
               @for (pago of pagosFiltrados(); track pago.idPagoTitulacion) {
                 <tr>
-                  <td><strong>#{{ pago.idPagoTitulacion }}</strong></td>
+                  <td>
+                    <strong>#{{ pago.idPagoTitulacion }}</strong>
+                  </td>
                   <td>{{ pago.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
                   <td>
                     <div class="student-info">
@@ -207,15 +257,24 @@
                   </td>
                   <td>
                     @if (pago.estado === 'REGISTRADO') {
-                      <span class="badge badge-info" title="Cuenta como pagado. Pendiente de revisión final de Contabilidad">
+                      <span
+                        class="badge badge-info"
+                        title="Cuenta como pagado. Pendiente de revisión final de Contabilidad"
+                      >
                         Registrado (Pagado)
                       </span>
                     } @else if (pago.estado === 'APROBADO') {
-                      <span class="badge badge-success" title="Aprobado formalmente por Contabilidad">
+                      <span
+                        class="badge badge-success"
+                        title="Aprobado formalmente por Contabilidad"
+                      >
                         Aprobado
                       </span>
                     } @else if (pago.estado === 'RECHAZADO') {
-                      <span class="badge badge-danger" [title]="'Rechazado: ' + (pago.motivoRechazo || 'Sin motivo')">
+                      <span
+                        class="badge badge-danger"
+                        [title]="'Rechazado: ' + (pago.motivoRechazo || 'Sin motivo')"
+                      >
                         Rechazado (No cuenta)
                       </span>
                     }
@@ -297,7 +356,10 @@
                     <button
                       type="button"
                       class="student-item"
-                      [class.selected]="postulacionSeleccionada()?.idPostulacionAlumnos === post.idPostulacionAlumnos"
+                      [class.selected]="
+                        postulacionSeleccionada()?.idPostulacionAlumnos ===
+                        post.idPostulacionAlumnos
+                      "
                       (click)="seleccionarPostulacion(post)"
                     >
                       <div class="student-item-header">
@@ -320,13 +382,23 @@
         <div class="panel-right">
           @if (!postulacionSeleccionada()) {
             <div class="empty-selection-placeholder">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
                 <line x1="8" y1="21" x2="16" y2="21" />
                 <line x1="12" y1="17" x2="12" y2="21" />
               </svg>
               <h4>Ningún estudiante seleccionado</h4>
-              <p>Seleccione un estudiante del listado para consultar sus topes y registrar un pago.</p>
+              <p>
+                Seleccione un estudiante del listado para consultar sus topes y registrar un pago.
+              </p>
             </div>
           } @else {
             @if (cargandoResumenFinanciero()) {
@@ -341,7 +413,8 @@
                     <div>
                       <h3 class="card-title">{{ resumen.estudianteNombre }}</h3>
                       <p class="card-subtitle">
-                        CI: {{ resumen.estudianteCedula }} &bull; Modalidad: <strong>{{ resumen.modalidadNombre }}</strong>
+                        CI: {{ resumen.estudianteCedula }} &bull; Modalidad:
+                        <strong>{{ resumen.modalidadNombre }}</strong>
                       </p>
                     </div>
                     <div class="total-tag">
@@ -366,17 +439,23 @@
                     </div>
 
                     <!-- Tarjeta Inversión -->
-                    <div class="balance-box inv-box" [class.box-disabled]="resumen.inversionMaxima === 0">
+                    <div
+                      class="balance-box inv-box"
+                      [class.box-disabled]="resumen.inversionMaxima === 0"
+                    >
                       <span class="balance-box-title">Rubro Inversión (Materiales/Otros)</span>
                       <div class="balance-box-numbers">
-                        <span class="paid">${{ resumen.totalInversionPagado.toFixed(2) }} pagados</span>
+                        <span class="paid"
+                          >${{ resumen.totalInversionPagado.toFixed(2) }} pagados</span
+                        >
                         <span class="limit">Tope: ${{ resumen.inversionMaxima.toFixed(2) }}</span>
                       </div>
                       <div class="balance-box-available">
                         @if (resumen.inversionMaxima === 0) {
                           <span class="text-muted">No aplica para esta modalidad ($0)</span>
                         } @else {
-                          Disponible: <strong>${{ resumen.saldoInversionDisponible.toFixed(2) }}</strong>
+                          Disponible:
+                          <strong>${{ resumen.saldoInversionDisponible.toFixed(2) }}</strong>
                         }
                       </div>
                     </div>
@@ -389,7 +468,8 @@
                         <span class="limit">Tope Máximo: $700.00</span>
                       </div>
                       <div class="balance-box-available">
-                        Saldo Pendiente: <strong>${{ resumen.saldoTotalPendiente.toFixed(2) }}</strong>
+                        Saldo Pendiente:
+                        <strong>${{ resumen.saldoTotalPendiente.toFixed(2) }}</strong>
                       </div>
                     </div>
                   </div>
@@ -401,7 +481,8 @@
                 <div class="card-header">
                   <h4 class="card-title">Registrar Nuevo Pago / Factura</h4>
                   <p class="card-subtitle">
-                    El pago se refleja inmediatamente como pagado (estado REGISTRADO) a la espera de la aprobación final de Contabilidad.
+                    El pago se refleja inmediatamente como pagado (estado REGISTRADO) a la espera de
+                    la aprobación final de Contabilidad.
                   </p>
                 </div>
 
@@ -420,14 +501,17 @@
                         >
                           <option value="BASE">Valor Base (Modalidad)</option>
                           <option value="INVERSION" [disabled]="resumen.inversionMaxima === 0">
-                            Inversión (Materiales y otros) {{ resumen.inversionMaxima === 0 ? '(No aplica)' : '' }}
+                            Inversión (Materiales y otros)
+                            {{ resumen.inversionMaxima === 0 ? '(No aplica)' : '' }}
                           </option>
                         </select>
                       </div>
 
                       <!-- Número de Factura -->
                       <div class="form-group">
-                        <label class="form-label" for="numeroFactura">Número de Factura / Comprobante *</label>
+                        <label class="form-label" for="numeroFactura"
+                          >Número de Factura / Comprobante *</label
+                        >
                         <input
                           id="numeroFactura"
                           type="text"
@@ -460,7 +544,9 @@
 
                       <!-- Observación -->
                       <div class="form-group full-width">
-                        <label class="form-label" for="observacion">Observación / Detalle (Opcional)</label>
+                        <label class="form-label" for="observacion"
+                          >Observación / Detalle (Opcional)</label
+                        >
                         <input
                           id="observacion"
                           type="text"
@@ -476,7 +562,15 @@
                     <!-- Mensaje de Validación de Tope en Tiempo Real -->
                     @if (errorValidacionValor()) {
                       <div class="validation-alert" role="alert">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
                           <circle cx="12" cy="12" r="10" />
                           <line x1="12" y1="8" x2="12" y2="12" />
                           <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -489,7 +583,12 @@
                       <button
                         type="submit"
                         class="btn btn-primary"
-                        [disabled]="guardandoPago() || errorValidacionValor() !== null || !nuevoPagoFactura() || !nuevoPagoValor()"
+                        [disabled]="
+                          guardandoPago() ||
+                          errorValidacionValor() !== null ||
+                          !nuevoPagoFactura() ||
+                          !nuevoPagoValor()
+                        "
                       >
                         @if (guardandoPago()) {
                           <span>Registrando...</span>
@@ -523,10 +622,14 @@
                       <tbody>
                         @for (p of resumen.pagos; track p.idPagoTitulacion) {
                           <tr>
-                            <td><strong>{{ p.numeroFactura }}</strong></td>
+                            <td>
+                              <strong>{{ p.numeroFactura }}</strong>
+                            </td>
                             <td>{{ p.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
                             <td>{{ p.tipoRubro === 'BASE' ? 'Base' : 'Inversión' }}</td>
-                            <td><strong>${{ p.valor.toFixed(2) }}</strong></td>
+                            <td>
+                              <strong>${{ p.valor.toFixed(2) }}</strong>
+                            </td>
                             <td>
                               @if (p.estado === 'REGISTRADO') {
                                 <span class="badge badge-info">Registrado</span>
@@ -560,8 +663,9 @@
         <h3>Políticas y Topes de Distribución por Modalidad</h3>
         <p>
           Toda modalidad de titulación tiene un costo normativo total de <strong>$700.00</strong>.
-          Aquí se configura cómo se distribuye ese valor entre el <em>Valor Base institucional</em> y la <em>Inversión máxima permitida</em> (tope normativo $200.00).
-          Los cambios se aplican a los nuevos registros sin alterar los pagos históricos.
+          Aquí se configura cómo se distribuye ese valor entre el
+          <em>Valor Base institucional</em> y la <em>Inversión máxima permitida</em> (tope normativo
+          $200.00). Los cambios se aplican a los nuevos registros sin alterar los pagos históricos.
         </p>
       </div>
 
@@ -583,7 +687,9 @@
           <tbody>
             @if (cargandoConfiguraciones()) {
               @for (row of skeletonRows; track row) {
-                <tr class="skeleton-row"><td colspan="9"><div class="skeleton-shimmer"></div></td></tr>
+                <tr class="skeleton-row">
+                  <td colspan="9"><div class="skeleton-shimmer"></div></td>
+                </tr>
               }
             } @else if (configuraciones().length === 0) {
               <tr>
@@ -593,14 +699,26 @@
               @for (cfg of configuraciones(); track cfg.idConfiguracionPago) {
                 <tr>
                   <td>#{{ cfg.idConfiguracionPago }}</td>
-                  <td><strong>{{ cfg.modalidadNombre }}</strong></td>
+                  <td>
+                    <strong>{{ cfg.modalidadNombre }}</strong>
+                  </td>
                   <td>{{ cfg.idPeriodo || 'General (Todos)' }}</td>
-                  <td><strong class="text-primary">${{ cfg.valorBase.toFixed(2) }}</strong></td>
-                  <td><strong class="text-secondary">${{ cfg.maximoInversion.toFixed(2) }}</strong></td>
-                  <td><strong>${{ cfg.totalTitulacion.toFixed(2) }}</strong></td>
+                  <td>
+                    <strong class="text-primary">${{ cfg.valorBase.toFixed(2) }}</strong>
+                  </td>
+                  <td>
+                    <strong class="text-secondary">${{ cfg.maximoInversion.toFixed(2) }}</strong>
+                  </td>
+                  <td>
+                    <strong>${{ cfg.totalTitulacion.toFixed(2) }}</strong>
+                  </td>
                   <td>{{ cfg.especieNombre || 'Sin vincular' }}</td>
                   <td>
-                    <span class="badge" [class.badge-success]="cfg.activo" [class.badge-neutral]="!cfg.activo">
+                    <span
+                      class="badge"
+                      [class.badge-success]="cfg.activo"
+                      [class.badge-neutral]="!cfg.activo"
+                    >
                       {{ cfg.activo ? 'Activa' : 'Inactiva' }}
                     </span>
                   </td>
@@ -646,17 +764,26 @@
         </div>
         <div class="modal-body">
           <p class="modal-warning-text">
-            Al rechazar este pago, <strong>dejará de figurar como pagado</strong> y se liberará el cupo y saldo del estudiante.
+            Al rechazar este pago, <strong>dejará de figurar como pagado</strong> y se liberará el
+            cupo y saldo del estudiante.
           </p>
 
           <div class="rejection-summary-box">
-            <p><strong>Estudiante:</strong> {{ pago.estudianteNombre }} (CI: {{ pago.estudianteCedula }})</p>
-            <p><strong>Factura:</strong> {{ pago.numeroFactura }} &bull; <strong>Rubro:</strong> {{ pago.tipoRubro }}</p>
+            <p>
+              <strong>Estudiante:</strong> {{ pago.estudianteNombre }} (CI:
+              {{ pago.estudianteCedula }})
+            </p>
+            <p>
+              <strong>Factura:</strong> {{ pago.numeroFactura }} &bull; <strong>Rubro:</strong>
+              {{ pago.tipoRubro }}
+            </p>
             <p><strong>Valor:</strong> ${{ pago.valor.toFixed(2) }}</p>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="motivoRechazoInput">Motivo del Rechazo (Obligatorio) *</label>
+            <label class="form-label" for="motivoRechazoInput"
+              >Motivo del Rechazo (Obligatorio) *</label
+            >
             <textarea
               id="motivoRechazoInput"
               class="form-control"
@@ -669,7 +796,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="cerrarModalRechazo()">Cancelar</button>
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalRechazo()">
+            Cancelar
+          </button>
           <button
             type="button"
             class="btn btn-danger"
@@ -721,12 +850,19 @@
                   <div class="timeline-dot"></div>
                   <div class="timeline-content">
                     <div class="timeline-header">
-                      <strong>{{ item.estadoAnterior || 'INICIAL' }} &rarr; {{ item.estadoNuevo }}</strong>
-                      <span class="timeline-date">{{ item.fechaCambio | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+                      <strong
+                        >{{ item.estadoAnterior || 'INICIAL' }} &rarr;
+                        {{ item.estadoNuevo }}</strong
+                      >
+                      <span class="timeline-date">{{
+                        item.fechaCambio | date: 'dd/MM/yyyy HH:mm:ss'
+                      }}</span>
                     </div>
                     <p class="timeline-user">Registrado por: {{ item.usuarioNombre }}</p>
                     @if (item.motivo) {
-                      <p class="timeline-motive"><em>"{{ item.motivo }}"</em></p>
+                      <p class="timeline-motive">
+                        <em>"{{ item.motivo }}"</em>
+                      </p>
                     }
                   </div>
                 </div>
@@ -735,7 +871,9 @@
           }
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="cerrarHistorial()">Cerrar</button>
+          <button type="button" class="btn btn-secondary" (click)="cerrarHistorial()">
+            Cerrar
+          </button>
         </div>
       </div>
     </div>
@@ -761,7 +899,9 @@
       >
         <div class="modal-header">
           <h4 class="modal-title">Editar Topes: {{ cfg.modalidadNombre }}</h4>
-          <button type="button" class="btn-close" (click)="cerrarEdicionConfiguracion()">&times;</button>
+          <button type="button" class="btn-close" (click)="cerrarEdicionConfiguracion()">
+            &times;
+          </button>
         </div>
         <div class="modal-body">
           <div class="form-group">
@@ -778,7 +918,9 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="editMaximoInversion">Máximo Inversión (Materiales y otros) ($) *</label>
+            <label class="form-label" for="editMaximoInversion"
+              >Máximo Inversión (Materiales y otros) ($) *</label
+            >
             <input
               id="editMaximoInversion"
               type="number"
@@ -794,7 +936,10 @@
 
           <div class="total-calc-box">
             <span>Suma Total Calculada:</span>
-            <strong>${{ ((editValorBase() || 0) + (editMaximoInversion() || 0)).toFixed(2) }} / $700.00</strong>
+            <strong
+              >${{ ((editValorBase() || 0) + (editMaximoInversion() || 0)).toFixed(2) }} /
+              $700.00</strong
+            >
           </div>
 
           @if (errorConfiguracion()) {
@@ -804,7 +949,9 @@
           }
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="cerrarEdicionConfiguracion()">Cancelar</button>
+          <button type="button" class="btn btn-secondary" (click)="cerrarEdicionConfiguracion()">
+            Cancelar
+          </button>
           <button
             type="button"
             class="btn btn-primary"

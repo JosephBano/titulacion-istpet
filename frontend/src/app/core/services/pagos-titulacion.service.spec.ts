@@ -199,9 +199,7 @@ describe('PagosTitulacionService', () => {
       expect(res.saldoInversionDisponible).toBe(100);
     });
 
-    const req = httpMock.expectOne(
-      `${mockApiUrl}/api/v1/pagos-titulacion/postulacion/101/resumen`,
-    );
+    const req = httpMock.expectOne(`${mockApiUrl}/api/v1/pagos-titulacion/postulacion/101/resumen`);
     expect(req.request.method).toBe('GET');
     req.flush(mockResumen);
   });
