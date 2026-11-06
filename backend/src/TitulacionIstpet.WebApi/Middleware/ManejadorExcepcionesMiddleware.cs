@@ -6,8 +6,8 @@ using TitulacionIstpet.Domain.Exceptions;
 namespace TitulacionIstpet.WebApi.Middleware;
 
 /// <summary>
-/// Unico punto donde una excepcion se convierte en respuesta HTTP. Los controllers
-/// no atrapan excepciones; dejan que burbujeen hasta aqui.
+/// Único punto donde una excepción se convierte en respuesta HTTP. Los controllers
+/// no atrapan excepciones; dejan que burbujeen hasta aquí.
 /// </summary>
 public class ManejadorExcepcionesMiddleware(
     RequestDelegate next, ILogger<ManejadorExcepcionesMiddleware> logger, IHostEnvironment env)
@@ -49,12 +49,19 @@ public class ManejadorExcepcionesMiddleware(
                 Title = "Regla de negocio violada.",
                 Detail = d.Message
             },
+            UnauthorizedAccessException u => new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.InternalServerError,
+                Title = "Error de permisos en el servidor.",
+                Detail = u.Message
+            },
             _ => new ProblemDetails
             {
                 Status = (int)HttpStatusCode.InternalServerError,
                 Title = "Error interno del servidor.",
-                // Nunca filtrar stack traces fuera de Development.
-                Detail = _env.IsDevelopment() ? ex.ToString() : null
+                Detail = _env.IsDevelopment()
+                    ? ex.ToString()
+                    : (ex is InvalidOperationException ? ex.Message : null)
             }
         };
 

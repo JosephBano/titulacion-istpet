@@ -147,3 +147,9 @@ CLAUDE.md
 
 # Graphify knowledge graph outputs
 graphify-out/
+
+# Cargas físicas y logs
+**/wwwroot/evidencias/*
+!**/wwwroot/evidencias/.gitkeep
+**/logs/
+logs/
