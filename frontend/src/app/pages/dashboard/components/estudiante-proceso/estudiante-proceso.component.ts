@@ -328,9 +328,10 @@ export class EstudianteProcesoComponent {
     return 'general';
   }
 
-  getExplicacionProcesoModalidad(
-    mod: ModalidadOfertada,
-  ): { resumenFlujo: string; siguienteFase: string } {
+  getExplicacionProcesoModalidad(mod: ModalidadOfertada): {
+    resumenFlujo: string;
+    siguienteFase: string;
+  } {
     const tipo = this.getIconoTipoModalidad(mod);
     switch (tipo) {
       case 'complexivo':
@@ -484,9 +485,7 @@ export class EstudianteProcesoComponent {
     const fecha = `${yyyy}-${mm}-${dd}`;
 
     const rawPeriodo =
-      this.portal()?.convocatoria?.periodo ||
-      this.periodoNombreAmigable() ||
-      'PERIODO';
+      this.portal()?.convocatoria?.periodo || this.periodoNombreAmigable() || 'PERIODO';
     const periodoLimpio = this.sanitizarParaNombreArchivo(rawPeriodo);
 
     return `${reqLimpio}_${fecha}_${periodoLimpio}.pdf`;
@@ -498,7 +497,8 @@ export class EstudianteProcesoComponent {
       const originalFile = inputEl.files[0];
 
       // Validación 1: Formato estrictamente PDF
-      const esPdf = originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf');
+      const esPdf =
+        originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf');
       if (!esPdf) {
         this.notification.error(
           `Formato inválido: El documento "${originalFile.name}" debe ser obligatoriamente un archivo PDF (.pdf).`,
@@ -524,7 +524,8 @@ export class EstudianteProcesoComponent {
       const tamanoKb = (file.size / 1024).toFixed(1);
       const confirmado = await this.confirmService.confirm({
         title: '¿Confirmar subida de documento?',
-        message: 'Por favor, verifique que el documento adjunto sea legible, oficial y corresponda al requisito seleccionado.',
+        message:
+          'Por favor, verifique que el documento adjunto sea legible, oficial y corresponda al requisito seleccionado.',
         confirmText: 'Sí, subir documento',
         cancelText: 'Cancelar',
         variant: 'primary',

@@ -3,7 +3,14 @@
   @if (!cronogramaData().tieneDatosReales) {
     <div class="cronograma-empty-card">
       <div class="empty-icon-wrap" aria-hidden="true">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <svg
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -11,7 +18,8 @@
       </div>
       <h3 class="empty-title">Sin fechas configuradas</h3>
       <p class="empty-desc">
-        La Coordinación o Secretaría Académica aún no ha establecido las fechas de apertura y cierre para esta cohorte.
+        La Coordinación o Secretaría Académica aún no ha establecido las fechas de apertura y cierre
+        para esta cohorte.
       </p>
     </div>
   } @else {
@@ -19,7 +27,14 @@
     @if (cronogramaData().resumenEstado; as resumen) {
       <div class="status-banner" [ngClass]="resumen.clase">
         <div class="banner-icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
@@ -36,7 +51,11 @@
       <!-- Riel / Pista horizontal del Stepper -->
       <div class="timeline-track-bar">
         @for (etapa of cronogramaData().etapas; track etapa.numero; let last = $last) {
-          <div class="track-step-node" [class.is-active]="etapa.esActiva" [class.is-completed]="etapa.estado === 'Finalizada'">
+          <div
+            class="track-step-node"
+            [class.is-active]="etapa.esActiva"
+            [class.is-completed]="etapa.estado === 'Finalizada'"
+          >
             <div class="node-circle">{{ etapa.numero }}</div>
             <span class="node-label">Etapa {{ etapa.numero }}</span>
           </div>

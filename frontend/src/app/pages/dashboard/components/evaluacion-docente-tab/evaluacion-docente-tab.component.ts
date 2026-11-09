@@ -356,7 +356,9 @@ export class EvaluacionDocenteTabComponent {
     const esAprobacion = aprobado === true;
 
     const confirmado = await this.confirmService.confirm({
-      title: esAprobacion ? '¿Confirmar Aprobación de Requisito?' : '¿Confirmar Rechazo de Requisito?',
+      title: esAprobacion
+        ? '¿Confirmar Aprobación de Requisito?'
+        : '¿Confirmar Rechazo de Requisito?',
       message: esAprobacion
         ? `¿Está seguro de marcar como APROBADO el documento/requisito "${caso.nombreRequisito}"?`
         : `¿Está seguro de marcar como RECHAZADO / NO APROBADO el documento/requisito "${caso.nombreRequisito}"?`,

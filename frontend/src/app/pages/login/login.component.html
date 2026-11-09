@@ -408,7 +408,9 @@
                 type="button"
                 class="ocr-password-toggle-btn"
                 (click)="toggleShowRecoveryConfirmPassword()"
-                [title]="showRecoveryConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                [title]="
+                  showRecoveryConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                "
                 tabindex="-1"
               >
                 @if (!showRecoveryConfirmPassword()) {
@@ -448,7 +450,9 @@
             type="button"
             class="ocr-btn-primary"
             (click)="onRestablecerContrasena()"
-            [disabled]="recoveryLoading() || !recoveryNuevaContrasenia || !recoveryConfirmarContrasenia"
+            [disabled]="
+              recoveryLoading() || !recoveryNuevaContrasenia || !recoveryConfirmarContrasenia
+            "
           >
             @if (!recoveryLoading()) {
               <span>Guardar Contraseña e Ingresar</span>

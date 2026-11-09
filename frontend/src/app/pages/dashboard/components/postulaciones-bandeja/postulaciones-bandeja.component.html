@@ -137,14 +137,14 @@
       <table class="fluent-table">
         <thead>
           <tr>
-            <th style="width: 55px;">#</th>
+            <th style="width: 55px">#</th>
             <th>Estudiante</th>
             <th>Carrera</th>
             <th>Modalidad</th>
             <th>Finanzas</th>
             <th>Requisitos</th>
             <th>Estado</th>
-            <th class="text-right" style="width: 250px;">Acciones</th>
+            <th class="text-right" style="width: 250px">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -153,7 +153,7 @@
               <td><span class="skeleton-line skeleton-w-xs"></span></td>
               <td>
                 <div class="skeleton-line skeleton-w-md"></div>
-                <div class="skeleton-line skeleton-w-sm" style="margin-top: 4px;"></div>
+                <div class="skeleton-line skeleton-w-sm" style="margin-top: 4px"></div>
               </td>
               <td><span class="skeleton-line skeleton-w-md"></span></td>
               <td><span class="skeleton-line skeleton-w-sm"></span></td>
@@ -221,14 +221,14 @@
       <table class="fluent-table">
         <thead>
           <tr>
-            <th style="width: 55px;">#</th>
+            <th style="width: 55px">#</th>
             <th>Estudiante</th>
             <th>Carrera</th>
             <th>Modalidad</th>
             <th>Finanzas</th>
             <th>Requisitos</th>
             <th>Estado</th>
-            <th class="text-right" style="width: 260px;">Acciones</th>
+            <th class="text-right" style="width: 260px">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -301,7 +301,15 @@
                 }
               </td>
               <td class="cell-requisitos">
-                <div class="req-progress-wrap" [title]="p.totalRequisitosCompletados + ' de ' + p.totalRequisitos + ' requisitos aprobados'">
+                <div
+                  class="req-progress-wrap"
+                  [title]="
+                    p.totalRequisitosCompletados +
+                    ' de ' +
+                    p.totalRequisitos +
+                    ' requisitos aprobados'
+                  "
+                >
                   <span class="req-count">
                     {{ p.totalRequisitosCompletados }} / {{ p.totalRequisitos }}
                   </span>
@@ -347,7 +355,14 @@
                   <button
                     type="button"
                     class="action-btn action-btn--approve"
-                    (click)="emitirDictamen(p.idPostulacionAlumnos, 'APROBAR', p.nombreAlumno, p.cedulaAlumno)"
+                    (click)="
+                      emitirDictamen(
+                        p.idPostulacionAlumnos,
+                        'APROBAR',
+                        p.nombreAlumno,
+                        p.cedulaAlumno
+                      )
+                    "
                     title="Aprobar postulación formal"
                   >
                     <svg
@@ -367,7 +382,14 @@
                   <button
                     type="button"
                     class="action-btn action-btn--reject"
-                    (click)="emitirDictamen(p.idPostulacionAlumnos, 'RECHAZAR', p.nombreAlumno, p.cedulaAlumno)"
+                    (click)="
+                      emitirDictamen(
+                        p.idPostulacionAlumnos,
+                        'RECHAZAR',
+                        p.nombreAlumno,
+                        p.cedulaAlumno
+                      )
+                    "
                     title="Rechazar solicitud"
                   >
                     <svg
@@ -623,7 +645,9 @@
 
                 <div class="contact-item">
                   <span class="contact-label">Convocatoria / Cohorte</span>
-                  <span class="contact-text">{{ post.detalleCohorte || 'Convocatoria Vigente' }}</span>
+                  <span class="contact-text">{{
+                    post.detalleCohorte || 'Convocatoria Vigente'
+                  }}</span>
                 </div>
 
                 <div class="contact-item">
@@ -632,7 +656,7 @@
                     <span class="status-badge financas-al-dia">Al Día (No Adeuda)</span>
                   } @else if (post.noAdeuda === false) {
                     <span class="status-badge financas-deuda">
-                      Adeuda ${{ (post.saldoPendiente || 0) | number: '1.2-2' }}
+                      Adeuda ${{ post.saldoPendiente || 0 | number: '1.2-2' }}
                     </span>
                   } @else {
                     <span class="status-badge financas-pendiente">Pendiente</span>

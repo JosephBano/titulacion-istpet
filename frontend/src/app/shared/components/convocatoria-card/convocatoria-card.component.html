@@ -1,5 +1,8 @@
 @if (simplificado()) {
-  <div class="convocatoria-card-portal convocatoria-card-portal--simple" [class.abierta]="estaAbierta()">
+  <div
+    class="convocatoria-card-portal convocatoria-card-portal--simple"
+    [class.abierta]="estaAbierta()"
+  >
     <div class="convocatoria-info-simple">
       <div class="conv-simple-header">
         <span class="conv-simple-title">Período ({{ detalle() }})</span>

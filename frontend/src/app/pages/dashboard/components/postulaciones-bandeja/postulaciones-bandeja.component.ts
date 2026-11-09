@@ -148,7 +148,7 @@ export class PostulacionesBandejaComponent {
     idPostulacion: number,
     decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR',
     nombreAlumno?: string,
-    cedulaAlumno?: string
+    cedulaAlumno?: string,
   ): void {
     this.dictamen.emit({ idPostulacion, decision, nombreAlumno, cedulaAlumno });
   }
@@ -188,21 +188,24 @@ export class PostulacionesBandejaComponent {
     this.semestreExpandido.set(null);
 
     // Carga inmediata del detalle de la postulación (requisitos y evidencias)
-    this.titulacionService.getPostulacionPorId(p.idPostulacionAlumnos).pipe(
-      catchError((err) => {
-        console.warn('No se pudo cargar el detalle de postulación:', err);
-        return of(null);
-      }),
-    ).subscribe({
-      next: (postulacion) => {
-        this.postulacionDetalleSeleccionada.set(postulacion);
-        this.cargandoExamen.set(false);
-      },
-      error: () => {
-        this.errorExamen.set('No se pudo obtener el expediente de la postulación.');
-        this.cargandoExamen.set(false);
-      },
-    });
+    this.titulacionService
+      .getPostulacionPorId(p.idPostulacionAlumnos)
+      .pipe(
+        catchError((err) => {
+          console.warn('No se pudo cargar el detalle de postulación:', err);
+          return of(null);
+        }),
+      )
+      .subscribe({
+        next: (postulacion) => {
+          this.postulacionDetalleSeleccionada.set(postulacion);
+          this.cargandoExamen.set(false);
+        },
+        error: () => {
+          this.errorExamen.set('No se pudo obtener el expediente de la postulación.');
+          this.cargandoExamen.set(false);
+        },
+      });
   }
 
   cerrarExamenModal(): void {
@@ -219,19 +222,26 @@ export class PostulacionesBandejaComponent {
     this.seccionExamen.set(seccion);
 
     // Carga perezosa (lazy-load) del expediente académico sólo si el usuario hace clic en Malla o Pagos
-    if ((seccion === 'academico' || seccion === 'pagos') && !this.expedienteSeleccionado() && !this.cargandoExpedienteAcademico()) {
+    if (
+      (seccion === 'academico' || seccion === 'pagos') &&
+      !this.expedienteSeleccionado() &&
+      !this.cargandoExpedienteAcademico()
+    ) {
       const p = this.postulacionResumenSeleccionada();
       if (p) {
         this.cargandoExpedienteAcademico.set(true);
-        this.egresadosService.getExpedienteAcademico(p.idAlumno, p.idCarrera).pipe(
-          catchError((err) => {
-            console.warn('No se pudo cargar el expediente académico curricular:', err);
-            return of(null);
-          }),
-        ).subscribe((expediente) => {
-          this.expedienteSeleccionado.set(expediente);
-          this.cargandoExpedienteAcademico.set(false);
-        });
+        this.egresadosService
+          .getExpedienteAcademico(p.idAlumno, p.idCarrera)
+          .pipe(
+            catchError((err) => {
+              console.warn('No se pudo cargar el expediente académico curricular:', err);
+              return of(null);
+            }),
+          )
+          .subscribe((expediente) => {
+            this.expedienteSeleccionado.set(expediente);
+            this.cargandoExpedienteAcademico.set(false);
+          });
       }
     }
   }
@@ -251,7 +261,7 @@ export class PostulacionesBandejaComponent {
       resumen.idPostulacionAlumnos,
       decision,
       resumen.nombreAlumno,
-      resumen.cedulaAlumno
+      resumen.cedulaAlumno,
     );
   }
 

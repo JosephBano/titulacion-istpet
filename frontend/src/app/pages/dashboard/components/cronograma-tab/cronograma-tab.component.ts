@@ -1,9 +1,4 @@
-import {
-  Component,
-  computed,
-  input,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ConvocatoriaDetalle, PortalEstudiante } from '../../../../core/models/titulacion.models';
 
@@ -62,7 +57,8 @@ export class CronogramaTabComponent {
     const fechaFinStr = conv?.fechaFin || portalConv?.fechaCierre || null;
     const diasPermitidos = conv?.diasPermitidos ?? null;
     const diasExtension = conv?.diasExtension ?? 0;
-    const detalleConvocatoria = conv?.detalle || portalConv?.detalle || 'Convocatoria de Titulación';
+    const detalleConvocatoria =
+      conv?.detalle || portalConv?.detalle || 'Convocatoria de Titulación';
     const periodo = conv?.idPeriodo || portalConv?.periodo || '';
 
     // Si la BD no contiene fechas configuradas, no inventamos fechas relativas
@@ -190,7 +186,10 @@ export class CronogramaTabComponent {
 
     if (etapaActiva) {
       resumenTexto = `${etapaActiva.titulo} está actualmente en curso.`;
-      resumenBadge = etapaActiva.diasRestantes === 0 ? '¡Vence Hoy!' : `${etapaActiva.diasRestantes} días restantes`;
+      resumenBadge =
+        etapaActiva.diasRestantes === 0
+          ? '¡Vence Hoy!'
+          : `${etapaActiva.diasRestantes} días restantes`;
       resumenClase = 'badge--active';
     } else if (hoy < dInicioPost) {
       const diasParaInicio = this.diffDias(hoy, dInicioPost);

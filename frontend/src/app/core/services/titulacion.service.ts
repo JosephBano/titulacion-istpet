@@ -94,12 +94,12 @@ export class TitulacionService {
       valorBool?: boolean | null;
     }[],
   ): Observable<void> {
-    return this.http.put<void>(`${this.API_URL}/postulaciones/${idPostulacion}/requisitos`, {
-      idPostulacionAlumnos: idPostulacion,
-      requisitos,
-    }).pipe(
-      tap(() => this.network.clearCachedData(`postulacion_detalle_${idPostulacion}`)),
-    );
+    return this.http
+      .put<void>(`${this.API_URL}/postulaciones/${idPostulacion}/requisitos`, {
+        idPostulacionAlumnos: idPostulacion,
+        requisitos,
+      })
+      .pipe(tap(() => this.network.clearCachedData(`postulacion_detalle_${idPostulacion}`)));
   }
 
   public getPostulaciones(
@@ -149,12 +149,13 @@ export class TitulacionService {
   }
 
   public dictaminarPostulacion(request: DictamenPostulacionRequest): Observable<void> {
-    return this.http.post<void>(
-      `${this.API_URL}/postulaciones/${request.idPostulacionAlumnos}/dictamen`,
-      request,
-    ).pipe(
-      tap(() => this.network.clearCachedData(`postulacion_detalle_${request.idPostulacionAlumnos}`)),
-    );
+    return this.http
+      .post<void>(`${this.API_URL}/postulaciones/${request.idPostulacionAlumnos}/dictamen`, request)
+      .pipe(
+        tap(() =>
+          this.network.clearCachedData(`postulacion_detalle_${request.idPostulacionAlumnos}`),
+        ),
+      );
   }
 
   // ----------------------------------------------------

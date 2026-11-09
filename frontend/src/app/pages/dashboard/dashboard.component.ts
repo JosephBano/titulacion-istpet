@@ -1529,14 +1529,19 @@ export class DashboardComponent implements OnInit {
   // Dictámenes y Calificación
   // ----------------------------------------------------
   onDictamenEvento(evento: DictamenEvento): void {
-    this.abrirModalDictamen(evento.idPostulacion, evento.decision, evento.nombreAlumno, evento.cedulaAlumno);
+    this.abrirModalDictamen(
+      evento.idPostulacion,
+      evento.decision,
+      evento.nombreAlumno,
+      evento.cedulaAlumno,
+    );
   }
 
   abrirModalDictamen(
     idPostulacion: number,
     decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR',
     nombreAlumno?: string,
-    cedulaAlumno?: string
+    cedulaAlumno?: string,
   ): void {
     this.dictamenModal.set({
       idPostulacion,

@@ -57,7 +57,9 @@
         >
           <span class="avatar-circle avatar-circle--lg">{{ initial() }}</span>
           <div class="user-menu-identity">
-            <span class="user-menu-name">{{ estudianteInfo()?.nombreCompleto || user.nombre }}</span>
+            <span class="user-menu-name">{{
+              estudianteInfo()?.nombreCompleto || user.nombre
+            }}</span>
             @if (estudianteInfo()?.cedula) {
               <span class="user-menu-ci">(C.I. {{ estudianteInfo()?.cedula }})</span>
             }

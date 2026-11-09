@@ -72,11 +72,14 @@
       <div class="simple-modal-body">
         @if (modal.decision === 'APROBAR') {
           <p class="confirm-message">
-            ¿Está seguro que desea emitir el dictamen formal de <strong>APROBACIÓN</strong> para la postulación de
-            <strong>{{ modal.nombreAlumno || 'este estudiante' }}</strong>?
+            ¿Está seguro que desea emitir el dictamen formal de <strong>APROBACIÓN</strong> para la
+            postulación de <strong>{{ modal.nombreAlumno || 'este estudiante' }}</strong
+            >?
           </p>
           <div class="field-wrap">
-            <label for="obsAprobar" class="field-label">Observaciones adicionales (opcional):</label>
+            <label for="obsAprobar" class="field-label"
+              >Observaciones adicionales (opcional):</label
+            >
             <input
               id="obsAprobar"
               type="text"
@@ -89,7 +92,8 @@
           </div>
         } @else {
           <p class="confirm-message">
-            Indique el motivo por el cual se rechaza la postulación del estudiante. Esta observación será registrada y notificada oficialmente:
+            Indique el motivo por el cual se rechaza la postulación del estudiante. Esta observación
+            será registrada y notificada oficialmente:
           </p>
           <div class="field-wrap">
             <label for="obsRechazar" class="field-label">
@@ -105,7 +109,9 @@
               required
             ></textarea>
             @if (!observacionesTexto().trim()) {
-              <span class="field-hint text-danger">El motivo del rechazo es obligatorio para proceder.</span>
+              <span class="field-hint text-danger"
+                >El motivo del rechazo es obligatorio para proceder.</span
+              >
             }
           </div>
         }
@@ -113,16 +119,10 @@
 
       <!-- Pie con acciones simples -->
       <footer class="simple-modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="onClose()">
-          Cancelar
-        </button>
+        <button type="button" class="btn btn-secondary" (click)="onClose()">Cancelar</button>
 
         @if (modal.decision === 'APROBAR') {
-          <button
-            type="button"
-            class="btn btn-success"
-            (click)="onConfirm()"
-          >
+          <button type="button" class="btn btn-success" (click)="onConfirm()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
