@@ -70,6 +70,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IAcademicoService, AcademicoService>();
         services.AddScoped<IEgresadosService, EgresadosService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IPagosTitulacionService, PagosTitulacionService>();
 
         return services;
     }

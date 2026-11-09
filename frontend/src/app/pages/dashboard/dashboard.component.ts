@@ -57,6 +57,7 @@ import { ReportesTabComponent } from './components/reportes-tab/reportes-tab.com
 import { RequisicionPersonalComponent } from './components/requisicion-personal/requisicion-personal.component';
 import { ConfiguracionComplexivoComponent } from './components/configuracion-complexivo/configuracion-complexivo.component';
 import { CronogramaTabComponent } from './components/cronograma-tab/cronograma-tab.component';
+import { PagosTabComponent } from './components/pagos-tab/pagos-tab.component';
 import { RequisicionPersonalInicial } from '../../domain/models/requisicion-personal.model';
 
 @Component({
@@ -86,6 +87,7 @@ import { RequisicionPersonalInicial } from '../../domain/models/requisicion-pers
     RequisicionPersonalComponent,
     ConfiguracionComplexivoComponent,
     CronogramaTabComponent,
+    PagosTabComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -565,6 +567,8 @@ export class DashboardComponent implements OnInit {
 
   userRolesFormatted(): string {
     if (this.isAdmin()) return 'Administrador';
+    if (this.isContabilidad()) return 'Contabilidad';
+    if (this.isSecretaria()) return 'Secretaría';
     if (this.isDocente()) return 'Docente';
     return 'Estudiante';
   }
@@ -577,6 +581,18 @@ export class DashboardComponent implements OnInit {
       this.hasRole('ADMIN_SIST') ||
       this.hasRole('GESTOR')
     );
+  }
+
+  isContabilidad(): boolean {
+    return this.hasRole('CONTABILIDAD');
+  }
+
+  isSecretaria(): boolean {
+    return this.hasRole('SECRETARIA');
+  }
+
+  puedeVerPagos(): boolean {
+    return this.isAdmin() || this.isSecretaria() || this.isContabilidad();
   }
 
   isDocente(): boolean {
@@ -634,6 +650,10 @@ export class DashboardComponent implements OnInit {
       if (this.isDocente()) {
         this.cargarMisPendientesDocente();
       }
+    } else if (this.isContabilidad() || this.isSecretaria()) {
+      this.activeTab.set('pagos');
+      this.cargarConvocatoriaActiva();
+      this.cargarTotalPostulaciones();
     } else if (this.isDocente()) {
       this.activeTab.set('evaluacion');
       this.cargarMisPendientesDocente();
