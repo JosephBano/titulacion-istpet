@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RequisitoEvaluacionDocente } from '../../../../core/models/titulacion.models';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ConfirmService } from '../../../../core/services/confirm.service';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { environment } from '../../../../../environments/environment';
 
@@ -304,6 +305,7 @@ export class EvaluacionDocenteTabComponent {
   }
 
   private readonly notification = inject(NotificationService);
+  private readonly confirmService = inject(ConfirmService);
   readonly MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
 
   onFileChange(idPostulacionAlumnoRequisitoModalidad: number, event: Event): void {
@@ -345,17 +347,58 @@ export class EvaluacionDocenteTabComponent {
   }
 
   // Guardar evaluación desde el Drawer o directamente
-  guardarCasoActual(): void {
+  async guardarCasoActual(): Promise<void> {
     const caso = this.casoSeleccionado();
     if (!caso) return;
 
-    this.enviarGuardado(caso);
+    const aprobado = this.getAprobado(caso);
+    const archivo = this.archivosPorFila()[caso.idPostulacionAlumnoRequisitoModalidad];
+    const esAprobacion = aprobado === true;
+
+    const confirmado = await this.confirmService.confirm({
+      title: esAprobacion ? '¿Confirmar Aprobación de Requisito?' : '¿Confirmar Rechazo de Requisito?',
+      message: esAprobacion
+        ? `¿Está seguro de marcar como APROBADO el documento/requisito "${caso.nombreRequisito}"?`
+        : `¿Está seguro de marcar como RECHAZADO / NO APROBADO el documento/requisito "${caso.nombreRequisito}"?`,
+      confirmText: esAprobacion ? 'Sí, Aprobar' : 'Sí, Rechazar',
+      cancelText: 'Cancelar',
+      variant: esAprobacion ? 'success' : 'danger',
+      icon: esAprobacion ? 'check' : 'x',
+      documentName: caso.nombreArchivoAdjunto || archivo?.name || 'Documento de requisito',
+      details: [
+        { label: 'Estudiante', value: caso.nombreAlumno },
+        { label: 'Requisito', value: caso.nombreRequisito },
+        { label: 'Dictamen', value: esAprobacion ? 'APROBADO' : 'NO APROBADO' },
+      ],
+    });
+
+    if (confirmado) {
+      this.enviarGuardado(caso);
+    }
   }
 
-  aprobarDirecto(item: RequisitoEvaluacionDocente, event: MouseEvent): void {
+  async aprobarDirecto(item: RequisitoEvaluacionDocente, event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    this.setAprobado(item, true);
-    this.enviarGuardado(item);
+
+    const confirmado = await this.confirmService.confirm({
+      title: '¿Confirmar Aprobación de Documento?',
+      message: `¿Está seguro de aprobar el requisito "${item.nombreRequisito}" del estudiante "${item.nombreAlumno}"? Esta acción registrará la validez del documento en el expediente.`,
+      confirmText: 'Sí, Aprobar',
+      cancelText: 'Cancelar',
+      variant: 'success',
+      icon: 'check',
+      documentName: item.nombreArchivoAdjunto || 'Documento adjunto',
+      details: [
+        { label: 'Estudiante', value: item.nombreAlumno },
+        { label: 'Requisito', value: item.nombreRequisito },
+        { label: 'Cédula', value: item.cedulaAlumno },
+      ],
+    });
+
+    if (confirmado) {
+      this.setAprobado(item, true);
+      this.enviarGuardado(item);
+    }
   }
 
   enviarGuardado(item: RequisitoEvaluacionDocente): void {

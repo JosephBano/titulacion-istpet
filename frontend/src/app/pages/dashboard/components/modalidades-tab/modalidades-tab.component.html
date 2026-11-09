@@ -2,10 +2,10 @@
   <!-- Header de Sección -->
   <div class="section-header">
     <div>
-      <h2 class="section-title">Modalidades de Titulación y Matriz</h2>
+      <h2 class="section-title">Modalidades y Requisitos</h2>
       <p class="section-subtitle">
-        Catálogo oficial de modalidades académicas de titulación y configuración de matriz de
-        requisitos asociados.
+        Catálogo institucional de modalidades de titulación y configuración de los requisitos
+        exigidos para cada una.
       </p>
     </div>
     <div class="header-actions">
@@ -86,7 +86,7 @@
             <th>Modalidad de Titulación</th>
             <th>Integrantes</th>
             <th>Características</th>
-            <th>Requisitos Asociados</th>
+            <th>Requisitos Exigidos</th>
             <th>Estado</th>
             <th class="text-right">Acciones</th>
           </tr>
@@ -109,7 +109,7 @@
     </div>
   } @else if (modalidades().length === 0) {
     <div class="state-container empty-state">
-      <h3 class="empty-title">No hay modalidades maestras</h3>
+      <h3 class="empty-title">No hay modalidades registradas</h3>
       <p class="empty-desc">
         Aún no se han configurado modalidades de titulación en el catálogo institucional.
       </p>
@@ -138,7 +138,7 @@
             <th>Modalidad de Titulación</th>
             <th>Integrantes</th>
             <th>Características</th>
-            <th>Requisitos Asociados</th>
+            <th>Requisitos Exigidos</th>
             <th>Estado</th>
             <th class="text-right">Acciones</th>
           </tr>
@@ -218,7 +218,7 @@
                           class="req-chip-more-btn"
                           (click)="abrirMatriz.emit(m)"
                           [title]="
-                            'Abrir matriz para ver todos los ' + m.requisitos.length + ' requisitos'
+                            'Ver los ' + m.requisitos.length + ' requisitos exigidos'
                           "
                         >
                           +{{ m.requisitos.length - 3 }} más
@@ -274,7 +274,7 @@
                     type="button"
                     class="btn btn-outline-primary btn-sm"
                     (click)="abrirMatriz.emit(m)"
-                    title="Gestionar matriz de requisitos de esta modalidad"
+                    title="Configurar los requisitos exigidos para esta modalidad"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -292,7 +292,7 @@
                       <line x1="3" y1="12" x2="3.01" y2="12"></line>
                       <line x1="3" y1="18" x2="3.01" y2="18"></line>
                     </svg>
-                    <span>Matriz</span>
+                    <span>Requisitos</span>
                   </button>
                   <button
                     type="button"

@@ -1,18 +1,77 @@
-<div class="convocatoria-card-portal" [class.abierta]="estaAbierta()">
-  <div class="convocatoria-info">
-    <div class="status-indicator-wrapper">
-      <span class="status-dot" [class.active]="estaAbierta()"></span>
-      <span class="conv-tag">{{
-        estaAbierta() ? 'Convocatoria Activa' : 'Convocatoria Finalizada'
-      }}</span>
+@if (simplificado()) {
+  <div class="convocatoria-card-portal convocatoria-card-portal--simple" [class.abierta]="estaAbierta()">
+    <div class="convocatoria-info-simple">
+      <div class="conv-simple-header">
+        <span class="conv-simple-title">Período ({{ detalle() }})</span>
+
+        @if (puntoTitulo()) {
+          <span class="conv-punto-badge" [ngClass]="'conv-punto-badge--' + puntoTipo()">
+            <span class="conv-punto-dot"></span>
+            <span class="conv-punto-tag">Punto actual:</span>
+            <strong>{{ puntoTitulo() }}</strong>
+          </span>
+        }
+      </div>
+
+      @if (puntoDescripcion()) {
+        <div class="conv-punto-desc-wrapper" [ngClass]="'conv-punto-desc--' + puntoTipo()">
+          <svg
+            class="conv-punto-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            @if (puntoTipo() === 'success') {
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            } @else if (puntoTipo() === 'danger') {
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            } @else if (puntoTipo() === 'warning') {
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            } @else {
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            }
+          </svg>
+          <span class="conv-punto-desc-text">{{ puntoDescripcion() }}</span>
+        </div>
+      }
     </div>
-    <h3>{{ detalle() }}</h3>
-    <p>{{ mensaje() }}</p>
+    @if (diasRestantes() !== null) {
+      <div class="convocatoria-countdown-simple">
+        <span class="days-num">{{ diasRestantes() }}</span>
+        <span class="days-lbl">días restantes</span>
+      </div>
+    }
   </div>
-  @if (diasRestantes() !== null) {
-    <div class="convocatoria-countdown">
-      <span class="days-num">{{ diasRestantes() }}</span>
-      <span class="days-lbl">Días Restantes</span>
+} @else {
+  <div class="convocatoria-card-portal" [class.abierta]="estaAbierta()">
+    <div class="convocatoria-info">
+      <div class="status-indicator-wrapper">
+        <span class="status-dot" [class.active]="estaAbierta()"></span>
+        <span class="conv-tag">{{
+          estaAbierta() ? 'Convocatoria Activa' : 'Convocatoria Finalizada'
+        }}</span>
+      </div>
+      <h3>{{ detalle() }}</h3>
+      <p>{{ mensaje() }}</p>
     </div>
-  }
-</div>
+    @if (diasRestantes() !== null) {
+      <div class="convocatoria-countdown">
+        <span class="days-num">{{ diasRestantes() }}</span>
+        <span class="days-lbl">Días Restantes</span>
+      </div>
+    }
+  </div>
+}

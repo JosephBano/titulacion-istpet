@@ -56,6 +56,7 @@ import { EgresadosTabComponent } from './components/egresados-tab/egresados-tab.
 import { ReportesTabComponent } from './components/reportes-tab/reportes-tab.component';
 import { RequisicionPersonalComponent } from './components/requisicion-personal/requisicion-personal.component';
 import { ConfiguracionComplexivoComponent } from './components/configuracion-complexivo/configuracion-complexivo.component';
+import { CronogramaTabComponent } from './components/cronograma-tab/cronograma-tab.component';
 import { RequisicionPersonalInicial } from '../../domain/models/requisicion-personal.model';
 
 @Component({
@@ -84,6 +85,7 @@ import { RequisicionPersonalInicial } from '../../domain/models/requisicion-pers
     ReportesTabComponent,
     RequisicionPersonalComponent,
     ConfiguracionComplexivoComponent,
+    CronogramaTabComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
@@ -135,6 +137,7 @@ export class DashboardComponent implements OnInit {
   portalCargando = signal<boolean>(false);
   modalidadSeleccionada = signal<number | null>(null);
   postulando = signal<boolean>(false);
+  cambiandoModalidad = signal<boolean>(false);
   subiendoRequisitoEstudianteId = signal<number | null>(null);
 
   // Estado del Gestor de Titulación (Convocatorias & Configuración)
@@ -553,10 +556,11 @@ export class DashboardComponent implements OnInit {
 
   // Modal de Dictamen (Gestor)
   dictamenModal = signal<{
-    visible: boolean;
     idPostulacion: number;
     decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR';
-    observaciones: string;
+    observaciones?: string;
+    nombreAlumno?: string;
+    cedulaAlumno?: string;
   } | null>(null);
 
   userRolesFormatted(): string {
@@ -741,9 +745,16 @@ export class DashboardComponent implements OnInit {
     };
 
     this.titulacionService.postular(req).subscribe({
-      next: () => {
+      next: (resp) => {
         this.postulando.set(false);
         this.mostrarMensaje('exito', '¡Postulación registrada exitosamente en el sistema!');
+        const currentPortal = this.portalEstudiante();
+        if (currentPortal && resp) {
+          this.portalEstudiante.set({
+            ...currentPortal,
+            postulacionActiva: resp,
+          });
+        }
         this.cargarPortalEstudiante();
       },
       error: (err) => {
@@ -754,6 +765,36 @@ export class DashboardComponent implements OnInit {
         );
       },
     });
+  }
+
+  onCambiarModalidadEstudiante(idNuevaModalidad: number): void {
+    const portal = this.portalEstudiante();
+    const postulacion = portal?.postulacionActiva;
+    if (!portal || !postulacion) {
+      this.mostrarMensaje('error', 'No se encontró un expediente de postulación para modificar.');
+      return;
+    }
+
+    this.cambiandoModalidad.set(true);
+    this.titulacionService
+      .solicitarCambioModalidad(postulacion.idPostulacionAlumnos, idNuevaModalidad)
+      .subscribe({
+        next: () => {
+          this.cambiandoModalidad.set(false);
+          this.mostrarMensaje(
+            'exito',
+            'Modalidad de postulación actualizada correctamente. Su expediente ha sido reasignado para evaluación de la Coordinación.',
+          );
+          this.cargarPortalEstudiante();
+        },
+        error: (err) => {
+          this.cambiandoModalidad.set(false);
+          this.mostrarMensaje(
+            'error',
+            this.extraerMensajeError(err, 'Error al cambiar la modalidad de titulación.'),
+          );
+        },
+      });
   }
 
   onSubirDocumentoEstudiante(evento: { req: PostulacionRequisitoDetalle; file: File }): void {
@@ -1171,7 +1212,7 @@ export class DashboardComponent implements OnInit {
 
     this.titulacionService.crearModalidadMaestra(payload).subscribe({
       next: () => {
-        this.mostrarMensaje('exito', 'Modalidad maestra creada exitosamente con sus requisitos.');
+        this.mostrarMensaje('exito', 'Modalidad creada exitosamente con sus requisitos.');
         this.nuevaModalidadModalVisible.set(false);
         this.resetNuevaModalidadForm();
         this.cargarConfiguracionesMaestras();
@@ -1190,7 +1231,7 @@ export class DashboardComponent implements OnInit {
 
     this.titulacionService.crearRequisitoMaestro(f).subscribe({
       next: () => {
-        this.mostrarMensaje('exito', 'Requisito maestro creado exitosamente.');
+        this.mostrarMensaje('exito', 'Requisito creado exitosamente.');
         this.nuevoRequisitoModalVisible.set(false);
         this.resetNuevoRequisitoForm();
         this.cargarConfiguracionesMaestras();
@@ -1310,7 +1351,7 @@ export class DashboardComponent implements OnInit {
       .subscribe({
         next: () => {
           this.guardandoEditarRequisito.set(false);
-          this.mostrarMensaje('exito', 'Requisito maestro actualizado correctamente.');
+          this.mostrarMensaje('exito', 'Requisito actualizado correctamente.');
           this.editarRequisitoModalVisible.set(false);
           this.cargarConfiguracionesMaestras();
         },
@@ -1468,15 +1509,21 @@ export class DashboardComponent implements OnInit {
   // Dictámenes y Calificación
   // ----------------------------------------------------
   onDictamenEvento(evento: DictamenEvento): void {
-    this.abrirModalDictamen(evento.idPostulacion, evento.decision);
+    this.abrirModalDictamen(evento.idPostulacion, evento.decision, evento.nombreAlumno, evento.cedulaAlumno);
   }
 
-  abrirModalDictamen(idPostulacion: number, decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR'): void {
+  abrirModalDictamen(
+    idPostulacion: number,
+    decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR',
+    nombreAlumno?: string,
+    cedulaAlumno?: string
+  ): void {
     this.dictamenModal.set({
-      visible: true,
       idPostulacion,
       decision,
       observaciones: '',
+      nombreAlumno,
+      cedulaAlumno,
     });
   }
 
@@ -1492,7 +1539,7 @@ export class DashboardComponent implements OnInit {
         ? {
             idPostulacionAlumnos: modal.idPostulacion,
             decision: modal.decision,
-            observaciones: modal.observaciones,
+            observaciones: modal.observaciones || '',
           }
         : null);
 

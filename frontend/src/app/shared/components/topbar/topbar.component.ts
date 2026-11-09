@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserPermissions } from '../../../core/models/auth.models';
+import { EstudiantePortal } from '../../../core/models/titulacion.models';
 import { CarreraUsuarioItem } from '../../../core/services/carreras.service';
 
 @Component({
@@ -18,6 +19,7 @@ export class TopbarComponent {
   isSidebarCollapsed = input<boolean>(false);
   currentUser = input<UserPermissions | null>(null);
   userRolesFormatted = input<string>('');
+  estudianteInfo = input<EstudiantePortal | null>(null);
   carrerasDisponibles = input<CarreraUsuarioItem[]>([]);
   carreraSeleccionada = input<CarreraUsuarioItem | null>(null);
   carrerasCargando = input<boolean>(false);
@@ -29,7 +31,7 @@ export class TopbarComponent {
   logout = output<void>();
 
   initial = computed(() => {
-    const nombre = this.currentUser()?.nombre;
+    const nombre = this.estudianteInfo()?.nombreCompleto || this.currentUser()?.nombre;
     return nombre ? nombre.charAt(0).toUpperCase() : 'U';
   });
 

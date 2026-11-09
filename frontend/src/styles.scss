@@ -548,6 +548,13 @@ body {
   text-overflow: ellipsis;
 }
 
+.istpet-user-menu .user-menu-ci {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted, #605e5c);
+  margin-top: 1px;
+}
+
 .istpet-user-menu .user-menu-role {
   font-size: 0.75rem;
   color: var(--istpet-gold-dark);

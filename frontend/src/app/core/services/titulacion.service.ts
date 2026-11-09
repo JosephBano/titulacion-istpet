@@ -73,6 +73,19 @@ export class TitulacionService {
     return this.http.post<PostulacionDetalle>(`${this.API_URL}/postulaciones`, request);
   }
 
+  public solicitarCambioModalidad(
+    idPostulacion: number,
+    idNuevaModalidadTitulacionCarrera: number,
+  ): Observable<void> {
+    return this.http.post<void>(
+      `${this.API_URL}/postulaciones/${idPostulacion}/solicitar-cambio-modalidad`,
+      {
+        idPostulacionAlumnos: idPostulacion,
+        idNuevaModalidadTitulacionCarrera,
+      },
+    );
+  }
+
   public actualizarRequisitosPostulacion(
     idPostulacion: number,
     requisitos: {
@@ -84,7 +97,9 @@ export class TitulacionService {
     return this.http.put<void>(`${this.API_URL}/postulaciones/${idPostulacion}/requisitos`, {
       idPostulacionAlumnos: idPostulacion,
       requisitos,
-    });
+    }).pipe(
+      tap(() => this.network.clearCachedData(`postulacion_detalle_${idPostulacion}`)),
+    );
   }
 
   public getPostulaciones(
@@ -115,14 +130,30 @@ export class TitulacionService {
     return this.http.get<EstadoPostulacion[]>(`${this.API_URL}/postulaciones/estados`);
   }
 
-  public getPostulacionPorId(id: number): Observable<PostulacionDetalle> {
-    return this.http.get<PostulacionDetalle>(this.API_URL + '/postulaciones/' + id);
+  public getPostulacionPorId(id: number, forceRefresh = false): Observable<PostulacionDetalle> {
+    const cacheKey = `postulacion_detalle_${id}`;
+
+    if (!forceRefresh) {
+      const cached = this.network.getCachedData<PostulacionDetalle>(cacheKey);
+      if (cached) return of(cached);
+    }
+
+    return this.http.get<PostulacionDetalle>(this.API_URL + '/postulaciones/' + id).pipe(
+      tap((data) => this.network.setCachedData(cacheKey, data, 10)),
+      catchError((error) => {
+        const cached = this.network.getCachedData<PostulacionDetalle>(cacheKey);
+        if (cached) return of(cached);
+        return throwError(() => error);
+      }),
+    );
   }
 
   public dictaminarPostulacion(request: DictamenPostulacionRequest): Observable<void> {
     return this.http.post<void>(
       `${this.API_URL}/postulaciones/${request.idPostulacionAlumnos}/dictamen`,
       request,
+    ).pipe(
+      tap(() => this.network.clearCachedData(`postulacion_detalle_${request.idPostulacionAlumnos}`)),
     );
   }
 

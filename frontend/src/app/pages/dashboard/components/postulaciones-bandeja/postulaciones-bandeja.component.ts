@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {
   PostulacionResumen,
@@ -12,10 +12,13 @@ import { ExpedienteAcademico } from '../../../../core/models/egresados.models';
 import { CarreraUsuarioItem } from '../../../../core/services/carreras.service';
 import { EgresadosService } from '../../../../core/services/egresados.service';
 import { TitulacionService } from '../../../../core/services/titulacion.service';
+import { environment } from '../../../../../environments/environment';
 
 export interface DictamenEvento {
   idPostulacion: number;
   decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR';
+  nombreAlumno?: string;
+  cedulaAlumno?: string;
 }
 
 @Component({
@@ -54,11 +57,12 @@ export class PostulacionesBandejaComponent {
   // Estado del Modal / Drawer de Examen Integral
   mostrarExamenModal = signal<boolean>(false);
   cargandoExamen = signal<boolean>(false);
+  cargandoExpedienteAcademico = signal<boolean>(false);
   errorExamen = signal<string | null>(null);
   postulacionResumenSeleccionada = signal<PostulacionResumen | null>(null);
   postulacionDetalleSeleccionada = signal<PostulacionDetalle | null>(null);
   expedienteSeleccionado = signal<ExpedienteAcademico | null>(null);
-  seccionExamen = signal<'academico' | 'requisitos' | 'pagos'>('academico');
+  seccionExamen = signal<'requisitos' | 'academico' | 'pagos'>('requisitos');
   semestreExpandido = signal<number | null>(null);
 
   totalPaginas = computed(() => {
@@ -140,8 +144,13 @@ export class PostulacionesBandejaComponent {
     this.tamanoPaginaChange.emit(size);
   }
 
-  emitirDictamen(idPostulacion: number, decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR'): void {
-    this.dictamen.emit({ idPostulacion, decision });
+  emitirDictamen(
+    idPostulacion: number,
+    decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR',
+    nombreAlumno?: string,
+    cedulaAlumno?: string
+  ): void {
+    this.dictamen.emit({ idPostulacion, decision, nombreAlumno, cedulaAlumno });
   }
 
   getEstadoClass(nombreEstado: string): string {
@@ -175,31 +184,22 @@ export class PostulacionesBandejaComponent {
     this.errorExamen.set(null);
     this.cargandoExamen.set(true);
     this.mostrarExamenModal.set(true);
-    this.seccionExamen.set('academico');
+    this.seccionExamen.set('requisitos'); // Abre directamente en requisitos y evidencias
     this.semestreExpandido.set(null);
 
-    // Cargar en paralelo tanto el detalle de la postulación (requisitos/evidencias) como el expediente académico curricular (malla y materias)
-    forkJoin({
-      postulacion: this.titulacionService.getPostulacionPorId(p.idPostulacionAlumnos).pipe(
-        catchError((err) => {
-          console.warn('No se pudo cargar el detalle de postulación:', err);
-          return of(null);
-        }),
-      ),
-      expediente: this.egresadosService.getExpedienteAcademico(p.idAlumno, p.idCarrera).pipe(
-        catchError((err) => {
-          console.warn('No se pudo cargar el expediente académico curricular:', err);
-          return of(null);
-        }),
-      ),
-    }).subscribe({
-      next: ({ postulacion, expediente }) => {
+    // Carga inmediata del detalle de la postulación (requisitos y evidencias)
+    this.titulacionService.getPostulacionPorId(p.idPostulacionAlumnos).pipe(
+      catchError((err) => {
+        console.warn('No se pudo cargar el detalle de postulación:', err);
+        return of(null);
+      }),
+    ).subscribe({
+      next: (postulacion) => {
         this.postulacionDetalleSeleccionada.set(postulacion);
-        this.expedienteSeleccionado.set(expediente);
         this.cargandoExamen.set(false);
       },
       error: () => {
-        this.errorExamen.set('No se pudo obtener la información completa del estudiante.');
+        this.errorExamen.set('No se pudo obtener el expediente de la postulación.');
         this.cargandoExamen.set(false);
       },
     });
@@ -210,13 +210,30 @@ export class PostulacionesBandejaComponent {
     this.postulacionResumenSeleccionada.set(null);
     this.postulacionDetalleSeleccionada.set(null);
     this.expedienteSeleccionado.set(null);
-    this.seccionExamen.set('academico');
+    this.seccionExamen.set('requisitos');
     this.semestreExpandido.set(null);
     this.errorExamen.set(null);
   }
 
-  cambiarSeccionExamen(seccion: 'academico' | 'requisitos' | 'pagos'): void {
+  cambiarSeccionExamen(seccion: 'requisitos' | 'academico' | 'pagos'): void {
     this.seccionExamen.set(seccion);
+
+    // Carga perezosa (lazy-load) del expediente académico sólo si el usuario hace clic en Malla o Pagos
+    if ((seccion === 'academico' || seccion === 'pagos') && !this.expedienteSeleccionado() && !this.cargandoExpedienteAcademico()) {
+      const p = this.postulacionResumenSeleccionada();
+      if (p) {
+        this.cargandoExpedienteAcademico.set(true);
+        this.egresadosService.getExpedienteAcademico(p.idAlumno, p.idCarrera).pipe(
+          catchError((err) => {
+            console.warn('No se pudo cargar el expediente académico curricular:', err);
+            return of(null);
+          }),
+        ).subscribe((expediente) => {
+          this.expedienteSeleccionado.set(expediente);
+          this.cargandoExpedienteAcademico.set(false);
+        });
+      }
+    }
   }
 
   toggleSemestre(idMatricula: number): void {
@@ -230,6 +247,20 @@ export class PostulacionesBandejaComponent {
   dictaminarDesdeExamen(decision: 'APROBAR' | 'OBSERVAR' | 'RECHAZAR'): void {
     const resumen = this.postulacionResumenSeleccionada();
     if (!resumen) return;
-    this.emitirDictamen(resumen.idPostulacionAlumnos, decision);
+    this.emitirDictamen(
+      resumen.idPostulacionAlumnos,
+      decision,
+      resumen.nombreAlumno,
+      resumen.cedulaAlumno
+    );
+  }
+
+  getArchivoUrl(ruta?: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http://') || ruta.startsWith('https://') || ruta.startsWith('blob:')) {
+      return ruta;
+    }
+    const cleanPath = ruta.startsWith('/') ? ruta : '/' + ruta;
+    return `${environment.apiBaseUrl}${cleanPath}`;
   }
 }

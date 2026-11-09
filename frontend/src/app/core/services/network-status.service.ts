@@ -101,4 +101,12 @@ export class NetworkStatusService {
       return null;
     }
   }
+
+  public clearCachedData(key: string): void {
+    try {
+      this.getStorage().removeItem(`titulacion_cache_${key}`);
+    } catch {
+      // Ignorar errores de almacenamiento
+    }
+  }
 }

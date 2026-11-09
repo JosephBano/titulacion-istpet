@@ -6,6 +6,7 @@
     [isSidebarCollapsed]="isSidebarCollapsed()"
     [currentUser]="currentUser()"
     [userRolesFormatted]="userRolesFormatted()"
+    [estudianteInfo]="portalEstudiante()?.estudiante || null"
     [carrerasDisponibles]="carrerasDisponibles()"
     [carreraSeleccionada]="carreraSeleccionada()"
     [carrerasCargando]="carrerasCargando()"
@@ -174,7 +175,7 @@
               class="sidebar-nav-item"
               [class.active]="activeTab() === 'requisitos'"
               (click)="setActiveTab('requisitos')"
-              title="Requisitos Maestros"
+              title="Requisitos y Evaluadores"
             >
               <span class="nav-icon">
                 <svg
@@ -190,7 +191,7 @@
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
               </span>
-              <span class="nav-label">Requisitos Maestros</span>
+              <span class="nav-label">Requisitos y Evaluadores</span>
               <span class="sidebar-counter">{{ requisitosMaestros().length }}</span>
             </button>
             <button
@@ -198,7 +199,7 @@
               class="sidebar-nav-item"
               [class.active]="activeTab() === 'modalidades'"
               (click)="setActiveTab('modalidades')"
-              title="Modalidades y Matriz"
+              title="Modalidades y Requisitos"
             >
               <span class="nav-icon">
                 <svg
@@ -215,7 +216,7 @@
                   <polyline points="2 12 12 17 22 12"></polyline>
                 </svg>
               </span>
-              <span class="nav-label">Modalidades y Matriz</span>
+              <span class="nav-label">Modalidades y Requisitos</span>
               <span class="sidebar-counter">{{ modalidadesMaestras().length }}</span>
             </button>
           </nav>
@@ -274,6 +275,32 @@
               ></span>
               <span class="nav-label">Configuración examen complexivo</span>
             </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'cronograma'"
+              [attr.aria-current]="activeTab() === 'cronograma' ? 'page' : null"
+              (click)="setActiveTab('cronograma')"
+              title="Cronograma y Calendario Institucional"
+            >
+              <span class="nav-icon"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" /></svg
+              ></span>
+              <span class="nav-label">Cronograma</span>
+            </button>
           </nav>
         </div>
       }
@@ -305,6 +332,32 @@
               </span>
               <span class="nav-label">Validar Requisitos</span>
             </button>
+            <button
+              type="button"
+              class="sidebar-nav-item"
+              [class.active]="activeTab() === 'cronograma'"
+              [attr.aria-current]="activeTab() === 'cronograma' ? 'page' : null"
+              (click)="setActiveTab('cronograma')"
+              title="Cronograma Académico"
+            >
+              <span class="nav-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </span>
+              <span class="nav-label">Cronograma</span>
+            </button>
           </nav>
         </div>
       }
@@ -335,30 +388,6 @@
                 </svg>
               </span>
               <span class="nav-label">Mi Proceso</span>
-            </button>
-            <button
-              type="button"
-              class="sidebar-nav-item"
-              [class.active]="activeTab() === 'guia'"
-              (click)="setActiveTab('guia')"
-              title="Guía Paso a Paso"
-            >
-              <span class="nav-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-              </span>
-              <span class="nav-label">Guía Paso a Paso</span>
             </button>
             <button
               type="button"
@@ -428,19 +457,16 @@
                 Planificación de Convocatorias
               }
               @case ('requisitos') {
-                Catálogos Maestros
+                Configuración de Requisitos
               }
               @case ('modalidades') {
-                Modalidades de Grado
+                Modalidades de Titulación
               }
               @case ('evaluacion') {
                 Validación y Dictamen
               }
               @case ('postulacion') {
                 Portal del Postulante
-              }
-              @case ('guia') {
-                Documentación Oficial
               }
               @case ('cronograma') {
                 Cronograma Institucional
@@ -476,13 +502,13 @@
                 Convocatorias y Cortes
               }
               @case ('requisitos') {
-                Requisitos Maestros
+                Requisitos y Evaluadores
                 <span class="page-header-badge"
                   >{{ requisitosMaestros().length }} configurados</span
                 >
               }
               @case ('modalidades') {
-                Modalidades y Matriz
+                Modalidades y Requisitos
                 <span class="page-header-badge">{{ modalidadesMaestras().length }} activas</span>
               }
               @case ('evaluacion') {
@@ -493,9 +519,6 @@
               }
               @case ('postulacion') {
                 Mi Proceso de Titulación
-              }
-              @case ('guia') {
-                Guía Oficial de Titulación
               }
               @case ('cronograma') {
                 Calendario Académico {{ currentYear }}
@@ -515,22 +538,6 @@
 
         <div class="page-header-right">
           <div class="header-tag header-date-tag">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
             <span>{{ fechaHoyTexto() }}</span>
           </div>
           @if (carreraSeleccionada(); as carrera) {
@@ -854,244 +861,26 @@
             [portal]="portalEstudiante()"
             [modalidadSeleccionada]="modalidadSeleccionada()"
             [postulando]="postulando()"
+            [cambiandoModalidad]="cambiandoModalidad()"
             [subiendoRequisitoId]="subiendoRequisitoEstudianteId()"
             [periodoNombreAmigable]="periodoNombreAmigable()"
             (modalidadSelect)="modalidadSeleccionada.set($event)"
             (enviarPostulacion)="enviarPostulacion()"
+            (cambiarModalidad)="onCambiarModalidadEstudiante($event)"
             (subirDocumento)="onSubirDocumentoEstudiante($event)"
           />
         }
+      }
 
-        @if (activeTab() === 'guia') {
-          <section class="fluent-section guia-section-official">
-            <div class="section-header">
-              <span class="section-eyebrow">REGLAMENTO Y NORMATIVA ACADÉMICA</span>
-              <h2 class="section-title">Guía Oficial de Titulación ISTPET</h2>
-              <p class="section-subtitle">
-                El Instituto Superior Tecnológico Pelileo contempla las siguientes modalidades
-                oficiales para la culminación de sus estudios:
-              </p>
-            </div>
-
-            <div class="guide-modalities-grid">
-              <!-- Modalidad 1: Examen Complexivo -->
-              <div class="guide-modality-card">
-                <div class="guide-modality-header">
-                  <div class="guide-modality-number">1</div>
-                  <div class="guide-modality-info">
-                    <span class="guide-modality-type">Evaluación Teórico-Práctica</span>
-                    <h3 class="guide-modality-title">Examen Complexivo</h3>
-                  </div>
-                </div>
-                <div class="guide-modality-body">
-                  <p class="guide-modality-desc">
-                    Consta de dos componentes: una prueba teórica de base estructurada (reactivos de
-                    conocimiento de la carrera) y una prueba práctica de resolución de caso o
-                    desarrollo técnico.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Modalidad 2: TIC / Tesis -->
-              <div class="guide-modality-card">
-                <div class="guide-modality-header">
-                  <div class="guide-modality-number">2</div>
-                  <div class="guide-modality-info">
-                    <span class="guide-modality-type">Proyecto de Titulación</span>
-                    <h3 class="guide-modality-title">
-                      Trabajo de Integración Curricular (TIC / Tesis)
-                    </h3>
-                  </div>
-                </div>
-                <div class="guide-modality-body">
-                  <p class="guide-modality-desc">
-                    Desarrollo de un proyecto técnico o aplicativo real con tutoría docente durante
-                    el período académico, finalizando con la defensa oral ante tribunal.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Modalidad 3: Artículo Científico -->
-              <div class="guide-modality-card">
-                <div class="guide-modality-header">
-                  <div class="guide-modality-number">3</div>
-                  <div class="guide-modality-info">
-                    <span class="guide-modality-type">Investigación y Publicación</span>
-                    <h3 class="guide-modality-title">Artículo Científico</h3>
-                  </div>
-                </div>
-                <div class="guide-modality-body">
-                  <p class="guide-modality-desc">
-                    Redacción de un artículo de investigación científica original bajo formato
-                    institucional con carta de aceptación o envío a revista indexada.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        }
-
-        @if (activeTab() === 'cronograma') {
-          @let crono = cronogramaEstudiante();
-          <section class="fluent-section cronograma-section-student">
-            <!-- Header con información de la cohorte -->
-            <div class="cronograma-hero-header">
-              <div class="cronograma-hero-titles">
-                <span class="section-eyebrow">CALENDARIO ACADÉMICO OFICIAL ISTPET</span>
-                <h2 class="section-title">Cronograma de Titulación y Fechas Clave</h2>
-                <p class="section-subtitle">
-                  {{ crono.detalleConvocatoria }} — Consulte los plazos oficiales de postulación,
-                  validación documental, ejecución académica y sustentaciones.
-                </p>
-              </div>
-              <div class="cronograma-hero-badge-wrap">
-                <span class="cronograma-cohort-badge">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg>
-                  {{ periodoNombreAmigable() }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Stepper / Grid de Fases Dinámicas del Cronograma -->
-            <div class="cronograma-timeline-grid">
-              @for (f of crono.fases; track f.fase) {
-                <div class="timeline-phase-card" [class.phase-card--active]="f.esActiva">
-                  <div class="phase-card-top">
-                    <div class="phase-number-badge">{{ f.fase }}</div>
-                    <span class="phase-status-pill" [ngClass]="f.estadoClase">
-                      @if (f.esActiva) {
-                        <span class="pulse-dot"></span>
-                      }
-                      {{ f.estado }}
-                    </span>
-                  </div>
-                  <div class="phase-card-content">
-                    <span class="phase-stage-tag">{{ f.etiqueta }}</span>
-                    <h3 class="phase-title">{{ f.titulo }}</h3>
-                    <div class="phase-date-box">
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      @if (f.fechaInicio && f.fechaFin) {
-                        <span
-                          >{{ f.fechaInicio | date: 'dd MMM yyyy' }} —
-                          {{ f.fechaFin | date: 'dd MMM yyyy' }} ({{ f.duracionDias }} días)</span
-                        >
-                      } @else {
-                        <span>{{ f.rangoTexto }}</span>
-                      }
-                    </div>
-                    <p class="phase-desc">{{ f.descripcion }}</p>
-                  </div>
-                  <div class="phase-card-footer">
-                    <span class="phase-milestone-label">Hito clave:</span>
-                    <span class="phase-milestone-text">{{ f.hito }}</span>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Prórroga Extraordinaria (si aplica según convocatoria) -->
-            @if (crono.prorroga) {
-              <div class="cronograma-prorroga-banner">
-                <div class="prorroga-badge-wrap">
-                  <span class="phase-stage-tag">PERÍODO EXTRAORDINARIO</span>
-                  <strong class="prorroga-title">Plazo de Gracia / Prórroga Reglamentaria</strong>
-                </div>
-                <div class="prorroga-body">
-                  <div class="phase-date-box">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span
-                      >{{ crono.prorroga.fechaInicio | date: 'dd MMM yyyy' }} —
-                      {{ crono.prorroga.fechaFin | date: 'dd MMM yyyy' }} ({{
-                        crono.prorroga.diasExtension
-                      }}
-                      días de extensión)</span
-                    >
-                  </div>
-                  <p class="phase-desc">
-                    Período adicional habilitado para culminación de trabajos con previa aprobación
-                    de la Comisión de Titulación conforme al RRA.
-                  </p>
-                </div>
-              </div>
-            }
-
-            <!-- Panel de Notificaciones y Recomendaciones Académicas -->
-            <div class="cronograma-guidelines-box">
-              <div class="guidelines-icon-col">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-              <div class="guidelines-content-col">
-                <h4 class="guidelines-title">Recomendaciones Importantes del Cronograma</h4>
-                <div class="guidelines-items-grid">
-                  <div class="guideline-item">
-                    <strong>Puntualidad en Entregas:</strong>
-                    <span
-                      >El sistema cerrará automáticamente las postulaciones al vencer la fecha
-                      límite ordinaria de la cohorte.</span
-                    >
-                  </div>
-                  <div class="guideline-item">
-                    <strong>Requisitos Finales:</strong>
-                    <span
-                      >Los documentos como suficiencia de idioma y vinculación deben estar validados
-                      antes del inicio de las Defensas de Grado.</span
-                    >
-                  </div>
-                  <div class="guideline-item">
-                    <strong>Prórroga Reglamentaria:</strong>
-                    <span
-                      >En caso de requerir prórroga académica, esta debe solicitarse formalmente
-                      ante la Comisión conforme al RRA.</span
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        }
+      <!-- ============================================================ -->
+      <!-- CRONOGRAMA DE TITULACIÓN Y FECHAS CLAVE (CALENDARIO COMPLETO)-->
+      <!-- ============================================================ -->
+      @if (activeTab() === 'cronograma') {
+        <app-cronograma-tab
+          [convocatoria]="convocatoriaActiva()"
+          [portalEstudiante]="portalEstudiante()"
+          [periodoAmigable]="periodoNombreAmigable()"
+        />
       }
 
       <!-- ============================================================ -->
@@ -1140,12 +929,7 @@
         }
       }
 
-      <!-- Footer Legal -->
-      <footer class="fluent-legal">
-        <span>© {{ currentYear }} Instituto Tecnológico Superior Traversari</span>
-        <span aria-hidden="true">·</span>
-        <span>Sistema de Titulación Académica ISTPET</span>
-      </footer>
+
     </main>
   </div>
 
@@ -1161,12 +945,12 @@
     (nuevaModalidad)="nuevaModalidadModalVisible.set(true)"
   />
 
-  <!-- 2. Drawer de Nuevo Requisito Maestro -->
+  <!-- 2. Drawer de Nuevo Requisito -->
   <app-drawer
     [isOpen]="nuevoRequisitoModalVisible()"
-    title="Crear Requisito Maestro"
-    subtitle="Configure el nuevo requisito institucional y sus condiciones"
-    eyebrow="CATÁLOGO INSTITUCIONAL"
+    title="Crear Requisito de Titulación"
+    subtitle="Configure el nuevo requisito institucional y sus condiciones de validación"
+    eyebrow="REQUISITOS Y EVALUADORES"
     size="sm"
     [hasDirtyData]="nuevoRequisitoForm().requisito.trim().length > 0"
     (closed)="nuevoRequisitoModalVisible.set(false)"
@@ -1317,12 +1101,12 @@
     </div>
   </app-drawer>
 
-  <!-- 3. Drawer de Nueva Modalidad Maestra -->
+  <!-- 3. Drawer de Nueva Modalidad -->
   <app-drawer
     [isOpen]="nuevaModalidadModalVisible()"
-    title="Crear Modalidad Maestra"
-    subtitle="Configure una nueva opción de grado institucional y sus requisitos iniciales"
-    eyebrow="CATÁLOGO INSTITUCIONAL"
+    title="Crear Modalidad de Titulación"
+    subtitle="Configure una nueva opción de titulación institucional y sus requisitos iniciales"
+    eyebrow="MODALIDADES Y REQUISITOS"
     size="md"
     [hasDirtyData]="
       nuevaModalidadForm().modalidadTitulacion.trim().length > 0 ||
@@ -1649,18 +1433,18 @@
     </div>
   </app-drawer>
 
-  <!-- 4. Drawer de Matriz Requisitos - Modalidad -->
+  <!-- 4. Drawer de Requisitos Exigidos por Modalidad -->
   <app-drawer
     [isOpen]="matrizModalVisible()"
-    title="Matriz de Requisitos"
+    title="Requisitos Exigidos para la Modalidad"
     [subtitle]="'Modalidad: ' + (modalidadSeleccionadaMatriz()?.modalidadTitulacion || '')"
-    eyebrow="ASOCIACIÓN DE REQUISITOS"
+    eyebrow="REQUISITOS POR MODALIDAD"
     size="md"
     [hasDirtyData]="false"
     (closed)="matrizModalVisible.set(false)"
   >
     <div class="req-drawer-content">
-      <!-- Sección de Búsqueda y Autocompletado Instantáneo (Igual que en Docentes) -->
+      <!-- Sección de Búsqueda y Autocompletado Instantáneo -->
       <div class="matriz-add-section">
         <div class="section-title-row">
           <label class="req-form-label" for="buscarReqMatriz">
@@ -1690,7 +1474,7 @@
               id="buscarReqMatriz"
               type="text"
               class="fluent-input req-styled-input-search"
-              placeholder="Escriba o seleccione un requisito para asociar..."
+              placeholder="Escriba o seleccione un requisito para asociar a esta modalidad..."
               [ngModel]="busquedaRequisitoMatriz()"
               (ngModelChange)="onBusquedaMatrizInput($event)"
               (focus)="onFocusBusquedaMatriz()"
@@ -1723,7 +1507,7 @@
                 <div class="dropdown-header">
                   <span
                     >{{ requisitosDisponiblesParaMatriz().length }} requisito(s) disponible(s) en
-                    catálogo</span
+                    el catálogo</span
                   >
                 </div>
                 <ul class="dropdown-list">
@@ -1771,10 +1555,10 @@
       <div class="matriz-list-section">
         <div class="section-title-row">
           <div>
-            <span class="req-options-header">REQUISITOS ASOCIADOS A ESTA MODALIDAD</span>
+            <span class="req-options-header">REQUISITOS EXIGIDOS PARA ESTA MODALIDAD</span>
           </div>
           <span class="count-badge-disponibles">
-            {{ requisitosAsignadosMatriz().length }} asociado(s)
+            {{ requisitosAsignadosMatriz().length }} exigido(s)
           </span>
         </div>
 
@@ -1877,12 +1661,12 @@
     (cambioAsignaciones)="cargarConfiguracionesMaestras()"
   />
 
-  <!-- 7. Drawer de Editar Modalidad Maestra -->
+  <!-- 7. Drawer de Editar Modalidad -->
   <app-drawer
     [isOpen]="editarModalidadModalVisible()"
     title="Editar Modalidad de Titulación"
     subtitle="Modifique el nombre oficial, cantidad mínima de integrantes y características de la modalidad"
-    eyebrow="CATÁLOGO INSTITUCIONAL"
+    eyebrow="MODALIDADES Y REQUISITOS"
     size="md"
     [hasDirtyData]="false"
     (closed)="editarModalidadModalVisible.set(false)"
@@ -2030,12 +1814,12 @@
     </div>
   </app-drawer>
 
-  <!-- 8. Drawer de Editar Requisito Maestro -->
+  <!-- 8. Drawer de Editar Requisito -->
   <app-drawer
     [isOpen]="editarRequisitoModalVisible()"
-    title="Editar Requisito Maestro"
+    title="Editar Requisito de Titulación"
     subtitle="Modifique el nombre y los parámetros de validación del requisito"
-    eyebrow="CATÁLOGO INSTITUCIONAL"
+    eyebrow="REQUISITOS Y EVALUADORES"
     size="md"
     [hasDirtyData]="false"
     (closed)="editarRequisitoModalVisible.set(false)"

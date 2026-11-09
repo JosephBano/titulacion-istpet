@@ -1,38 +1,5 @@
 <section class="bandeja-container">
-  <!-- 1. Encabezado de la Bandeja -->
-  <header class="bandeja-header-row">
-    <div class="bandeja-titles">
-      <span class="bandeja-eyebrow">BANDEJA INSTITUCIONAL DE GESTIÓN</span>
-      <h2 class="bandeja-title">Postulaciones de Titulación</h2>
-    </div>
-    <div class="bandeja-header-actions">
-      <button
-        type="button"
-        class="btn-icon-text"
-        (click)="refrescar.emit()"
-        title="Actualizar listado"
-        [disabled]="loading()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          [class.animate-spin]="loading()"
-        >
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <polyline points="1 20 1 14 7 14"></polyline>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-        </svg>
-        <span>Actualizar</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- 2. Barra de Filtros en Una Sola Línea Horizontal (Sin caja contenedora, flotante) -->
+  <!-- 1. Barra de Filtros y Acciones en Una Sola Línea Horizontal -->
   <div class="filters-single-row">
     <!-- Buscador compacto -->
     <div class="search-box-compact">
@@ -131,62 +98,75 @@
         <span>Limpiar</span>
       </button>
     }
+
+    <div class="filters-spacer"></div>
+
+    <!-- Botón Actualizar Listado -->
+    <button
+      type="button"
+      class="btn-icon-text"
+      (click)="refrescar.emit()"
+      title="Actualizar listado"
+      [disabled]="loading()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        [class.animate-spin]="loading()"
+      >
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      <span>Actualizar</span>
+    </button>
   </div>
 
-  <!-- 3. Grid de Tarjetas de Postulación Flotantes (Sin caja ni marco de fondo) -->
+  <!-- 2. Tabla Común de Postulaciones -->
   @if (loading()) {
     <div
-      class="cards-grid skeleton-grid"
+      class="fluent-table-wrapper table-skeleton-box"
       aria-busy="true"
       aria-label="Cargando expedientes de titulación"
     >
-      @for (item of skeletonItems; track item) {
-        <article class="card-item skeleton-card">
-          <!-- Top: ID y Estado Skeleton -->
-          <div class="card-header">
-            <span class="skeleton-line skeleton-id"></span>
-            <span class="skeleton-line skeleton-status"></span>
-          </div>
-
-          <!-- Estudiante Skeleton -->
-          <div class="card-student">
-            <div class="skeleton-line skeleton-name"></div>
-            <div class="skeleton-line skeleton-meta"></div>
-          </div>
-
-          <!-- Detalles Académicos Skeleton -->
-          <div class="card-details">
-            <div class="detail-item">
-              <span class="skeleton-line skeleton-key"></span>
-              <span class="skeleton-line skeleton-val-lg"></span>
-            </div>
-            <div class="detail-item">
-              <span class="skeleton-line skeleton-key"></span>
-              <span class="skeleton-line skeleton-val-md"></span>
-            </div>
-            <div class="detail-item">
-              <span class="skeleton-line skeleton-key"></span>
-              <span class="skeleton-line skeleton-badge"></span>
-            </div>
-          </div>
-
-          <!-- Progreso de Requisitos Skeleton -->
-          <div class="card-progress">
-            <div class="progress-info">
-              <span class="skeleton-line skeleton-prog-label"></span>
-              <span class="skeleton-line skeleton-prog-count"></span>
-            </div>
-            <div class="progress-track skeleton-track"></div>
-          </div>
-
-          <!-- Acciones Skeleton -->
-          <div class="card-actions">
-            <div class="skeleton-btn"></div>
-            <div class="skeleton-btn"></div>
-            <div class="skeleton-btn"></div>
-          </div>
-        </article>
-      }
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th style="width: 55px;">#</th>
+            <th>Estudiante</th>
+            <th>Carrera</th>
+            <th>Modalidad</th>
+            <th>Finanzas</th>
+            <th>Requisitos</th>
+            <th>Estado</th>
+            <th class="text-right" style="width: 250px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of skeletonItems; track item) {
+            <tr>
+              <td><span class="skeleton-line skeleton-w-xs"></span></td>
+              <td>
+                <div class="skeleton-line skeleton-w-md"></div>
+                <div class="skeleton-line skeleton-w-sm" style="margin-top: 4px;"></div>
+              </td>
+              <td><span class="skeleton-line skeleton-w-md"></span></td>
+              <td><span class="skeleton-line skeleton-w-sm"></span></td>
+              <td><span class="skeleton-line skeleton-badge"></span></td>
+              <td><span class="skeleton-line skeleton-w-xs"></span></td>
+              <td><span class="skeleton-line skeleton-badge"></span></td>
+              <td class="text-right">
+                <span class="skeleton-line skeleton-w-sm skeleton-right"></span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   } @else if (postulaciones().length === 0) {
     <div class="empty-state-box">
@@ -237,37 +217,37 @@
       }
     </div>
   } @else {
-    <div class="cards-grid">
-      @for (p of postulaciones(); track p.idPostulacionAlumnos) {
-        <article class="card-item" [ngClass]="getEstadoClass(p.nombreEstado)">
-          <!-- Top: ID y Estado -->
-          <div class="card-header">
-            <span class="card-id">#{{ p.idPostulacionAlumnos }}</span>
-            <span class="card-status-tag">
-              <span class="status-dot" [ngClass]="getEstadoDotClass(p.nombreEstado)"></span>
-              <span class="status-name">{{ p.nombreEstado }}</span>
-            </span>
-          </div>
-
-          <!-- Estudiante -->
-          <div class="card-student">
-            <h3 class="student-name" [title]="p.nombreAlumno">{{ p.nombreAlumno }}</h3>
-            <span class="student-meta">C.I. {{ p.cedulaAlumno }}</span>
-          </div>
-
-          <!-- Detalles Académicos -->
-          <div class="card-details">
-            <div class="detail-item">
-              <span class="detail-key">Carrera:</span>
-              <span class="detail-val" [title]="p.nombreCarrera">{{ p.nombreCarrera }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-key">Modalidad:</span>
-              <span class="detail-val font-semibold">{{ p.modalidadTitulacion }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-key">Finanzas:</span>
-              <span class="detail-val">
+    <div class="fluent-table-wrapper">
+      <table class="fluent-table">
+        <thead>
+          <tr>
+            <th style="width: 55px;">#</th>
+            <th>Estudiante</th>
+            <th>Carrera</th>
+            <th>Modalidad</th>
+            <th>Finanzas</th>
+            <th>Requisitos</th>
+            <th>Estado</th>
+            <th class="text-right" style="width: 260px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of postulaciones(); track p.idPostulacionAlumnos) {
+            <tr [ngClass]="getEstadoClass(p.nombreEstado)">
+              <td class="cell-id">
+                <span class="id-tag">#{{ p.idPostulacionAlumnos }}</span>
+              </td>
+              <td class="cell-student">
+                <div class="student-name-cell" [title]="p.nombreAlumno">{{ p.nombreAlumno }}</div>
+                <div class="student-ci-cell">C.I. {{ p.cedulaAlumno }}</div>
+              </td>
+              <td class="cell-carrera">
+                <span class="carrera-text" [title]="p.nombreCarrera">{{ p.nombreCarrera }}</span>
+              </td>
+              <td class="cell-modalidad">
+                <span class="modalidad-text">{{ p.modalidadTitulacion }}</span>
+              </td>
+              <td class="cell-finanzas">
                 @if (p.noAdeuda === true) {
                   <span
                     class="status-badge financas-al-dia"
@@ -285,7 +265,7 @@
                     >
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    Al Día (No Adeuda)
+                    Al Día
                   </span>
                 } @else if (p.noAdeuda === false) {
                   <span
@@ -319,97 +299,100 @@
                 } @else {
                   <span class="status-badge financas-pendiente">Pendiente</span>
                 }
-              </span>
-            </div>
-          </div>
+              </td>
+              <td class="cell-requisitos">
+                <div class="req-progress-wrap" [title]="p.totalRequisitosCompletados + ' de ' + p.totalRequisitos + ' requisitos aprobados'">
+                  <span class="req-count">
+                    {{ p.totalRequisitosCompletados }} / {{ p.totalRequisitos }}
+                  </span>
+                  <div class="req-mini-track">
+                    <div
+                      class="req-mini-bar"
+                      [style.width.%]="
+                        getPorcentajeRequisitos(p.totalRequisitosCompletados, p.totalRequisitos)
+                      "
+                    ></div>
+                  </div>
+                </div>
+              </td>
+              <td class="cell-estado">
+                <span class="card-status-tag">
+                  <span class="status-dot" [ngClass]="getEstadoDotClass(p.nombreEstado)"></span>
+                  <span class="status-name">{{ p.nombreEstado }}</span>
+                </span>
+              </td>
+              <td class="text-right cell-actions">
+                <div class="table-actions-group">
+                  <button
+                    type="button"
+                    class="action-btn action-btn--examine"
+                    (click)="examinarPostulacion(p)"
+                    title="Examinar historial académico, requisitos y finanzas"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                    >
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Examinar</span>
+                  </button>
 
-          <!-- Progreso de Requisitos -->
-          <div class="card-progress">
-            <div class="progress-info">
-              <span class="progress-title">Requisitos Verificados</span>
-              <span class="progress-count">
-                {{ p.totalRequisitosCompletados }} / {{ p.totalRequisitos }}
-              </span>
-            </div>
-            <div class="progress-track">
-              <div
-                class="progress-bar"
-                [style.width.%]="
-                  getPorcentajeRequisitos(p.totalRequisitosCompletados, p.totalRequisitos)
-                "
-              ></div>
-            </div>
-          </div>
+                  <button
+                    type="button"
+                    class="action-btn action-btn--approve"
+                    (click)="emitirDictamen(p.idPostulacionAlumnos, 'APROBAR', p.nombreAlumno, p.cedulaAlumno)"
+                    title="Aprobar postulación formal"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Aprobar</span>
+                  </button>
 
-          <!-- Acciones Minimalistas -->
-          <div class="card-actions">
-            <button
-              type="button"
-              class="action-btn action-btn--examine"
-              (click)="examinarPostulacion(p)"
-              title="Examinar historial académico (26 materias), requisitos y finanzas"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-              >
-                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-              <span>Examinar</span>
-            </button>
-
-            <button
-              type="button"
-              class="action-btn action-btn--approve"
-              (click)="emitirDictamen(p.idPostulacionAlumnos, 'APROBAR')"
-              title="Aprobar postulación formal"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Aprobar</span>
-            </button>
-
-            <button
-              type="button"
-              class="action-btn action-btn--reject"
-              (click)="emitirDictamen(p.idPostulacionAlumnos, 'RECHAZAR')"
-              title="Rechazar solicitud"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-              <span>Rechazar</span>
-            </button>
-          </div>
-        </article>
-      }
+                  <button
+                    type="button"
+                    class="action-btn action-btn--reject"
+                    (click)="emitirDictamen(p.idPostulacionAlumnos, 'RECHAZAR', p.nombreAlumno, p.cedulaAlumno)"
+                    title="Rechazar solicitud"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>Rechazar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
-    <!-- 4. Paginador Integrado -->
+    <!-- 3. Paginador Integrado -->
     <footer class="bandeja-pagination">
       <div class="pagination-left">
         <span class="pagination-range-text">
@@ -593,18 +576,18 @@
           </div>
         } @else {
           <!-- Tarjeta de Contacto Rápido del Estudiante -->
-          @if (expedienteSeleccionado(); as exp) {
+          @if (postulacionDetalleSeleccionada(); as post) {
             <div class="contact-card">
               <div class="contact-card-header">
                 <h4 class="contact-card-title">Datos del Postulante</h4>
-                <span class="contact-badge">Contacto y Localización</span>
+                <span class="contact-badge">Expediente #{{ post.idPostulacionAlumnos }}</span>
               </div>
               <div class="contact-grid">
                 <div class="contact-item">
-                  <span class="contact-label">Correo Personal</span>
-                  @if (exp.email) {
-                    <a [href]="'mailto:' + exp.email" class="contact-link email-link">
-                      {{ exp.email }}
+                  <span class="contact-label">Correo Institucional / Personal</span>
+                  @if (post.emailAlumno) {
+                    <a [href]="'mailto:' + post.emailAlumno" class="contact-link email-link">
+                      {{ post.emailAlumno }}
                     </a>
                   } @else {
                     <span class="contact-muted">No registrado</span>
@@ -612,29 +595,18 @@
                 </div>
 
                 <div class="contact-item">
-                  <span class="contact-label">Correo Institucional</span>
-                  @if (exp.emailInstitucional) {
-                    <a [href]="'mailto:' + exp.emailInstitucional" class="contact-link email-link">
-                      {{ exp.emailInstitucional }}
-                    </a>
-                  } @else {
-                    <span class="contact-muted">No registrado</span>
-                  }
-                </div>
-
-                <div class="contact-item">
-                  <span class="contact-label">Celular / WhatsApp</span>
-                  @if (exp.celular) {
+                  <span class="contact-label">Celular / Teléfono</span>
+                  @if (post.telefonoAlumno) {
                     <div class="contact-phone-group">
-                      <a [href]="'tel:' + exp.celular" class="contact-link phone-link">
-                        {{ exp.celular }}
+                      <a [href]="'tel:' + post.telefonoAlumno" class="contact-link phone-link">
+                        {{ post.telefonoAlumno }}
                       </a>
                       <a
                         [href]="
                           'https://wa.me/' +
-                          (exp.celular.startsWith('0')
-                            ? '593' + exp.celular.substring(1)
-                            : exp.celular)
+                          (post.telefonoAlumno.startsWith('0')
+                            ? '593' + post.telefonoAlumno.substring(1)
+                            : post.telefonoAlumno)
                         "
                         target="_blank"
                         rel="noopener noreferrer"
@@ -650,55 +622,28 @@
                 </div>
 
                 <div class="contact-item">
-                  <span class="contact-label">Teléfono Fijo</span>
-                  @if (exp.telefono) {
-                    <a [href]="'tel:' + exp.telefono" class="contact-link phone-link">
-                      {{ exp.telefono }}
-                    </a>
-                  } @else {
-                    <span class="contact-muted">No registrado</span>
-                  }
+                  <span class="contact-label">Convocatoria / Cohorte</span>
+                  <span class="contact-text">{{ post.detalleCohorte || 'Convocatoria Vigente' }}</span>
                 </div>
 
-                <div class="contact-item full-width">
-                  <span class="contact-label">Dirección Domiciliaria</span>
-                  <span class="contact-text">
-                    {{
-                      exp.direccion
-                        ? exp.direccion +
-                          (exp.ciudadResidencia ? ' (' + exp.ciudadResidencia + ')' : '')
-                        : exp.ciudadResidencia || 'No registrada'
-                    }}
-                  </span>
+                <div class="contact-item">
+                  <span class="contact-label">Finanzas SIGAFI</span>
+                  @if (post.noAdeuda === true) {
+                    <span class="status-badge financas-al-dia">Al Día (No Adeuda)</span>
+                  } @else if (post.noAdeuda === false) {
+                    <span class="status-badge financas-deuda">
+                      Adeuda ${{ (post.saldoPendiente || 0) | number: '1.2-2' }}
+                    </span>
+                  } @else {
+                    <span class="status-badge financas-pendiente">Pendiente</span>
+                  }
                 </div>
               </div>
             </div>
           }
 
-          <!-- Pestañas de Navegación Interna -->
+          <!-- Pestañas de Navegación Interna: Requisitos Primero -->
           <div class="expediente-nav-tabs">
-            <button
-              type="button"
-              class="expediente-tab-btn"
-              [class.active]="seccionExamen() === 'academico'"
-              (click)="cambiarSeccionExamen('academico')"
-            >
-              <svg
-                class="tab-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              </svg>
-              <span>Malla y Asignaturas (26 Materias)</span>
-            </button>
-
             <button
               type="button"
               class="expediente-tab-btn"
@@ -730,6 +675,31 @@
             <button
               type="button"
               class="expediente-tab-btn"
+              [class.active]="seccionExamen() === 'academico'"
+              (click)="cambiarSeccionExamen('academico')"
+            >
+              <svg
+                class="tab-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>Malla y Asignaturas (26 Materias)</span>
+              @if (cargandoExpedienteAcademico()) {
+                <span class="tab-badge info">Cargando...</span>
+              }
+            </button>
+
+            <button
+              type="button"
+              class="expediente-tab-btn"
               [class.active]="seccionExamen() === 'pagos'"
               (click)="cambiarSeccionExamen('pagos')"
             >
@@ -747,7 +717,9 @@
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
               <span>Finanzas SIGAFI</span>
-              @if (expedienteSeleccionado()?.financiero; as fin) {
+              @if (cargandoExpedienteAcademico()) {
+                <span class="tab-badge info">Cargando...</span>
+              } @else if (expedienteSeleccionado()?.financiero; as fin) {
                 @if (fin.estaAlDia) {
                   <span class="tab-badge al-dia">Al Día</span>
                 } @else {
@@ -759,9 +731,14 @@
             </button>
           </div>
 
-          <!-- SECCIÓN 1: EXPEDIENTE ACADÉMICO / 26 MATERIAS -->
+          <!-- SECCIÓN: EXPEDIENTE ACADÉMICO / 26 MATERIAS -->
           @if (seccionExamen() === 'academico') {
-            @if (expedienteSeleccionado(); as exp) {
+            @if (cargandoExpedienteAcademico()) {
+              <div class="state-container">
+                <div class="spinner"></div>
+                <p class="state-text">Cargando malla curricular y materias del estudiante...</p>
+              </div>
+            } @else if (expedienteSeleccionado(); as exp) {
               <!-- Métricas Clave de Avance -->
               <div class="expediente-info-grid">
                 <div class="info-block">
@@ -1096,7 +1073,7 @@
                               <span class="file-name">{{ req.nombreArchivoAdjunto }}</span>
                               @if (req.rutaArchivoAdjunto) {
                                 <a
-                                  [href]="req.rutaArchivoAdjunto"
+                                  [href]="getArchivoUrl(req.rutaArchivoAdjunto)"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   class="file-action-link"
