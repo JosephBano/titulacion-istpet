@@ -69,6 +69,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IActoresService, ActoresService>();
         services.AddScoped<IAcademicoService, AcademicoService>();
         services.AddScoped<IEgresadosService, EgresadosService>();
+        services.AddScoped<IPagosTitulacionService, PagosTitulacionService>();
 
         return services;
     }
