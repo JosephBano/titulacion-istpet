@@ -8,6 +8,12 @@ import {
   LoginResponse,
   UserPermissions,
   RefreshTokenRequest,
+  ValidarDocumentoRecuperacionRequest,
+  ValidarDocumentoRecuperacionResponse,
+  ValidarFechaNacimientoRequest,
+  ValidarFechaNacimientoResponse,
+  RestablecerContrasenaRequest,
+  RestablecerContrasenaResponse,
 } from '../models/auth.models';
 
 @Injectable({
@@ -67,6 +73,41 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
       tap((response) => this.handleAuthSuccess(response)),
       catchError((error) => throwError(() => error)),
+    );
+  }
+
+  public validarDocumentoRecuperacion(
+    numeroDocumento: string,
+  ): Observable<ValidarDocumentoRecuperacionResponse> {
+    const payload: ValidarDocumentoRecuperacionRequest = {
+      numeroDocumento: numeroDocumento.trim(),
+    };
+    return this.http.post<ValidarDocumentoRecuperacionResponse>(
+      `${this.API_URL}/recuperacion/validar-documento`,
+      payload,
+    );
+  }
+
+  public validarFechaNacimiento(
+    numeroDocumento: string,
+    fechaNacimiento: string,
+  ): Observable<ValidarFechaNacimientoResponse> {
+    const payload: ValidarFechaNacimientoRequest = {
+      numeroDocumento: numeroDocumento.trim(),
+      fechaNacimiento,
+    };
+    return this.http.post<ValidarFechaNacimientoResponse>(
+      `${this.API_URL}/recuperacion/validar-fecha-nacimiento`,
+      payload,
+    );
+  }
+
+  public restablecerContrasena(
+    request: RestablecerContrasenaRequest,
+  ): Observable<RestablecerContrasenaResponse> {
+    return this.http.post<RestablecerContrasenaResponse>(
+      `${this.API_URL}/recuperacion/restablecer-contrasena`,
+      request,
     );
   }
 

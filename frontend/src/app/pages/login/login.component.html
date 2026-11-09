@@ -53,118 +53,425 @@
 
   <!-- Tarjeta de Login Centrada (OCR Style) -->
   <main class="ocr-login-card" role="main">
-    <header class="ocr-card-header">
-      <div class="ocr-logo-container">
-        <img
-          [src]="isDarkMode() ? 'logo_blanco.webp' : 'logo_istpet_color.webp'"
-          alt="Logo ISTPET"
-          class="ocr-logo-img"
-        />
-      </div>
-      <span class="ocr-eyebrow">PORTAL DE TITULACIÓN ACADÉMICA</span>
-      <h1 class="ocr-title">Iniciar sesión</h1>
-      <p class="ocr-subtitle">Ingresa tus credenciales institucionales para continuar</p>
-    </header>
+    @if (!modoRecuperacion()) {
+      <header class="ocr-card-header">
+        <div class="ocr-logo-container">
+          <img
+            [src]="isDarkMode() ? 'logo_blanco.webp' : 'logo_istpet_color.webp'"
+            alt="Logo ISTPET"
+            class="ocr-logo-img"
+          />
+        </div>
+        <span class="ocr-eyebrow">PORTAL DE TITULACIÓN ACADÉMICA</span>
+        <h1 class="ocr-title">Iniciar sesión</h1>
+        <p class="ocr-subtitle">Ingresa tus credenciales institucionales para continuar</p>
+      </header>
 
-    @if (errorMessage()) {
-      <div class="ocr-error-alert" role="alert">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          class="ocr-alert-icon"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="8" x2="12" y2="12" />
-          <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-        <span>{{ errorMessage() }}</span>
-      </div>
-    }
+      @if (errorMessage()) {
+        <div class="ocr-error-alert" role="alert">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="ocr-alert-icon"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
 
-    <form (ngSubmit)="onSubmit()" class="ocr-form" novalidate>
-      <div class="ocr-field">
-        <label for="f-username" class="ocr-label">Documento de Identidad</label>
-        <input
-          id="f-username"
-          type="text"
-          name="username"
-          class="ocr-input"
-          [(ngModel)]="usernameOrEmail"
-          placeholder="Documento de identidad"
-          autocomplete="username"
-          required
-        />
-      </div>
+      @if (loginSuccessMessage()) {
+        <div class="ocr-success-alert" role="alert">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="ocr-alert-icon"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          <span>{{ loginSuccessMessage() }}</span>
+        </div>
+      }
 
-      <div class="ocr-field">
-        <label for="f-password" class="ocr-label">Contraseña</label>
-        <div class="ocr-input-pass-wrap">
+      <form (ngSubmit)="onSubmit()" class="ocr-form" novalidate>
+        <div class="ocr-field">
+          <label for="f-username" class="ocr-label">Documento de Identidad</label>
           <input
-            id="f-password"
-            [type]="showPassword() ? 'text' : 'password'"
-            name="password"
-            class="ocr-input ocr-input-pass"
-            [(ngModel)]="password"
-            placeholder="••••••••••••"
-            autocomplete="current-password"
+            id="f-username"
+            type="text"
+            name="username"
+            class="ocr-input"
+            [(ngModel)]="usernameOrEmail"
+            placeholder="Documento de identidad"
+            autocomplete="username"
             required
           />
+        </div>
+
+        <div class="ocr-field">
+          <label for="f-password" class="ocr-label">Contraseña</label>
+          <div class="ocr-input-pass-wrap">
+            <input
+              id="f-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              name="password"
+              class="ocr-input ocr-input-pass"
+              [(ngModel)]="password"
+              placeholder="••••••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="ocr-password-toggle-btn"
+              (click)="toggleShowPassword()"
+              [title]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              tabindex="-1"
+            >
+              @if (!showPassword()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                  ></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="ocr-form-helper-row">
+          <button type="button" class="ocr-link-btn" (click)="activarModoRecuperacion()">
+            ¿No recuerdas tu contraseña?
+          </button>
+        </div>
+
+        <button type="submit" class="ocr-btn-primary" [disabled]="isLoading()">
+          @if (!isLoading()) {
+            <span>Ingresar al Sistema</span>
+          } @else {
+            <span class="ocr-spinner-wrap">
+              <span class="ocr-spinner"></span>
+              <span>Autenticando...</span>
+            </span>
+          }
+        </button>
+      </form>
+    } @else {
+      <!-- Tarjeta de Recuperación de Clave -->
+      <header class="ocr-card-header">
+        <div class="ocr-logo-container">
+          <img
+            [src]="isDarkMode() ? 'logo_blanco.webp' : 'logo_istpet_color.webp'"
+            alt="Logo ISTPET"
+            class="ocr-logo-img"
+          />
+        </div>
+        <span class="ocr-eyebrow">PORTAL DE TITULACIÓN ACADÉMICA</span>
+        <h1 class="ocr-title">Recuperar acceso</h1>
+        <p class="ocr-subtitle">
+          @if (pasoRecuperacion() === 'documento') {
+            Ingresa tu número de documento para validar tu habilitación en el sistema
+          } @else if (pasoRecuperacion() === 'fecha_nacimiento') {
+            Ingresa tu fecha de nacimiento para verificar tu identidad
+          } @else {
+            Ingresa y confirma tu nueva contraseña institucional
+          }
+        </p>
+      </header>
+
+      @if (recoveryError()) {
+        <div class="ocr-error-alert" role="alert">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="ocr-alert-icon"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{{ recoveryError() }}</span>
+        </div>
+      }
+
+      @if (recoverySuccess()) {
+        <div class="ocr-success-alert" role="alert">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="ocr-alert-icon"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          <span>{{ recoverySuccess() }}</span>
+        </div>
+      }
+
+      <div class="ocr-form">
+        <!-- Paso 1: Número de documento -->
+        <div class="ocr-field">
+          <div class="ocr-field-header-row">
+            <label for="f-recovery-doc" class="ocr-label">Documento de Identidad</label>
+            @if (pasoRecuperacion() !== 'documento') {
+              <button
+                type="button"
+                class="ocr-link-btn-sm"
+                (click)="cambiarDocumentoRecuperacion()"
+                title="Cambiar documento"
+              >
+                Cambiar
+              </button>
+            }
+          </div>
+          <input
+            id="f-recovery-doc"
+            type="text"
+            name="recoveryDocumento"
+            class="ocr-input"
+            [(ngModel)]="recoveryDocumento"
+            [disabled]="pasoRecuperacion() !== 'documento' || recoveryLoading()"
+            placeholder="Cédula o Documento de Identidad"
+            autocomplete="username"
+            required
+          />
+        </div>
+
+        @if (pasoRecuperacion() === 'documento') {
           <button
             type="button"
-            class="ocr-password-toggle-btn"
-            (click)="toggleShowPassword()"
-            [title]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-            tabindex="-1"
+            class="ocr-btn-primary"
+            (click)="onVerificarDocumento()"
+            [disabled]="recoveryLoading() || !recoveryDocumento.trim()"
           >
-            @if (!showPassword()) {
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
+            @if (!recoveryLoading()) {
+              <span>Continuar</span>
             } @else {
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
-                ></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
+              <span class="ocr-spinner-wrap">
+                <span class="ocr-spinner"></span>
+                <span>Verificando habilitación...</span>
+              </span>
             }
+          </button>
+        }
+
+        <!-- Paso 2: Fecha de Nacimiento -->
+        @if (pasoRecuperacion() === 'fecha_nacimiento') {
+          <div class="ocr-field">
+            <label for="f-recovery-birthdate" class="ocr-label">Fecha de Nacimiento</label>
+            <input
+              id="f-recovery-birthdate"
+              type="date"
+              name="recoveryFechaNacimiento"
+              class="ocr-input"
+              [(ngModel)]="recoveryFechaNacimiento"
+              [disabled]="recoveryLoading()"
+              required
+            />
+          </div>
+
+          <button
+            type="button"
+            class="ocr-btn-primary"
+            (click)="onVerificarFechaNacimiento()"
+            [disabled]="recoveryLoading() || !recoveryFechaNacimiento"
+          >
+            @if (!recoveryLoading()) {
+              <span>Verificar Identidad</span>
+            } @else {
+              <span class="ocr-spinner-wrap">
+                <span class="ocr-spinner"></span>
+                <span>Comprobando datos...</span>
+              </span>
+            }
+          </button>
+        }
+
+        <!-- Paso 3: Nueva Contraseña -->
+        @if (pasoRecuperacion() === 'nueva_contrasena') {
+          <div class="ocr-field">
+            <label for="f-recovery-newpass" class="ocr-label">Nueva Contraseña</label>
+            <div class="ocr-input-pass-wrap">
+              <input
+                id="f-recovery-newpass"
+                [type]="showRecoveryPassword() ? 'text' : 'password'"
+                name="recoveryNuevaContrasenia"
+                class="ocr-input ocr-input-pass"
+                [(ngModel)]="recoveryNuevaContrasenia"
+                placeholder="Entre 6 y 20 caracteres"
+                maxlength="20"
+                autocomplete="new-password"
+                [disabled]="recoveryLoading()"
+                required
+              />
+              <button
+                type="button"
+                class="ocr-password-toggle-btn"
+                (click)="toggleShowRecoveryPassword()"
+                [title]="showRecoveryPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                tabindex="-1"
+              >
+                @if (!showRecoveryPassword()) {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          <div class="ocr-field">
+            <label for="f-recovery-confirmpass" class="ocr-label">Confirmar Nueva Contraseña</label>
+            <div class="ocr-input-pass-wrap">
+              <input
+                id="f-recovery-confirmpass"
+                [type]="showRecoveryConfirmPassword() ? 'text' : 'password'"
+                name="recoveryConfirmarContrasenia"
+                class="ocr-input ocr-input-pass"
+                [(ngModel)]="recoveryConfirmarContrasenia"
+                placeholder="Repite la nueva contraseña"
+                maxlength="20"
+                autocomplete="new-password"
+                [disabled]="recoveryLoading()"
+                required
+              />
+              <button
+                type="button"
+                class="ocr-password-toggle-btn"
+                (click)="toggleShowRecoveryConfirmPassword()"
+                [title]="
+                  showRecoveryConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                "
+                tabindex="-1"
+              >
+                @if (!showRecoveryConfirmPassword()) {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                    ></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="ocr-btn-primary"
+            (click)="onRestablecerContrasena()"
+            [disabled]="
+              recoveryLoading() || !recoveryNuevaContrasenia || !recoveryConfirmarContrasenia
+            "
+          >
+            @if (!recoveryLoading()) {
+              <span>Guardar Contraseña e Ingresar</span>
+            } @else {
+              <span class="ocr-spinner-wrap">
+                <span class="ocr-spinner"></span>
+                <span>Restableciendo contraseña...</span>
+              </span>
+            }
+          </button>
+        }
+
+        <div class="ocr-form-helper-row">
+          <button type="button" class="ocr-link-btn ocr-link-back" (click)="cancelarRecuperacion()">
+            ← Volver al inicio de sesión
           </button>
         </div>
       </div>
-
-      <button type="submit" class="ocr-btn-primary" [disabled]="isLoading()">
-        @if (!isLoading()) {
-          <span>Ingresar al Sistema</span>
-        } @else {
-          <span class="ocr-spinner-wrap">
-            <span class="ocr-spinner"></span>
-            <span>Autenticando...</span>
-          </span>
-        }
-      </button>
-    </form>
+    }
 
     <footer class="ocr-card-footer">
       <p class="ocr-footer-inst">Instituto Tecnológico Superior Traversari</p>

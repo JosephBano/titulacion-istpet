@@ -96,4 +96,45 @@ public class AuthController : ControllerBase
         var permissions = await _authService.GetUserPermissionsAsync(userId, systemCode, cancellationToken);
         return Ok(permissions);
     }
+
+    /// <summary>
+    /// Validar el documento de identidad para el flujo de recuperación de clave
+    /// </summary>
+    [HttpPost("recuperacion/validar-documento")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ValidarDocumentoRecuperacionResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ValidarDocumentoRecuperacion([FromBody] ValidarDocumentoRecuperacionRequestDto request, CancellationToken cancellationToken)
+    {
+        var resultado = await _authService.ValidarDocumentoRecuperacionAsync(request, cancellationToken);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Validar la fecha de nacimiento para confirmar la identidad del solicitante
+    /// </summary>
+    [HttpPost("recuperacion/validar-fecha-nacimiento")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ValidarFechaNacimientoResponseDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ValidarFechaNacimiento([FromBody] ValidarFechaNacimientoRequestDto request, CancellationToken cancellationToken)
+    {
+        var resultado = await _authService.ValidarFechaNacimientoAsync(request, cancellationToken);
+        return Ok(resultado);
+    }
+
+    /// <summary>
+    /// Restablecer la contraseña tras validar la identidad del solicitante
+    /// </summary>
+    [HttpPost("recuperacion/restablecer-contrasena")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(RestablecerContrasenaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RestablecerContrasenaResponseDto), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RestablecerContrasena([FromBody] RestablecerContrasenaRequestDto request, CancellationToken cancellationToken)
+    {
+        var resultado = await _authService.RestablecerContrasenaAsync(request, cancellationToken);
+        if (!resultado.Exito)
+        {
+            return BadRequest(resultado);
+        }
+        return Ok(resultado);
+    }
 }

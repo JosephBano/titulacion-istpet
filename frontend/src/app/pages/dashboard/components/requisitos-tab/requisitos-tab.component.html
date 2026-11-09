@@ -2,10 +2,10 @@
   <!-- Header de Sección -->
   <div class="section-header">
     <div>
-      <h2 class="section-title">Requisitos Maestros de Titulación</h2>
+      <h2 class="section-title">Requisitos y Evaluadores</h2>
       <p class="section-subtitle">
         Catálogo institucional de requisitos obligatorios para la titulación y asignación de
-        profesores evaluadores.
+        profesores evaluadores responsables de su revisión.
       </p>
     </div>
     <div class="header-actions">
@@ -107,7 +107,7 @@
     </div>
   } @else if (requisitos().length === 0) {
     <div class="state-container empty-state">
-      <h3 class="empty-title">No hay requisitos maestros</h3>
+      <h3 class="empty-title">No hay requisitos registrados</h3>
       <p class="empty-desc">Aún no se han registrado requisitos en el catálogo institucional.</p>
       <button type="button" class="btn btn-primary" (click)="nuevoRequisito.emit()">
         + Crear Primer Requisito
@@ -228,7 +228,7 @@
                   <button
                     type="button"
                     class="btn btn-outline-primary btn-sm"
-                    title="Asignar profesores responsables de validar este requisito"
+                    title="Asignar docentes evaluadores responsables de revisar este requisito"
                     (click)="gestionarResponsables.emit(r)"
                   >
                     <svg
@@ -247,7 +247,7 @@
                       <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span>Docentes</span>
+                    <span>Evaluadores</span>
                   </button>
                   <button
                     type="button"

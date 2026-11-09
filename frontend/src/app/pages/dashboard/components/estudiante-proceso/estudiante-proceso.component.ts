@@ -1,5 +1,6 @@
 import { Component, input, output, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../../environments/environment';
 import {
   PortalEstudiante,
   PostulacionDetalle,
@@ -8,9 +9,18 @@ import {
   RequisitoModalidadOfertada,
 } from '../../../../core/models/titulacion.models';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ConvocatoriaCardComponent } from '../../../../shared/components/convocatoria-card/convocatoria-card.component';
-import { StepperComponent } from '../../../../shared/components/stepper/stepper.component';
+import { ConfirmService } from '../../../../core/services/confirm.service';
+import {
+  ConvocatoriaCardComponent,
+  EstadoPuntoTipo,
+} from '../../../../shared/components/convocatoria-card/convocatoria-card.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
+
+export interface PuntoProcesoInfo {
+  titulo: string;
+  descripcion: string;
+  tipo: EstadoPuntoTipo;
+}
 
 export interface DetalleAcademicoModalidad {
   tag: string;
@@ -26,27 +36,39 @@ export interface DetalleAcademicoModalidad {
 @Component({
   selector: 'app-estudiante-proceso',
   standalone: true,
-  imports: [CommonModule, ConvocatoriaCardComponent, StepperComponent, DrawerComponent],
+  imports: [CommonModule, ConvocatoriaCardComponent, DrawerComponent],
   templateUrl: './estudiante-proceso.component.html',
   styleUrls: ['./estudiante-proceso.component.css'],
 })
 export class EstudianteProcesoComponent {
   private readonly notification = inject(NotificationService);
+  private readonly confirmService = inject(ConfirmService);
   readonly MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
 
   portal = input<PortalEstudiante | null>(null);
   modalidadSeleccionada = input<number | null>(null);
   postulando = input<boolean>(false);
+  cambiandoModalidad = input<boolean>(false);
   subiendoRequisitoId = input<number | null>(null);
   periodoNombreAmigable = input<string>('');
 
   modalidadSelect = output<number>();
   enviarPostulacion = output<void>();
+  cambiarModalidad = output<number>();
   subirDocumento = output<{ req: PostulacionRequisitoDetalle; file: File }>();
 
   // Estado del Drawer de Guía y Detalles de Modalidad
   drawerOpen = signal<boolean>(false);
   modalidadParaDrawer = signal<ModalidadOfertada | null>(null);
+
+  // Estado del Modal de Requisitos y Explicación de la Modalidad
+  modalDetalleOpen = signal<boolean>(false);
+  modalidadParaModal = signal<ModalidadOfertada | null>(null);
+  esModoCambioModalidad = signal<boolean>(false);
+
+  // Estado del Drawer de Cambio de Modalidad
+  modalCambioOpen = signal<boolean>(false);
+  modalidadParaCambio = signal<number | null>(null);
 
   // Modalidad seleccionada actualmente (objeto completo)
   modalidadSeleccionadaInfo = computed<ModalidadOfertada | null>(() => {
@@ -69,8 +91,272 @@ export class EstudianteProcesoComponent {
     return mod.requisitos.filter((r) => r.esRequisitoFinal);
   });
 
+  modalidadesAlternativas = computed<ModalidadOfertada[]>(() => {
+    const p = this.portal();
+    if (!p || !p.modalidadesDisponibles) return [];
+    const idActual = p.postulacionActiva?.idModalidadTitulacionCarrera;
+    return p.modalidadesDisponibles.filter((m) => m.idModalidadTitulacionCarrera !== idActual);
+  });
+
+  modalidadParaCambioInfo = computed<ModalidadOfertada | null>(() => {
+    const id = this.modalidadParaCambio();
+    if (!id) return null;
+    return (
+      this.portal()?.modalidadesDisponibles.find((m) => m.idModalidadTitulacionCarrera === id) ||
+      null
+    );
+  });
+
+  puedeCambiarModalidad = computed<boolean>(() => {
+    const p = this.portal();
+    if (!p || !p.postulacionActiva) return false;
+    const est = (p.postulacionActiva.nombreEstado || '').toUpperCase();
+    const esFinalizada = est.includes('TITULAD') || est.includes('GRADUAD') || est.includes('ACTA');
+    if (esFinalizada) return false;
+    const esRechazada = est.includes('RECHAZ') || est.includes('NEGAD');
+    return esRechazada || p.convocatoria.estaAbierta;
+  });
+
+  // Punto actual del estudiante en el proceso de titulación
+  puntoProcesoInfo = computed<PuntoProcesoInfo>(() => {
+    const p = this.portal();
+    if (!p) {
+      return {
+        titulo: 'Cargando información',
+        descripcion: 'Obteniendo el estado del proceso...',
+        tipo: 'info',
+      };
+    }
+
+    // 1. Caso sin postulación activa aún
+    if (p.postulacionActiva === null) {
+      if (!p.estudiante.esElegible) {
+        return {
+          titulo: 'Inhabilitado para postulación',
+          descripcion:
+            p.estudiante.mensajeElegibilidad ||
+            'Usted no cumple con los requisitos previos para participar en el proceso de titulación.',
+          tipo: 'warning',
+        };
+      }
+      if (p.modalidadesDisponibles.length === 0) {
+        return {
+          titulo: 'Sin modalidades habilitadas',
+          descripcion:
+            'No hay modalidades habilitadas para su carrera en este momento. Comuníquese con la Coordinación de Carrera.',
+          tipo: 'warning',
+        };
+      }
+      return {
+        titulo: 'Selección de modalidad',
+        descripcion:
+          'Seleccione una de las modalidades habilitadas para su carrera y confirme su postulación para iniciar formalmente su proceso de titulación.',
+        tipo: 'info',
+      };
+    }
+
+    const post = p.postulacionActiva;
+    const est = (post.nombreEstado || '').toUpperCase();
+
+    // 2. Si la postulación fue rechazada
+    if (this.esPostulacionRechazada(est)) {
+      return {
+        titulo: 'Modalidad rechazada',
+        descripcion:
+          'El departamento de titulación ha rechazado su tipo de titulación. Tendrá que cambiar de modalidad para poder continuar con su proceso.',
+        tipo: 'danger',
+      };
+    }
+
+    // 3. Si la postulación fue aprobada
+    if (this.esPostulacionAprobada(est)) {
+      const requisitos = post.requisitos || [];
+      const todosAprobados =
+        requisitos.length > 0 && this.totalAprobados(requisitos) === requisitos.length;
+
+      if (todosAprobados) {
+        return {
+          titulo: 'Requisitos cumplidos — En fase final',
+          descripcion:
+            'Ha completado la totalidad de requisitos académicos de su modalidad. Se encuentra en etapa de tutoría, revisión final y sustentación.',
+          tipo: 'success',
+        };
+      }
+
+      return {
+        titulo: 'Modalidad aprobada — En curso',
+        descripcion: `Su tipo de titulación (${post.modalidadTitulacion}) ha sido aprobado. Usted ha empezado este método; continúe cumpliendo y adjuntando los requisitos académicos requeridos.`,
+        tipo: 'success',
+      };
+    }
+
+    // 4. Si la postulación presenta observaciones
+    if (est.includes('OBSERV')) {
+      const obs = this.obtenerObservacionPostulacion(post);
+      return {
+        titulo: 'Postulación con observaciones',
+        descripcion: obs
+          ? `Su postulación presenta observaciones: "${obs}". Por favor subsane los requisitos observados para continuar con la validación.`
+          : 'El departamento de titulación registró observaciones en sus requisitos. Revise los ítems señalados para subsanarlos.',
+        tipo: 'warning',
+      };
+    }
+
+    // 5. Si está finalizada / graduado
+    if (est.includes('TITULAD') || est.includes('GRADUAD') || est.includes('ACTA')) {
+      return {
+        titulo: 'Proceso de titulación concluido',
+        descripcion:
+          '¡Felicitaciones! Ha culminado satisfactoriamente todos los requisitos y fases de su proceso de titulación.',
+        tipo: 'success',
+      };
+    }
+
+    // 6. Por defecto: En Revisión / Registrada (el punto donde el encargado valida)
+    return {
+      titulo: 'Validando tipo de titulación',
+      descripcion:
+        'El encargado del departamento de titulación se encuentra validando su tipo de titulación, en caso de ser aprobado usted empezará este método, caso contrario tendrá que cambiarlo.',
+      tipo: 'info',
+    };
+  });
+
+  abrirModalCambioModalidad(): void {
+    const alt = this.modalidadesAlternativas();
+    if (alt.length > 0) {
+      this.modalidadParaCambio.set(alt[0].idModalidadTitulacionCarrera);
+    }
+    this.modalCambioOpen.set(true);
+  }
+
+  cerrarModalCambioModalidad(): void {
+    this.modalCambioOpen.set(false);
+    this.modalidadParaCambio.set(null);
+  }
+
+  seleccionarModalidadParaCambio(mod: ModalidadOfertada): void {
+    this.modalCambioOpen.set(false);
+    this.modalidadParaCambio.set(mod.idModalidadTitulacionCarrera);
+    this.modalidadParaModal.set(mod);
+    this.esModoCambioModalidad.set(true);
+    this.modalDetalleOpen.set(true);
+  }
+
+  confirmarCambioDesdeModal(mod: ModalidadOfertada): void {
+    this.cambiarModalidad.emit(mod.idModalidadTitulacionCarrera);
+    this.forzarCierreModal();
+  }
+
+  confirmarCambioModalidad(): void {
+    const id = this.modalidadParaCambio();
+    if (id) {
+      this.cambiarModalidad.emit(id);
+      this.modalCambioOpen.set(false);
+    }
+  }
+
+  esPostulacionAprobada(estado?: string): boolean {
+    if (!estado) return false;
+    const est = estado.toUpperCase();
+    return est.includes('APROB') || est.includes('ACEPT');
+  }
+
+  esPostulacionEnRevision(estado?: string): boolean {
+    if (!estado) return false;
+    return !this.esPostulacionRechazada(estado) && !this.esPostulacionAprobada(estado);
+  }
+
   elegirModalidad(id: number): void {
     this.modalidadSelect.emit(id);
+  }
+
+  abrirModalModalidad(mod: ModalidadOfertada): void {
+    this.esModoCambioModalidad.set(false);
+    this.modalidadParaModal.set(mod);
+    this.modalDetalleOpen.set(true);
+    this.modalidadSelect.emit(mod.idModalidadTitulacionCarrera);
+  }
+
+  cerrarModalModalidad(): void {
+    if (this.postulando() || this.cambiandoModalidad()) return;
+    this.forzarCierreModal();
+  }
+
+  forzarCierreModal(): void {
+    this.modalDetalleOpen.set(false);
+    this.modalidadParaModal.set(null);
+    this.esModoCambioModalidad.set(false);
+  }
+
+  confirmarPostulacionDesdeModal(mod: ModalidadOfertada): void {
+    this.modalidadSelect.emit(mod.idModalidadTitulacionCarrera);
+    this.enviarPostulacion.emit();
+  }
+
+  getIconoTipoModalidad(
+    mod: ModalidadOfertada,
+  ): 'investigacion' | 'complexivo' | 'articulo' | 'general' {
+    const nombre = (mod.modalidadTitulacion || '').toLowerCase();
+    if (
+      mod.esComplexivo === 'S' ||
+      mod.esComplexivo === '1' ||
+      mod.esComplexivo === 'true' ||
+      nombre.includes('complexivo') ||
+      nombre.includes('examen')
+    ) {
+      return 'complexivo';
+    }
+    if (
+      mod.esArticuloCientifico === 'S' ||
+      mod.esArticuloCientifico === '1' ||
+      mod.esArticuloCientifico === 'true' ||
+      nombre.includes('artículo') ||
+      nombre.includes('articulo') ||
+      nombre.includes('científico')
+    ) {
+      return 'articulo';
+    }
+    if (
+      nombre.includes('investig') ||
+      nombre.includes('proyecto') ||
+      nombre.includes('propuesta') ||
+      nombre.includes('técnico') ||
+      nombre.includes('tecnico')
+    ) {
+      return 'investigacion';
+    }
+    return 'general';
+  }
+
+  getExplicacionProcesoModalidad(mod: ModalidadOfertada): {
+    resumenFlujo: string;
+    siguienteFase: string;
+  } {
+    const tipo = this.getIconoTipoModalidad(mod);
+    switch (tipo) {
+      case 'complexivo':
+        return {
+          resumenFlujo:
+            'Al elegir Examen Complexivo, la Unidad de Titulación verificará si cumple los requerimientos académicos previos. Una vez verificado y aprobado que cumple con los requisitos, se le dejará pasar al siguiente proceso: asignación de temarios teóricos, preparación y fecha de evaluación.',
+          siguienteFase:
+            'Preparación teórica, resolución de caso práctico y prueba ante tribunal evaluador.',
+        };
+      case 'articulo':
+        return {
+          resumenFlujo:
+            'Al elegir Artículo Científico, la Unidad de Titulación verificará si cumple los requerimientos académicos previos. Una vez verificado y aprobado su cumplimiento, se le dejará pasar al siguiente proceso: asignación de tutor investigador, redacción científica y envío a arbitraje/publicación.',
+          siguienteFase:
+            'Tutoría metodológica, redacción del manuscrito y validación de publicación indexada.',
+        };
+      case 'investigacion':
+      default:
+        return {
+          resumenFlujo:
+            'Al elegir Proyecto de Investigación, la Unidad de Titulación verifica si cumple los requerimientos académicos. Una vez que la Unidad de Titulación comprueba y aprueba el cumplimiento de los requisitos, le dejará pasar al siguiente proceso: asignación de docente tutor, desarrollo del proyecto y sustentación final.',
+          siguienteFase:
+            'Asignación de tutor institucional, desarrollo de la propuesta técnica y defensa de grado.',
+        };
+    }
   }
 
   abrirGuiaModalidad(mod: ModalidadOfertada, event?: Event): void {
@@ -181,32 +467,82 @@ export class EstudianteProcesoComponent {
     };
   }
 
-  onFileChange(req: PostulacionRequisitoDetalle, event: Event): void {
+  sanitizarParaNombreArchivo(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_\-\s]/g, '')
+      .trim()
+      .replace(/\s+/g, '_');
+  }
+
+  generarNombreArchivoRequisito(nombreRequisito: string): string {
+    const reqLimpio = this.sanitizarParaNombreArchivo(nombreRequisito);
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const fecha = `${yyyy}-${mm}-${dd}`;
+
+    const rawPeriodo =
+      this.portal()?.convocatoria?.periodo || this.periodoNombreAmigable() || 'PERIODO';
+    const periodoLimpio = this.sanitizarParaNombreArchivo(rawPeriodo);
+
+    return `${reqLimpio}_${fecha}_${periodoLimpio}.pdf`;
+  }
+
+  async onFileChange(req: PostulacionRequisitoDetalle, event: Event): Promise<void> {
     const inputEl = event.target as HTMLInputElement;
     if (inputEl && inputEl.files && inputEl.files.length > 0) {
-      const file = inputEl.files[0];
+      const originalFile = inputEl.files[0];
 
       // Validación 1: Formato estrictamente PDF
-      const esPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      const esPdf =
+        originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf');
       if (!esPdf) {
         this.notification.error(
-          `Formato inválido: El documento "${file.name}" debe ser obligatoriamente un archivo PDF (.pdf).`,
+          `Formato inválido: El documento "${originalFile.name}" debe ser obligatoriamente un archivo PDF (.pdf).`,
         );
         inputEl.value = '';
         return;
       }
 
       // Validación 2: Límite estricto de tamaño 2 MB
-      if (file.size > this.MAX_FILE_SIZE_BYTES) {
-        const tamanoMb = (file.size / (1024 * 1024)).toFixed(2);
+      if (originalFile.size > this.MAX_FILE_SIZE_BYTES) {
+        const tamanoMb = (originalFile.size / (1024 * 1024)).toFixed(2);
         this.notification.error(
-          `El archivo supera el límite: "${file.name}" pesa ${tamanoMb} MB. El tamaño máximo permitido es de 2 MB.`,
+          `El archivo supera el límite: "${originalFile.name}" pesa ${tamanoMb} MB. El tamaño máximo permitido es de 2 MB.`,
         );
         inputEl.value = '';
         return;
       }
 
-      this.subirDocumento.emit({ req, file });
+      // Renombrar archivo según convención: [nombre_requisito]_[fecha]_[cod_periodo].pdf
+      const nuevoNombre = this.generarNombreArchivoRequisito(req.nombreRequisito);
+      const file = new File([originalFile], nuevoNombre, { type: 'application/pdf' });
+
+      const tamanoKb = (file.size / 1024).toFixed(1);
+      const confirmado = await this.confirmService.confirm({
+        title: '¿Confirmar subida de documento?',
+        message:
+          'Por favor, verifique que el documento adjunto sea legible, oficial y corresponda al requisito seleccionado.',
+        confirmText: 'Sí, subir documento',
+        cancelText: 'Cancelar',
+        variant: 'primary',
+        icon: 'upload',
+        documentName: nuevoNombre,
+        details: [
+          { label: 'Requisito', value: req.nombreRequisito },
+          { label: 'Nombre institucional', value: nuevoNombre },
+          { label: 'Archivo original', value: originalFile.name },
+          { label: 'Tamaño del archivo', value: `${tamanoKb} KB` },
+          { label: 'Formato', value: 'Documento PDF (.pdf)' },
+        ],
+      });
+
+      if (confirmado) {
+        this.subirDocumento.emit({ req, file });
+      }
       inputEl.value = '';
     }
   }
@@ -226,6 +562,47 @@ export class EstudianteProcesoComponent {
     if (!requisitos) return 0;
     return requisitos.filter((r) => r.valorBool === true || r.estadoValidacion === 'APROBADO')
       .length;
+  }
+
+  obtenerEstadoTexto(req: PostulacionRequisitoDetalle, postulacionEstado?: string): string {
+    if (this.esRequisitoAprobado(req)) return 'Aprobado';
+    if (this.esRequisitoRechazado(req) || this.esPostulacionRechazada(postulacionEstado)) {
+      return 'Rechazado';
+    }
+    if (req.subeAlumno) {
+      if (req.nombreArchivoAdjunto || req.rutaArchivoAdjunto) {
+        return 'Subido (En Revisión)';
+      }
+      return 'Pendiente de Subida';
+    }
+    return req.estadoValidacion || 'En Validación';
+  }
+
+  obtenerClaseEstado(req: PostulacionRequisitoDetalle, postulacionEstado?: string): string {
+    if (this.esRequisitoAprobado(req)) return 'status-pill--success';
+    if (this.esRequisitoRechazado(req) || this.esPostulacionRechazada(postulacionEstado)) {
+      return 'status-pill--danger';
+    }
+    if (req.subeAlumno && (req.nombreArchivoAdjunto || req.rutaArchivoAdjunto)) {
+      return 'status-pill--info';
+    }
+    return 'status-pill--warning';
+  }
+
+  getArchivoUrl(ruta?: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http://') || ruta.startsWith('https://') || ruta.startsWith('blob:')) {
+      return ruta;
+    }
+    const cleanPath = ruta.startsWith('/') ? ruta : '/' + ruta;
+    return `${environment.apiBaseUrl}${cleanPath}`;
+  }
+
+  obtenerTextoTooltip(req: PostulacionRequisitoDetalle): string {
+    if (req.nombreEvaluador) {
+      return `Este requisito debe ser validado por: ${req.nombreEvaluador}`;
+    }
+    return 'Este requisito debe ser validado por el docente asignado';
   }
 
   esRequisitoAprobado(req: PostulacionRequisitoDetalle): boolean {

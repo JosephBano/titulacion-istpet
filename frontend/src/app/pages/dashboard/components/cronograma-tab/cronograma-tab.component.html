@@ -1,0 +1,139 @@
+<section class="cronograma-container" aria-label="Cronograma de Titulación">
+  <!-- CASO: NO HAY FECHAS REGISTRADAS EN BD -->
+  @if (!cronogramaData().tieneDatosReales) {
+    <div class="cronograma-empty-card">
+      <div class="empty-icon-wrap" aria-hidden="true">
+        <svg
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <h3 class="empty-title">Sin fechas configuradas</h3>
+      <p class="empty-desc">
+        La Coordinación o Secretaría Académica aún no ha establecido las fechas de apertura y cierre
+        para esta cohorte.
+      </p>
+    </div>
+  } @else {
+    <!-- RESUMEN EN CURSO -->
+    @if (cronogramaData().resumenEstado; as resumen) {
+      <div class="status-banner" [ngClass]="resumen.clase">
+        <div class="banner-icon" aria-hidden="true">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="banner-body">
+          <strong>Estado actual:</strong>
+          <span>{{ resumen.texto }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- LÍNEA DE TIEMPO HORIZONTAL EN EL EJE X -->
+    <div class="timeline-horizontal-wrapper">
+      <!-- Riel / Pista horizontal del Stepper -->
+      <div class="timeline-track-bar">
+        @for (etapa of cronogramaData().etapas; track etapa.numero; let last = $last) {
+          <div
+            class="track-step-node"
+            [class.is-active]="etapa.esActiva"
+            [class.is-completed]="etapa.estado === 'Finalizada'"
+          >
+            <div class="node-circle">{{ etapa.numero }}</div>
+            <span class="node-label">Etapa {{ etapa.numero }}</span>
+          </div>
+          @if (!last) {
+            <div
+              class="track-connector"
+              [class.is-passed]="etapa.estado === 'Finalizada'"
+              [class.is-current]="etapa.esActiva"
+            ></div>
+          }
+        }
+      </div>
+
+      <!-- Tarjetas distribuidas horizontalmente a lo ancho del eje X -->
+      <div class="timeline-horizontal-grid" [style.--total-etapas]="cronogramaData().etapas.length">
+        @for (etapa of cronogramaData().etapas; track etapa.numero) {
+          <article class="stage-h-card" [class.stage-h-card--active]="etapa.esActiva">
+            <div class="stage-h-header">
+              <div class="stage-h-title-group">
+                <span class="stage-h-badge">Etapa {{ etapa.numero }}</span>
+                <h3 class="stage-h-title">{{ etapa.titulo }}</h3>
+              </div>
+              <span class="stage-status-pill" [ngClass]="etapa.estadoClase">
+                {{ etapa.estado }}
+              </span>
+            </div>
+
+            <p class="stage-h-sub">{{ etapa.subtitulo }}</p>
+
+            <div class="stage-h-meta">
+              <div class="meta-row">
+                <span class="meta-label">Desde:</span>
+                <strong class="meta-val">{{ etapa.fechaInicio | date: 'dd/MM/yyyy' }}</strong>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Hasta:</span>
+                <strong class="meta-val">{{ etapa.fechaFin | date: 'dd/MM/yyyy' }}</strong>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Duración:</span>
+                <strong class="meta-val">{{ etapa.duracionDias }} días</strong>
+              </div>
+            </div>
+
+            @if (etapa.esActiva) {
+              <div class="active-progress-wrap">
+                <div class="progress-bar-head">
+                  <span>Progreso: {{ etapa.porcentajeProgreso }}%</span>
+                  @if (etapa.diasRestantes === 0) {
+                    <span class="countdown-warning">¡Último día!</span>
+                  } @else {
+                    <span>{{ etapa.diasRestantes }} días restantes</span>
+                  }
+                </div>
+                <div class="progress-track">
+                  <div class="progress-bar" [style.width.%]="etapa.porcentajeProgreso"></div>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </div>
+
+    <!-- PANEL INFORMATIVO DE PARÁMETROS DE LA COHORTE -->
+    <footer class="cohort-params-footer">
+      <div class="param-card">
+        <span class="param-title">Días de Desarrollo Reglamentario</span>
+        <strong class="param-value">{{ cronogramaData().diasPermitidos ?? 0 }} días</strong>
+      </div>
+      <div class="param-card">
+        <span class="param-title">Prórroga Reglamentaria Permitida</span>
+        <strong class="param-value">{{ cronogramaData().diasExtension }} días</strong>
+      </div>
+      <div class="param-card">
+        <span class="param-title">Período Académico</span>
+        <strong class="param-value">{{ cronogramaData().periodo || 'Ordinario' }}</strong>
+      </div>
+    </footer>
+  }
+</section>

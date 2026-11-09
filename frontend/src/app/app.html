@@ -1,1 +1,17 @@
 <router-outlet />
+
+@if (confirmService.state(); as s) {
+  <app-confirm-modal
+    [isOpen]="s.isOpen"
+    [title]="s.title"
+    [message]="s.message"
+    [confirmText]="s.confirmText || 'Confirmar'"
+    [cancelText]="s.cancelText || 'Cancelar'"
+    [variant]="s.variant || 'primary'"
+    [icon]="s.icon || 'help'"
+    [documentName]="s.documentName"
+    [details]="s.details"
+    (confirm)="confirmService.handleConfirm()"
+    (cancelConfirm)="confirmService.handleCancel()"
+  />
+}

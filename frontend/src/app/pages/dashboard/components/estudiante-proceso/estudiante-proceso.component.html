@@ -1,45 +1,221 @@
 @if (portal(); as p) {
   <section class="estudiante-section">
-    <!-- Convocatoria Card -->
+    <!-- Convocatoria Card Simplificada con Estado y Punto del Proceso -->
     <app-convocatoria-card
+      [simplificado]="true"
       [estaAbierta]="p.convocatoria.estaAbierta"
-      [detalle]="
-        'Período Académico: ' +
-        (p.convocatoria.detalle || 'Período Ordinario') +
-        ' (' +
-        periodoNombreAmigable() +
-        ')'
-      "
-      [mensaje]="p.convocatoria.mensaje"
+      [detalle]="periodoNombreAmigable() || p.convocatoria.periodo || 'Ordinario'"
       [diasRestantes]="p.convocatoria.diasRestantes"
+      [puntoTitulo]="puntoProcesoInfo().titulo"
+      [puntoDescripcion]="puntoProcesoInfo().descripcion"
+      [puntoTipo]="puntoProcesoInfo().tipo"
     />
-
-    <!-- Diagnóstico y Elegibilidad Académica -->
-    <div class="eligibility-box">
-      <div class="eligibility-details">
-        <h3 class="eligibility-name">
-          {{ p.estudiante.nombreCompleto }} (C.I. {{ p.estudiante.cedula }})
-        </h3>
-        <p class="eligibility-career">
-          Carrera: <strong>{{ p.estudiante.nombreCarrera }}</strong> | Matrícula: #{{
-            p.estudiante.idMatricula
-          }}
-        </p>
-      </div>
-      <span
-        class="fluent-badge"
-        [class.fluent-badge--success]="p.estudiante.esElegible"
-        [class.fluent-badge--warning]="!p.estudiante.esElegible"
-      >
-        <span class="status-dot" [class.active]="p.estudiante.esElegible"></span>
-        {{ p.estudiante.esElegible ? 'Apto para Postular' : 'Verificar Requisitos Previos' }}
-      </span>
-    </div>
 
     <!-- CASO A: PRIMERA VEZ / NO HA POSTULADO -->
     @if (p.postulacionActiva === null) {
       @if (!p.estudiante.esElegible) {
-        <div class="empty-state-card warning-state-card">
+        <div class="inhabilitado-container">
+          <!-- Tarjeta Principal de Advertencia / Estado -->
+          <div class="inhabilitado-hero-card">
+            <div class="inhabilitado-hero-header">
+              <div class="inhabilitado-icon-wrap">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="inhabilitado-header-text">
+                <span class="inhabilitado-badge">ESTADO DEL ESTUDIANTE</span>
+                <h3 class="inhabilitado-title">Inhabilitado para Postulación</h3>
+              </div>
+            </div>
+
+            <p class="inhabilitado-hero-desc">
+              {{
+                p.estudiante.mensajeElegibilidad ||
+                  'Los estudiantes de 1ro, 2do y 3er nivel no están habilitados para participar en el proceso de titulación. El proceso está disponible a partir de 4to nivel o egresados.'
+              }}
+            </p>
+
+            <!-- Datos del Estudiante en formato Fluent Chips / Key-Value -->
+            <div class="inhabilitado-meta-grid">
+              <div class="meta-item">
+                <span class="meta-label">Estudiante</span>
+                <span class="meta-value">{{ p.estudiante.nombreCompleto }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Cédula / Identificación</span>
+                <span class="meta-value">{{ p.estudiante.cedula }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Carrera Académica</span>
+                <span class="meta-value">{{ p.estudiante.nombreCarrera || 'Carrera ISTPET' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Condición Actual</span>
+                <span class="meta-value status-tag-warning">Etapa Formativa (1° - 3° Nivel)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ruta Académica hacia la Titulación -->
+          <div class="inhabilitado-roadmap-card">
+            <div class="roadmap-header">
+              <span class="roadmap-eyebrow">GUÍA INSTITUCIONAL ISTPET</span>
+              <h4 class="roadmap-title">Ruta del Estudiante para Acceder a la Titulación</h4>
+            </div>
+
+            <div class="roadmap-steps-grid">
+              <div class="roadmap-step current">
+                <div class="step-indicator">1</div>
+                <div class="step-content">
+                  <h5 class="step-heading">1° a 3° Nivel (En Curso)</h5>
+                  <p class="step-desc">
+                    Aprobación de asignaturas de fundamentación y formación profesional. Mantén tu
+                    récord académico al día.
+                  </p>
+                </div>
+              </div>
+
+              <div class="roadmap-step">
+                <div class="step-indicator">2</div>
+                <div class="step-content">
+                  <h5 class="step-heading">4° Nivel o Egresado</h5>
+                  <p class="step-desc">
+                    El sistema habilitará automáticamente el portal de postulación para inscribirte
+                    en el período ordinario.
+                  </p>
+                </div>
+              </div>
+
+              <div class="roadmap-step">
+                <div class="step-indicator">3</div>
+                <div class="step-content">
+                  <h5 class="step-heading">Elección de Modalidad</h5>
+                  <p class="step-desc">
+                    Seleccionarás entre Examen Complexivo o Modalidades de Proyecto según la oferta
+                    aprobada para tu carrera.
+                  </p>
+                </div>
+              </div>
+
+              <div class="roadmap-step">
+                <div class="step-indicator">4</div>
+                <div class="step-content">
+                  <h5 class="step-heading">Titulación y Grado</h5>
+                  <p class="step-desc">
+                    Cumplimiento de requisitos institucionales, validación de carpetas, defensa y
+                    emisión del título oficial.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cards de Información Complementaria & Contacto -->
+          <div class="inhabilitado-info-grid">
+            <div class="info-card">
+              <div class="info-card-header">
+                <span class="info-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </span>
+                <h5>Recomendaciones para tu Avance</h5>
+              </div>
+              <ul class="info-bullet-list">
+                <li>
+                  Completa tus <strong>Prácticas Preprofesionales</strong> y horas de
+                  <strong>Vinculación con la Sociedad</strong> con anticipación.
+                </li>
+                <li>
+                  Verifica que tus certificados de suficiencia en idiomas o informática estén
+                  registrados oportunamente.
+                </li>
+                <li>
+                  Revisa las convocatorias oficiales que publica el ISTPET al inicio de cada período
+                  ordinario.
+                </li>
+              </ul>
+            </div>
+
+            <div class="info-card">
+              <div class="info-card-header">
+                <span class="info-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </span>
+                <h5>¿Consideras que tu nivel es incorrecto?</h5>
+              </div>
+              <p class="info-card-desc">
+                Si te encuentras legalmente matriculado en 4° nivel o en estado de egresado y tu
+                perfil no se ha actualizado, comunícate con la Coordinación de Carrera de
+                <strong>{{ p.estudiante.nombreCarrera }}</strong> o con Secretaría Académica del
+                ISTPET para la validación de tu matrícula en el sistema integrado.
+              </p>
+              <div class="info-card-action">
+                <span class="istpet-contact-badge">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                    ></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  Atención: Secretaría Académica ISTPET
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else if (p.modalidadesDisponibles.length === 0) {
+        <div class="empty-state-card empty-state-card--fill">
           <div class="warning-icon-wrap">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -55,16 +231,6 @@
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
           </div>
-          <h3>Inhabilitado para Postulación</h3>
-          <p class="warning-message-text">
-            {{
-              p.estudiante.mensajeElegibilidad ||
-                'Usted no cumple con los requisitos previos para participar en el proceso de titulación.'
-            }}
-          </p>
-        </div>
-      } @else if (p.modalidadesDisponibles.length === 0) {
-        <div class="empty-state-card">
           <h3>No hay modalidades habilitadas para su carrera en este momento</h3>
           <p>
             Por favor comuníquese con la Coordinación de Carrera o Secretaría de Titulación ISTPET.
@@ -77,223 +243,142 @@
         <div class="section-header section-header--spaced">
           <span class="section-eyebrow">MODALIDADES HABILITADAS PARA SU CARRERA</span>
           <h2 class="section-title">Seleccione su Modalidad de Graduación</h2>
+          <p class="section-subtitle">
+            Haga clic en una de las modalidades habilitadas para conocer sus requisitos de
+            aprobación y el proceso de validación.
+          </p>
         </div>
 
-        <div class="modality-cards-grid">
+        <div class="modalidades-grid-nombres">
           @for (mod of p.modalidadesDisponibles; track mod.idModalidadTitulacionCarrera) {
-            @let info = getDetalleModalidad(mod);
-            @let isSelected = modalidadSeleccionada() === mod.idModalidadTitulacionCarrera;
+            @let tipo = getIconoTipoModalidad(mod);
 
             <div
-              class="modality-card-interactive"
+              class="modalidad-nombre-card"
+              role="button"
               tabindex="0"
-              [class.selected]="isSelected"
-              (click)="elegirModalidad(mod.idModalidadTitulacionCarrera)"
-              (keydown.enter)="elegirModalidad(mod.idModalidadTitulacionCarrera)"
-              (keydown.space)="elegirModalidad(mod.idModalidadTitulacionCarrera)"
+              (click)="abrirModalModalidad(mod)"
+              (keydown.enter)="abrirModalModalidad(mod)"
+              (keydown.space)="abrirModalModalidad(mod); $event.preventDefault()"
             >
-              <div class="modality-card-content">
-                <div class="modality-header">
-                  <div class="modality-header-title-wrap">
-                    <span class="modality-category-tag">{{ info.tag }}</span>
-                    <h3 class="modality-title">{{ mod.modalidadTitulacion }}</h3>
-                  </div>
-                  <input
-                    type="radio"
-                    name="modRadio"
-                    [checked]="isSelected"
-                    aria-label="Seleccionar modalidad"
-                  />
-                </div>
-
-                <p class="modality-desc">{{ info.resumen }}</p>
-
-                @if (mod.requisitos && mod.requisitos.length > 0) {
-                  <strong class="modality-reqs-label">
-                    Requisitos configurados ({{ mod.requisitos.length }}):
-                  </strong>
-                  <ul class="modality-reqs-list">
-                    @for (req of mod.requisitos; track req.idRequisitoModalidad) {
-                      <li>
-                        {{ req.nombreRequisito }}
-                        @if (req.esRequisitoFinal) {
-                          <span class="req-nature-badge req-nature-badge--final">(Final)</span>
-                        }
-                      </li>
-                    }
-                  </ul>
+              <div class="modalidad-card-icon" [class]="'icon--' + tipo">
+                @switch (tipo) {
+                  @case ('complexivo') {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="9 11 12 14 22 4"></polyline>
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                  }
+                  @case ('articulo') {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                      <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                  }
+                  @case ('investigacion') {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="11" y1="8" x2="11" y2="14"></line>
+                      <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                  }
+                  @default {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                      <path
+                        d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                      ></path>
+                    </svg>
+                  }
                 }
               </div>
 
-              <div class="modality-card-bottom">
-                <button
-                  type="button"
-                  class="btn-guide-detail"
-                  (click)="abrirGuiaModalidad(mod, $event)"
-                  title="Ver reglamento y estructura de evaluación completa"
-                >
+              <div class="modalidad-card-info">
+                <h3 class="modalidad-nombre-titulo">{{ mod.modalidadTitulacion }}</h3>
+                <span class="modalidad-card-hint">
+                  Ver requisitos y postulación
                   <svg
+                    xmlns="http://www.w3.org/2000/svg"
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
                   >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
-                  Ver Guía y Evaluación
-                </button>
-
-                <button
-                  type="button"
-                  class="fluent-btn-action"
-                  [class.fluent-btn-action--success]="isSelected"
-                >
-                  {{ isSelected ? 'Modalidad Seleccionada' : 'Elegir esta Modalidad' }}
-                </button>
+                </span>
               </div>
             </div>
           }
-        </div>
-
-        <!-- Confirmación de Postulación Directa -->
-        <div class="confirm-postulacion-box">
-          <div class="confirm-info">
-            <strong class="confirm-postulacion-title">¿Listo para postularse?</strong>
-            <span class="confirm-postulacion-note">
-              @if (modalidadSeleccionadaInfo(); as modSel) {
-                Modalidad seleccionada: <strong>{{ modSel.modalidadTitulacion }}</strong
-                >. Al confirmar, se generará su número de expediente oficial en Secretaría
-                Académica.
-              } @else {
-                Seleccione una modalidad arriba para habilitar el envío de su solicitud.
-              }
-            </span>
-          </div>
-          <button
-            type="button"
-            class="fluent-btn-primary fluent-btn-primary--lg"
-            [disabled]="postulando() || !modalidadSeleccionada()"
-            (click)="enviarPostulacion.emit()"
-          >
-            @if (postulando()) {
-              <span class="spinner-small"></span> Registrando postulación...
-            } @else {
-              Confirmar y Enviar Mi Postulación
-            }
-          </button>
         </div>
       }
     }
 
     <!-- CASO B: EXPEDIENTE ACTIVO -->
     @if (p.postulacionActiva !== null) {
-      <!-- Stepper Dinámico con Información de Cada Fase -->
-      <app-stepper
-        [etapaActual]="obtenerEtapaStepper(p.postulacionActiva.nombreEstado)"
-        [estadoNombre]="p.postulacionActiva.nombreEstado"
-        [modalidadNombre]="p.postulacionActiva.modalidadTitulacion"
-        [tienePostulacion]="true"
-        [totalRequisitos]="p.postulacionActiva.requisitos.length"
-        [aprobadosRequisitos]="totalAprobados(p.postulacionActiva.requisitos)"
-        [pendientesRequisitos]="requisitosFaltantes(p.postulacionActiva.requisitos).length"
-        [tieneRequisitosFinalesPendientes]="
-          tieneRequisitosFinalesPendientes(p.postulacionActiva.requisitos)
-        "
-      />
-
-      <!-- Banner Informativo Dinámico: Documentos Pendientes y Continuidad del Proceso -->
-      @if (requisitosFaltantes(p.postulacionActiva.requisitos); as faltantes) {
-        @if (faltantes.length > 0 && !esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
-          <div
-            class="pending-docs-alert-box"
-            role="region"
-            aria-label="Aviso de requisitos pendientes"
-          >
-            <div class="alert-icon-col">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
-            </div>
-            <div class="alert-content-col">
-              <div class="alert-header-row">
-                <h4 class="alert-main-title">Aviso de Requisitos Pendientes en su Expediente</h4>
-                <span class="alert-badge-notice">Continuidad Académica</span>
-              </div>
-              <p class="alert-main-text">
-                Tiene
-                <strong
-                  >{{ faltantes.length }}
-                  {{
-                    faltantes.length === 1 ? 'requisito pendiente' : 'requisitos pendientes'
-                  }}</strong
-                >
-                de validación.
-                @if (tieneRequisitosFinalesPendientes(p.postulacionActiva.requisitos)) {
-                  <span>
-                    Su proceso de titulación
-                    <strong>puede continuar en desarrollo con normalidad</strong> dentro de su
-                    cohorte; sin embargo,
-                    <strong>no podrá culminar su titulación ni se emitirá su acta de grado</strong>
-                    hasta que entregue y sean aprobados todos los requisitos antes de la defensa
-                    final o fecha de cierre.
-                  </span>
-                } @else {
-                  <span>
-                    Por favor suba los archivos requeridos para que los docentes responsables
-                    validen su expediente formalmente.
-                  </span>
-                }
-              </p>
-              <div class="pending-tags-container">
-                @for (req of faltantes; track req.idPostulacionAlumnoRequisitoModalidad) {
-                  <div
-                    class="pending-tag-chip"
-                    [class.pending-tag-chip--final]="req.esRequisitoFinal"
-                  >
-                    <span class="chip-dot">●</span>
-                    <strong class="chip-name">{{ req.nombreRequisito }}</strong>
-                    <span class="chip-type">
-                      {{
-                        req.esRequisitoFinal
-                          ? 'Requisito Final (Subsanable en Proceso)'
-                          : 'Requisito Inicial'
-                      }}
-                    </span>
-                    <span class="chip-status">[{{ req.estadoValidacion || 'Pendiente' }}]</span>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-      }
-
-      <!-- Banner de Alerta Prominente cuando la Solicitud es Rechazada -->
+      <!-- Banner Especial si la Postulación fue Rechazada -->
       @if (esPostulacionRechazada(p.postulacionActiva.nombreEstado)) {
         <div class="postulacion-rejected-banner">
           <div class="rejected-banner-icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
+              width="28"
+              height="28"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -301,12 +386,13 @@
             </svg>
           </div>
           <div class="rejected-banner-content">
-            <div class="rejected-badge-pill">RESOLUCIÓN OFICIAL: SOLICITUD RECHAZADA</div>
-            <h3 class="rejected-banner-title">Su postulación de titulación no fue aprobada</h3>
+            <span class="rejected-badge-pill">Modalidad Rechazada</span>
+            <h3 class="rejected-banner-title">
+              Su postulación a {{ p.postulacionActiva.modalidadTitulacion }} no fue admitida
+            </h3>
             <p class="rejected-banner-desc">
-              La Coordinación y Secretaría Académica de Titulación ISTPET han concluido la revisión
-              de su expediente #{{ p.postulacionActiva.idPostulacionAlumnos }} con dictamen de
-              <strong>RECHAZO</strong>.
+              La Coordinación de Titulación ha revisado su expediente y ha determinado que no cumple
+              con las condiciones requeridas para esta modalidad.
             </p>
 
             @if (obtenerObservacionPostulacion(p.postulacionActiva); as obs) {
@@ -321,82 +407,46 @@
                     stroke="currentColor"
                     stroke-width="2"
                   >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
                   </svg>
-                  Motivo / Observación del Dictamen Académico:
+                  Motivo de rechazo emitido por la Coordinación:
                 </span>
                 <p class="rejected-obs-text">{{ obs }}</p>
               </div>
-            } @else {
-              <div class="rejected-obs-box">
-                <p class="rejected-obs-text-muted">
-                  Comuníquese con Secretaría de Titulación o con la Coordinación de Carrera para
-                  solventar inquietudes o consultar sobre la apertura de un nuevo trámite en la
-                  siguiente convocatoria.
+            }
+
+            @if (puedeCambiarModalidad() && modalidadesAlternativas().length > 0) {
+              <div class="rejected-action-row">
+                <p class="rejected-reapply-hint">
+                  Puede seleccionar otra modalidad de titulación ofertada para su carrera y enviar
+                  nuevamente su expediente a evaluación.
                 </p>
+                <button
+                  type="button"
+                  class="btn-reapply-modality"
+                  (click)="abrirModalCambioModalidad()"
+                  [disabled]="cambiandoModalidad()"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                  </svg>
+                  <span>Cambiar Modalidad de Titulación</span>
+                </button>
               </div>
             }
           </div>
         </div>
       }
-
-      <!-- Tarjeta de Expediente -->
-      <div
-        class="expediente-card"
-        [class.expediente-card--rejected]="esPostulacionRechazada(p.postulacionActiva.nombreEstado)"
-      >
-        <table class="fluent-table">
-          <thead>
-            <tr>
-              <th>EXPEDIENTE</th>
-              <th>MODALIDAD</th>
-              <th>ESTADO GENERAL</th>
-              <th>PROGRESO REQUISITOS</th>
-              <th>CARRERA</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <code>#{{ p.postulacionActiva.idPostulacionAlumnos }}</code>
-              </td>
-              <td>
-                <strong>{{ p.postulacionActiva.modalidadTitulacion }}</strong>
-              </td>
-              <td>
-                <span
-                  class="fluent-badge"
-                  [class.fluent-badge--danger]="
-                    esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                  "
-                  [class.fluent-badge--success]="
-                    !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                    p.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
-                  "
-                  [class.fluent-badge--warning]="
-                    !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                    !p.postulacionActiva.nombreEstado.toUpperCase().includes('APROB')
-                  "
-                >
-                  {{ p.postulacionActiva.nombreEstado }}
-                </span>
-              </td>
-              <td>
-                <span
-                  class="badge-progress"
-                  [class.badge-progress--rejected]="
-                    esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                  "
-                >
-                  {{ totalAprobados(p.postulacionActiva.requisitos) }} de
-                  {{ p.postulacionActiva.requisitos.length }} aprobados
-                </span>
-              </td>
-              <td>{{ p.estudiante.nombreCarrera }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
       <!-- Desglose de Validación de Requisitos -->
       <div
@@ -407,23 +457,12 @@
       >
         <div class="box-header">
           <div class="header-titles">
-            <span
-              class="box-eyebrow"
-              [class.text-danger]="esPostulacionRechazada(p.postulacionActiva.nombreEstado)"
-            >
-              {{
-                esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                  ? 'DICTAMEN FINAL: RECHAZADO'
-                  : 'ESTADO DE VALIDACIÓN'
-              }}
-            </span>
+            <span class="box-eyebrow"> ESTADO DE VALIDACIÓN </span>
             <h3 class="box-title">Requisitos Académicos de Titulación</h3>
             <p class="box-subtitle">
-              {{
-                esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                  ? 'El expediente finalizó con dictamen de rechazo. A continuación se detalla el estado final registrado en cada requisito:'
-                  : 'Los docentes responsables están verificando el cumplimiento de sus requisitos. Todos deben estar aprobados para la admisión definitiva.'
-              }}
+              Estos son los requisitos que la modalidad requiere para titularse. A lo largo de su
+              período académico, los mismos serán verificados y, sin su completa aprobación, no será
+              posible su titulación.
             </p>
           </div>
           <div
@@ -460,155 +499,145 @@
                 !esRequisitoRechazado(req)
               "
             >
-              <div class="req-card-top">
-                <div class="req-title-wrapper">
-                  <span
-                    class="status-indicator-dot"
-                    [class.dot-success]="esRequisitoAprobado(req)"
-                    [class.dot-danger]="
-                      esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
-                      esRequisitoRechazado(req)
-                    "
-                  ></span>
+              <div class="req-main-row">
+                <div class="req-name-group">
                   <strong class="req-card-name">{{ req.nombreRequisito }}</strong>
-                </div>
-                <span
-                  class="status-pill"
-                  [class.status-pill--success]="esRequisitoAprobado(req)"
-                  [class.status-pill--danger]="
-                    esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
-                    esRequisitoRechazado(req)
-                  "
-                  [class.status-pill--warning]="
-                    !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                    !esRequisitoAprobado(req) &&
-                    !esRequisitoRechazado(req)
-                  "
-                >
-                  {{
-                    esRequisitoAprobado(req)
-                      ? 'Aprobado'
-                      : esRequisitoRechazado(req) ||
-                          esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                        ? 'Rechazado'
-                        : req.estadoValidacion || 'En Validación'
-                  }}
-                </span>
-              </div>
-
-              <!-- Responsable de Carga Badge -->
-              <div class="req-responsable-row">
-                <span
-                  class="responsable-badge"
-                  [class.responsable-badge--student]="req.subeAlumno"
-                  [class.responsable-badge--dept]="!req.subeAlumno"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    @if (req.subeAlumno) {
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    } @else {
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                      <line x1="16" y1="2" x2="16" y2="6"></line>
-                      <line x1="8" y1="2" x2="8" y2="6"></line>
-                      <line x1="3" y1="10" x2="21" y2="10"></line>
-                    }
-                  </svg>
-                  {{
-                    req.subeAlumno
-                      ? 'Responsable: Estudiante (Debe subir documento)'
-                      : 'Valida: Secretaría Académica'
-                  }}
-                </span>
-
-                @if (req.esRequisitoFinal) {
-                  <span
-                    class="req-nature-badge req-nature-badge--final"
-                    title="Requisito de Salida: Su proceso puede continuar en la cohorte, pero debe entregarlo y aprobarlo antes de la graduación final"
-                  >
-                    🎓 Requisito Final de Graduación (Subsanable en Proceso)
-                  </span>
-                } @else {
-                  <span
-                    class="req-nature-badge req-nature-badge--initial"
-                    title="Requisito Habilitante Inicial: Necesario para la admisión a la titulación"
-                  >
-                    📋 Requisito Inicial Habilitante
-                  </span>
-                }
-              </div>
-
-              <!-- Observaciones del Docente Evaluador -->
-              @if (req.observaciones) {
-                <div class="req-feedback-box">
-                  <span class="feedback-label">
-                    {{
-                      esRequisitoRechazado(req)
-                        ? 'Motivo del Rechazo / Observación:'
-                        : 'Observación del Evaluador:'
-                    }}
-                  </span>
-                  <p class="feedback-text">{{ req.observaciones }}</p>
-                </div>
-              } @else {
-                <div class="req-feedback-box feedback-empty">
-                  <span class="feedback-text-muted">
-                    {{
-                      esRequisitoAprobado(req)
-                        ? 'Requisito verificado y validado por secretaría/docente.'
-                        : esPostulacionRechazada(p.postulacionActiva.nombreEstado) ||
-                            esRequisitoRechazado(req)
-                          ? 'Requisito no aprobado / rechazado. Por favor revise las correcciones y vuelva a subir el documento.'
-                          : req.subeAlumno
-                            ? 'Suba su documento digital para que el docente asignado proceda con la validación.'
-                            : 'Pendiente de verificación por la secretaría / docente asignado.'
-                    }}
-                  </span>
-                </div>
-              }
-
-              <!-- Documento de Soporte / Zona de Carga para el Estudiante -->
-              <div class="req-file-zone">
-                @if (req.nombreArchivoAdjunto) {
-                  <div class="req-attachment-card">
-                    <div class="attachment-details">
+                  @if (!req.subeAlumno) {
+                    <span
+                      class="req-info-icon"
+                      [title]="obtenerTextoTooltip(req)"
+                      aria-label="Información de validación del docente"
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
+                        width="15"
+                        height="15"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </span>
+                  }
+                  @if (req.nombreArchivoAdjunto) {
+                    <a
+                      [href]="getArchivoUrl(req.rutaArchivoAdjunto)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="req-attached-pill"
+                      title="Ver documento cargado: {{ req.nombreArchivoAdjunto }}"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
                       >
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
                       </svg>
-                      <a
-                        [href]="req.rutaArchivoAdjunto"
-                        target="_blank"
-                        class="attachment-download-link"
-                        title="Ver o descargar documento cargado"
-                      >
-                        {{ req.nombreArchivoAdjunto }}
-                      </a>
-                    </div>
+                      <span>{{ req.nombreArchivoAdjunto }}</span>
+                    </a>
+                  }
+                </div>
 
-                    @if (
-                      req.subeAlumno &&
-                      !esRequisitoAprobado(req) &&
-                      !esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                <div class="req-action-group">
+                  <span
+                    class="status-pill"
+                    [ngClass]="obtenerClaseEstado(req, p.postulacionActiva.nombreEstado)"
+                  >
+                    {{ obtenerEstadoTexto(req, p.postulacionActiva.nombreEstado) }}
+                  </span>
+
+                  @if (req.subeAlumno) {
+                    @if (req.nombreArchivoAdjunto) {
+                      <a
+                        [href]="getArchivoUrl(req.rutaArchivoAdjunto)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="req-btn-icon req-btn-icon--file"
+                        title="Ver documento adjunto: {{ req.nombreArchivoAdjunto }}"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                      </a>
+
+                      @if (
+                        !esRequisitoAprobado(req) &&
+                        !esPostulacionRechazada(p.postulacionActiva.nombreEstado)
+                      ) {
+                        <input
+                          #fileInputReplace
+                          type="file"
+                          (change)="onFileChange(req, $event)"
+                          accept="application/pdf,.pdf"
+                          style="display: none"
+                        />
+                        <button
+                          type="button"
+                          class="req-btn-icon req-btn-icon--upload"
+                          (click)="fileInputReplace.click()"
+                          [disabled]="
+                            subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
+                          "
+                          title="Reemplazar archivo PDF"
+                        >
+                          @if (
+                            subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
+                          ) {
+                            <span class="spinner-small"></span>
+                          } @else {
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                              <polyline points="17 8 12 3 7 8"></polyline>
+                              <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                          }
+                        </button>
+                      }
+                    } @else if (
+                      !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
+                      !esRequisitoAprobado(req)
                     ) {
                       <input
-                        #fileInputReplace
+                        #fileInputUpload
                         type="file"
                         (change)="onFileChange(req, $event)"
                         accept="application/pdf,.pdf"
@@ -616,78 +645,46 @@
                       />
                       <button
                         type="button"
-                        class="btn-replace-doc"
-                        (click)="fileInputReplace.click()"
+                        class="req-btn-icon req-btn-icon--upload"
+                        (click)="fileInputUpload.click()"
                         [disabled]="
                           subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
                         "
+                        title="Subir documento PDF"
                       >
                         @if (subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad) {
-                          <span class="spinner-small"></span> Actualizando...
+                          <span class="spinner-small"></span>
                         } @else {
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="12"
-                            height="12"
+                            width="16"
+                            height="16"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
                           >
-                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
                           </svg>
-                          Reemplazar PDF
                         }
                       </button>
                     }
-                  </div>
-                } @else if (
-                  req.subeAlumno &&
-                  !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                  !esRequisitoAprobado(req)
-                ) {
-                  <div class="req-upload-cta">
-                    <input
-                      #fileInputUpload
-                      type="file"
-                      (change)="onFileChange(req, $event)"
-                      accept="application/pdf,.pdf"
-                      style="display: none"
-                    />
-                    <button
-                      type="button"
-                      class="btn-upload-doc"
-                      (click)="fileInputUpload.click()"
-                      [disabled]="
-                        subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
-                      "
-                    >
-                      @if (subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad) {
-                        <span class="spinner-small"></span> Subiendo PDF...
-                      } @else {
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                          <polyline points="17 8 12 3 7 8"></polyline>
-                          <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        Subir Documento (PDF)
-                      }
-                    </button>
-                    <span class="upload-hint">
-                      <strong>Formato obligatorio:</strong> PDF (máx. 2 MB) &nbsp;·&nbsp;
-                      <em>¿Está en Word? En Word elija Guardar como > PDF</em>
-                    </span>
-                  </div>
-                }
+                  }
+                </div>
               </div>
+
+              @if (req.observaciones) {
+                <div class="req-feedback-box">
+                  <span class="feedback-label">
+                    {{ esRequisitoRechazado(req) ? 'Motivo del Rechazo:' : 'Observación:' }}
+                  </span>
+                  <p class="feedback-text">{{ req.observaciones }}</p>
+                </div>
+              }
             </div>
           }
         </div>
@@ -854,5 +851,470 @@
         </div>
       }
     </app-drawer>
+
+    <!-- Drawer: Cambiar Modalidad de Postulación -->
+    <app-drawer
+      [isOpen]="modalCambioOpen()"
+      (isOpenChange)="modalCambioOpen.set($event)"
+      title="Cambiar Modalidad de Postulación"
+      subtitle="Seleccione una modalidad alternativa habilitada para su carrera"
+      eyebrow="PROCESO DE POSTULACIÓN ISTPET"
+      size="lg"
+      (closed)="cerrarModalCambioModalidad()"
+    >
+      <div class="drawer-guide-container">
+        <!-- Aviso Institucional -->
+        <div class="cambio-modalidad-info-box">
+          <div class="info-box-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div class="info-box-text">
+            <strong>¿Qué implica el cambio de modalidad?</strong>
+            <p>
+              Su postulación se actualizará a la nueva modalidad seleccionada y pasará a
+              <strong>revisión y dictamen de la Coordinación de Carrera</strong>. Los documentos de
+              requisitos generales que ya haya aprobado o subido y que coincidan con la nueva
+              modalidad se conservarán automáticamente.
+            </p>
+          </div>
+        </div>
+
+        <!-- Modalidad actual -->
+        @if (p.postulacionActiva; as act) {
+          <div class="cambio-actual-pill">
+            <span class="actual-label">Modalidad Actual:</span>
+            <strong class="actual-name">{{ act.modalidadTitulacion }}</strong>
+            <span
+              class="fluent-badge"
+              [class.fluent-badge--danger]="esPostulacionRechazada(act.nombreEstado)"
+              [class.fluent-badge--warning]="!esPostulacionRechazada(act.nombreEstado)"
+            >
+              {{ act.nombreEstado }}
+            </span>
+          </div>
+        }
+
+        <!-- Catálogo de modalidades alternativas: solo el nombre y selección rápida -->
+        <div class="drawer-guide-section">
+          <h4 class="drawer-section-title">Modalidades Alternativas Disponibles</h4>
+          <p class="drawer-section-desc">
+            Seleccione una modalidad para revisar su normativa reglamentaria y confirmar el cambio.
+          </p>
+          @if (modalidadesAlternativas().length === 0) {
+            <div class="empty-state-card">
+              <p>No se encontraron otras modalidades ofertadas para su carrera en este período.</p>
+            </div>
+          } @else {
+            <div class="modalidades-grid-nombres modalidades-grid-nombres--cambio">
+              @for (mod of modalidadesAlternativas(); track mod.idModalidadTitulacionCarrera) {
+                @let tipo = getIconoTipoModalidad(mod);
+
+                <div
+                  class="modalidad-nombre-card"
+                  role="button"
+                  tabindex="0"
+                  (click)="seleccionarModalidadParaCambio(mod)"
+                  (keydown.enter)="seleccionarModalidadParaCambio(mod)"
+                  (keydown.space)="seleccionarModalidadParaCambio(mod); $event.preventDefault()"
+                >
+                  <div class="modalidad-card-icon" [class]="'icon--' + tipo">
+                    @switch (tipo) {
+                      @case ('complexivo') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                          <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                      }
+                      @case ('articulo') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                          <path
+                            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                          ></path>
+                        </svg>
+                      }
+                      @case ('investigacion') {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                      }
+                      @default {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                          <polyline points="2 17 12 22 22 17"></polyline>
+                          <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                      }
+                    }
+                  </div>
+                  <div class="modalidad-card-info">
+                    <h3 class="modalidad-card-title">{{ mod.modalidadTitulacion }}</h3>
+                    <span class="modalidad-card-meta">
+                      {{ mod.requisitos.length }} requisitos reglamentarios · Clic para revisar
+                      normativa
+                    </span>
+                  </div>
+                  <span class="modalidad-card-arrow" aria-hidden="true">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Acciones del Footer del Drawer -->
+        <div class="drawer-footer-cta">
+          <button type="button" class="fluent-btn-secondary" (click)="cerrarModalCambioModalidad()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </app-drawer>
+
+    <!-- ============================================================= -->
+    <!-- MODAL: REQUISITOS Y PROCESO DE LA MODALIDAD                   -->
+    <!-- ============================================================= -->
+    @if (modalDetalleOpen() && modalidadParaModal(); as mod) {
+      @let detalle = getDetalleModalidad(mod);
+      @let flujo = getExplicacionProcesoModalidad(mod);
+      @let tipo = getIconoTipoModalidad(mod);
+
+      <div
+        class="modal-backdrop"
+        (click)="cerrarModalModalidad()"
+        (keydown.escape)="cerrarModalModalidad()"
+        tabindex="-1"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-modalidad-title"
+      >
+        <div
+          class="modal-dialog-card"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()"
+          tabindex="0"
+        >
+          <!-- Encabezado del Modal -->
+          <div class="modal-dialog-header">
+            <div class="modal-dialog-title-wrap">
+              <span class="modal-dialog-eyebrow">MODALIDAD DE GRADUACIÓN · ISTPET</span>
+              <h3 id="modal-modalidad-title" class="modal-dialog-title">
+                {{ mod.modalidadTitulacion }}
+              </h3>
+              <span class="modality-category-tag">{{ detalle.tag }}</span>
+            </div>
+            <button
+              type="button"
+              class="modal-close-btn"
+              (click)="cerrarModalModalidad()"
+              [disabled]="postulando()"
+              aria-label="Cerrar ventana"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Cuerpo del Modal -->
+          <div class="modal-dialog-body">
+            <!-- Bloque Explicativo del Proceso: Qué hace la Unidad de Titulación -->
+            <div class="modal-flujo-card">
+              <div class="modal-flujo-header">
+                <div class="flujo-icon-wrap" [class]="'icon--' + tipo">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 14 14"></polyline>
+                  </svg>
+                </div>
+                <div class="flujo-header-text">
+                  <h4 class="flujo-title">¿Cómo funciona el proceso de aprobación?</h4>
+                  <p class="flujo-lead">
+                    {{ flujo.resumenFlujo }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Mini-ruta del proceso -->
+              <div class="flujo-steps-strip">
+                <div class="flujo-step">
+                  <span class="flujo-step-num">1</span>
+                  <div class="flujo-step-label">
+                    <strong>Postulación</strong>
+                    <span>Envío de modalidad</span>
+                  </div>
+                </div>
+                <div class="flujo-step-arrow" aria-hidden="true">→</div>
+                <div class="flujo-step active">
+                  <span class="flujo-step-num">2</span>
+                  <div class="flujo-step-label">
+                    <strong>Verificación</strong>
+                    <span>Unidad de Titulación valida</span>
+                  </div>
+                </div>
+                <div class="flujo-step-arrow" aria-hidden="true">→</div>
+                <div class="flujo-step">
+                  <span class="flujo-step-num">3</span>
+                  <div class="flujo-step-label">
+                    <strong>Pase al Siguiente Proceso</strong>
+                    <span>Continuidad académica</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección de Requisitos para Aprobar -->
+            <div class="modal-requisitos-section">
+              <div class="modal-section-title-wrap">
+                <h4 class="modal-section-title">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                  Requisitos para postular y aprobar esta modalidad
+                  @if (mod.requisitos && mod.requisitos.length > 0) {
+                    <span class="req-count-badge">({{ mod.requisitos.length }})</span>
+                  }
+                </h4>
+                <p class="modal-section-desc">
+                  La Unidad de Titulación verificará el cumplimiento de los siguientes
+                  requerimientos para admitir y dar paso a la continuidad de su proceso:
+                </p>
+              </div>
+
+              @if (mod.requisitos && mod.requisitos.length > 0) {
+                <div class="modal-reqs-list">
+                  @for (req of mod.requisitos; track req.idRequisitoModalidad) {
+                    <div class="modal-req-card">
+                      <div class="modal-req-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                      <div class="modal-req-content">
+                        <strong class="modal-req-name">{{ req.nombreRequisito }}</strong>
+                        <div class="modal-req-badges">
+                          <span
+                            class="req-badge"
+                            [class.req-badge--final]="req.esRequisitoFinal"
+                            [class.req-badge--initial]="!req.esRequisitoFinal"
+                          >
+                            {{
+                              req.esRequisitoFinal
+                                ? 'Requisito Final (Salida)'
+                                : 'Requisito Inicial (Admisión)'
+                            }}
+                          </span>
+                          <span class="req-badge req-badge--role">
+                            {{
+                              req.subeAlumno
+                                ? 'Adjuntado por Estudiante'
+                                : 'Verificado por Unidad de Titulación'
+                            }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="modal-reqs-empty">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <div class="empty-text">
+                    <strong>Requisitos Institucionales Normados</strong>
+                    <p>
+                      Esta modalidad contempla los requerimientos reglamentarios del ISTPET (Malla
+                      Curricular completa, Prácticas Preprofesionales, Vinculación con la Sociedad y
+                      Certificación de Idioma). La Unidad de Titulación auditará su expediente
+                      directamente en el sistema institucional.
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Pie del Modal con Acciones -->
+          <div class="modal-dialog-footer">
+            <button
+              type="button"
+              class="fluent-btn-secondary"
+              (click)="cerrarModalModalidad()"
+              [disabled]="postulando() || cambiandoModalidad()"
+            >
+              Cancelar
+            </button>
+            @if (esModoCambioModalidad()) {
+              <button
+                type="button"
+                class="fluent-btn-primary"
+                [disabled]="cambiandoModalidad()"
+                (click)="confirmarCambioDesdeModal(mod)"
+              >
+                @if (cambiandoModalidad()) {
+                  <span class="spinner-small"></span> Actualizando modalidad...
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                  </svg>
+                  Confirmar Cambio a esta Modalidad
+                }
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="fluent-btn-primary"
+                [disabled]="postulando()"
+                (click)="confirmarPostulacionDesdeModal(mod)"
+              >
+                @if (postulando()) {
+                  <span class="spinner-small"></span> Registrando postulación...
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  Postular a esta Modalidad
+                }
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
   </section>
 }

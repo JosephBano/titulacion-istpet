@@ -11,7 +11,9 @@ try {
 
 describe('App', () => {
   it('se crea la instancia de la aplicación', () => {
-    const app = new App();
-    expect(app).toBeDefined();
+    TestBed.runInInjectionContext(() => {
+      const app = new App();
+      expect(app).toBeDefined();
+    });
   });
 });

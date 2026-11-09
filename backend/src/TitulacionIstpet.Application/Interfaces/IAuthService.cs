@@ -8,4 +8,7 @@ public interface IAuthService
     Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request, string ipAddress, string deviceInfo, CancellationToken cancellationToken = default);
     Task<bool> RevokeRefreshTokenAsync(string refreshToken, string reason, CancellationToken cancellationToken = default);
     Task<UserPermissionsDto> GetUserPermissionsAsync(int idUsuario, string systemCode = "TITULACION", CancellationToken cancellationToken = default);
+    Task<ValidarDocumentoRecuperacionResponseDto> ValidarDocumentoRecuperacionAsync(ValidarDocumentoRecuperacionRequestDto request, CancellationToken cancellationToken = default);
+    Task<ValidarFechaNacimientoResponseDto> ValidarFechaNacimientoAsync(ValidarFechaNacimientoRequestDto request, CancellationToken cancellationToken = default);
+    Task<RestablecerContrasenaResponseDto> RestablecerContrasenaAsync(RestablecerContrasenaRequestDto request, CancellationToken cancellationToken = default);
 }

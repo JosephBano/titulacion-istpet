@@ -12,6 +12,9 @@ import { KpiCardComponent } from './kpi-card/kpi-card.component';
 import { DictamenModalComponent } from './dictamen-modal/dictamen-modal.component';
 import { AperturaPeriodoModalComponent } from './apertura-periodo-modal/apertura-periodo-modal.component';
 import { DrawerComponent } from './drawer/drawer.component';
+import { ConfirmModalComponent } from './confirm-modal/confirm-modal.component';
+import { TopbarComponent } from './topbar/topbar.component';
+import { ConfirmService } from '../../core/services/confirm.service';
 import { TitulacionService } from '../../core/services/titulacion.service';
 import { API_BASE_URL } from '../../core/config/api.config';
 
@@ -29,6 +32,7 @@ describe('Shared UI Components Unit Tests', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         TitulacionService,
+        ConfirmService,
         { provide: API_BASE_URL, useValue: 'http://localhost:5000' },
       ],
     });
@@ -47,8 +51,16 @@ describe('Shared UI Components Unit Tests', () => {
     TestBed.runInInjectionContext(() => {
       const comp = new ConvocatoriaCardComponent();
       expect(comp.estaAbierta()).toBe(false);
+      expect(comp.simplificado()).toBe(false);
       expect(comp.diasRestantes()).toBeNull();
       expect(comp.detalle()).toBe('Período Ordinario de Titulación');
+    });
+  });
+
+  it('TopbarComponent: debe calcular iniciales y manejar datos de estudiante', () => {
+    TestBed.runInInjectionContext(() => {
+      const comp = new TopbarComponent();
+      expect(comp.initial()).toBe('U');
     });
   });
 
@@ -67,9 +79,10 @@ describe('Shared UI Components Unit Tests', () => {
     });
   });
 
-  it('DictamenModalComponent: debe emitir evento confirm con datos estructurados al llamar onConfirm', () => {
-    TestBed.runInInjectionContext(() => {
+  it('DictamenModalComponent: debe emitir evento confirm con datos estructurados al llamar onConfirm', async () => {
+    await TestBed.runInInjectionContext(async () => {
       const comp = new DictamenModalComponent();
+      const confirmService = TestBed.inject(ConfirmService);
       let emittedValue: unknown = null;
       comp.confirm.subscribe((val) => (emittedValue = val));
 
@@ -79,11 +92,66 @@ describe('Shared UI Components Unit Tests', () => {
         observaciones: 'Cumple con todos los requisitos',
       });
 
-      comp.onConfirm();
+      const confirmPromise = comp.onConfirm();
+      confirmService.handleConfirm();
+      await confirmPromise;
+
       expect(emittedValue).toBeDefined();
       const result = emittedValue as { idPostulacionAlumnos: number; decision: string };
       expect(result.idPostulacionAlumnos).toBe(101);
       expect(result.decision).toBe('APROBAR');
+    });
+  });
+
+  it('ConfirmService: debe gestionar el ciclo de confirmación y cancelación correctamente', async () => {
+    await TestBed.runInInjectionContext(async () => {
+      const service = TestBed.inject(ConfirmService);
+
+      // 1. Probar confirmación aceptada
+      const promiseA = service.confirm({
+        title: '¿Confirmar documento?',
+        message: 'Por favor confirme',
+        variant: 'primary',
+      });
+      expect(service.state()?.isOpen).toBe(true);
+      expect(service.state()?.title).toBe('¿Confirmar documento?');
+
+      service.handleConfirm();
+      const resA = await promiseA;
+      expect(resA).toBe(true);
+      expect(service.state()).toBeNull();
+
+      // 2. Probar cancelación
+      const promiseB = service.confirm({
+        title: '¿Rechazar documento?',
+        message: 'Por favor confirme el rechazo',
+        variant: 'danger',
+      });
+      expect(service.state()?.isOpen).toBe(true);
+
+      service.handleCancel();
+      const resB = await promiseB;
+      expect(resB).toBe(false);
+      expect(service.state()).toBeNull();
+    });
+  });
+
+  it('ConfirmModalComponent: debe emitir eventos confirm y cancel al ejecutarse', () => {
+    TestBed.runInInjectionContext(() => {
+      const comp = new ConfirmModalComponent();
+      expect(comp.isOpen()).toBe(false);
+      expect(comp.variant()).toBe('primary');
+
+      let confirmed = false;
+      let cancelled = false;
+      comp.confirm.subscribe(() => (confirmed = true));
+      comp.cancelConfirm.subscribe(() => (cancelled = true));
+
+      comp.onConfirm();
+      expect(confirmed).toBe(true);
+
+      comp.onCancel();
+      expect(cancelled).toBe(true);
     });
   });
 

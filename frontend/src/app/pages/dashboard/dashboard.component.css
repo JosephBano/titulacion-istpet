@@ -2574,17 +2574,7 @@
   line-height: 1.4;
 }
 
-/* Footer Legal */
-.fluent-legal {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  font-size: 0.6875rem;
-  color: var(--text-muted, #605e5c);
-  padding: 12px 0 0;
-  margin-top: auto;
-}
+
 
 @media (max-width: 900px) {
   .sidebar-spacer {

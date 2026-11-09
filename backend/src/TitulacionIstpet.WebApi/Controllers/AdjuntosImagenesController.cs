@@ -68,6 +68,19 @@ public sealed class AdjuntosImagenesController(
             return BadRequest(new { message = "No se ha proporcionado un archivo válido." });
         }
 
+        const long maxSizeBytes = 2 * 1024 * 1024; // 2 MB
+        if (archivo.Length > maxSizeBytes)
+        {
+            return BadRequest(new { message = "El archivo excede el tamaño máximo permitido de 2 MB." });
+        }
+
+        var originalFileName = Path.GetFileName(archivo.FileName);
+        var extension = Path.GetExtension(originalFileName).TrimStart('.').ToLowerInvariant();
+        if (extension != "pdf")
+        {
+            return BadRequest(new { message = "El documento debe ser obligatoriamente un archivo en formato PDF (.pdf)." });
+        }
+
         var webRoot = string.IsNullOrWhiteSpace(env.WebRootPath)
             ? Path.Combine(env.ContentRootPath, "wwwroot")
             : env.WebRootPath;
@@ -77,8 +90,6 @@ public sealed class AdjuntosImagenesController(
             Directory.CreateDirectory(evidenciasDir);
         }
 
-        var originalFileName = Path.GetFileName(archivo.FileName);
-        var extension = Path.GetExtension(originalFileName).TrimStart('.').ToLowerInvariant();
         var uniqueFileName = $"{Guid.NewGuid():N}_{originalFileName}";
         var physicalPath = Path.Combine(evidenciasDir, uniqueFileName);
 
