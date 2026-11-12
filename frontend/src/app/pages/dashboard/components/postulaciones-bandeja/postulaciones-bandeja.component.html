@@ -352,60 +352,62 @@
                     <span>Examinar</span>
                   </button>
 
-                  <button
-                    type="button"
-                    class="action-btn action-btn--approve"
-                    (click)="
-                      emitirDictamen(
-                        p.idPostulacionAlumnos,
-                        'APROBAR',
-                        p.nombreAlumno,
-                        p.cedulaAlumno
-                      )
-                    "
-                    title="Aprobar postulación formal"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
+                  @if (puedeDictaminar(p.nombreEstado)) {
+                    <button
+                      type="button"
+                      class="action-btn action-btn--approve"
+                      (click)="
+                        emitirDictamen(
+                          p.idPostulacionAlumnos,
+                          'APROBAR',
+                          p.nombreAlumno,
+                          p.cedulaAlumno
+                        )
+                      "
+                      title="Aprobar postulación formal"
                     >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    <span>Aprobar</span>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                      >
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Aprobar</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    class="action-btn action-btn--reject"
-                    (click)="
-                      emitirDictamen(
-                        p.idPostulacionAlumnos,
-                        'RECHAZAR',
-                        p.nombreAlumno,
-                        p.cedulaAlumno
-                      )
-                    "
-                    title="Rechazar solicitud"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
+                    <button
+                      type="button"
+                      class="action-btn action-btn--reject"
+                      (click)="
+                        emitirDictamen(
+                          p.idPostulacionAlumnos,
+                          'RECHAZAR',
+                          p.nombreAlumno,
+                          p.cedulaAlumno
+                        )
+                      "
+                      title="Rechazar solicitud"
                     >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    <span>Rechazar</span>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      <span>Rechazar</span>
+                    </button>
+                  }
                 </div>
               </td>
             </tr>
@@ -1287,46 +1289,53 @@
           <span class="footer-note">Resolución de Secretaría / Comisión de Titulación</span>
         </div>
         <div class="drawer-footer-actions">
-          <button
-            type="button"
-            class="action-btn action-btn--approve btn-footer-action"
-            (click)="dictaminarDesdeExamen('APROBAR')"
-            title="Aprobar postulación formal"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
+          @if (
+            puedeDictaminar(
+              postulacionResumenSeleccionada()?.nombreEstado ||
+                postulacionDetalleSeleccionada()?.nombreEstado
+            )
+          ) {
+            <button
+              type="button"
+              class="action-btn action-btn--approve btn-footer-action"
+              (click)="dictaminarDesdeExamen('APROBAR')"
+              title="Aprobar postulación formal"
             >
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Aprobar</span>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Aprobar</span>
+            </button>
 
-          <button
-            type="button"
-            class="action-btn action-btn--reject btn-footer-action"
-            (click)="dictaminarDesdeExamen('RECHAZAR')"
-            title="Rechazar solicitud"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
+            <button
+              type="button"
+              class="action-btn action-btn--reject btn-footer-action"
+              (click)="dictaminarDesdeExamen('RECHAZAR')"
+              title="Rechazar solicitud"
             >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-            <span>Rechazar</span>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Rechazar</span>
+            </button>
+          }
 
           <button type="button" class="btn-icon-text" (click)="cerrarExamenModal()">Cerrar</button>
         </div>

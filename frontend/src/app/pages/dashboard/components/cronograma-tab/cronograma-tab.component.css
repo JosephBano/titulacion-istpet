@@ -208,7 +208,10 @@
   border-radius: 12px;
   padding: 1.35rem 1.4rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
   min-height: 220px;
 }
 
@@ -220,7 +223,9 @@
 .stage-h-card--active {
   border-color: #0d1b4c;
   background-color: #fafbfe;
-  box-shadow: 0 0 0 1.5px #0d1b4c, 0 4px 12px rgba(13, 27, 76, 0.08);
+  box-shadow:
+    0 0 0 1.5px #0d1b4c,
+    0 4px 12px rgba(13, 27, 76, 0.08);
 }
 
 .stage-h-header {

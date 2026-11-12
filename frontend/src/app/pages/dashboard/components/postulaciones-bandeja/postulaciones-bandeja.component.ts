@@ -153,6 +153,18 @@ export class PostulacionesBandejaComponent {
     this.dictamen.emit({ idPostulacion, decision, nombreAlumno, cedulaAlumno });
   }
 
+  puedeDictaminar(nombreEstado?: string | null): boolean {
+    if (!nombreEstado) return false;
+    const est = nombreEstado.toUpperCase();
+    return (
+      !est.includes('RECHAZ') &&
+      !est.includes('NEGAD') &&
+      !est.includes('APROB') &&
+      !est.includes('TITULAD') &&
+      !est.includes('GRADUAD')
+    );
+  }
+
   getEstadoClass(nombreEstado: string): string {
     const est = (nombreEstado || '').toUpperCase();
     if (est.includes('APROB')) return 'estado-aprobado';

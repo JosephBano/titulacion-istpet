@@ -232,6 +232,42 @@ public partial class EmailService : IEmailService
         await SendEmailAsync(destinatario, subject, html, cancellationToken);
     }
 
+    public async Task NotificarRequisitoRechazadoAsync(
+        string destinatario,
+        string nombreEstudiante,
+        string carrera,
+        string modalidad,
+        int idPostulacion,
+        string nombreRequisito,
+        string? motivoRechazo,
+        CancellationToken cancellationToken = default)
+    {
+        string subject = $"Observación / Rechazo de Documento en Postulación #{idPostulacion} - ISTPET";
+        string badgeTexto = "DOCUMENTO RECHAZADO";
+        string badgeColor = "#b91c1c";
+        string contenido = $@"
+            <p>Estimado/a <strong>{nombreEstudiante}</strong>,</p>
+            <p>Le informamos que el docente o comité evaluador ha revisado el documento presentado para el requisito <strong>""{nombreRequisito}""</strong> en su expediente de titulación <strong>#{idPostulacion}</strong> y ha registrado una resolución de <strong>RECHAZO / OBSERVACIÓN</strong>.</p>
+
+            <div style='background: #fef2f2; border-left: 4px solid #dc2626; padding: 14px 18px; margin: 18px 0; border-radius: 4px;'>
+                <table style='width: 100%; border-collapse: collapse; font-size: 14px;'>
+                    <tr><td style='padding: 6px 0; color: #64748b; width: 150px;'><strong>N° Expediente:</strong></td><td style='padding: 6px 0; color: #991b1b;'><strong>#{idPostulacion}</strong></td></tr>
+                    <tr><td style='padding: 6px 0; color: #64748b;'><strong>Carrera:</strong></td><td style='padding: 6px 0;'>{carrera}</td></tr>
+                    <tr><td style='padding: 6px 0; color: #64748b;'><strong>Modalidad:</strong></td><td style='padding: 6px 0;'>{modalidad}</td></tr>
+                    <tr><td style='padding: 6px 0; color: #64748b;'><strong>Documento / Requisito:</strong></td><td style='padding: 6px 0; color: #0d1b4c;'><strong>{nombreRequisito}</strong></td></tr>
+                    <tr><td style='padding: 6px 0; color: #64748b;'><strong>Estado:</strong></td><td style='padding: 6px 0;'><span style='background: #fee2e2; color: #b91c1c; padding: 3px 8px; border-radius: 3px; font-weight: bold;'>RECHAZADO</span></td></tr>
+                    {(!string.IsNullOrWhiteSpace(motivoRechazo) ? $"<tr><td style='padding: 6px 0; color: #64748b;'><strong>Motivo / Observación:</strong></td><td style='padding: 6px 0; color: #7f1d1d;'>{motivoRechazo}</td></tr>" : "")}
+                </table>
+            </div>
+
+            <p style='color: #1e293b;'><strong>📌 ¿Qué debe hacer a continuación?</strong></p>
+            <p style='color: #475569;'>Por favor, ingrese al Sistema de Titulación ISTPET con su cuenta institucional, acceda a su portal de estudiante, revise las observaciones indicadas y cargue nuevamente el documento actualizado en formato PDF para que sea reevaluado.</p>
+        ";
+
+        string html = ConstruirPlantillaBase("EVALUACIÓN DE REQUISITOS DE TITULACIÓN", badgeTexto, badgeColor, contenido);
+        await SendEmailAsync(destinatario, subject, html, cancellationToken);
+    }
+
     private static string ConstruirPlantillaBase(string subtituloHeader, string badgeTexto, string badgeColor, string cuerpoContenido)
     {
         return $@"

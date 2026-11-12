@@ -4,6 +4,9 @@ using TitulacionIstpet.Infrastructure.DependencyInjection;
 using TitulacionIstpet.WebApi.Extensions;
 using TitulacionIstpet.WebApi.Middleware;
 
+// Asegurar existencia de wwwroot antes de CreateBuilder para evitar DirectoryNotFoundException en StaticWebAssets
+Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "evidencias"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((ctx, cfg) => cfg.ReadFrom.Configuration(ctx.Configuration));

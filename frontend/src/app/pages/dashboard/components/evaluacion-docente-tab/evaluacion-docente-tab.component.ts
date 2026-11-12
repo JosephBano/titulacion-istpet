@@ -43,7 +43,7 @@ export class EvaluacionDocenteTabComponent {
 
   // Filtros de UI
   busqueda = signal<string>('');
-  filtroCumplimiento = signal<'TODOS' | 'PENDIENTES' | 'APROBADOS'>('TODOS');
+  filtroCumplimiento = signal<'TODOS' | 'PENDIENTES' | 'RECHAZADOS' | 'APROBADOS'>('TODOS');
   filtroCarrera = signal<string>('TODAS');
 
   // Paginación
@@ -57,7 +57,8 @@ export class EvaluacionDocenteTabComponent {
   // Estado local de edición por ID de requisito
   archivosPorFila = signal<Record<number, File>>({});
   observacionesPorFila = signal<Record<number, string>>({});
-  aprobadoPorFila = signal<Record<number, boolean>>({});
+  aprobadoPorFila = signal<Record<number, boolean | null>>({});
+  errorObservaciones = signal<boolean>(false);
 
   // Lista única de carreras para filtro
   carrerasDisponibles = computed(() => {
@@ -67,13 +68,40 @@ export class EvaluacionDocenteTabComponent {
     return Array.from(new Set(list)).sort();
   });
 
+  // Determinación centralizada del estado de evaluación
+  getEstadoEvaluacion(item: RequisitoEvaluacionDocente): 'APROBADO' | 'RECHAZADO' | 'PENDIENTE' {
+    if (item.aprobado || item.estadoEvaluacion === 'APROBADO') {
+      return 'APROBADO';
+    }
+    if (item.estadoEvaluacion === 'RECHAZADO' || item.estadoEvaluacion === 'OBSERVADO') {
+      return 'RECHAZADO';
+    }
+    return 'PENDIENTE';
+  }
+
+  esAprobado(item: RequisitoEvaluacionDocente): boolean {
+    return this.getEstadoEvaluacion(item) === 'APROBADO';
+  }
+
+  esRechazado(item: RequisitoEvaluacionDocente): boolean {
+    return this.getEstadoEvaluacion(item) === 'RECHAZADO';
+  }
+
+  esPendiente(item: RequisitoEvaluacionDocente): boolean {
+    return this.getEstadoEvaluacion(item) === 'PENDIENTE';
+  }
+
   // Métricas rápidas
   totalPendientes = computed(() => {
-    return this.items().filter((item) => !this.getAprobado(item)).length;
+    return this.items().filter((item) => this.esPendiente(item)).length;
+  });
+
+  totalRechazados = computed(() => {
+    return this.items().filter((item) => this.esRechazado(item)).length;
   });
 
   totalAprobados = computed(() => {
-    return this.items().filter((item) => this.getAprobado(item)).length;
+    return this.items().filter((item) => this.esAprobado(item)).length;
   });
 
   // Items filtrados
@@ -85,9 +113,9 @@ export class EvaluacionDocenteTabComponent {
 
     return rawItems
       .filter((item) => {
-        const esAprob = this.getAprobado(item);
-        if (filtro === 'PENDIENTES' && esAprob) return false;
-        if (filtro === 'APROBADOS' && !esAprob) return false;
+        if (filtro === 'PENDIENTES' && !this.esPendiente(item)) return false;
+        if (filtro === 'RECHAZADOS' && !this.esRechazado(item)) return false;
+        if (filtro === 'APROBADOS' && !this.esAprobado(item)) return false;
 
         if (carreraSel !== 'TODAS' && item.carrera !== carreraSel) {
           return false;
@@ -106,9 +134,14 @@ export class EvaluacionDocenteTabComponent {
         return true;
       })
       .sort((a, b) => {
-        const aAprob = this.getAprobado(a) ? 1 : 0;
-        const bAprob = this.getAprobado(b) ? 1 : 0;
-        if (aAprob !== bAprob) return aAprob - bAprob;
+        const peso = (item: RequisitoEvaluacionDocente) => {
+          if (this.esPendiente(item)) return 0;
+          if (this.esRechazado(item)) return 1;
+          return 2;
+        };
+        const pesoA = peso(a);
+        const pesoB = peso(b);
+        if (pesoA !== pesoB) return pesoA - pesoB;
         return b.idPostulacionAlumnos - a.idPostulacionAlumnos;
       });
   });
@@ -217,7 +250,7 @@ export class EvaluacionDocenteTabComponent {
   });
 
   // Acciones de UI
-  setFiltro(tipo: 'PENDIENTES' | 'APROBADOS' | 'TODOS'): void {
+  setFiltro(tipo: 'TODOS' | 'PENDIENTES' | 'RECHAZADOS' | 'APROBADOS'): void {
     this.filtroCumplimiento.set(tipo);
     this.paginaActual.set(1);
   }
@@ -245,11 +278,13 @@ export class EvaluacionDocenteTabComponent {
 
   // Apertura y Navegación del Drawer
   abrirRevision(item: RequisitoEvaluacionDocente): void {
+    this.errorObservaciones.set(false);
     this.casoSeleccionado.set(item);
-    // Si aún no tenía estado modificado, inicializarlo con el actual
-    if (this.aprobadoPorFila()[item.idPostulacionAlumnoRequisitoModalidad] === undefined) {
-      this.setAprobado(item, item.aprobado);
-    }
+    // Al abrir la pantalla de revisión no debe empezar premarcado ni aprobado ni rechazado
+    this.aprobadoPorFila.update((map) => ({
+      ...map,
+      [item.idPostulacionAlumnoRequisitoModalidad]: null,
+    }));
     if (this.observacionesPorFila()[item.idPostulacionAlumnoRequisitoModalidad] === undefined) {
       this.setObservaciones(item, item.observaciones || '');
     }
@@ -259,6 +294,7 @@ export class EvaluacionDocenteTabComponent {
   cerrarRevision(): void {
     this.drawerAbierto.set(false);
     this.casoSeleccionado.set(null);
+    this.errorObservaciones.set(false);
   }
 
   irAnterior(): void {
@@ -278,17 +314,39 @@ export class EvaluacionDocenteTabComponent {
   }
 
   // Getters y Setters de formulario
-  getAprobado(item: RequisitoEvaluacionDocente): boolean {
+  getAprobado(item: RequisitoEvaluacionDocente): boolean | null {
     const custom = this.aprobadoPorFila()[item.idPostulacionAlumnoRequisitoModalidad];
     if (custom !== undefined) return custom;
-    return item.aprobado;
+    return null;
   }
 
   setAprobado(item: RequisitoEvaluacionDocente, valor: boolean): void {
+    if (item.aprobado && !valor) {
+      this.notification.warning(
+        'Este requisito ya fue evaluado como APROBADO y no puede ser modificado a rechazado.',
+      );
+      return;
+    }
     this.aprobadoPorFila.update((map) => ({
       ...map,
       [item.idPostulacionAlumnoRequisitoModalidad]: valor,
     }));
+
+    if (!valor) {
+      const obs = this.getObservaciones(item).trim();
+      if (!obs) {
+        this.errorObservaciones.set(true);
+        this.notification.warning(
+          'Ha marcado No Cumple. Ingrese obligatoriamente las observaciones explicando el motivo al estudiante.',
+        );
+        setTimeout(() => {
+          const el = document.getElementById('drawerObs') as HTMLTextAreaElement | null;
+          el?.focus();
+        }, 150);
+      }
+    } else {
+      this.errorObservaciones.set(false);
+    }
   }
 
   getObservaciones(item: RequisitoEvaluacionDocente): string {
@@ -298,6 +356,9 @@ export class EvaluacionDocenteTabComponent {
   }
 
   setObservaciones(item: RequisitoEvaluacionDocente, valor: string): void {
+    if (valor.trim().length > 0) {
+      this.errorObservaciones.set(false);
+    }
     this.observacionesPorFila.update((map) => ({
       ...map,
       [item.idPostulacionAlumnoRequisitoModalidad]: valor,
@@ -352,6 +413,34 @@ export class EvaluacionDocenteTabComponent {
     if (!caso) return;
 
     const aprobado = this.getAprobado(caso);
+    if (aprobado === null) {
+      this.notification.warning(
+        'Debe seleccionar un dictamen: marque "Cumple / Aprobado" o "No Cumple / Con Observaciones" antes de guardar.',
+      );
+      return;
+    }
+
+    const observaciones = this.getObservaciones(caso).trim();
+
+    if (caso.aprobado && !aprobado) {
+      this.notification.error(
+        'Un requisito previamente aprobado no puede ser modificado a rechazado.',
+      );
+      return;
+    }
+
+    if (!aprobado && !observaciones) {
+      this.errorObservaciones.set(true);
+      this.notification.warning(
+        'Debe ingresar obligatoriamente las observaciones explicando el motivo por el cual no cumple el requisito.',
+      );
+      const el = document.getElementById('drawerObs') as HTMLTextAreaElement | null;
+      el?.focus();
+      return;
+    }
+
+    this.errorObservaciones.set(false);
+
     const archivo = this.archivosPorFila()[caso.idPostulacionAlumnoRequisitoModalidad];
     const esAprobacion = aprobado === true;
 
@@ -376,6 +465,7 @@ export class EvaluacionDocenteTabComponent {
 
     if (confirmado) {
       this.enviarGuardado(caso);
+      this.cerrarRevision();
     }
   }
 
@@ -410,7 +500,7 @@ export class EvaluacionDocenteTabComponent {
 
     this.guardarEvaluacion.emit({
       item,
-      aprobado,
+      aprobado: aprobado === true,
       observaciones,
       archivo,
     });

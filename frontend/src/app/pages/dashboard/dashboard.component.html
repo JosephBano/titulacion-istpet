@@ -553,7 +553,8 @@
               @case ('evaluacion') {
                 Validación de Requisitos Asignados
                 <span class="page-header-badge"
-                  >{{ requisitosDocentePendientes().length }} pendientes</span
+                  >{{ totalRequisitosDocentePendientes() }}
+                  {{ totalRequisitosDocentePendientes() === 1 ? 'pendiente' : 'pendientes' }}</span
                 >
               }
               @case ('postulacion') {

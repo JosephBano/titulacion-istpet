@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -99,6 +99,7 @@ export class DashboardComponent implements OnInit {
   private readonly networkService = inject(NetworkStatusService);
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute, { optional: true });
 
   currentUser = this.authService.currentUser;
   currentYear = new Date().getFullYear();
@@ -154,7 +155,7 @@ export class DashboardComponent implements OnInit {
   postulacionesTotal = signal<number>(0);
   postulacionesCargando = signal<boolean>(false);
   estadosPostulacion = signal<EstadoPostulacion[]>([]);
-  filtroEstado = signal<number | null>(null);
+  filtroEstado = signal<number | null>(1); // Preseleccionar por defecto "EN REVISIÓN" (ID 1) para mayor velocidad
   filtroCarrera = signal<number | null>(null);
   filtroBusqueda = signal<string>('');
   paginaActual = signal<number>(1);
@@ -506,6 +507,16 @@ export class DashboardComponent implements OnInit {
   requisitosDocenteCargando = signal<boolean>(false);
   guardandoEvaluacionId = signal<number | null>(null);
 
+  totalRequisitosDocentePendientes = computed(() => {
+    return this.requisitosDocentePendientes().filter(
+      (item) =>
+        !item.aprobado &&
+        item.estadoEvaluacion !== 'APROBADO' &&
+        item.estadoEvaluacion !== 'RECHAZADO' &&
+        item.estadoEvaluacion !== 'OBSERVADO',
+    ).length;
+  });
+
   // Formulario de Apertura de Convocatoria
   aperturaForm = signal({
     idPeriodo: '2026-I',
@@ -591,7 +602,11 @@ export class DashboardComponent implements OnInit {
     return this.hasRole('SECRETARIA');
   }
 
+  // Feature flag de Pagos de Titulación: temporalmente desactivado para producción mientras se aplican las migraciones DDL
+  readonly moduloPagosHabilitado = false;
+
   puedeVerPagos(): boolean {
+    if (!this.moduloPagosHabilitado) return false;
     return this.isAdmin() || this.isSecretaria() || this.isContabilidad();
   }
 
@@ -629,45 +644,102 @@ export class DashboardComponent implements OnInit {
     return this.hasRole('TITULACION_ADMIN') && this.hasPermission('Examen Complexivo', 'ver');
   }
 
+  getTabPorDefecto(): string {
+    if (this.isEstudiante()) return 'postulacion';
+    if (this.isAdmin()) return 'resumen';
+    if (this.isContabilidad() || this.isSecretaria()) {
+      return this.puedeVerPagos() ? 'pagos' : 'cronograma';
+    }
+    if (this.isDocente()) return 'evaluacion';
+    return 'resumen';
+  }
+
+  esTabPermitido(tab: string | null | undefined): boolean {
+    if (!tab) return false;
+    if (this.isEstudiante()) {
+      return tab === 'postulacion' || tab === 'cronograma';
+    }
+    if (this.isDocente() && !this.isAdmin()) {
+      return tab === 'evaluacion' || tab === 'cronograma';
+    }
+    if ((this.isContabilidad() || this.isSecretaria()) && !this.isAdmin()) {
+      return (tab === 'pagos' && this.puedeVerPagos()) || tab === 'cronograma';
+    }
+    if (this.isAdmin()) {
+      if (tab === 'evaluacion') return this.isDocente();
+      if (tab === 'pagos') return this.puedeVerPagos();
+      if (tab === 'requisicion-personal' || tab === 'configuracion-complexivo')
+        return this.puedeVerComplexivo();
+      return [
+        'resumen',
+        'postulaciones',
+        'egresados',
+        'reportes',
+        'cohortes',
+        'requisitos',
+        'modalidades',
+        'cronograma',
+      ].includes(tab);
+    }
+    return true;
+  }
+
+  private persistirTab(tab: string): void {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('titulacion_active_tab', tab);
+      } catch {
+        // Ignorar excepciones de almacenamiento local
+      }
+    }
+    if (this.route) {
+      try {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { tab },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      } catch {
+        // Ignorar si el router aún no está inicializado
+      }
+    }
+  }
+
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('titulacion_theme') || 'light';
     const isDark = savedTheme === 'dark';
     this.isDarkMode.set(isDark);
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
 
-    if (this.isEstudiante()) {
-      this.activeTab.set('postulacion');
-      this.cargarPortalEstudiante();
-      this.cargarConvocatoriaActiva();
-    } else if (this.isAdmin()) {
-      this.activeTab.set('resumen');
-      this.cargarResumenGeneral();
-      this.cargarConvocatoriaActiva();
+    // Recuperar la última pestaña activa desde query param (?tab=...) o localStorage
+    const tabUrl = this.route?.snapshot?.queryParamMap?.get('tab');
+    const tabStorage =
+      typeof localStorage !== 'undefined' ? localStorage.getItem('titulacion_active_tab') : null;
+    const tabCandidato = tabUrl || tabStorage;
+
+    const tabInicial =
+      tabCandidato && this.esTabPermitido(tabCandidato) ? tabCandidato : this.getTabPorDefecto();
+
+    // Cargas de fondo requeridas para el menú lateral e indicadores globales
+    if (this.isAdmin()) {
       this.cargarTotalPostulaciones();
-      this.cargarConfiguracionesMaestras();
       this.cargarEstadosPostulacion();
-      this.cargarPostulaciones();
+      this.cargarConvocatoriaActiva();
       if (this.isDocente()) {
         this.cargarMisPendientesDocente();
       }
     } else if (this.isContabilidad() || this.isSecretaria()) {
-      this.activeTab.set('pagos');
       this.cargarConvocatoriaActiva();
       this.cargarTotalPostulaciones();
     } else if (this.isDocente()) {
-      this.activeTab.set('evaluacion');
       this.cargarMisPendientesDocente();
-    } else {
-      this.activeTab.set('resumen');
-      this.cargarResumenGeneral();
+    } else if (this.isEstudiante()) {
       this.cargarConvocatoriaActiva();
-      this.cargarTotalPostulaciones();
-      this.cargarConfiguracionesMaestras();
-      this.cargarEstadosPostulacion();
-      this.cargarPostulaciones();
     }
 
     this.cargarCarrerasUsuario();
+    this.setActiveTab(tabInicial);
   }
 
   cargarCarrerasUsuario(): void {
@@ -917,7 +989,22 @@ export class DashboardComponent implements OnInit {
 
   cargarEstadosPostulacion(): void {
     this.titulacionService.getEstadosPostulacion().subscribe({
-      next: (data) => this.estadosPostulacion.set(data),
+      next: (data) => {
+        this.estadosPostulacion.set(data);
+        const estadoRevision = data.find(
+          (e) =>
+            e.nombre.toUpperCase().includes('REVIS') || e.nombre.toUpperCase().includes('PENDIENT'),
+        );
+        if (estadoRevision) {
+          // Si el filtro actual es el inicial (1) o null, asegurar sincronización con el ID real del estado
+          if (this.filtroEstado() === null || this.filtroEstado() === 1) {
+            if (this.filtroEstado() !== estadoRevision.idPostulacionEstado) {
+              this.filtroEstado.set(estadoRevision.idPostulacionEstado);
+              this.cargarPostulaciones();
+            }
+          }
+        }
+      },
       error: (err) => console.warn('Error al cargar estados:', err),
     });
   }
@@ -1669,6 +1756,9 @@ export class DashboardComponent implements OnInit {
     if (typeof window !== 'undefined' && window.innerWidth < 900) {
       this.isSidebarCollapsed.set(true);
     }
+
+    this.persistirTab(tab);
+
     if (tab === 'resumen') {
       this.cargarResumenGeneral();
       this.cargarConvocatoriaActiva();
@@ -1682,8 +1772,16 @@ export class DashboardComponent implements OnInit {
       this.cargarConfiguracionesMaestras();
     } else if (tab === 'postulacion') {
       this.cargarPortalEstudiante();
+      this.cargarConvocatoriaActiva();
     } else if (tab === 'evaluacion') {
       this.cargarMisPendientesDocente();
+    } else if (tab === 'cronograma') {
+      this.cargarConvocatoriaActiva();
+    } else if (tab === 'pagos') {
+      this.cargarConvocatoriaActiva();
+      this.cargarTotalPostulaciones();
+    } else if (tab === 'egresados') {
+      this.cargarConvocatoriaActiva();
     }
   }
 

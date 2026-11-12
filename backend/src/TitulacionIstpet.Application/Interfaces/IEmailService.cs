@@ -29,4 +29,14 @@ public interface IEmailService
         string nuevaModalidad,
         int idPostulacion,
         CancellationToken cancellationToken = default);
+
+    Task NotificarRequisitoRechazadoAsync(
+        string destinatario,
+        string nombreEstudiante,
+        string carrera,
+        string modalidad,
+        int idPostulacion,
+        string nombreRequisito,
+        string? motivoRechazo,
+        CancellationToken cancellationToken = default);
 }
