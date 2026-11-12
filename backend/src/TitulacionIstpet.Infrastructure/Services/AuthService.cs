@@ -43,16 +43,67 @@ public class AuthService : IAuthService
                 (u.Nombre != null && u.Nombre == cleanInput),
                 cancellationToken);
 
+        Alumnos? alumno = null;
+        Profesores? profesor = null;
+
         if (user == null)
         {
-            // 1. Auto-aprovisionamiento si existe en la tabla Alumnos
-            var alumno = await _context.Alumnos
+            alumno = await _context.Alumnos
                 .FirstOrDefaultAsync(a =>
                     a.IdAlumno == cleanInput ||
                     (a.UserAlumno != null && a.UserAlumno == cleanInput) ||
                     (a.EmailInstitucional != null && a.EmailInstitucional == cleanInput) ||
                     (a.Email != null && a.Email == cleanInput),
                     cancellationToken);
+
+            if (alumno != null)
+            {
+                user = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.IdSigafi == alumno.IdAlumno, cancellationToken);
+            }
+            else
+            {
+                profesor = await _context.Profesores
+                    .FirstOrDefaultAsync(p =>
+                        p.IdProfesor == cleanInput ||
+                        (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
+                        (p.Email != null && p.Email == cleanInput),
+                        cancellationToken);
+
+                if (profesor != null)
+                {
+                    user = await _context.Usuarios
+                        .FirstOrDefaultAsync(u => u.IdSigafi == profesor.IdProfesor, cancellationToken);
+                }
+            }
+        }
+        else
+        {
+            if (string.Equals(user.TablaSigafi, "alumno", StringComparison.OrdinalIgnoreCase) || string.Equals(user.TablaSigafi, "alumnos", StringComparison.OrdinalIgnoreCase))
+            {
+                alumno = await _context.Alumnos
+                    .FirstOrDefaultAsync(a => a.IdAlumno == user.IdSigafi, cancellationToken);
+            }
+            else if (string.Equals(user.TablaSigafi, "profesor", StringComparison.OrdinalIgnoreCase) || string.Equals(user.TablaSigafi, "profesores", StringComparison.OrdinalIgnoreCase))
+            {
+                profesor = await _context.Profesores
+                    .FirstOrDefaultAsync(p => p.IdProfesor == user.IdSigafi, cancellationToken);
+            }
+        }
+
+        if (user == null)
+        {
+            // 1. Auto-aprovisionamiento si existe en la tabla Alumnos
+            if (alumno == null)
+            {
+                alumno = await _context.Alumnos
+                    .FirstOrDefaultAsync(a =>
+                        a.IdAlumno == cleanInput ||
+                        (a.UserAlumno != null && a.UserAlumno == cleanInput) ||
+                        (a.EmailInstitucional != null && a.EmailInstitucional == cleanInput) ||
+                        (a.Email != null && a.Email == cleanInput),
+                        cancellationToken);
+            }
 
             if (alumno != null && _passwordHasher.VerifyPassword(request.Password, alumno.Password))
             {
@@ -169,12 +220,15 @@ public class AuthService : IAuthService
             else
             {
                 // 2. Auto-aprovisionamiento si existe en la tabla Profesores
-                var profesor = await _context.Profesores
-                    .FirstOrDefaultAsync(p =>
-                        p.IdProfesor == cleanInput ||
-                        (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
-                        (p.Email != null && p.Email == cleanInput),
-                        cancellationToken);
+                if (profesor == null)
+                {
+                    profesor = await _context.Profesores
+                        .FirstOrDefaultAsync(p =>
+                            p.IdProfesor == cleanInput ||
+                            (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
+                            (p.Email != null && p.Email == cleanInput),
+                            cancellationToken);
+                }
 
                 if (profesor != null && _passwordHasher.VerifyPassword(request.Password, profesor.Clave))
                 {
@@ -237,7 +291,36 @@ public class AuthService : IAuthService
                 throw new UnauthorizedAccessException("El usuario se encuentra inactivo.");
             }
 
-            if (!_passwordHasher.VerifyPassword(request.Password, user.Contrasenia))
+            // 1. Verificar contra el hash en Usuarios
+            bool contraseniaValida = _passwordHasher.VerifyPassword(request.Password, user.Contrasenia);
+
+            // 2. Fallback bidireccional: verificar contra Alumnos.Password o Profesores.Clave
+            if (!contraseniaValida)
+            {
+                if (alumno == null && (string.Equals(user.TablaSigafi, "alumno", StringComparison.OrdinalIgnoreCase) || string.Equals(user.TablaSigafi, "alumnos", StringComparison.OrdinalIgnoreCase)))
+                {
+                    alumno = await _context.Alumnos.FirstOrDefaultAsync(a => a.IdAlumno == user.IdSigafi, cancellationToken);
+                }
+                if (profesor == null && (string.Equals(user.TablaSigafi, "profesor", StringComparison.OrdinalIgnoreCase) || string.Equals(user.TablaSigafi, "profesores", StringComparison.OrdinalIgnoreCase)))
+                {
+                    profesor = await _context.Profesores.FirstOrDefaultAsync(p => p.IdProfesor == user.IdSigafi, cancellationToken);
+                }
+
+                if (alumno != null && _passwordHasher.VerifyPassword(request.Password, alumno.Password))
+                {
+                    contraseniaValida = true;
+                    user.Contrasenia = _passwordHasher.HashPassword(request.Password);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+                else if (profesor != null && _passwordHasher.VerifyPassword(request.Password, profesor.Clave))
+                {
+                    contraseniaValida = true;
+                    user.Contrasenia = _passwordHasher.HashPassword(request.Password);
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+            }
+
+            if (!contraseniaValida)
             {
                 throw new UnauthorizedAccessException("Credenciales de acceso inválidas.");
             }
@@ -246,6 +329,18 @@ public class AuthService : IAuthService
             if (_passwordHasher.NeedsRehash(user.Contrasenia))
             {
                 user.Contrasenia = _passwordHasher.HashPassword(request.Password);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            // Sincronización hacia Alumnos o Profesores si no coincide con el texto plano institucional
+            if (alumno != null && alumno.Password != request.Password && request.Password.Length <= 20)
+            {
+                alumno.Password = request.Password;
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            if (profesor != null && profesor.Clave != request.Password && request.Password.Length <= 20)
+            {
+                profesor.Clave = request.Password;
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }
@@ -257,11 +352,11 @@ public class AuthService : IAuthService
         bool esDocenteActivo = false;
         if (string.Equals(user.TablaSigafi, "profesor", StringComparison.OrdinalIgnoreCase))
         {
-            var profesor = await _context.Profesores
+            var profDocente = await _context.Profesores
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.IdProfesor == user.IdSigafi, cancellationToken);
 
-            esDocenteActivo = profesor != null && (profesor.Activo == true);
+            esDocenteActivo = profDocente != null && (profDocente.Activo == true);
         }
         else
         {
@@ -473,57 +568,81 @@ public class AuthService : IAuthService
 
             if (alumno != null)
             {
-                var (apto, motivo) = await VerificarAptitudEstudianteAsync(alumno.IdAlumno, cancellationToken);
-                if (!apto)
+                var usuarioExistente = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.IdSigafi == alumno.IdAlumno, cancellationToken);
+
+                if (usuarioExistente != null)
+                {
+                    user = usuarioExistente;
+                }
+                else
+                {
+                    var (apto, motivo) = await VerificarAptitudEstudianteAsync(alumno.IdAlumno, cancellationToken);
+                    if (!apto)
+                    {
+                        return new ValidarDocumentoRecuperacionResponseDto
+                        {
+                            Valido = false,
+                            Mensaje = motivo
+                        };
+                    }
+
+                    var nombre = $"{alumno.PrimerNombre} {alumno.ApellidoPaterno}".Trim();
+                    return new ValidarDocumentoRecuperacionResponseDto
+                    {
+                        Valido = true,
+                        NombreCompleto = string.IsNullOrWhiteSpace(nombre) ? alumno.IdAlumno : nombre,
+                        Mensaje = "Documento verificado correctamente."
+                    };
+                }
+            }
+            else
+            {
+                var profesor = await _context.Profesores
+                    .FirstOrDefaultAsync(p =>
+                        p.IdProfesor == cleanInput ||
+                        (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
+                        (p.Email != null && p.Email == cleanInput),
+                        cancellationToken);
+
+                if (profesor != null)
+                {
+                    var usuarioExistente = await _context.Usuarios
+                        .FirstOrDefaultAsync(u => u.IdSigafi == profesor.IdProfesor, cancellationToken);
+
+                    if (usuarioExistente != null)
+                    {
+                        user = usuarioExistente;
+                    }
+                    else
+                    {
+                        if (profesor.Activo != true)
+                        {
+                            return new ValidarDocumentoRecuperacionResponseDto
+                            {
+                                Valido = false,
+                                Mensaje = "El docente se encuentra inactivo en la institución."
+                            };
+                        }
+
+                        var nombreDocente = $"{profesor.PrimerNombre} {profesor.Apellidos}".Trim();
+                        return new ValidarDocumentoRecuperacionResponseDto
+                        {
+                            Valido = true,
+                            NombreCompleto = string.IsNullOrWhiteSpace(nombreDocente) ? profesor.IdProfesor : nombreDocente,
+                            Mensaje = "Documento verificado correctamente."
+                        };
+                    }
+                }
+                else
                 {
                     return new ValidarDocumentoRecuperacionResponseDto
                     {
                         Valido = false,
-                        Mensaje = motivo
+                        Mensaje = "El documento de identidad ingresado no se encuentra registrado en el sistema."
                     };
                 }
-
-                var nombre = $"{alumno.PrimerNombre} {alumno.ApellidoPaterno}".Trim();
-                return new ValidarDocumentoRecuperacionResponseDto
-                {
-                    Valido = true,
-                    NombreCompleto = string.IsNullOrWhiteSpace(nombre) ? alumno.IdAlumno : nombre,
-                    Mensaje = "Documento verificado correctamente."
-                };
             }
-
-            var profesor = await _context.Profesores
-                .FirstOrDefaultAsync(p =>
-                    p.IdProfesor == cleanInput ||
-                    (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
-                    (p.Email != null && p.Email == cleanInput),
-                    cancellationToken);
-
-            if (profesor != null)
-            {
-                if (profesor.Activo != true)
-                {
-                    return new ValidarDocumentoRecuperacionResponseDto
-                    {
-                        Valido = false,
-                        Mensaje = "El docente se encuentra inactivo en la institución."
-                    };
-                }
-
-                var nombreDocente = $"{profesor.PrimerNombre} {profesor.Apellidos}".Trim();
-                return new ValidarDocumentoRecuperacionResponseDto
-                {
-                    Valido = true,
-                    NombreCompleto = string.IsNullOrWhiteSpace(nombreDocente) ? profesor.IdProfesor : nombreDocente,
-                    Mensaje = "Documento verificado correctamente."
-                };
-            }
-
-            return new ValidarDocumentoRecuperacionResponseDto
-            {
-                Valido = false,
-                Mensaje = "El documento de identidad ingresado no se encuentra registrado en el sistema."
-            };
         }
 
         if (user.Activo != true)
@@ -832,7 +951,7 @@ public class AuthService : IAuthService
         var newHashedPassword = _passwordHasher.HashPassword(request.NuevaContrasenia);
         bool actualizado = false;
 
-        // 1. Buscar o actualizar en Usuarios
+        // 1. Buscar en Usuarios por documento, email o nombre
         var user = await _context.Usuarios
             .FirstOrDefaultAsync(u =>
                 u.IdSigafi == cleanInput ||
@@ -840,6 +959,7 @@ public class AuthService : IAuthService
                 (u.Nombre != null && u.Nombre == cleanInput),
                 cancellationToken);
 
+        // 2. Buscar en Alumnos
         var alumno = await _context.Alumnos
             .FirstOrDefaultAsync(a =>
                 a.IdAlumno == cleanInput ||
@@ -848,12 +968,42 @@ public class AuthService : IAuthService
                 (a.Email != null && a.Email == cleanInput),
                 cancellationToken);
 
+        // 3. Buscar en Profesores
         var profesor = await _context.Profesores
             .FirstOrDefaultAsync(p =>
                 p.IdProfesor == cleanInput ||
                 (p.EmailInstitucional != null && p.EmailInstitucional == cleanInput) ||
                 (p.Email != null && p.Email == cleanInput),
                 cancellationToken);
+
+        // Enlace cruzado bidireccional si alguno no fue encontrado directamente por cleanInput
+        if (user != null)
+        {
+            if (alumno == null && !string.IsNullOrWhiteSpace(user.IdSigafi))
+            {
+                alumno = await _context.Alumnos
+                    .FirstOrDefaultAsync(a => a.IdAlumno == user.IdSigafi, cancellationToken);
+            }
+
+            if (profesor == null && !string.IsNullOrWhiteSpace(user.IdSigafi))
+            {
+                profesor = await _context.Profesores
+                    .FirstOrDefaultAsync(p => p.IdProfesor == user.IdSigafi, cancellationToken);
+            }
+        }
+        else
+        {
+            if (alumno != null)
+            {
+                user = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.IdSigafi == alumno.IdAlumno, cancellationToken);
+            }
+            else if (profesor != null)
+            {
+                user = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.IdSigafi == profesor.IdProfesor, cancellationToken);
+            }
+        }
 
         if (user != null)
         {
@@ -949,11 +1099,13 @@ public class AuthService : IAuthService
         if (alumno != null)
         {
             alumno.Password = request.NuevaContrasenia;
+            actualizado = true;
         }
 
         if (profesor != null)
         {
             profesor.Clave = request.NuevaContrasenia;
+            actualizado = true;
         }
 
         if (!actualizado)

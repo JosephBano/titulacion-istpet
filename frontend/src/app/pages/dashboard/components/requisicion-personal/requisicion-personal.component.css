@@ -280,7 +280,9 @@
   margin: 0;
   min-width: 0;
   box-shadow: var(--card-shadow);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 .feature-card:hover {
@@ -442,7 +444,10 @@ textarea {
   font: inherit;
   font-size: 0.9rem;
   min-height: 42px;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
 }
 
 input:hover:not(:disabled),
@@ -665,8 +670,11 @@ button {
   justify-content: center;
   gap: 8px;
   user-select: none;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast),
-    transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 button:active:not(:disabled) {
@@ -677,7 +685,9 @@ button:active:not(:disabled) {
   background: var(--istpet-navy);
   color: #ffffff;
   border: 1px solid var(--istpet-navy);
-  box-shadow: 0 1px 3px rgba(0, 40, 85, 0.15), 0 2px 8px -2px rgba(0, 40, 85, 0.2);
+  box-shadow:
+    0 1px 3px rgba(0, 40, 85, 0.15),
+    0 2px 8px -2px rgba(0, 40, 85, 0.2);
 }
 
 .button-primary:hover:not(:disabled) {
@@ -757,7 +767,9 @@ button:disabled {
   border-radius: 12px;
   padding: 12px 20px;
   margin-top: 10px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all var(--transition-normal);
 }
 

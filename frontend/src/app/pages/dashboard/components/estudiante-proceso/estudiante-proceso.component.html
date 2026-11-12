@@ -589,10 +589,7 @@
                         </svg>
                       </a>
 
-                      @if (
-                        !esRequisitoAprobado(req) &&
-                        !esPostulacionRechazada(p.postulacionActiva.nombreEstado)
-                      ) {
+                      @if (puedeSubirOReemplazar(req, p.postulacionActiva.nombreEstado)) {
                         <input
                           #fileInputReplace
                           type="file"
@@ -607,7 +604,7 @@
                           [disabled]="
                             subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
                           "
-                          title="Reemplazar archivo PDF"
+                          title="Reemplazar archivo PDF (Requisito con observaciones o rechazado)"
                         >
                           @if (
                             subiendoRequisitoId() === req.idPostulacionAlumnoRequisitoModalidad
@@ -632,10 +629,7 @@
                           }
                         </button>
                       }
-                    } @else if (
-                      !esPostulacionRechazada(p.postulacionActiva.nombreEstado) &&
-                      !esRequisitoAprobado(req)
-                    ) {
+                    } @else if (puedeSubirOReemplazar(req, p.postulacionActiva.nombreEstado)) {
                       <input
                         #fileInputUpload
                         type="file"

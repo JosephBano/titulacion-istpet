@@ -2,13 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using TitulacionIstpet.Application.Common.Models;
 using TitulacionIstpet.Application.Features.ResponsablesRequisitos;
 using TitulacionIstpet.Application.Features.ResponsablesRequisitos.DTOs;
+using TitulacionIstpet.Application.Interfaces;
 using TitulacionIstpet.Domain.Entities;
 
 namespace TitulacionIstpet.Infrastructure.Persistence.Repositories;
 
-public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) : IRepositorioResponsablesRequisitos
+public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context, IEmailService emailService) : IRepositorioResponsablesRequisitos
 {
     private readonly SigafiDbContext _context = context;
+    private readonly IEmailService _emailService = emailService;
 
     public async Task<IReadOnlyList<ResponsableRequisitoDto>> ListarPorRequisitoAsync(int idRequisito, CancellationToken ct = default)
     {
@@ -196,6 +198,18 @@ public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) :
     {
         var itemRequisito = await _context.TitulPostulacionAlumnosRequisitosModalidad
             .Include(r => r.TitulResponsableEvidencia)
+            .Include(r => r.IdRequisitoModalidadNavigation)
+                .ThenInclude(rm => rm.IdRequisitosNavigation)
+            .Include(r => r.IdPostulacionAlumnosNavigation)
+                .ThenInclude(pa => pa.IdMatriculaNavigation)
+                    .ThenInclude(m => m.IdAlumnoNavigation)
+            .Include(r => r.IdPostulacionAlumnosNavigation)
+                .ThenInclude(pa => pa.IdMatriculaNavigation)
+                    .ThenInclude(m => m.IdNivelNavigation)
+                        .ThenInclude(n => n.IdCarreraNavigation)
+            .Include(r => r.IdPostulacionAlumnosNavigation)
+                .ThenInclude(pa => pa.IdModalidadTitulacionCarreraNavigation)
+                    .ThenInclude(mtc => mtc.IdModalidadTitulacionNavigation)
             .FirstOrDefaultAsync(r => r.IdPostulacionAlumnoRequisitoModalidad == comando.IdPostulacionAlumnoRequisitoModalidad, ct)
             ?? throw new NoEncontradoException("Requisito de postulación", comando.IdPostulacionAlumnoRequisitoModalidad);
 
@@ -204,10 +218,18 @@ public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) :
             ?? throw new NoEncontradoException("Responsable de requisito", comando.IdResponsableEvidencias);
 
         var now = DateTime.UtcNow;
-        var estado = comando.Aprobado ? "APROBADO" : "RECHAZADO";
 
         var evidencia = itemRequisito.TitulResponsableEvidencia
             .FirstOrDefault(e => e.IdResponsableEvidencias == comando.IdResponsableEvidencias);
+
+        // Regla: Un requisito que ya fue aprobado no puede ser rechazado posteriormente
+        bool yaAprobado = itemRequisito.ValorBool == true || (evidencia != null && evidencia.Estado == "APROBADO");
+        if (yaAprobado && !comando.Aprobado)
+        {
+            throw new InvalidOperationException("Un requisito que ya ha sido aprobado no puede ser modificado a rechazado.");
+        }
+
+        var estado = comando.Aprobado ? "APROBADO" : "RECHAZADO";
 
         if (evidencia == null)
         {
@@ -242,6 +264,44 @@ public sealed class RepositorioResponsablesRequisitos(SigafiDbContext context) :
         itemRequisito.ValorBool = comando.Aprobado;
 
         await _context.SaveChangesAsync(ct);
+
+        // Notificar al estudiante por correo electrónico si el documento o requisito fue rechazado
+        if (!comando.Aprobado)
+        {
+            var postulacion = itemRequisito.IdPostulacionAlumnosNavigation;
+            var alumno = postulacion?.IdMatriculaNavigation?.IdAlumnoNavigation;
+            var correoEstudiante = alumno?.EmailInstitucional ?? alumno?.Email;
+
+            if (!string.IsNullOrWhiteSpace(correoEstudiante))
+            {
+                var nombreEstudiante = $"{alumno?.PrimerNombre} {alumno?.ApellidoPaterno}".Trim();
+                var carrera = postulacion?.IdMatriculaNavigation?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
+                var modalidad = postulacion?.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacionNavigation?.ModalidadTitulacion ?? "Modalidad de Titulación";
+                int idPostulacion = postulacion?.IdPostulacionAlumnos ?? 0;
+                var nombreRequisito = itemRequisito.IdRequisitoModalidadNavigation?.IdRequisitosNavigation?.Requisito ?? "Requisito de Titulación";
+                var motivo = comando.Observaciones?.Trim();
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _emailService.NotificarRequisitoRechazadoAsync(
+                            correoEstudiante,
+                            nombreEstudiante,
+                            carrera,
+                            modalidad,
+                            idPostulacion,
+                            nombreRequisito,
+                            motivo,
+                            CancellationToken.None);
+                    }
+                    catch
+                    {
+                        // El envío en segundo plano no interrumpe el flujo principal
+                    }
+                }, CancellationToken.None);
+            }
+        }
     }
 
     public async Task<IReadOnlyList<EvaluacionDocenteItemDto>> ListarEvaluacionesPorRequisitoPostulacionAsync(

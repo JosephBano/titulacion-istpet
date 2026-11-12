@@ -165,7 +165,7 @@ public class PostulacionesController(
     {
         int idCreado = await _crearPostulacion.EjecutarAsync(comando, ct);
         var dto = await _obtenerPorId.EjecutarAsync(new ObtenerPostulacionPorIdConsulta(idCreado), ct);
-        return CreatedAtAction(nameof(GetPorId), new { id = idCreado }, dto);
+        return StatusCode(StatusCodes.Status201Created, dto);
     }
 
     /// <summary>

@@ -373,12 +373,16 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
     {
         var postulacion = await _context.TitulPostulacionAlumnos
             .Include(p => p.IdModalidadTitulacionCarreraNavigation)
+            .Include(p => p.IdPostulacionEstadoNavigation)
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.TitulResponsableEvidencia)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct);
 
         if (postulacion == null)
         {
             return;
         }
+
 
         int idModalidad = postulacion.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacion ?? 0;
         if (idModalidad == 0)
@@ -486,8 +490,20 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
 
         int total = await query.CountAsync(ct);
 
-        var items = await query
-            .OrderByDescending(p => p.IdPostulacionAlumnos)
+        IOrderedQueryable<TitulPostulacionAlumnos> orderedQuery;
+        if (!idEstado.HasValue)
+        {
+            // Al consultar todas, priorizar primero las postulaciones "EN REVISIÓN" (orden de estado menor)
+            orderedQuery = query
+                .OrderBy(p => p.IdPostulacionEstadoNavigation != null ? p.IdPostulacionEstadoNavigation.Orden : p.IdPostulacionEstado)
+                .ThenByDescending(p => p.IdPostulacionAlumnos);
+        }
+        else
+        {
+            orderedQuery = query.OrderByDescending(p => p.IdPostulacionAlumnos);
+        }
+
+        var items = await orderedQuery
             .Skip((pagina - 1) * tamanoPagina)
             .Take(tamanoPagina)
             .Select(p => new PostulacionResumenDto(
@@ -703,45 +719,60 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
         // Sincronizar todos los requisitos activos que la modalidad tenga configurados
         await SincronizarRequisitosModalidadAsync(postulacion.IdPostulacionAlumnos, ct);
 
-        // Notificar al estudiante por correo electrónico sobre la postulación registrada
-        _ = Task.Run(async () =>
+        // Extraer de forma segura los datos para la notificación por correo ANTES del hilo secundario,
+        // evitando accesos concurrentes al DbContext (_context) que causan InvalidOperationException / 500.
+        string? correoEstudiante = null;
+        string nombreEstudiante = string.Empty;
+        string nombreCarreraNotif = "Carrera ISTPET";
+        string nombreModalidadNotif = "Modalidad de Titulación";
+        int idNuevaPostulacion = postulacion.IdPostulacionAlumnos;
+
+        try
         {
-            try
-            {
-                var alumnoObj = await _context.Alumnos
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(a => a.IdAlumno == matricula.IdAlumno);
+            var alumnoObj = await _context.Alumnos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.IdAlumno == matricula.IdAlumno, ct);
 
-                var correo = alumnoObj?.EmailInstitucional ?? alumnoObj?.Email;
-                if (!string.IsNullOrWhiteSpace(correo))
+            correoEstudiante = alumnoObj?.EmailInstitucional ?? alumnoObj?.Email;
+            nombreEstudiante = $"{alumnoObj?.PrimerNombre} {alumnoObj?.ApellidoPaterno}".Trim();
+
+            var matriculaConCarrera = await _context.Matriculas
+                .AsNoTracking()
+                .Include(m => m.IdNivelNavigation)
+                    .ThenInclude(n => n.IdCarreraNavigation)
+                .FirstOrDefaultAsync(m => m.IdMatricula == idMatricula, ct);
+
+            nombreCarreraNotif = matriculaConCarrera?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
+
+            nombreModalidadNotif = await _context.TitulModalidadesTitulacionCarreras
+                .AsNoTracking()
+                .Include(m => m.IdModalidadTitulacionNavigation)
+                .Where(m => m.IdModalidadTitulacionCarrera == idModalidadTitulacionCarrera)
+                .Select(m => m.IdModalidadTitulacionNavigation.ModalidadTitulacion)
+                .FirstOrDefaultAsync(ct) ?? "Modalidad de Titulación";
+        }
+        catch
+        {
+            // El fallo en la captura de metadatos de correo no debe impedir registrar la postulación
+        }
+
+        if (!string.IsNullOrWhiteSpace(correoEstudiante))
+        {
+            _ = Task.Run(async () =>
+            {
+                try
                 {
-                    var matriculaConCarrera = await _context.Matriculas
-                        .AsNoTracking()
-                        .Include(m => m.IdNivelNavigation)
-                            .ThenInclude(n => n.IdCarreraNavigation)
-                        .FirstOrDefaultAsync(m => m.IdMatricula == idMatricula);
-
-                    var carreraNombre = matriculaConCarrera?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
-
-                    var modNombre = await _context.TitulModalidadesTitulacionCarreras
-                        .AsNoTracking()
-                        .Include(m => m.IdModalidadTitulacionNavigation)
-                        .Where(m => m.IdModalidadTitulacionCarrera == idModalidadTitulacionCarrera)
-                        .Select(m => m.IdModalidadTitulacionNavigation.ModalidadTitulacion)
-                        .FirstOrDefaultAsync() ?? "Modalidad de Titulación";
-
-                    var nombreEst = $"{alumnoObj?.PrimerNombre} {alumnoObj?.ApellidoPaterno}".Trim();
                     await _emailService.NotificarPostulacionRegistradaAsync(
-                        correo, nombreEst, carreraNombre, modNombre, postulacion.IdPostulacionAlumnos, CancellationToken.None);
+                        correoEstudiante, nombreEstudiante, nombreCarreraNotif, nombreModalidadNotif, idNuevaPostulacion, CancellationToken.None);
                 }
-            }
-            catch
-            {
-                // El envío en segundo plano no interrumpe el flujo principal
-            }
-        }, CancellationToken.None);
+                catch
+                {
+                    // El envío en segundo plano no interrumpe el flujo principal
+                }
+            }, CancellationToken.None);
+        }
 
-        return postulacion.IdPostulacionAlumnos;
+        return idNuevaPostulacion;
     }
 
     public async Task ActualizarRequisitosAsync(
@@ -768,6 +799,27 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
             {
                 if (idAdjunto.HasValue)
                 {
+                    // Regla 1: Un requisito previamente aprobado no puede volver a subirse ni reemplazarse
+                    bool yaAprobado = existente.ValorBool == true ||
+                        (existente.TitulResponsableEvidencia != null && existente.TitulResponsableEvidencia.Any(e => e.Estado == "APROBADO"));
+                    if (yaAprobado)
+                    {
+                        throw new InvalidOperationException("No se puede reemplazar el documento de un requisito que ya ha sido aprobado.");
+                    }
+
+                    // Regla 2: Si ya tenía un documento subido previamente, solo puede reemplazarse si el docente lo rechazó u observó
+                    bool yaTieneDocumento = existente.IdAdjuntosImagenes.HasValue && existente.IdAdjuntosImagenes.Value > 0;
+                    if (yaTieneDocumento)
+                    {
+                        bool fueRechazadoUObservado = existente.TitulResponsableEvidencia != null &&
+                            existente.TitulResponsableEvidencia.Any(e => e.Estado == "RECHAZADO" || e.Estado == "OBSERVADO");
+
+                        if (!fueRechazadoUObservado)
+                        {
+                            throw new InvalidOperationException("El documento ya fue subido y se encuentra en revisión. No se puede reemplazar hasta que sea evaluado.");
+                        }
+                    }
+
                     existente.IdAdjuntosImagenes = idAdjunto.Value;
                     // Al subir documento, no auto-aprobar; debe quedar pendiente de evaluación docente
                     existente.ValorBool = reqInput.ValorBool;
@@ -839,6 +891,8 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
             .Include(p => p.IdPostulacionEstadoNavigation)
             .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
                 .ThenInclude(r => r.IdRequisitoModalidadNavigation)
+            .Include(p => p.TitulPostulacionAlumnosRequisitosModalidad)
+                .ThenInclude(r => r.TitulResponsableEvidencia)
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == idPostulacionAlumnos, ct)
             ?? throw new NoEncontradoException("Postulación", idPostulacionAlumnos);
 
@@ -892,7 +946,9 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
         var mapRequisitoBaseANuevaModalidad = reqsNuevaModalidad
             .ToDictionary(rm => rm.IdRequisitos, rm => rm);
 
-        // 1. Conservar requisitos existentes si coinciden en la nueva modalidad, o eliminarlos si ya no aplican
+        // 1. Conservar requisitos existentes si coinciden en la nueva modalidad, o eliminarlos si ya no aplican.
+        // Si un requisito tenía evidencia rechazada de la modalidad anterior, limpiarla para que en la nueva
+        // modalidad comience limpio (PENDIENTE), conservando intactos los que ya estaban APROBADOS.
         var requisitosActuales = postulacion.TitulPostulacionAlumnosRequisitosModalidad.ToList();
         foreach (var existente in requisitosActuales)
         {
@@ -904,6 +960,13 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
             if (reqNuevo != null)
             {
                 existente.IdRequisitoModalidad = reqNuevo.IdRequisitoModalidad;
+
+                if (existente.TitulResponsableEvidencia != null && existente.TitulResponsableEvidencia.Count > 0)
+                {
+                    // Conservar las evidencias y trazabilidad histórica; si cambia de modalidad,
+                    // los requisitos previamente aprobados permanecen aprobados y los rechazados/observados
+                    // conservan su motivo y auditoría intactos sin eliminarse de la base de datos.
+                }
             }
             else
             {
@@ -933,27 +996,28 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
         await _context.SaveChangesAsync(ct);
 
         // Notificar al estudiante por correo electrónico sobre el cambio de modalidad registrado
-        _ = Task.Run(async () =>
+        var aluCambio = postulacion.IdMatriculaNavigation?.IdAlumnoNavigation;
+        var correoCambio = aluCambio?.EmailInstitucional ?? aluCambio?.Email;
+        if (!string.IsNullOrWhiteSpace(correoCambio))
         {
-            try
-            {
-                var alu = postulacion.IdMatriculaNavigation?.IdAlumnoNavigation;
-                var correo = alu?.EmailInstitucional ?? alu?.Email;
-                if (!string.IsNullOrWhiteSpace(correo))
-                {
-                    var carreraNombre = postulacion.IdMatriculaNavigation?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
-                    var nuevaModNombre = nuevaModalidadCarrera.IdModalidadTitulacionNavigation?.ModalidadTitulacion ?? "Nueva Modalidad";
-                    var nombreEst = $"{alu?.PrimerNombre} {alu?.ApellidoPaterno}".Trim();
+            var carreraNombreCambio = postulacion.IdMatriculaNavigation?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
+            var nuevaModNombre = nuevaModalidadCarrera.IdModalidadTitulacionNavigation?.ModalidadTitulacion ?? "Nueva Modalidad";
+            var nombreEstCambio = $"{aluCambio?.PrimerNombre} {aluCambio?.ApellidoPaterno}".Trim();
+            int idPostulacionCambio = postulacion.IdPostulacionAlumnos;
 
-                    await _emailService.NotificarCambioModalidadAsync(
-                        correo, nombreEst, carreraNombre, nuevaModNombre, postulacion.IdPostulacionAlumnos, CancellationToken.None);
-                }
-            }
-            catch
+            _ = Task.Run(async () =>
             {
-                // El envío en segundo plano no interrumpe el flujo principal
-            }
-        }, CancellationToken.None);
+                try
+                {
+                    await _emailService.NotificarCambioModalidadAsync(
+                        correoCambio, nombreEstCambio, carreraNombreCambio, nuevaModNombre, idPostulacionCambio, CancellationToken.None);
+                }
+                catch
+                {
+                    // El envío en segundo plano no interrumpe el flujo principal
+                }
+            }, CancellationToken.None);
+        }
     }
 
     public async Task<PortalEstudianteDto> ObtenerPortalEstudianteAsync(string idAlumno, CancellationToken ct = default)
@@ -1049,6 +1113,15 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
             .FirstOrDefaultAsync(p => p.IdPostulacionAlumnos == comando.IdPostulacionAlumnos, ct)
             ?? throw new NoEncontradoException("Postulación", comando.IdPostulacionAlumnos);
 
+        // Si la postulación ya está rechazada o en estado final, no permitir nuevos dictámenes
+        if (postulacion.IdPostulacionEstadoNavigation != null &&
+            (postulacion.IdPostulacionEstadoNavigation.EsFinal == true ||
+             postulacion.IdPostulacionEstadoNavigation.Nombre.Contains("Rechaz", StringComparison.OrdinalIgnoreCase) ||
+             postulacion.IdPostulacionEstadoNavigation.Nombre.Contains("Negad", StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"La postulación ya se encuentra en estado rechazado o final ({postulacion.IdPostulacionEstadoNavigation.Nombre}) y no permite nuevos dictámenes.");
+        }
+
         var estados = await _context.TitulPostulacionEstados
             .Where(e => e.EsActivo == true)
             .OrderBy(e => e.Orden)
@@ -1062,28 +1135,18 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
             _ => throw new ArgumentException($"Decisión no reconocida: {comando.Decision}")
         };
 
-        if (comando.Decision.Equals("RECHAZAR", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(comando.Observaciones))
+        // Al rechazar la postulación solo se rechaza la postulación misma, NUNCA los requisitos.
+        // Solo en caso de OBSERVAR se actualizan los requisitos específicos que hayan sido seleccionados.
+        if (comando.Decision.Equals("OBSERVAR", StringComparison.OrdinalIgnoreCase) &&
+            comando.IdsRequisitosObservados != null &&
+            comando.IdsRequisitosObservados.Count > 0 &&
+            !string.IsNullOrWhiteSpace(comando.Observaciones))
         {
             var obsTexto = comando.Observaciones.Trim();
-            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad.AsEnumerable();
-
-            if (comando.IdsRequisitosObservados != null && comando.IdsRequisitosObservados.Count > 0)
-            {
-                var setIds = comando.IdsRequisitosObservados.ToHashSet();
-                reqs = reqs.Where(r => setIds.Contains(r.IdPostulacionAlumnoRequisitoModalidad) || setIds.Contains(r.IdRequisitoModalidad));
-            }
-            else
-            {
-                // Si no se especificaron requisitos particulares observados, proteger y NO alterar los requisitos que ya están APROBADOS.
-                reqs = reqs.Where(r =>
-                {
-                    var ultEv = r.TitulResponsableEvidencia?
-                        .OrderByDescending(e => e.Actualizado ?? e.Creado)
-                        .FirstOrDefault();
-                    bool yaAprobado = (ultEv != null && ultEv.Estado == "APROBADO") || r.ValorBool == true;
-                    return !yaAprobado;
-                });
-            }
+            var setIds = comando.IdsRequisitosObservados.ToHashSet();
+            var reqs = postulacion.TitulPostulacionAlumnosRequisitosModalidad
+                .Where(r => setIds.Contains(r.IdPostulacionAlumnoRequisitoModalidad) || setIds.Contains(r.IdRequisitoModalidad))
+                .ToList();
 
             foreach (var req in reqs)
             {
@@ -1091,15 +1154,9 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
                     .OrderByDescending(e => e.Actualizado ?? e.Creado)
                     .FirstOrDefault();
 
-                // Proteger requisitos previamente aprobados: nunca degradarlos a RECHAZADO
-                if (ultEvidencia != null && ultEvidencia.Estado == "APROBADO")
-                {
-                    continue;
-                }
-
                 if (ultEvidencia != null)
                 {
-                    ultEvidencia.Estado = "RECHAZADO";
+                    ultEvidencia.Estado = "OBSERVADO";
                     ultEvidencia.Observaciones = obsTexto;
                     ultEvidencia.Actualizado = DateTime.UtcNow;
                     ultEvidencia.IdActualizado = "ADMIN";
@@ -1145,7 +1202,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
                             {
                                 IdPostulacionAlumnoRequisitoModalidad = req.IdPostulacionAlumnoRequisitoModalidad,
                                 IdResponsableEvidencias = resp.IdResponsableEvidencias,
-                                Estado = "RECHAZADO",
+                                Estado = "OBSERVADO",
                                 Observaciones = obsTexto,
                                 Creado = DateTime.UtcNow,
                                 IdCreado = "ADMIN"
@@ -1161,27 +1218,30 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
         await _context.SaveChangesAsync(ct);
 
         // Notificar al estudiante por correo electrónico sobre el dictamen oficial emitido por Coordinación
-        _ = Task.Run(async () =>
+        var aluDictamen = postulacion.IdMatriculaNavigation?.IdAlumnoNavigation;
+        var correoDictamen = aluDictamen?.EmailInstitucional ?? aluDictamen?.Email;
+        if (!string.IsNullOrWhiteSpace(correoDictamen))
         {
-            try
-            {
-                var alu = postulacion.IdMatriculaNavigation?.IdAlumnoNavigation;
-                var correo = alu?.EmailInstitucional ?? alu?.Email;
-                if (!string.IsNullOrWhiteSpace(correo))
-                {
-                    var carreraNombre = postulacion.IdMatriculaNavigation?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
-                    var modNombre = postulacion.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacionNavigation?.ModalidadTitulacion ?? "Modalidad de Titulación";
-                    var nombreEst = $"{alu?.PrimerNombre} {alu?.ApellidoPaterno}".Trim();
+            var carreraNombreDictamen = postulacion.IdMatriculaNavigation?.IdNivelNavigation?.IdCarreraNavigation?.Carrera ?? "Carrera ISTPET";
+            var modNombreDictamen = postulacion.IdModalidadTitulacionCarreraNavigation?.IdModalidadTitulacionNavigation?.ModalidadTitulacion ?? "Modalidad de Titulación";
+            var nombreEstDictamen = $"{aluDictamen?.PrimerNombre} {aluDictamen?.ApellidoPaterno}".Trim();
+            int idPostulacionDictamen = postulacion.IdPostulacionAlumnos;
+            var decisionDictamen = comando.Decision;
+            var observacionesDictamen = comando.Observaciones;
 
-                    await _emailService.NotificarDictamenPostulacionAsync(
-                        correo, nombreEst, carreraNombre, modNombre, postulacion.IdPostulacionAlumnos, comando.Decision, comando.Observaciones, CancellationToken.None);
-                }
-            }
-            catch
+            _ = Task.Run(async () =>
             {
-                // El envío en segundo plano no interrumpe el flujo principal
-            }
-        }, CancellationToken.None);
+                try
+                {
+                    await _emailService.NotificarDictamenPostulacionAsync(
+                        correoDictamen, nombreEstDictamen, carreraNombreDictamen, modNombreDictamen, idPostulacionDictamen, decisionDictamen, observacionesDictamen, CancellationToken.None);
+                }
+                catch
+                {
+                    // El envío en segundo plano no interrumpe el flujo principal
+                }
+            }, CancellationToken.None);
+        }
     }
 
     private static PostulacionDetalleDto MapearDetalle(TitulPostulacionAlumnos p)
@@ -1201,6 +1261,7 @@ public sealed class RepositorioPostulaciones(SigafiDbContext context, IEmailServ
             {
                 var ultEvidencia = r.TitulResponsableEvidencia?
                     .OrderByDescending(e => e.Actualizado ?? e.Creado)
+                    .ThenByDescending(e => e.IdTitulResponsableEvidencia)
                     .FirstOrDefault();
 
                 string estadoValidacion = ultEvidencia?.Estado ?? (r.ValorBool == true ? "APROBADO" : "PENDIENTE");

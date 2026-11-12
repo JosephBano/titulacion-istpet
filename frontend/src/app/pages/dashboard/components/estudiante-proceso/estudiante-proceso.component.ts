@@ -1,4 +1,4 @@
-import { Component, input, output, inject, signal, computed } from '@angular/core';
+import { Component, input, output, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../../environments/environment';
 import {
@@ -84,6 +84,17 @@ export class EstudianteProcesoComponent {
     if (!mod?.requisitos) return [];
     return mod.requisitos.filter((r) => !r.esRequisitoFinal);
   });
+
+  constructor() {
+    // Si la postulación activa pasa a existir en el portal del estudiante,
+    // autocerrar el modal de requisitos/postulación si continuaba abierto.
+    effect(() => {
+      const p = this.portal();
+      if (p?.postulacionActiva && this.modalDetalleOpen() && !this.esModoCambioModalidad()) {
+        this.forzarCierreModal();
+      }
+    });
+  }
 
   requisitosFinalesModalidad = computed<RequisitoModalidadOfertada[]>(() => {
     const mod = this.modalidadSeleccionadaInfo();
@@ -496,6 +507,14 @@ export class EstudianteProcesoComponent {
     if (inputEl && inputEl.files && inputEl.files.length > 0) {
       const originalFile = inputEl.files[0];
 
+      if (!this.puedeSubirOReemplazar(req, this.portal()?.postulacionActiva?.nombreEstado)) {
+        this.notification.warning(
+          'El documento ya fue enviado y se encuentra en revisión o ya fue aprobado. Solo se permite reemplazar si es observado o rechazado.',
+        );
+        inputEl.value = '';
+        return;
+      }
+
       // Validación 1: Formato estrictamente PDF
       const esPdf =
         originalFile.type === 'application/pdf' || originalFile.name.toLowerCase().endsWith('.pdf');
@@ -560,21 +579,22 @@ export class EstudianteProcesoComponent {
 
   totalAprobados(requisitos?: PostulacionRequisitoDetalle[]): number {
     if (!requisitos) return 0;
-    return requisitos.filter((r) => r.valorBool === true || r.estadoValidacion === 'APROBADO')
-      .length;
+    return requisitos.filter((r) => this.esRequisitoAprobado(r)).length;
   }
 
   obtenerEstadoTexto(req: PostulacionRequisitoDetalle, postulacionEstado?: string): string {
     if (this.esRequisitoAprobado(req)) return 'Aprobado';
-    if (this.esRequisitoRechazado(req) || this.esPostulacionRechazada(postulacionEstado)) {
-      return 'Rechazado';
-    }
+    if (this.esPostulacionRechazada(postulacionEstado)) return 'Rechazado';
+    const est = (req.estadoValidacion || '').toUpperCase();
+    if (est === 'OBSERVADO' || est.includes('OBSERV')) return 'Observado';
+    if (this.esRequisitoRechazado(req)) return 'Rechazado';
     if (req.subeAlumno) {
       if (req.nombreArchivoAdjunto || req.rutaArchivoAdjunto) {
         return 'Subido (En Revisión)';
       }
       return 'Pendiente de Subida';
     }
+    if (est === 'PENDIENTE') return 'Pendiente';
     return req.estadoValidacion || 'En Validación';
   }
 
@@ -607,19 +627,47 @@ export class EstudianteProcesoComponent {
 
   esRequisitoAprobado(req: PostulacionRequisitoDetalle): boolean {
     const est = (req.estadoValidacion || '').toUpperCase();
-    return (
-      est === 'APROBADO' || (req.valorBool === true && est !== 'RECHAZADO' && est !== 'OBSERVADO')
-    );
+    if (
+      est === 'RECHAZADO' ||
+      est === 'OBSERVADO' ||
+      est.includes('RECHAZ') ||
+      est.includes('OBSERV')
+    ) {
+      return false;
+    }
+    return est === 'APROBADO' || req.valorBool === true;
   }
 
   esRequisitoRechazado(req: PostulacionRequisitoDetalle): boolean {
     if (this.esRequisitoAprobado(req)) return false;
     const est = (req.estadoValidacion || '').toUpperCase();
-    return est === 'RECHAZADO' || est === 'OBSERVADO' || est.includes('RECHAZ');
+    return (
+      est === 'RECHAZADO' || est === 'OBSERVADO' || est.includes('RECHAZ') || est.includes('OBSERV')
+    );
   }
 
   esRequisitoPendiente(req: PostulacionRequisitoDetalle): boolean {
     return !this.esRequisitoAprobado(req) && !this.esRequisitoRechazado(req);
+  }
+
+  puedeSubirOReemplazar(req: PostulacionRequisitoDetalle, postulacionEstado?: string): boolean {
+    // Si la postulación completa ya fue rechazada, no se permite subir nada
+    if (this.esPostulacionRechazada(postulacionEstado)) return false;
+    // Si el requisito ya fue aprobado, queda congelado y no se puede volver a subir
+    if (this.esRequisitoAprobado(req)) return false;
+
+    const tieneArchivo = !!(
+      req.nombreArchivoAdjunto ||
+      req.rutaArchivoAdjunto ||
+      req.idAdjuntosImagenes
+    );
+    // Si ya tiene un archivo subido, solo puede reemplazar si fue RECHAZADO u OBSERVADO
+    if (tieneArchivo) {
+      return this.esRequisitoRechazado(req);
+    }
+
+    // Si aún no tiene archivo subido y no está aprobado, sí puede subir por primera vez
+    return true;
   }
 
   esPostulacionRechazada(estado?: string): boolean {
